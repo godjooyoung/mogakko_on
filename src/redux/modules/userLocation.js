@@ -1,5 +1,5 @@
 // 예시파일
-import {createSlice} from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 // 초기상태 설정
 const initialState = {
     longitude : 37.5561332,
