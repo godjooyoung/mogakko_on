@@ -6,11 +6,10 @@ import { userLocationInfo } from '../../redux/modules/userLocation'
 const { kakao } = window;
 
 function Test5(props) {
-    // 1. 전역 상태 액션 함수 호출을 위한 디스패쳐 선언
-    const dispatcher = useDispatch()
+    // // 1. 전역 상태 액션 함수 호출을 위한 디스패쳐 선언
+    // const dispatcher = useDispatch()
     // 2. 기본 설정 주소로 조회함.
     const userLocation = useSelector((state)=>{
-        console.log("!!", state.userLocation)
         return state.userLocation
     })
     // 3. 리덕스 저장 디스페쳐
@@ -36,18 +35,38 @@ function Test5(props) {
             level : 4,
         }
         const map = new kakao.maps.Map(mapContainer.current, options)
-        console.log("------" ,userLocation)
+
+        // TODO sjy 여러개 붙이는 포이치 문 돌리기
+        // 지도에 마커를 생성하고 표시한다
+        // roomList.forEach((el)=>{
+        //     new kakao.maps.Marker({
+        //         position: new kakao.maps.LatLng(roomList.longitude, userLocation.latitude), // 마커의 좌표
+        //         image : markerImage, // 마커의 이미지
+        //         map: map // 마커를 표시할 지도 객체
+        //     }
+        // })
+        const marker = new kakao.maps.Marker({
+            position: new kakao.maps.LatLng(userLocation.longitude, userLocation.latitude), // 마커의 좌표
+            image : markerImage, // 마커의 이미지
+            map: map // 마커를 표시할 지도 객체
+        })
     },[])
 
-    const onClickMapEvent = () => { 
+    // 마커 TODO sjy 나중에 커스텀 이미지로 바꾸기
+    const markerImageUrl = 'https://t1.daumcdn.net/localimg/localimages/07/2012/img/marker_p.png', 
+        markerImageSize = new kakao.maps.Size(40, 42), // 마커 이미지의 크기
+        markerImageOptions = { 
+        offset : new kakao.maps.Point(20, 42)// 마커 좌표에 일치시킬 이미지 안의 좌표
+    };
 
-    }
+    // 마커 이미지를 생성한다
+    const markerImage = new kakao.maps.MarkerImage(markerImageUrl, markerImageSize, markerImageOptions);
 
     return (
         <div>
             <KaKaoMap id='map' ref={mapContainer}></KaKaoMap>
         </div>
-    );
+    )
 }
 
 export const KaKaoMap = styled.div`
