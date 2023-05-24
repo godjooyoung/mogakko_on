@@ -22,9 +22,6 @@ function SignUp() {
         setAgreeTerms(false);
     };
 
-
-
-
     return (
         <>
             <form onSubmit={handleSubmit}>
@@ -69,7 +66,7 @@ function SignUp() {
                     <input
                         type="checkbox"
                         checked={agreeTerms}
-                        onChange={(e) => setAgreeTErms(e.target.checked)}
+                        onChange={(e) => setAgreeTerms(e.target.checked)}
                         required
                     />
                     <label>약관에 동의합니다.</label>
