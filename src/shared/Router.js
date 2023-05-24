@@ -23,6 +23,7 @@ const Router = () => {
         <Route path="/test2" element={<Test2/>} />
         <Route path="/test4" element={<Test4/>} />
         <Route path="/test5" element={<Test5/>} />
+        <Route path="/webrtc" element={<Test2/>} />
       </Routes>
     </BrowserRouter>
   );
