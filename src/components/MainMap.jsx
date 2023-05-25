@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { styled } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { userLocationInfo } from '../../redux/modules/userLocation'
+import { userLocationInfo } from '../redux/modules/userLocation'
 // 카카오 지도 api
 const { kakao } = window;
 
-function Test5(props) {
+function MainMap(props) {
     // 0. 전역 상태 액션 함수 호출을 위한 디스패쳐 선언
     // const dispatcher = useDispatch()
     // 1. 전역 상태에 저장된 기본 설정 주소로 조회함.
@@ -116,4 +116,5 @@ export const KaKaoMap = styled.div`
     width: 100vw;
     height: 100vh;
 `
-export default Test5;
+
+export default MainMap;
