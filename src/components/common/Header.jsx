@@ -1,11 +1,18 @@
 import React from 'react';
+import { styled } from 'styled-components';
 
 function Header(props) {
     return (
-        <div>
+        <CommonHeader>
             헤더입니다.
-        </div>
+        </CommonHeader>
     );
 }
 
+export const CommonHeader = styled.header`
+    background: purple;
+    color : white;
+    width : 100vw;
+    height : 50px;
+`
 export default Header;
