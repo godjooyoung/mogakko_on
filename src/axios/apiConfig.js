@@ -15,6 +15,14 @@ const jwtInstance = axios.create({
     }
 })
 
+// kakao Rest API 요청 인스턴스
+const kakaoInstance = axios.create({
+    baseURL: 'https://dapi.kakao.com',
+    headers: {
+        Authorization: 'KakaoAK 8d6d42d254e7524f2e1627ab38d27a6e',
+    }
+})
+
 // JYS TODO 토큰 처리해주기
 /* 응답 */
 jwtInstance.interceptors.response.use(
@@ -36,5 +44,5 @@ jwtInstance.interceptors.request.use(
     },
 )
 
-export { jwtInstance }
+export { jwtInstance, kakaoInstance }
 export default instance
