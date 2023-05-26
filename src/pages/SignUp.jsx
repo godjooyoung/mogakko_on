@@ -6,20 +6,34 @@ function SignUp() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [nickname, setNickname] = useState('');
-    const [agreeTerms, setAgreeTerms] = useState(false);
+    const [isAgreed, setIsAgreed] = useState(false);
     const [emailErrorMessage, setEmailErrorMessage] = useState('');
     const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
     const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
+    const [nicknameErrorMessage, setNicknameErrorMessage]= useState('');
     const [emailAvailability, setEmailAvailability] = useState('');
 
     const checkEmailExistence = async (email) => {
         try {
-            // 가상의 서버 주소를 사용하여 POST 요청을 보냅니다.
-            const response = await axios.post('http://example.com/api/check-email', { email });
+           // 가상의 서버 주소를 사용하여 GET 요청을 보냅니다.
+           const response = await axios.get(`/api/members/signup/checkEmail?email=${email}`);
+
+           // 서버에서 중복 여부를 응답받습니다.
+           const exists = response.data;
+           return exists;
+       } catch (error) {
+           console.error(error);
+           return false;
+       }
+   };
+    const checkNicknameExistence = async (nickname) => {
+        try {
+            // 가상의 서버 주소를 사용하여 GET 요청을 보냅니다.
+            const response = await axios.get(`/api/members/signup/checkNickname?nickname=${nickname}`);
 
             // 서버에서 중복 여부를 응답받습니다.
-            const data = response.data;
-            return data.exists;
+            const exists = response.data;
+            return exists;
         } catch (error) {
             console.error(error);
             return false;
@@ -28,7 +42,6 @@ function SignUp() {
 
     const validateEmail = (email) => {
         // 이메일 유효성 검사를 수행합니다.
-        // 예시: 간단한 이메일 형식 체크 정규식 사용
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
@@ -63,7 +76,7 @@ function SignUp() {
         setPasswordErrorMessage('');
 
         if (!validatePassword(newPassword)) {
-            setPasswordErrorMessage('비밀번호는 숫자, 영문자를 포함한 8글자 이상이어야 합니다.');
+            setPasswordErrorMessage('비밀번호는 숫자, 영문자, 특수문자를 포함한 8글자 이상이어야 합니다.');
         }
     };
 
@@ -78,18 +91,27 @@ function SignUp() {
     };
 
     const nicknameChangeHandler = (e) => {
-        setNickname(e.target.value);
+        const newNickname = e.target.value;
+        setNickname(newNickname);
+        setNicknameErrorMessage('');
+
+        // 닉네임 중복 체크
+        checkNicknameExistence(newNickname).then((exists) => {
+            if (exists) {
+                setNicknameErrorMessage('이미 사용 중인 닉네임입니다.');
+            }
+        });
     };
 
-    const agreeTermsChangeHandler = (e) => {
-        setAgreeTerms(e.target.checked);
+    const isAgreedChangeHandler = (e) => {
+        setIsAgreed(e.target.checked);
     };
 
     const submitHandler = (e) => {
         e.preventDefault();
 
         // 약관 동의 여부 확인
-        if (!agreeTerms) {
+        if (!isAgreed) {
             alert('약관에 동의해야 합니다.');
             return;
         }
@@ -122,7 +144,7 @@ function SignUp() {
             setPassword('');
             setConfirmPassword('');
             setNickname('');
-            setAgreeTerms(false);
+            setIsAgreed(false);
         });
     };
 
@@ -185,18 +207,18 @@ function SignUp() {
                         placeholder="닉네임"
                         required
                     />
-                                        <button type="button" onClick={() => checkEmailExistence(email)}>
+                    <button type="button" onClick={() => checkNicknameExistence(email)}>
                         중복체크
                     </button>
                 </div>
                 <div>
                     <input
                         type="checkbox"
-                        checked={agreeTerms}
-                        onChange={agreeTermsChangeHandler}
+                        checked={isAgreed}
+                        onChange={isAgreedChangeHandler}
                         required
                     />
-                    <label>개인 위치 정보 제공에 동의합니다.</label>
+                    <label>전체동의<br/>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</label>
                 </div>
                 <button type="submit">회원가입</button>
             </form>
