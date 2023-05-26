@@ -1,11 +1,17 @@
 import React from 'react';
+import { styled } from 'styled-components';
 
 function Footer(props) {
     return (
-        <div>
+        <CommonFooter>
             푸터입니다.
-        </div>
+        </CommonFooter>
     );
 }
 
+export const CommonFooter = styled.footer`
+    background: hotpink;
+    width : 100vw;
+    height : 50px;
+`
 export default Footer;
