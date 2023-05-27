@@ -12,6 +12,7 @@ import Example1 from "../pages/sample/Example1"
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
 import Webrtc from "../pages/Webrtc";
+import Terms from "../pages/Terms";
 const Router = () => {
   return (
     <BrowserRouter>
@@ -26,6 +27,7 @@ const Router = () => {
         <Route path="/test4" element={<Test4/>} />
         <Route path="/test5" element={<Test5/>} />
         <Route path="/webrtc" element={<Webrtc/>} />
+        <Route path="/terms" element={<Terms/>}/>
       </Routes>
     </BrowserRouter>
   );

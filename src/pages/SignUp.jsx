@@ -16,7 +16,7 @@ function SignUp() {
     const checkEmailExistence = async (email) => {
         try {
            // 가상의 서버 주소를 사용하여 GET 요청을 보냅니다.
-           const response = await axios.get(`/api/members/signup/checkEmail?email=${email}`);
+           const response = await axios.get(`http://54.180.95.128:8080/members/signup/checkEmail?email=${email}`);
 
            // 서버에서 중복 여부를 응답받습니다.
            const exists = response.data;
@@ -29,7 +29,7 @@ function SignUp() {
     const checkNicknameExistence = async (nickname) => {
         try {
             // 가상의 서버 주소를 사용하여 GET 요청을 보냅니다.
-            const response = await axios.get(`/api/members/signup/checkNickname?nickname=${nickname}`);
+            const response = await axios.get(`http://54.180.95.128:8080/members/signup/checkNickname?nickname=${nickname}`);
 
             // 서버에서 중복 여부를 응답받습니다.
             const exists = response.data;
@@ -49,7 +49,7 @@ function SignUp() {
     const validatePassword = (password) => {
         // 비밀번호 유효성 검사를 수행합니다.
         // 예시: 비밀번호는 숫자와 영문자를 포함한 8글자 이상이어야 함
-        const passwordRegex = /^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*(),.?":{}|<>])[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]{8,}$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
         return passwordRegex.test(password);
     };
 
@@ -76,7 +76,7 @@ function SignUp() {
         setPasswordErrorMessage('');
 
         if (!validatePassword(newPassword)) {
-            setPasswordErrorMessage('비밀번호는 숫자, 영문자, 특수문자를 포함한 8글자 이상이어야 합니다.');
+            setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~20자리여야 합니다.');
         }
     };
 
