@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-
+import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 function SignUp() {
+        const navigate = useNavigate();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -12,6 +16,8 @@ function SignUp() {
     const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
     const [nicknameErrorMessage, setNicknameErrorMessage]= useState('');
     const [emailAvailability, setEmailAvailability] = useState('');
+
+
 
     const checkEmailExistence = async (email) => {
         try {
@@ -147,6 +153,10 @@ function SignUp() {
             setIsAgreed(false);
         });
     };
+    const termsButtonClickHandler = () => {
+        navigate('/Terms');
+    };
+
 
     return (
         <>
@@ -177,7 +187,6 @@ function SignUp() {
                         value={password}
                         onChange={passwordChangeHandler}
                         placeholder="비밀번호"
-                        required
                     />
                 </div>
                 {passwordErrorMessage && <span>{passwordErrorMessage}</span>}
@@ -191,7 +200,6 @@ function SignUp() {
                         value={confirmPassword}
                         onChange={confirmPasswordChangeHandler}
                         placeholder="비밀번호 재입력"
-                        required
                     />
                 </div>
                 {confirmPasswordErrorMessage && <span>{confirmPasswordErrorMessage}</span>}
@@ -205,7 +213,6 @@ function SignUp() {
                         value={nickname}
                         onChange={nicknameChangeHandler}
                         placeholder="닉네임"
-                        required
                     />
                     <button type="button" onClick={() => checkNicknameExistence(email)}>
                         중복체크
@@ -216,10 +223,10 @@ function SignUp() {
                         type="checkbox"
                         checked={isAgreed}
                         onChange={isAgreedChangeHandler}
-                        required
                     />
-                    <label>전체동의<br/>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</label>
-                </div>
+                    <label>전체동의</label>
+                    <BottomButton onClick={termsButtonClickHandler}>동의 1번 안:회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</BottomButton>                </div>
+                    <Link to="/Terms">동의 2번 안입니다.</Link><br/>
                 <button type="submit">회원가입</button>
             </form>
         </>
@@ -229,3 +236,12 @@ function SignUp() {
 export default SignUp;
 
 
+const BottomButton = styled.button`
+    padding:0.5rem 1rem;
+    background-color:transparent    
+    color: #black;
+    text-decoration: underline;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+`;

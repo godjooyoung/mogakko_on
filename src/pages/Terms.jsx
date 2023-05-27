@@ -1,9 +1,15 @@
 import styled, { css } from "styled-components";
-
+import { useNavigate } from "react-router-dom";
 const Terms = () => {
+    const navigate = useNavigate();
+    const backButtonHandler =()=>{
+        navigate(-1);
+    }
     return (
         <StDiv term_box>
-            <StH2>예시: 다른 팀의 이용약관->수정필요</StH2>
+            <StH2>예시: 다른 팀의 이용약관->수정필요
+                이게 확인하고 회원가입 페이지로 돌아가면 작성하던 내용이 사라져서 수정 필요함.
+            </StH2>
             <div>
                 <StP TermsTitle>제1조 목적</StP>
                 본 이용약관은 “주식회사 Photo-Pie”(이하 "사이트")의 서비스의
@@ -199,6 +205,7 @@ const Terms = () => {
                 <StP TermsTitle>부칙</StP>이 약관은 "사이트 개설일" 부터
                 시행합니다.
             </div>
+            <button onClick={backButtonHandler}>확인</button>
         </StDiv>
     );
 };
