@@ -5,26 +5,18 @@ import { userLocationInfo } from '../redux/modules/userLocation'
 // 카카오 지도 api
 const { kakao } = window;
 
-function MainMap(props) {
-    // 0. 전역 상태 액션 함수 호출을 위한 디스패쳐 선언
-    // const dispatcher = useDispatch()
-    // 1. 전역 상태에 저장된 기본 설정 주소로 조회함.
-    const searchLatLng = useSelector((state)=>{
-        return state.userLocation
-    })
-    // 2. 로그인 && 유저 위치값 존재 일 경우
-    const userLocation = useSelector((state)=>{
-        return state.userLocation
-    })
+function MainMap({searchLatLng}) {
 
-    // 2. 유저 위치값 가져오는 경우 dispatcher를 통해 변경
-    // 3. 
-    // 3. 리덕스 저장 디스페쳐
-    //dispatcher(userLocationInfo(userLocation))
+    // 조회값 (전역)
+    const searchValue = useSelector((state) => {
+        console.log("MainMap : searchValue", state.roomSearch)
+        return state.roomSearch
+    })  
 
-    // TODO sjy 서버 데이터로 변경 할 것 
+    // TODO  sjy props로 내려주는 서버 데이터로 변경 할 것 
     const roomList = [
-        {   "id" : 1,
+        {   
+            "id" : 1,
             "room_name": "같이 코딩해요",
             "is_opened": true,
             "room_people_num" : 8,
@@ -32,7 +24,8 @@ function MainMap(props) {
             "latitude_Y" : 126.86748345152924,
             "elapsed_time" : "2:34:44"
         },
-        {   "id" : 2,
+        {   
+            "id" : 2,
             "room_name": "자스캠스모각모각",
             "is_opened": true,
             "room_people_num" : 6,
@@ -40,13 +33,14 @@ function MainMap(props) {
             "latitude_Y" : 126.86698846167442,
             "elapsed_time" : "2:40:59"
         },
-        {   "id" : 3,
-        "room_name": "오늘의 우동왕",
-        "is_opened": false,
-        "room_people_num" : 4,
-        "longitude_X" : 37.55471599685624,
-        "latitude_Y" : 126.86886734023552,
-        "elapsed_time" : "2:40:59"
+        {   
+            "id" : 3,
+            "room_name": "오늘의 우동왕",
+            "is_opened": false,
+            "room_people_num" : 4,
+            "longitude_X" : 37.55471599685624,
+            "latitude_Y" : 126.86886734023552,
+            "elapsed_time" : "2:40:59"
         },
     ]
 
@@ -88,9 +82,7 @@ function MainMap(props) {
         })
 
         // 마커들이 모두 보이는 위치로 지도를 옮김
-        map.setBounds(bounds);
-        console.log("bounds 영역 좌표 상하좌우, 이걸 가지고 조회한다.",map.getBounds());
-        console.log("현재 지도의 중심 좌표 center",map.getCenter());
+        // map.setBounds(bounds);
     },[])
 
     // 마커 TODO sjy 나중에 커스텀 이미지로 바꾸기
@@ -102,8 +94,6 @@ function MainMap(props) {
 
     // 마커 이미지를 생성한다
     const markerImage = new kakao.maps.MarkerImage(markerImageUrl, markerImageSize, markerImageOptions);
-
-    // 마우스 오버
 
     return (
         <div>
