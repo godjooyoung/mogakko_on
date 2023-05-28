@@ -4,8 +4,8 @@ import { getCookie, removeCookie } from '../cookie/Cookie';
 import { styled } from 'styled-components';
 import { useQuery, useQueryClient } from 'react-query';
 import { getLatLng } from '../axios/api/kakao'
-import { __userLocation, __searchLocation } from '../redux/modules/search';
-
+import { __userLocation, __searchLocation, __searchLanguage, __searchKeyword } from '../redux/modules/search';
+import useInput from '../hooks/useInput';
 // 메인화면 검색창 영역
 function MainSearch() {
     const dispatcher = useDispatch()
@@ -19,7 +19,9 @@ function MainSearch() {
     // 내부 states
     // 로그인 여부
     const [isLogin, setIsLogin] = useState(false)
-
+    
+    const formData = new FormData()
+    
     // 리액트 쿼리
     const queryClient = useQueryClient();
 
@@ -29,7 +31,6 @@ function MainSearch() {
     const getLatLngQuery = useQuery(['getLatLng', getLatLng], () => getLatLng(targetAddress), {
         enabled: isTargeting
     })
-
 
     // TODO sjy 서버데이터 사용할 것 지금은 하드 코딩임
     const [townList, setTownList] = useState(
@@ -44,7 +45,40 @@ function MainSearch() {
         }
     )
 
-    const formData = new FormData()
+    const [languageList, setLanguageList] = useState(
+        [
+            { language : 'JAVA', isSelected : false },
+            { language : 'JAVASCRIPT', isSelected : false },
+            { language : 'PYTHON', isSelected : false },
+            { language : 'C', isSelected : false },
+            { language : 'CSHARP', isSelected : false },
+            { language : 'CPLPL', isSelected : false },
+            { language : 'RUBY', isSelected : false },
+            { language : 'KOTLIN', isSelected : false },
+            { language : 'SWIFT', isSelected : false },
+            { language : 'GO', isSelected : false },
+            { language : 'PHP', isSelected : false },
+            { language : 'RUST', isSelected : false },
+            { language : 'LUA', isSelected : false },
+            { language : 'ETC', isSelected : false},
+        ]
+    )
+
+    const [keyword, onChangeKeyword, keywordReset] = useInput('')
+
+
+    // 언어 버튼 클릭 이벤트
+    const onClickLanguageHandler = (idx, isSelected) => {
+        const updateLanguageList = languageList.map((language, index) => {
+            if (index === idx) {
+                return { ...language, isSelected: !isSelected };
+            }else{
+                return { ...language, isSelected: false };
+            }
+        });
+        setLanguageList(updateLanguageList);
+    }
+    
 
     // 동네 버튼 클릭 이벤트
     const onClickGetLatLngHandler = (adress) => {
@@ -142,6 +176,26 @@ function MainSearch() {
         settingDefaultSearch()
     }, [isLogin])
 
+    useEffect(()=>{
+        const setFiltering = () => {
+            let languageFilterCnt = 0
+            languageList.map((language) => {
+                if(language.isSelected){
+                    languageFilterCnt = languageFilterCnt+1
+                    dispatcher(__searchLanguage(language.language))
+                }
+            });
+            return languageFilterCnt
+        }
+        if(setFiltering() === 0){
+            dispatcher(__searchLanguage(''))
+        }
+    },[languageList])
+
+    useEffect(()=>{
+        dispatcher(__searchKeyword(keyword))
+    },[keyword])
+
     if (getLatLngQuery.isError) {
         return <div>주소-좌표 변환중 에러발생</div>
     }
@@ -158,13 +212,23 @@ function MainSearch() {
             <div> 검색어 :  {searchInfo.searchKeyword} </div>
             <div> 검색필터  :  {searchInfo.searchLanguage} </div>
             <div>
-                검색창 영역
+                <div>검색창영역</div>
+                <input type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='검색키워드' />
+                <button onClick={()=>{keywordReset()}}>X</button>
             </div>
             <div>
                 <div>인기동네버튼영역</div>
                 <div>
                     {townList.hotTown.map((town) => {
                         return <button onClick={() => (onClickGetLatLngHandler(town.townNm))}>{town.townNm.split(' ')[2]}</button>
+                    })}
+                </div>
+            </div>
+            <div>
+                <div>언어필터영역</div>
+                <div>
+                    {languageList.map((language, idx) => {
+                        return <SearchLanguageBtn isSelected={language.isSelected} onClick={() => (onClickLanguageHandler(idx, language.isSelected))}>{language.language}</SearchLanguageBtn>
                     })}
                 </div>
             </div>
@@ -176,6 +240,14 @@ export const SearchContaniner = styled.div`
     background-color: pink;
     width: 20%;
     height: 100vh;
+    
+`
+export const SearchLanguageBtn = styled.button`
+    cursor: pointer;
+    background : ${(props)=>{
+        return props.isSelected?'yellow':'#593dd4'
+    }};
+
     
 `
 export default MainSearch;

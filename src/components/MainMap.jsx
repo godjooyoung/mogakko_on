@@ -7,6 +7,8 @@ const { kakao } = window;
 
 function MainMap() {
 
+    const dispatcher = useDispatch()
+
     // 기본 좌표값 (전역)
     const searchInfo = useSelector((state) => {
         console.log("searchInfo", state.searchInfo)
@@ -48,12 +50,14 @@ function MainMap() {
     
     useEffect(()=>{
         console.log("좌표 변경...")
+
         const options = {
             center : new kakao.maps.LatLng(searchInfo.searchLongitude, searchInfo.searchLatitude),
             level : 4,
         }
+    
         const map = new kakao.maps.Map(mapContainer.current, options)
-        
+
         const bounds = new kakao.maps.LatLngBounds();
         // 배열을 돌며 마커 생성해서 붙인다.
         roomList.forEach((room)=>{
@@ -84,8 +88,18 @@ function MainMap() {
 
         // 마커들이 모두 보이는 위치로 지도를 옮김
         // map.setBounds(bounds);
+
+        kakao.maps.event.addListener(map, 'center_changed', function() {
+
+            // 지도의 중심좌표를 얻어옵니다 
+            dispatcher(__userLocation({ longitude: map.getCenter().getLat(), latitude: map.getCenter().getLng() }))
+            dispatcher(__searchLocation({ longitude: map.getCenter().getLat(), latitude: map.getCenter().getLng() }))
+        
+        });
+
     },[searchInfo.searchLongitude, searchInfo.searchLatitude])
 
+    
     // 마커 TODO sjy 나중에 커스텀 이미지로 바꾸기
     const markerImageUrl = 'https://t1.daumcdn.net/localimg/localimages/07/2012/img/marker_p.png', 
         markerImageSize = new kakao.maps.Size(40, 42), // 마커 이미지의 크기
@@ -95,7 +109,6 @@ function MainMap() {
 
     // 마커 이미지를 생성한다
     const markerImage = new kakao.maps.MarkerImage(markerImageUrl, markerImageSize, markerImageOptions);
-
     return (
         <MapContainer>
             <KaKaoMap id='map' ref={mapContainer}></KaKaoMap>
@@ -109,7 +122,7 @@ export const MapContainer = styled.div`
 `
 
 export const KaKaoMap = styled.div`
-    width: 100vw;
+    width: 60vw;
     height: 100vh;
 `
 
