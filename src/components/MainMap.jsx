@@ -1,17 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 import { styled } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { userLocationInfo } from '../redux/modules/userLocation'
+import { __userLocation, __searchLocation} from '../redux/modules/search'
 // 카카오 지도 api
 const { kakao } = window;
 
-function MainMap({searchLatLng}) {
+function MainMap() {
 
-    // 조회값 (전역)
-    const searchValue = useSelector((state) => {
-        console.log("MainMap : searchValue", state.roomSearch)
-        return state.roomSearch
-    })  
+    // 기본 좌표값 (전역)
+    const searchInfo = useSelector((state) => {
+        console.log("searchInfo", state.searchInfo)
+        return state.searchInfo
+    })
 
     // TODO  sjy props로 내려주는 서버 데이터로 변경 할 것 
     const roomList = [
@@ -47,8 +47,9 @@ function MainMap({searchLatLng}) {
     const mapContainer = useRef(null)
     
     useEffect(()=>{
+        console.log("좌표 변경...")
         const options = {
-            center : new kakao.maps.LatLng(searchLatLng.longitude, searchLatLng.latitude),
+            center : new kakao.maps.LatLng(searchInfo.searchLongitude, searchInfo.searchLatitude),
             level : 4,
         }
         const map = new kakao.maps.Map(mapContainer.current, options)
@@ -83,7 +84,7 @@ function MainMap({searchLatLng}) {
 
         // 마커들이 모두 보이는 위치로 지도를 옮김
         // map.setBounds(bounds);
-    },[])
+    },[searchInfo.searchLongitude, searchInfo.searchLatitude])
 
     // 마커 TODO sjy 나중에 커스텀 이미지로 바꾸기
     const markerImageUrl = 'https://t1.daumcdn.net/localimg/localimages/07/2012/img/marker_p.png', 
@@ -96,11 +97,16 @@ function MainMap({searchLatLng}) {
     const markerImage = new kakao.maps.MarkerImage(markerImageUrl, markerImageSize, markerImageOptions);
 
     return (
-        <div>
+        <MapContainer>
             <KaKaoMap id='map' ref={mapContainer}></KaKaoMap>
-        </div>
+        </MapContainer>
     )
 }
+
+export const MapContainer = styled.div`
+    width: 60%;
+    height: 100vh;
+`
 
 export const KaKaoMap = styled.div`
     width: 100vw;
