@@ -42,7 +42,7 @@ const SignIn = () => {
         }
 
         try {
-            const response = await axios.post('http://54.180.95.128:8080/members/login', {
+            const response = await axios.post('http://3.36.135.176:8080/members/login', {
                 email: email,
                 password: password
             });

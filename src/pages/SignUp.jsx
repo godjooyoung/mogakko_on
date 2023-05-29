@@ -3,8 +3,12 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+
 function SignUp() {
-        const navigate = useNavigate();
+    const navigate = useNavigate();
+    const termsAlert = () => {
+        alert("자세한 약관 내용");
+      };
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -22,7 +26,8 @@ function SignUp() {
     const checkEmailExistence = async (email) => {
         try {
            // 가상의 서버 주소를 사용하여 GET 요청을 보냅니다.
-           const response = await axios.get(`http://54.180.95.128:8080/members/signup/checkEmail?email=${email}`);
+           console.log('Checking email existence:',email);
+           const response = await axios.get(`http://43.200.75.146:8080/members/signup/checkEmail?email=${email}`);
 
            // 서버에서 중복 여부를 응답받습니다.
            const exists = response.data;
@@ -35,7 +40,7 @@ function SignUp() {
     const checkNicknameExistence = async (nickname) => {
         try {
             // 가상의 서버 주소를 사용하여 GET 요청을 보냅니다.
-            const response = await axios.get(`http://54.180.95.128:8080/members/signup/checkNickname?nickname=${nickname}`);
+            const response = await axios.get(`http://43.200.75.146:8080/members/signup/checkNickname?nickname=${nickname}`);
 
             // 서버에서 중복 여부를 응답받습니다.
             const exists = response.data;
@@ -61,6 +66,8 @@ function SignUp() {
 
     const emailChangeHandler = (e) => {
         const newEmail = e.target.value;
+        console.log('input email:',email);
+
         setEmail(newEmail);
         setEmailErrorMessage('');
 
@@ -225,8 +232,11 @@ function SignUp() {
                         onChange={isAgreedChangeHandler}
                     />
                     <label>전체동의</label>
-                    <BottomButton onClick={termsButtonClickHandler}>동의 1번 안:회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</BottomButton>                </div>
+                    <BottomButton onClick={termsButtonClickHandler}>동의 1번 안:회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</BottomButton>                
                     <Link to="/Terms">동의 2번 안입니다.</Link><br/>
+                    <BottomButton onClick={termsAlert}>동의 3번 안:alert</BottomButton> 
+                </div>
+
                 <button type="submit">회원가입</button>
             </form>
         </>
