@@ -11,8 +11,12 @@ import Example0 from "../pages/sample/Example0"
 import Example1 from "../pages/sample/Example1"
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
+
 import Room from "../pages/Room";
 import CreateRoom from "../pages/CreateRoom";
+
+import Webrtc from "../pages/Webrtc";
+import Terms from "../pages/Terms";
 const Router = () => {
   return (
     <BrowserRouter>
@@ -26,8 +30,11 @@ const Router = () => {
         <Route path="/test2" element={<Test2/>} />
         <Route path="/test4" element={<Test4/>} />
         <Route path="/test5" element={<Test5/>} />
+
         <Route path="/createroom" element={<CreateRoom/>} />
         <Route path="/room/:id" element={<Room/>} />
+        <Route path="/terms" element={<Terms/>}/>
+
       </Routes>
     </BrowserRouter>
   );
