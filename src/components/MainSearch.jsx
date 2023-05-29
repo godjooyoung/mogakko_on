@@ -205,12 +205,6 @@ function MainSearch() {
 
     return (
         <SearchContaniner>
-            <div> 사용자 현재 위치 x :  {searchInfo.userLongitude} </div>
-            <div> 사용자 현재 위치 y :  {searchInfo.userLatitude} </div>
-            <div> 검색 위치 x :  {searchInfo.searchLongitude} </div>
-            <div> 검색 위치 y :  {searchInfo.searchLatitude} </div>
-            <div> 검색어 :  {searchInfo.searchKeyword} </div>
-            <div> 검색필터  :  {searchInfo.searchLanguage} </div>
             <div>
                 <div>검색창영역</div>
                 <input type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='검색키워드' />
