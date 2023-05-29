@@ -7,7 +7,12 @@ function MainRoom() {
 
     // 방생성하기
     const onClickRoomCreateHandler = () => {
-        navigate('/room');
+        const state = { 
+            mySessionId : '',
+            myUserName : '',
+            isDirect : false,
+        };
+        navigate('/room', {state : state });
     }
     // 방참여하기
     const onClickJoinRoomHandler = (sessionId) => {
@@ -15,7 +20,7 @@ function MainRoom() {
         const state = { 
             mySessionId : sessionId,
             myUserName : '신유저',
-
+            isDirect : true,
         };
         navigate('/room', {state : state });
     }
@@ -50,7 +55,7 @@ function MainRoom() {
             "longitude_X" : 37.55471599685624,
             "latitude_Y" : 126.86886734023552,
             "elapsed_time" : "2:40:59",
-            "room_session_id" : 'session4'
+            "room_session_id" : 's4'
         },
     ]
     return (
