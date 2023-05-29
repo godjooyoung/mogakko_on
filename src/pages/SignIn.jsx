@@ -1,35 +1,58 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const SignIn = () => {
+    
+    const navigate = useNavigate();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [passwrodError, setPasswordError] = useState('');
+    const [loginError, setLoginError] = useState('');
 
     const emailChangeHandler = (e) => {
         setEmail(e.target.value);
+        setEmailError('');
     };
 
     const passwordChangeHandler = (e) => {
         setPassword(e.target.value);
+        setPasswordError('');
     };
 
-    const submitHandler = (e) => {
+    const submitHandler = async(e) => {
         e.preventDefault();
 
         if (!email) {
-            setError('이메일을 입력해주세요');
+            setEmailError('이메일을 입력해주세요');
             return
         } else if (!/\S+@\S+\.\S+/.test(email)) {
-            setError('올바른 이메일 형식이 아닙니다.');
+            setEmailError('올바른 이메일 형식이 아닙니다.');
             return;
         }
         if (!password) {
-            setError('비밀번호를 입력해주세요.');
+            setPasswordError('비밀번호를 입력해주세요.');
             return;
         } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/.test(password)) {
-            setError('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~20자리여야 합니다.');
+            setPasswordError('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~20자리여야 합니다.');
             return;
+        }
+
+        try {
+            const response = await axios.post('http://3.36.135.176:8080/members/login', {
+                email: email,
+                password: password
+            });
+            console.log(response.data);
+            if (response.data.message === '로그인 성공'){
+                navigate('/');
+            }
+        }   catch (error) {
+            console.error(error);
+            setLoginError('로그인에 실패했습니다. 다시 시도해 주세요.')
         }
     };
 
@@ -42,7 +65,9 @@ const SignIn = () => {
                     type="email"
                     value={email}
                     onChange={emailChangeHandler}
-                    required />
+                />
+                {emailError && <ErrorMessage>{emailError}</ErrorMessage>}
+    
             </div>
             <div>
                 <Label>비밀번호</Label><br />
@@ -50,10 +75,12 @@ const SignIn = () => {
                     type="password"
                     value={password}
                     onChange={passwordChangeHandler}
-                    required />
+                />
+                {passwrodError && <ErrorMessage>{passwrodError}</ErrorMessage>}
+    
             </div>
             <Button type="submit">로그인</Button>
-            {error && <ErrorMessage>{error}</ErrorMessage>}
+            {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>}
 
         </Form>
     );
@@ -70,12 +97,12 @@ const Form = styled.form`
 
 const Label = styled.label`
     margin-bottom; 0.5rem;
+    margin-top: 3rem;
     font-wight: bold;
 `;
 
 const Input = styled.input`
     padding: 0.5rem;
-    margin-bottom: 1rem;
     border: 1px solid #ccc;
     border-radius:4px;
 `;
@@ -92,5 +119,6 @@ const Button = styled.button`
 const ErrorMessage = styled.div`
     color: red; 
     margin-top: 0.5rem;
+    font-size: 5px;
 `;
 

@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 function SignUp() {
+    const navigate = useNavigate();
+    const termsAlert = () => {
+        alert("자세한 약관 내용");
+      };
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -13,10 +21,13 @@ function SignUp() {
     const [nicknameErrorMessage, setNicknameErrorMessage]= useState('');
     const [emailAvailability, setEmailAvailability] = useState('');
 
+
+
     const checkEmailExistence = async (email) => {
         try {
            // 가상의 서버 주소를 사용하여 GET 요청을 보냅니다.
-           const response = await axios.get(`/api/members/signup/checkEmail?email=${email}`);
+           console.log('Checking email existence:',email);
+           const response = await axios.get(`http://43.200.75.146:8080/members/signup/checkEmail?email=${email}`);
 
            // 서버에서 중복 여부를 응답받습니다.
            const exists = response.data;
@@ -29,7 +40,7 @@ function SignUp() {
     const checkNicknameExistence = async (nickname) => {
         try {
             // 가상의 서버 주소를 사용하여 GET 요청을 보냅니다.
-            const response = await axios.get(`/api/members/signup/checkNickname?nickname=${nickname}`);
+            const response = await axios.get(`http://43.200.75.146:8080/members/signup/checkNickname?nickname=${nickname}`);
 
             // 서버에서 중복 여부를 응답받습니다.
             const exists = response.data;
@@ -49,12 +60,14 @@ function SignUp() {
     const validatePassword = (password) => {
         // 비밀번호 유효성 검사를 수행합니다.
         // 예시: 비밀번호는 숫자와 영문자를 포함한 8글자 이상이어야 함
-        const passwordRegex = /^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*(),.?":{}|<>])[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]{8,}$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
         return passwordRegex.test(password);
     };
 
     const emailChangeHandler = (e) => {
         const newEmail = e.target.value;
+        console.log('input email:',email);
+
         setEmail(newEmail);
         setEmailErrorMessage('');
 
@@ -76,7 +89,7 @@ function SignUp() {
         setPasswordErrorMessage('');
 
         if (!validatePassword(newPassword)) {
-            setPasswordErrorMessage('비밀번호는 숫자, 영문자, 특수문자를 포함한 8글자 이상이어야 합니다.');
+            setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~20자리여야 합니다.');
         }
     };
 
@@ -147,6 +160,10 @@ function SignUp() {
             setIsAgreed(false);
         });
     };
+    const termsButtonClickHandler = () => {
+        navigate('/Terms');
+    };
+
 
     return (
         <>
@@ -177,7 +194,6 @@ function SignUp() {
                         value={password}
                         onChange={passwordChangeHandler}
                         placeholder="비밀번호"
-                        required
                     />
                 </div>
                 {passwordErrorMessage && <span>{passwordErrorMessage}</span>}
@@ -191,7 +207,6 @@ function SignUp() {
                         value={confirmPassword}
                         onChange={confirmPasswordChangeHandler}
                         placeholder="비밀번호 재입력"
-                        required
                     />
                 </div>
                 {confirmPasswordErrorMessage && <span>{confirmPasswordErrorMessage}</span>}
@@ -205,7 +220,6 @@ function SignUp() {
                         value={nickname}
                         onChange={nicknameChangeHandler}
                         placeholder="닉네임"
-                        required
                     />
                     <button type="button" onClick={() => checkNicknameExistence(email)}>
                         중복체크
@@ -216,10 +230,13 @@ function SignUp() {
                         type="checkbox"
                         checked={isAgreed}
                         onChange={isAgreedChangeHandler}
-                        required
                     />
-                    <label>전체동의<br/>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</label>
+                    <label>전체동의</label>
+                    <BottomButton onClick={termsButtonClickHandler}>동의 1번 안:회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</BottomButton>                
+                    <Link to="/Terms">동의 2번 안입니다.</Link><br/>
+                    <BottomButton onClick={termsAlert}>동의 3번 안:alert</BottomButton> 
                 </div>
+
                 <button type="submit">회원가입</button>
             </form>
         </>
@@ -229,3 +246,12 @@ function SignUp() {
 export default SignUp;
 
 
+const BottomButton = styled.button`
+    padding:0.5rem 1rem;
+    background-color:transparent    
+    color: #black;
+    text-decoration: underline;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+`;
