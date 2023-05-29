@@ -1,7 +1,8 @@
 import React from 'react';
 import { styled } from 'styled-components';
 
-function MainRoom(props) {
+function MainRoom() {
+
     return (
         <RoomContainer>
             <button> 방 등록하기 </button>
