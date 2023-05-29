@@ -39,25 +39,25 @@ function Room() {
 
   // 세션 만들기
   // 세션은 영상 및 음성 통신에 대한 컨테이너 역할(Room).
-  // const joinSession = useCallback(() => {
-  //   const mySession = OV.current.initSession();
+  const joinSession = useCallback(() => {
+    const mySession = OV.current.initSession();
 
-  //   mySession.on('streamCreated', (event) => {
-  //     const subscriber = mySession.subscribe(event.stream, undefined);
-  //     setSubscribers((subscribers) => [...subscribers, subscriber]);
-  //   });
+    mySession.on('streamCreated', (event) => {
+      const subscriber = mySession.subscribe(event.stream, undefined);
+      setSubscribers((subscribers) => [...subscribers, subscriber]);
+    });
 
-  //   mySession.on('streamDestroyed', (event) => {
-  //     deleteSubscriber(event.stream.streamManager);
-  //   });
+    mySession.on('streamDestroyed', (event) => {
+      deleteSubscriber(event.stream.streamManager);
+    });
 
-  //   //세션 내에서 예외가 발생했을 때 콘솔에 경고메세지
-  //   mySession.on('exception', (exception) => {
-  //     console.warn(exception);
-  //   });
+    //세션 내에서 예외가 발생했을 때 콘솔에 경고메세지
+    mySession.on('exception', (exception) => {
+      console.warn(exception);
+    });
 
-  //   setSession(mySession);
-  // }, []);
+    setSession(mySession);
+  }, []);
 
   useEffect(() => {
     // 세션이 있으면 그 세션에 publish해라 
@@ -168,7 +168,6 @@ function Room() {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [leaveSession]);
-  console.log('session은????????????',session)
   /**
    * --------------------------------------------
    * GETTING A TOKEN FROM YOUR APPLICATION SERVER
@@ -206,7 +205,7 @@ function Room() {
   return (
     <div className="container">
       {/* 세션이 없으면  */}
-      {/* {session === undefined ? (
+      {session === undefined ? (
         <div>
           <div>
             <h1> Join a video session </h1>
@@ -235,7 +234,7 @@ function Room() {
             </form>
           </div>
         </div>
-      ) : null} */}
+      ) : null}
       {/* 세션이 있으면  */}
       {session !== undefined ? (
         <div>

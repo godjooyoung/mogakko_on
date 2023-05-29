@@ -19,4 +19,5 @@ function OpenViduVideoComponent({ streamManager }) {
 // videoRef.current가 유효한 DOM 요소를 참조하는 경우에만 
 // 해당 DOM 요소를 스트림 관리자에 추가하는 동작을 수행합니다. 
 // 이를 통해 스트림에서 수신된 비디오를 해당 DOM 요소에 표시할 수 있게 됩니다.
+
 export default OpenViduVideoComponent
