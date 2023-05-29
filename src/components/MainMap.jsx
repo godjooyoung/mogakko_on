@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { styled } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { __userLocation, __searchLocation} from '../redux/modules/search'
@@ -15,6 +15,9 @@ function MainMap() {
         return state.searchInfo
     })
 
+    const [timer, setTimer] = useState(0); // 디바운싱 타이머
+
+
     // TODO  sjy props로 내려주는 서버 데이터로 변경 할 것 
     const roomList = [
         {   
@@ -22,8 +25,8 @@ function MainMap() {
             "room_name": "같이 코딩해요",
             "is_opened": true,
             "room_people_num" : 8,
-            "longitude_X" : 37.556516445779764,
-            "latitude_Y" : 126.86748345152924,
+            "longitude_X" : 37.556516445779762,
+            "latitude_Y" : 126.86748345152914,
             "elapsed_time" : "2:34:44"
         },
         {   
@@ -59,7 +62,22 @@ function MainMap() {
         const map = new kakao.maps.Map(mapContainer.current, options)
 
         const bounds = new kakao.maps.LatLngBounds();
-        // 배열을 돌며 마커 생성해서 붙인다.
+        
+        // // 사용자 접속 위치 마커가 표시될 위치입니다 
+        // const userPointer = new kakao.maps.LatLng(33.450701, 126.570667); 
+
+        // // 마커를 생성합니다
+        // const userMarker = new kakao.maps.Marker({
+        //     position: userPointer
+        // });
+
+        // // 마커가 지도 위에 표시되도록 설정합니다
+        // userMarker.setMap(map);
+
+        // // 마커가 드래그 가능하도록 설정합니다 
+        // userMarker.setDraggable(true); 
+
+        // 검색 목록 배열을 돌며 마커 생성해서 붙인다.
         roomList.forEach((room)=>{
             const pointer = new kakao.maps.LatLng(room.longitude_X,  room.latitude_Y)
             bounds.extend(pointer)
@@ -91,10 +109,27 @@ function MainMap() {
 
         kakao.maps.event.addListener(map, 'center_changed', function() {
 
+            // 디바운싱 - 마지막 호출만 적용 
+            if (timer) {
+                console.log('clear timer');
+                clearTimeout(timer);
+            }
+            const newTimer = setTimeout(async () => {
+                try {
+                    await getMapCenterDebouncing()
+                } catch (e) {
+                    console.error('error', e);
+                }
+                }, 1500);
+                setTimer(newTimer);
+
             // 지도의 중심좌표를 얻어옵니다 
-            dispatcher(__userLocation({ longitude: map.getCenter().getLat(), latitude: map.getCenter().getLng() }))
-            dispatcher(__searchLocation({ longitude: map.getCenter().getLat(), latitude: map.getCenter().getLng() }))
-        
+            const getMapCenterDebouncing = () => {
+                console.log("요청감"
+                )
+                dispatcher(__userLocation({ longitude: map.getCenter().getLat(), latitude: map.getCenter().getLng() }))
+                dispatcher(__searchLocation({ longitude: map.getCenter().getLat(), latitude: map.getCenter().getLng() }))
+            }
         });
 
     },[searchInfo.searchLongitude, searchInfo.searchLatitude])
