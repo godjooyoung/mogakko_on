@@ -10,6 +10,7 @@ function Room() {
   const location = useLocation();
   const sessionInfo = location.state
   console.log('세션정보는????',sessionInfo)
+  
   const [mySessionId, setMySessionId] = useState(sessionInfo.mySessionId) // 진짜 세션아이디로 넣어줘야됨 // 지금은 서버에서 input에 걸려있는 정규식이 영어만 됨
   const [myUserName, setMyUserName] = useState(sessionInfo.myUserName) //유저의 이름을 넣어줘야됨 
   const [session, setSession] = useState(undefined);
@@ -43,8 +44,9 @@ function Room() {
   // 세션 만들기
   // 세션은 영상 및 음성 통신에 대한 컨테이너 역할(Room).
   const joinSession = useCallback(() => {
+    console.log(">> join_Session")
     const mySession = OV.current.initSession();
-
+    
     mySession.on('streamCreated', (event) => {
       const subscriber = mySession.subscribe(event.stream, undefined);
       setSubscribers((subscribers) => [...subscribers, subscriber]);
@@ -63,11 +65,14 @@ function Room() {
   }, []);
 
 
-  useEffect(()=>{
-    if(mySessionId && myUserName){
-      joinSession()
-    }
-  },[mySessionId, myUserName])
+    useEffect(()=>{
+      if(sessionInfo){
+        if(sessionInfo.isDirect){
+          console.log(">> mySessionId 변경될때마다 join Session 호출")
+          joinSession()
+        } 
+      }
+    },[mySessionId])
 
   // 비디오, 오디오 handler
   const VideoTogglehandler = () => {
@@ -206,9 +211,10 @@ function Room() {
    * more about the integration of OpenVidu in your application server.
    */
   const getToken = useCallback(async () => {
-    return createSession(mySessionId).then(sessionId =>
-      createToken(sessionId),
-    );
+      console.log("생성을 통해 참여 및 이미 만들어진 방에 추가 참여")
+      return createSession(mySessionId).then(sessionId => 
+        createToken(sessionId),
+      );    
   }, [mySessionId]);
 
   const createSession = async (sessionId) => {
