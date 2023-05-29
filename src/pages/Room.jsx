@@ -9,7 +9,7 @@ const APPLICATION_SERVER_URL = process.env.NODE_ENV === 'production' ? '' : 'htt
 function Room() {
   const location = useLocation();
   const sessionInfo = location.state
-  console.log('세션정보는????',sessionInfo)
+  console.log('세션정보는????', sessionInfo)
 
   const [mySessionId, setMySessionId] = useState(null) // 진짜 세션아이디로 넣어줘야됨 // 지금은 서버에서 input에 걸려있는 정규식이 영어만 됨
   const [myUserName, setMyUserName] = useState(null) //유저의 이름을 넣어줘야됨 
@@ -19,6 +19,10 @@ function Room() {
   const [publisher, setPublisher] = useState(undefined);
   const [subscribers, setSubscribers] = useState([]); // 서버에서 그 방을 만들때 선택한 인원수를 받아와서 length랑 비교해서 인원수 제한걸기
   const [currentVideoDevice, setCurrentVideoDevice] = useState(null);
+
+  //비디오, 오디오 on/off 상태
+  const [videoEnabled, setVideoEnabled] = useState(true)
+  const [audioEnabled, setAudioEnabled] = useState(true)
 
   const OV = useRef(new OpenVidu());
 
@@ -59,6 +63,17 @@ function Room() {
     setSession(mySession);
   }, []);
 
+  // 비디오, 오디오 handler
+  const VideoTogglehandler = () => {
+    setVideoEnabled((prevValue) => !prevValue);
+    publisher.publishVideo(!videoEnabled);
+  }
+
+  const AudioTogglehandler = () => {
+    setAudioEnabled((prevValue) => !prevValue);
+    publisher.publishAudio(!audioEnabled);
+  }
+
   useEffect(() => {
     // 세션이 있으면 그 세션에 publish해라 
     if (session) {
@@ -70,8 +85,8 @@ function Room() {
           let publisher = await OV.current.initPublisherAsync(undefined, {
             audioSource: undefined,
             videoSource: undefined,
-            publishAudio: true,
-            publishVideo: true,
+            publishAudio: audioEnabled,
+            publishVideo: videoEnabled,
             resolution: '200x200',
             frameRate: 30,
             insertMode: 'APPEND',
@@ -261,7 +276,17 @@ function Room() {
             {publisher !== undefined ? (
               <div onClick={() => handleMainVideoStream(publisher)}>
                 <UserVideoComponent
-                  streamManager={publisher} /> 
+                  streamManager={publisher} />
+                <input
+                  type="button"
+                  onClick={VideoTogglehandler}
+                  value={videoEnabled ? "Cam Off" : "Cam On"}
+                />
+                <input
+                  type="button"
+                  onClick={AudioTogglehandler}
+                  value={audioEnabled ? "Audio Off" : "Audio On"}
+                />
               </div>
             ) : null}
             {subscribers.map((e, i) => (
