@@ -9,10 +9,9 @@ const APPLICATION_SERVER_URL = process.env.NODE_ENV === 'production' ? '' : 'htt
 function Room() {
   const location = useLocation();
   const sessionInfo = location.state
-  console.log('세션정보는????', sessionInfo)
-
-  const [mySessionId, setMySessionId] = useState(null) // 진짜 세션아이디로 넣어줘야됨 // 지금은 서버에서 input에 걸려있는 정규식이 영어만 됨
-  const [myUserName, setMyUserName] = useState(null) //유저의 이름을 넣어줘야됨 
+  console.log('세션정보는????',sessionInfo)
+  const [mySessionId, setMySessionId] = useState(sessionInfo.mySessionId) // 진짜 세션아이디로 넣어줘야됨 // 지금은 서버에서 input에 걸려있는 정규식이 영어만 됨
+  const [myUserName, setMyUserName] = useState(sessionInfo.myUserName) //유저의 이름을 넣어줘야됨 
   const [session, setSession] = useState(undefined);
   const [roomTitle, setRoomTitle] = useState('') // 방제목 받아야함 
   const [mainStreamManager, setMainStreamManager] = useState(undefined);
@@ -63,6 +62,13 @@ function Room() {
     setSession(mySession);
   }, []);
 
+
+  useEffect(()=>{
+    if(mySessionId && myUserName){
+      joinSession()
+    }
+  },[mySessionId, myUserName])
+
   // 비디오, 오디오 handler
   const VideoTogglehandler = () => {
     setVideoEnabled((prevValue) => !prevValue);
@@ -73,6 +79,7 @@ function Room() {
     setAudioEnabled((prevValue) => !prevValue);
     publisher.publishAudio(!audioEnabled);
   }
+
 
   useEffect(() => {
     // 세션이 있으면 그 세션에 publish해라 
