@@ -1,12 +1,10 @@
 // 예시 파일
 import { configureStore } from "@reduxjs/toolkit"
-import componentMode from "../modules/componentMode";
-import userLocation from "../modules/userLocation";
+import searchSlice from "../modules/search"
 
 const store = configureStore({
     reducer : {
-        componentMode,
-        userLocation
+        searchInfo: searchSlice,
     },
     devTools: false
 })

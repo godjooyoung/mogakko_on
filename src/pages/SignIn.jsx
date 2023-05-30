@@ -36,8 +36,8 @@ const SignIn = () => {
         if (!password) {
             setPasswordError('비밀번호를 입력해주세요.');
             return;
-        } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/.test(password)) {
-            setPasswordError('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~20자리여야 합니다.');
+        } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password)) {
+            setPasswordError('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.');
             return;
         }
 

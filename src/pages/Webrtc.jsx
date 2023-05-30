@@ -11,8 +11,11 @@
 
 //   useEffect(() => {
 //     const connectSession = () => {
-//       const newOV = new OpenVidu.OpenVidu();
-//       const newSession = OV.initSession();
+
+//       const newOV = new OpenVidu.OpenVidu(); // openvidu 객체 생성
+//       const newSession = OV.initSession(); // initSesison 생성
+
+
 
 //       setOV(newOV);
 //       setSession(newSession);
