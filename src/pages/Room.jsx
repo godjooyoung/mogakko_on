@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import UserVideoComponent from '../components/UserVideoComponent';
 import { useLocation } from 'react-router-dom';
 
+
 const APPLICATION_SERVER_URL = process.env.NODE_ENV === 'production' ? '' : 'https://demos.openvidu.io/';
 
 function Room() {
@@ -11,14 +12,15 @@ function Room() {
   const sessionInfo = location.state
   console.log('세션정보는????', sessionInfo)
 
-  const [mySessionId, setMySessionId] = useState(null) // 진짜 세션아이디로 넣어줘야됨 // 지금은 서버에서 input에 걸려있는 정규식이 영어만 됨
-  const [myUserName, setMyUserName] = useState(null) //유저의 이름을 넣어줘야됨 
+  const [mySessionId, setMySessionId] = useState(sessionInfo.mySessionId) // 진짜 세션아이디로 넣어줘야됨 // 지금은 서버에서 input에 걸려있는 정규식이 영어만 됨
+  const [myUserName, setMyUserName] = useState(sessionInfo.myUserName) //유저의 이름을 넣어줘야됨 
   const [session, setSession] = useState(undefined);
   const [roomTitle, setRoomTitle] = useState('') // 방제목 받아야함 
   const [mainStreamManager, setMainStreamManager] = useState(undefined);
   const [publisher, setPublisher] = useState(undefined);
   const [subscribers, setSubscribers] = useState([]); // 서버에서 그 방을 만들때 선택한 인원수를 받아와서 length랑 비교해서 인원수 제한걸기
   const [currentVideoDevice, setCurrentVideoDevice] = useState(null);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
 
   //비디오, 오디오 on/off 상태
   const [videoEnabled, setVideoEnabled] = useState(true)
@@ -44,6 +46,7 @@ function Room() {
   // 세션 만들기
   // 세션은 영상 및 음성 통신에 대한 컨테이너 역할(Room).
   const joinSession = useCallback(() => {
+    console.log(">> join_Session")
     const mySession = OV.current.initSession();
 
     mySession.on('streamCreated', (event) => {
@@ -63,16 +66,146 @@ function Room() {
     setSession(mySession);
   }, []);
 
+
+  useEffect(() => {
+    if (sessionInfo) {
+      if (sessionInfo.isDirect) {
+        console.log(">> mySessionId 변경될때마다 join Session 호출")
+        joinSession()
+      }
+    }
+  }, [mySessionId])
+
   // 비디오, 오디오 handler
   const VideoTogglehandler = () => {
-    setVideoEnabled((prevValue) => !prevValue);
-    publisher.publishVideo(!videoEnabled);
+    setVideoEnabled((prevValue) => !prevValue)
+    publisher.publishVideo(!videoEnabled)
   }
 
   const AudioTogglehandler = () => {
-    setAudioEnabled((prevValue) => !prevValue);
-    publisher.publishAudio(!audioEnabled);
+    setAudioEnabled((prevValue) => !prevValue)
+    publisher.publishAudio(!audioEnabled)
   }
+
+  const startCameraSharing = useCallback(async () => {
+    try {
+      // 카메라 퍼블리셔 초기화
+      const cameraPublisher = OV.current.initPublisher(undefined, {
+        videoSource: currentVideoDevice ? currentVideoDevice.deviceId : undefined,
+        publishVideo: true,
+        mirror: true,
+      });
+      // 퍼블리셔를 세션에 게시
+      session.publish(cameraPublisher);
+      // 상태 업데이트
+      setPublisher(cameraPublisher);
+      setIsScreenSharing(false);
+    } catch (error) {
+      console.log('Error starting camera sharing:', error.message);
+    }
+  }, [currentVideoDevice, session]);
+  const startScreenSharing = useCallback(async () => {
+    try {
+      // 화면 공유용 퍼블리셔 초기화
+      const screenSharingPublisher = OV.current.initPublisher(undefined, {
+        videoSource: 'screen',
+        publishVideo: true,
+        mirror: false
+      });
+      // 퍼블리셔를 세션에 게시
+      session.publish(screenSharingPublisher);
+      // 상태 업데이트
+      setPublisher(screenSharingPublisher);
+      setIsScreenSharing(true);
+    } catch (error) {
+      console.log('Error starting screen sharing:', error.message);
+    }
+  }, [session]);
+  const toggleSharingMode = useCallback(() => {
+    if (isScreenSharing) {
+      // 화면 공유 모드일 때, 카메라로 전환
+      startCameraSharing();
+    } else {
+      // 카메라 모드일 때, 화면 공유로 전환
+      startScreenSharing();
+    }
+  }, [isScreenSharing, startCameraSharing, startScreenSharing]);
+  const switchCamera = useCallback(async () => {
+    try {
+      const devices = await OV.current.getDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      if (videoDevices && videoDevices.length > 1) {
+        const newVideoDevice = videoDevices.filter(device => device.deviceId !== currentVideoDevice.deviceId);
+        if (newVideoDevice.length > 0) {
+          const newPublisher = OV.current.initPublisher(undefined, {
+            videoSource: newVideoDevice[0].deviceId,
+            publishAudio: true,
+            publishVideo: true,
+            mirror: true,
+          });
+          if (session) {
+            await session.unpublish(publisher);
+            await session.publish(newPublisher);
+            setCurrentVideoDevice(newVideoDevice[0]);
+            setPublisher(newPublisher);
+          }
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, [currentVideoDevice, session, publisher]);
+  // // 화면 공유 함수
+  // const startScreenSharing = useCallback(async () => {
+  //   try {
+  //     const displayMediaStream = await navigator.mediaDevices.getDisplayMedia({
+  //       video: true, // 화면 공유 비디오 스트림 사용
+  //     });
+
+  //     setScreenShareStream(displayMediaStream)
+  //     setScreenShareEnabled(true)
+
+  //     // OpenVidu 세션에 화면 공유 스트림 게시
+  //     const publisher = OV.current.initPublisher(undefined, {
+  //       videoSource: displayMediaStream,
+  //       publishAudio: true,
+  //       publishVideo: true,
+  //       mirror: false,
+  //     });
+
+  //     session.publish(publisher)
+  //     setScreenSharePublisher(publisher)
+  //   } catch (error) {
+  //     console.log('Error starting screen sharing:', error)
+  //   }
+  // }, [session, screenShareStream])
+
+
+  // // 화면 공유 종료
+  // const stopScreenSharing = useCallback(() => {
+  //   if (screenShareStream) {
+  //     screenShareStream.getTracks().forEach((track) => {
+  //       track.stop()
+  //     })
+  //   }
+
+  //   setScreenShareStream(null)
+  //   setScreenShareEnabled(false)
+
+  //   session.unpublish(screenSharePublisher);
+  //   setScreenSharePublisher(undefined)
+  // }, [session, screenShareStream, screenSharePublisher])
+
+
+
+  // // 화면 공유 버튼 클릭 핸들러
+  // const handleScreenShare = useCallback(() => {
+  //   if (screenShareEnabled) {
+  //     stopScreenSharing();
+  //   } else {
+  //     startScreenSharing();
+  //   }
+  // }, [screenShareEnabled, startScreenSharing, stopScreenSharing]);
 
   useEffect(() => {
     // 세션이 있으면 그 세션에 publish해라 
@@ -129,35 +262,35 @@ function Room() {
 
   // 다른캠으로 사용하기 같음 우리는 이거 빼고 화면 공유 기능 만들어야됨
   //https://docs.openvidu.io/en/stable/advanced-features/screen-share/ 참고
-  const switchCamera = useCallback(async () => {
-    try {
-      const devices = await OV.current.getDevices();
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+  // const switchCamera = useCallback(async () => {
+  //   try {
+  //     const devices = await OV.current.getDevices();
+  //     const videoDevices = devices.filter(device => device.kind === 'videoinput');
 
-      if (videoDevices && videoDevices.length > 1) {
-        const newVideoDevice = videoDevices.filter(device => device.deviceId !== currentVideoDevice.deviceId);
+  //     if (videoDevices && videoDevices.length > 1) {
+  //       const newVideoDevice = videoDevices.filter(device => device.deviceId !== currentVideoDevice.deviceId);
 
-        if (newVideoDevice.length > 0) {
-          const newPublisher = OV.current.initPublisher(undefined, {
-            videoSource: newVideoDevice[0].deviceId,
-            publishAudio: true,
-            publishVideo: true,
-            mirror: true,
-          });
+  //       if (newVideoDevice.length > 0) {
+  //         const newPublisher = OV.current.initPublisher(undefined, {
+  //           videoSource: newVideoDevice[0].deviceId,
+  //           publishAudio: true,
+  //           publishVideo: true,
+  //           mirror: true,
+  //         });
 
-          if (session) {
-            await session.unpublish(mainStreamManager);
-            await session.publish(newPublisher);
-            setCurrentVideoDevice(newVideoDevice[0]);
-            setMainStreamManager(newPublisher);
-            setPublisher(newPublisher);
-          }
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, [currentVideoDevice, session, mainStreamManager]);
+  //         if (session) {
+  //           await session.unpublish(mainStreamManager);
+  //           await session.publish(newPublisher);
+  //           setCurrentVideoDevice(newVideoDevice[0]);
+  //           setMainStreamManager(newPublisher);
+  //           setPublisher(newPublisher);
+  //         }
+  //       }
+  //     }
+  //   } catch (e) {
+  //     console.error(e);
+  //   }
+  // }, [currentVideoDevice, session, mainStreamManager]);
 
   const deleteSubscriber = useCallback((streamManager) => {
     setSubscribers((prevSubscribers) => {
@@ -183,6 +316,30 @@ function Room() {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [leaveSession]);
+
+  // const startScreenSharing = async () => {
+  //   try {
+  //     // 화면 공유용 퍼블리셔 초기화
+  //     const screenPublisher = OV.current.initPublisher(undefined, {
+  //       videoSource: 'screen',
+  //       publishVideo: true,
+  //       mirror: false
+  //     });
+  //     // 퍼블리셔를 세션에 게시
+  //     session.unpublish(publisher);
+  //     session.publish(screenPublisher);
+  //     setScreenSharingPublisher(screenPublisher);
+  //   } catch (error) {
+  //     console.log('Error starting screen sharing:', error.message);
+  //   }
+  // };
+  // const stopScreenSharing = () => {
+  //   if (screenSharingPublisher) {
+  //     // 퍼블리셔를 세션에서 제거
+  //     session.unpublish(screenSharingPublisher);
+  //     setScreenSharingPublisher(null);
+  //   }
+  // };
   /**
    * --------------------------------------------
    * GETTING A TOKEN FROM YOUR APPLICATION SERVER
@@ -199,6 +356,7 @@ function Room() {
    * more about the integration of OpenVidu in your application server.
    */
   const getToken = useCallback(async () => {
+    console.log("생성을 통해 참여 및 이미 만들어진 방에 추가 참여")
     return createSession(mySessionId).then(sessionId =>
       createToken(sessionId),
     );
@@ -212,6 +370,7 @@ function Room() {
   };
 
   const createToken = async (sessionId) => {
+    console.log('토큰토큰')
     const response = await axios.post(APPLICATION_SERVER_URL + 'api/sessions/' + sessionId + '/connections', {}, {
       headers: { 'Content-Type': 'application/json', },
     });
@@ -266,7 +425,10 @@ function Room() {
               value="Switch Camera"
             />
           </div>
-
+          <button onClick={toggleSharingMode}>
+            {isScreenSharing ? 'Switch to Camera' : 'Switch to Screen Sharing'}
+          </button>
+          
           {mainStreamManager !== undefined ? (
             <div>
               <UserVideoComponent streamManager={mainStreamManager} />
@@ -287,6 +449,7 @@ function Room() {
                   onClick={AudioTogglehandler}
                   value={audioEnabled ? "Audio Off" : "Audio On"}
                 />
+
               </div>
             ) : null}
             {subscribers.map((e, i) => (
