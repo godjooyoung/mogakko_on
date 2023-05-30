@@ -3,7 +3,8 @@ import axios from 'axios';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import UserVideoComponent from '../components/UserVideoComponent';
 import { useLocation } from 'react-router-dom';
-
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
 
 const APPLICATION_SERVER_URL = process.env.NODE_ENV === 'production' ? '' : 'https://demos.openvidu.io/';
 
@@ -25,6 +26,15 @@ function Room() {
   //비디오, 오디오 on/off 상태
   const [videoEnabled, setVideoEnabled] = useState(true)
   const [audioEnabled, setAudioEnabled] = useState(true)
+
+
+  // Websocket
+  const [isLoading, setIsLoading] = useState(true);
+  const isConnected = useRef("");
+  const stompClient = useRef(null);
+
+  // 보내는 메세지
+  const [message, setMessage] = useState("");
 
   const OV = useRef(new OpenVidu());
 
@@ -390,6 +400,125 @@ function Room() {
     });
     return response.data; // The token
   };
+
+
+  const connect = () => {
+    // SockJS같은 별도의 솔루션을 이용하고자 하면 over 메소드를, 그렇지 않다면 Client 메소드를 사용해주면 되는 듯.
+    stompClient.current = new Client({
+      // brokerURL이 http 일경우 ws를 https일 경우 wss를 붙여서 사용하시면 됩니다!
+      // brokerURL: "ws://localhost:8080/ws-stomp/websocket", // 웹소켓 서버로 직접 접속
+      // brokerURL: `${process.env.REACT_APP_WEB_SOCKET_SERVER}/room`, // 웹소켓 서버로 직접 접속
+
+      /* ws://15.164.159.168:8080/ws-stomp */
+      // brokerURL: `${process.env.REACT_APP_WEB_SOCKET_SERVER}`, // 웹소켓 서버로 직접 접속
+      // connectHeaders: An object containing custom headers to send during the connection handshake.
+      connectHeaders: {
+        // Authorization: `Bearer ${checkCookie}`,쿠키 넣으면됨
+      },
+      debug: (debug) => {
+        console.log("debug : ", debug);
+      },
+      reconnectDelay: 0,
+
+      heartbeatIncoming: 4000,
+
+      heartbeatOutgoing: 4000,
+
+      // 검증 부분
+      webSocketFactory: () => {
+        const socket = new SockJS("http://15.164.159.168:8080/ws-stomp");
+        socket.onopen = function () {
+          socket.send(
+            JSON.stringify({
+              // Authorization: `Bearer ${checkCookie}`,쿠기 넣으면됨
+            })
+          );
+        };
+        return socket;
+      },
+
+      // 검증이 돼서 Room을 열어주는 서버랑 연결이 되면
+      onConnect: async () => {
+        console.log("Connected to the broker. Initiate subscribing.");
+        isConnected.current = true;
+        await subscribe();
+        await publish();
+        await textPublish();
+      },
+
+      onStompError: (frame) => {
+        console.log(frame);
+        console.log("Broker reported error: " + frame.headers["message"]);
+        console.log("Additional details: " + frame.body);
+      },
+      onWebSocketError: (frame) => {
+        console.log(frame);
+      },
+      onWebSocketClose: () => {
+        console.log("web socket closed");
+      },
+    });
+    stompClient.current.activate();
+  };
+
+
+  const subscribe = () => {
+    stompClient.current.subscribe(
+      // `/sub/chat/room/${roomId}`,
+
+      (data) => {
+        console.log(" 구독됨", JSON.parse(data.body))
+        const response = JSON.parse(data.body)
+        // setMessage() 여기에 response값 받아서 저장하고 이 state를 map해주면 될꺼같음
+      }
+    );
+  };
+
+  const publish = async () => {
+    if (!stompClient.current.connected) {
+      return;
+    }
+    console.log("publish 시작");
+
+    await stompClient.current.publish({
+      destination: "/pub/chat/message",
+      body: JSON.stringify({
+        type: "ENTER",
+
+      }),
+      // headers: { authorization: `Bearer ${checkCookie}` }, 쿠키 넣어줘야됨
+
+      //
+    });
+    console.log("publish 끝");
+    setIsLoading(false);
+  };
+
+  const textPublish = () => {
+    console.log("textPublish Start");
+    if (message !== "") {
+      stompClient.current.publish({
+        destination: "/pub/chat/message",
+        body: JSON.stringify({
+          type: "TALK",
+          message,
+        }),
+        // headers: { authorization: `Bearer ${checkCookie}` }, 쿠기 넣어줘야됨
+        //
+      });
+      console.log("textPublish End");
+      setMessage("");
+    }
+  };
+
+  // if (isLoading) {
+  //   return (
+  //     <div>
+  //       <Loading /> 
+  //     </div>
+  //   );
+  // }
+
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -442,7 +571,7 @@ function Room() {
           <button onClick={()=>{toggleSharingMode(publisher)}}>
             {isScreenSharing ? 'Switch to Camera' : 'Switch to Screen Sharing'}
           </button>
-          
+
           {mainStreamManager !== undefined ? (
             <div>
               <UserVideoComponent streamManager={mainStreamManager} />
