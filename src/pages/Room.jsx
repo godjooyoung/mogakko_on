@@ -87,16 +87,22 @@ function Room() {
     publisher.publishAudio(!audioEnabled)
   }
 
-  const startCameraSharing = useCallback(async () => {
+  const startCameraSharing = useCallback(async (originPublish) => {
     try {
+      console.log("startCameraSharing, publish", originPublish)
       // 카메라 퍼블리셔 초기화
+      console.log("카메라 퍼블리셔 초기화")
       const cameraPublisher = OV.current.initPublisher(undefined, {
         videoSource: currentVideoDevice ? currentVideoDevice.deviceId : undefined,
         publishVideo: true,
         mirror: true,
       });
       // 퍼블리셔를 세션에 게시
+      console.log("퍼블리셔를 세션에 게시")
       session.publish(cameraPublisher);
+      // 기존 퍼블리시 제거
+      session.unpublish(originPublish)
+      setMainStreamManager(cameraPublisher);
       // 상태 업데이트
       setPublisher(cameraPublisher);
       setIsScreenSharing(false);
@@ -104,8 +110,10 @@ function Room() {
       console.log('Error starting camera sharing:', error.message);
     }
   }, [currentVideoDevice, session]);
-  const startScreenSharing = useCallback(async () => {
+
+  const startScreenSharing = useCallback(async (originPublish) => {
     try {
+      console.log("startScreenSharing, publish", originPublish)
       // 화면 공유용 퍼블리셔 초기화
       const screenSharingPublisher = OV.current.initPublisher(undefined, {
         videoSource: 'screen',
@@ -114,20 +122,26 @@ function Room() {
       });
       // 퍼블리셔를 세션에 게시
       session.publish(screenSharingPublisher);
+      // 기존 퍼블리시 제거
+      session.unpublish(originPublish)
+      setMainStreamManager(screenSharingPublisher);
+
       // 상태 업데이트
       setPublisher(screenSharingPublisher);
+
       setIsScreenSharing(true);
     } catch (error) {
       console.log('Error starting screen sharing:', error.message);
     }
   }, [session]);
-  const toggleSharingMode = useCallback(() => {
+  const toggleSharingMode = useCallback((originPublish) => {
+    console.log("toggleSharingMode, publish", originPublish)
     if (isScreenSharing) {
       // 화면 공유 모드일 때, 카메라로 전환
-      startCameraSharing();
+      startCameraSharing(originPublish);
     } else {
       // 카메라 모드일 때, 화면 공유로 전환
-      startScreenSharing();
+      startScreenSharing(originPublish);
     }
   }, [isScreenSharing, startCameraSharing, startScreenSharing]);
   const switchCamera = useCallback(async () => {
@@ -425,7 +439,7 @@ function Room() {
               value="Switch Camera"
             />
           </div>
-          <button onClick={toggleSharingMode}>
+          <button onClick={()=>{toggleSharingMode(publisher)}}>
             {isScreenSharing ? 'Switch to Camera' : 'Switch to Screen Sharing'}
           </button>
           
