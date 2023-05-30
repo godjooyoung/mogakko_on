@@ -28,8 +28,8 @@ function SignUp() {
         password:password,
         emailAuth :'',
         role: "ROLE_USER",
-        }  
-        console.log(sendData);
+    }  
+    console.log(sendData);
 
     const validateEmail = (email) => {
         // 이메일 유효성 검사를 수행합니다.
@@ -248,10 +248,10 @@ function SignUp() {
                 </Wrapper>
 
                 {/* <button type="submit">회원가입</button> */}
-                <button onClick={()=>{
-                    console.log(sendData);
-                    debugger
-                    sendHandler(sendData)}}>회원가입</button>
+                <button onClick={(e)=>{
+                    e.preventDefault() //요청전 리로드 방지
+                    sendHandler(sendData)
+                    }}>회원가입</button>
             </Form>
         </>
     );
