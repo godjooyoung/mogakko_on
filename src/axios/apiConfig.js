@@ -15,6 +15,7 @@ const jwtInstance = axios.create({
     }
 })
 
+// TODO access 키 환경변수로 빼기
 // kakao Rest API 요청 인스턴스
 const kakaoInstance = axios.create({
     baseURL: 'https://dapi.kakao.com',
