@@ -3,7 +3,7 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-
+import { useEffect } from 'react';
 function SignUp() {
     const navigate = useNavigate();
     const termsAlert = () => {
@@ -22,34 +22,14 @@ function SignUp() {
     const [emailAvailability, setEmailAvailability] = useState('');
 
 
-
-    const checkEmailExistence = async (email) => {
-        try {
-           // 가상의 서버 주소를 사용하여 GET 요청을 보냅니다.
-           console.log('Checking email existence:',email);
-           const response = await axios.get(`http://43.200.75.146:8080/members/signup/checkEmail?email=${email}`);
-
-           // 서버에서 중복 여부를 응답받습니다.
-           const exists = response.data;
-           return exists;
-       } catch (error) {
-           console.error(error);
-           return false;
-       }
-   };
-    const checkNicknameExistence = async (nickname) => {
-        try {
-            // 가상의 서버 주소를 사용하여 GET 요청을 보냅니다.
-            const response = await axios.get(`http://43.200.75.146:8080/members/signup/checkNickname?nickname=${nickname}`);
-
-            // 서버에서 중복 여부를 응답받습니다.
-            const exists = response.data;
-            return exists;
-        } catch (error) {
-            console.error(error);
-            return false;
-        }
-    };
+    const sendData = {
+        email :email,
+        nickname:nickname,
+        password:password,
+        emailAuth :'',
+        role: "ROLE_USER",
+    }  
+    console.log(sendData);
 
     const validateEmail = (email) => {
         // 이메일 유효성 검사를 수행합니다.
@@ -59,120 +39,136 @@ function SignUp() {
 
     const validatePassword = (password) => {
         // 비밀번호 유효성 검사를 수행합니다.
-        // 예시: 비밀번호는 숫자와 영문자를 포함한 8글자 이상이어야 함
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
         return passwordRegex.test(password);
     };
 
     const emailChangeHandler = (e) => {
         const newEmail = e.target.value;
-        console.log('input email:',email);
-
         setEmail(newEmail);
         setEmailErrorMessage('');
 
         if (!validateEmail(newEmail)) {
             setEmailErrorMessage('유효한 이메일 주소를 입력해주세요.');
         } else {
-            // 이메일 중복 체크
-            checkEmailExistence(newEmail).then((exists) => {
-                if (exists) {
-                    setEmailErrorMessage('이미 가입된 이메일입니다.');
-                }
-            });
+                setEmailErrorMessage('');
         }
+    };
+    //이메일 중복검사
+    const checkEmailExistence=(email)=>{
+        fetch(`http://43.200.75.146:8080/members/signup/checkEmail?email=${email}`)
+        .then(response=>response.json())
+        .then(data=>{
+            console.log(data)
+            if(data.message ==="중복 확인 성공"){
+                setEmailErrorMessage('사용할 수 있는 이메일입니다.');
+            }else if(data.message === "중복된 이메일 입니다."){
+                setEmailErrorMessage('이미 사용 중인 이메일 입니다.')
+            }else{
+                setEmailErrorMessage('이메일 중복 체크에 실패했습니다.')
+            }
+        })
+        .catch(error => {
+            // 오류 처리
+            setEmailErrorMessage('이메일 중복 체크에 실패했습니다.');
+            console.error('이메일 중복 체크 요청에 실패했습니다:', error);
+        });
     };
 
     const passwordChangeHandler = (e) => {
         const newPassword = e.target.value;
         setPassword(newPassword);
-        setPasswordErrorMessage('');
-
-        if (!validatePassword(newPassword)) {
-            setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~20자리여야 합니다.');
-        }
+        setPasswordErrorMessage('');      
     };
-
+    useEffect(()=>{
+        if (!validatePassword(password)) {
+            if(password.length===0){setPasswordErrorMessage('')}
+            else{setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.')};
+        } else {
+            setPasswordErrorMessage('');
+        }
+    },[password])
     const confirmPasswordChangeHandler = (e) => {
         const newConfirmPassword = e.target.value;
         setConfirmPassword(newConfirmPassword);
-        setConfirmPasswordErrorMessage('');
 
         if (newConfirmPassword !== password) {
             setConfirmPasswordErrorMessage('비밀번호가 일치하지 않습니다.');
+        }else{
+            setConfirmPasswordErrorMessage('');
+
         }
     };
 
     const nicknameChangeHandler = (e) => {
         const newNickname = e.target.value;
         setNickname(newNickname);
-        setNicknameErrorMessage('');
-
-        // 닉네임 중복 체크
-        checkNicknameExistence(newNickname).then((exists) => {
-            if (exists) {
-                setNicknameErrorMessage('이미 사용 중인 닉네임입니다.');
-            }
-        });
+        if (newNickname) {setNicknameErrorMessage('');
+        } 
     };
+ 
+    const sendHandler = async(sendData)=>{
+        console.log("sendData:",sendData);
+       await axios.post('http://43.200.75.146:8080/members/signup', sendData)
+        .then(response => {
+          // 성공적으로 데이터를 서버에 보냈을 때 실행할 코드
+          console.log(response.data);
+        })
+        .catch(error => {
+          // 데이터 전송 중 오류가 발생했을 때 실행할 코드
+          console.error(error);
+        });
+    }
+    
+    
+
+    const checkNicknameExistence = (nickname) => {
+      // 서버에 닉네임 중복 체크 요청 보내기
+      // 예시로 axios를 사용하여 GET 요청을 보내는 방법을 보여드립니다.
+      fetch(`http://43.200.75.146:8080/members/signup/checkNickname?nickname=${nickname}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data)
+        if (data.message === '중복 확인 성공') {
+            console.log(data.message)
+          setNicknameErrorMessage('사용할 수 있는 닉네임입니다.');
+        } else if (data.message === '중복된 닉네임입니다.') {
+          setNicknameErrorMessage('이미 사용 중인 닉네임입니다.');
+        } else {
+          setNicknameErrorMessage(data.message); // Update this line
+        }
+      })
+      .catch((error) => {
+        setNicknameErrorMessage('닉네임 중복 체크에 실패했습니다.');
+        console.error('닉네임 중복 체크 요청에 실패했습니다:', error);
+      });
+  };
 
     const isAgreedChangeHandler = (e) => {
-        setIsAgreed(e.target.checked);
+        const isAgreed = e.target.checked;
+        setIsAgreed(isAgreed);
     };
 
-    const submitHandler = (e) => {
-        e.preventDefault();
-
-        // 약관 동의 여부 확인
-        if (!isAgreed) {
-            alert('약관에 동의해야 합니다.');
-            return;
-        }
-
-        //
-        // 이메일 중복 체크
-        checkEmailExistence(email).then((exists) => {
-            if (exists) {
-                setEmailErrorMessage('이미 가입된 이메일입니다.');
-                return;
-            }
-
-            // 비밀번호 유효성 검사
-            if (!validatePassword(password)) {
-                setPasswordErrorMessage('비밀번호는 최소 8자 이상이어야 합니다.');
-                return;
-            }
-
-            // 비밀번호 확인
-            if (confirmPassword !== password) {
-                setConfirmPasswordErrorMessage('비밀번호가 일치하지 않습니다.');
-                return;
-            }
-
-            // 회원가입 로직 처리
-            // ...
-
-            // 폼 제출 후 필드 초기화
-            setEmail('');
-            setPassword('');
-            setConfirmPassword('');
-            setNickname('');
-            setIsAgreed(false);
-        });
+    const handleTermsLinkClick = () => {
+    // 약관 페이지로 이동하는 코드 작성
+    // 예시로 window.open을 사용하여 새 창으로 약관 페이지를 열어줍니다.
+    window.open('/terms', '_blank');
     };
+
     const termsButtonClickHandler = () => {
-        navigate('/Terms');
+        navigate('/terms');
     };
 
 
     return (
         <>
-            <form onSubmit={submitHandler}>
+            <Form>  
+            {/* <Form onSubmit={submitHandler}> */}
                 <div>
-                    <label>이메일</label>
+                    <Label>이메일</Label>
                 </div>
                 <div>    
-                    <input
+                    <Input
                         type="email"
                         value={email}
                         onChange={emailChangeHandler}
@@ -183,75 +179,135 @@ function SignUp() {
                         중복체크
                     </button>
                 </div>
-                {emailErrorMessage && <span>{emailErrorMessage}</span>}
-                {emailAvailability && <span>{emailAvailability}</span>}
+                {emailErrorMessage && <ErrorMessage>{emailErrorMessage}</ErrorMessage>}
+                {emailAvailability && <ErrorMessage>{emailAvailability}</ErrorMessage>}
                 <div>
-                    <label>비밀번호</label>
+                    <Label>비밀번호</Label>
                 </div>
                 <div>   
-                    <input
+                    <Input
                         type="password"
                         value={password}
                         onChange={passwordChangeHandler}
                         placeholder="비밀번호"
                     />
                 </div>
-                {passwordErrorMessage && <span>{passwordErrorMessage}</span>}
+                {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
 
                 <div>
-                    <label>비밀번호 확인</label>
+                    <Label>비밀번호 확인</Label>
                 </div>
                 <div>   
-                    <input
+                    <Input
                         type="password"
                         value={confirmPassword}
                         onChange={confirmPasswordChangeHandler}
                         placeholder="비밀번호 재입력"
                     />
                 </div>
-                {confirmPasswordErrorMessage && <span>{confirmPasswordErrorMessage}</span>}
+                {confirmPasswordErrorMessage && <ErrorMessage>{confirmPasswordErrorMessage}</ErrorMessage>}
 
                 <div>
-                    <label>닉네임</label>
+                    <Label>닉네임</Label>
                 </div>
-                <div>       
-                    <input
+                <FormField>       
+                    <Input
                         type="text"
                         value={nickname}
                         onChange={nicknameChangeHandler}
                         placeholder="닉네임"
                     />
-                    <button type="button" onClick={() => checkNicknameExistence(email)}>
+                    <button type="button" onClick={() => checkNicknameExistence(nickname)}>
                         중복체크
                     </button>
-                </div>
-                <div>
-                    <input
+                    {nicknameErrorMessage && <ErrorMessage>{nicknameErrorMessage}</ErrorMessage>}
+
+                </FormField>
+                <Wrapper>
+                    <Input
+                        type="checkbox"
+                        checked={isAgreed}
+                        onChange={isAgreedChangeHandler}
+                    /><BottomButton onClick={termsButtonClickHandler}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-navigate</BottomButton>                
+                </Wrapper>
+                <Wrapper>
+                    <Input
+                        type="checkbox"
+                        checked={isAgreed}
+                        onChange={isAgreedChangeHandler}
+                    />              
+                    <Link to="/terms">회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-link</Link><br/>
+                </Wrapper>
+                <Wrapper>
+                    <Input
                         type="checkbox"
                         checked={isAgreed}
                         onChange={isAgreedChangeHandler}
                     />
-                    <label>전체동의</label>
-                    <BottomButton onClick={termsButtonClickHandler}>동의 1번 안:회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</BottomButton>                
-                    <Link to="/Terms">동의 2번 안입니다.</Link><br/>
-                    <BottomButton onClick={termsAlert}>동의 3번 안:alert</BottomButton> 
-                </div>
+                    <BottomButton onClick={termsAlert}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-alert</BottomButton> 
+                </Wrapper>
 
-                <button type="submit">회원가입</button>
-            </form>
+                {/* <button type="submit">회원가입</button> */}
+                <button onClick={(e)=>{
+                    e.preventDefault() //요청전 리로드 방지
+                    sendHandler(sendData)
+                    }}>회원가입</button>
+            </Form>
         </>
     );
 }
 
 export default SignUp;
 
+const FormField = styled.div`
+  margin-bottom: 20px;
+`;
 
 const BottomButton = styled.button`
     padding:0.5rem 1rem;
-    background-color:transparent    
+    background-color:white;    
     color: #black;
     text-decoration: underline;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    text-align: left;
 `;
+const Form = styled.form`
+    dlsplay: flex;
+    flex-direction: column;
+    max-width: 300px;
+    margin: 0 auto
+`;
+
+const Label = styled.label`
+    margin-bottom; 0.5rem;
+    margin-top: 3rem;
+    font-wight: bold;
+`;
+
+const Input = styled.input`
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius:4px;
+`;
+
+const Button = styled.button`
+    padding:0.5rem 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+`;
+
+const ErrorMessage = styled.div`
+    color: red; 
+    margin-top: 0.5rem;
+    font-size: 5px;
+`;
+
+const Wrapper = styled.div`
+    display: flex;
+    align-items: center;
+`
