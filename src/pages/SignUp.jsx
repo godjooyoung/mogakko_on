@@ -113,6 +113,14 @@ function SignUp() {
         .then(response => {
           // 성공적으로 데이터를 서버에 보냈을 때 실행할 코드
           console.log(response.data);
+          setPopup({
+            open: true,
+            title: "Confirm",
+            message: "회원 가입 성공!", 
+            callback: function(){
+                navigate("/signin");
+            }
+        });
         })
         .catch(error => {
           // 데이터 전송 중 오류가 발생했을 때 실행할 코드
