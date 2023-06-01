@@ -12,7 +12,7 @@ import Example1 from "../pages/sample/Example1"
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
 import Room from "../pages/Room";
-import Terms from "../pages/Terms";
+// import Terms from "../pages/Terms";
 const Router = () => {
   return (
     <BrowserRouter>
@@ -27,7 +27,7 @@ const Router = () => {
         <Route path="/test4" element={<Test4/>} />
         <Route path="/test5" element={<Test5/>} />
         <Route path="/room" element={<Room/>} />
-        <Route path="/terms" element={<Terms/>}/>
+        {/* <Route path="/terms" element={<Terms/>}/> */}
 
       </Routes>
     </BrowserRouter>

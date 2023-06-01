@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
+import Modal from '../components/SignupModal';
+
 function SignUp() {
     const navigate = useNavigate();
     const termsAlert = () => {
@@ -20,8 +22,7 @@ function SignUp() {
     const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
     const [nicknameErrorMessage, setNicknameErrorMessage]= useState('');
     const [emailAvailability, setEmailAvailability] = useState('');
-
-
+    const [modalOpen, setModalOpen] = useState(false);
     const sendData = {
         email :email,
         nickname:nickname,
@@ -56,7 +57,7 @@ function SignUp() {
     };
     //이메일 중복검사
     const checkEmailExistence=(email)=>{
-        fetch(`http://43.200.75.146:8080/members/signup/checkEmail?email=${email}`)
+        fetch(`${process.env.REACT_APP_SERVER_URL}/members/signup/checkEmail?email=${email}`)
         .then(response=>response.json())
         .then(data=>{
             console.log(data)
@@ -106,21 +107,23 @@ function SignUp() {
         if (newNickname) {setNicknameErrorMessage('');
         } 
     };
- 
+    // const setPopup= ()=>{
+    //     open: true,
+    //     title: "Confirm",
+    //     message: "회원 가입 성공!", 
+    //     callback: function(){
+    //         navigate("/signin");
+        
+    // }
+
     const sendHandler = async(sendData)=>{
         console.log("sendData:",sendData);
-       await axios.post('http://43.200.75.146:8080/members/signup', sendData)
+       await axios.post(`/members/signup`, sendData)
         .then(response => {
           // 성공적으로 데이터를 서버에 보냈을 때 실행할 코드
           console.log(response.data);
-          setPopup({
-            open: true,
-            title: "Confirm",
-            message: "회원 가입 성공!", 
-            callback: function(){
-                navigate("/signin");
-            }
-        });
+            alert("회원가입 성공하였습니다.");
+            navigate("/signin");
         })
         .catch(error => {
           // 데이터 전송 중 오류가 발생했을 때 실행할 코드
@@ -164,9 +167,33 @@ function SignUp() {
     };
 
     const termsButtonClickHandler = () => {
-        navigate('/terms');
+        openModal();
     };
+    const openModal = ()=>{
+        setModalOpen(true);
+    };
+    const closeModal=()=>{
+        setModalOpen(false);
+    };
+    const termsContent = `
+    [회원 서비스 약관]
+    1. 약관 내용 1...
+    2. 약관 내용 2...
+    3. 약관 내용 3...
+    ...
+    
+    [위치 기반 정보 제공 동의]
+    1. 약관 내용 1...
+    2. 약관 내용 2...
+    3. 약관 내용 3...
+    ...
 
+    [만 14세 이상 동의]
+    1. 약관 내용 1...
+    2. 약관 내용 2...
+    3. 약관 내용 3...
+    ...
+    `;
 
     return (
         <>
@@ -237,25 +264,15 @@ function SignUp() {
                         checked={isAgreed}
                         onChange={isAgreedChangeHandler}
                     /><BottomButton onClick={termsButtonClickHandler}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-navigate</BottomButton>                
-                </Wrapper>
-                <Wrapper>
-                    <Input
-                        type="checkbox"
-                        checked={isAgreed}
-                        onChange={isAgreedChangeHandler}
-                    />              
-                    <Link to="/terms">회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-link</Link><br/>
-                </Wrapper>
-                <Wrapper>
-                    <Input
-                        type="checkbox"
-                        checked={isAgreed}
-                        onChange={isAgreedChangeHandler}
-                    />
-                    <BottomButton onClick={termsAlert}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-alert</BottomButton> 
+                    <Modal open={modalOpen} close={closeModal}>
+                        <h2>서비스 이용 약관</h2>
+                        <pre>{termsContent}</pre>
+                        <button onClick={closeModal}>닫기</button>
+                    </Modal>
+                
+                
                 </Wrapper>
 
-                {/* <button type="submit">회원가입</button> */}
                 <button onClick={(e)=>{
                     e.preventDefault() //요청전 리로드 방지
                     sendHandler(sendData)
@@ -268,13 +285,13 @@ function SignUp() {
 export default SignUp;
 
 const FormField = styled.div`
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 `;
 
 const BottomButton = styled.button`
     padding:0.5rem 1rem;
     background-color:white;    
-    color: #black;
+    color: black;
     text-decoration: underline;
     border: none;
     border-radius: 4px;
@@ -282,16 +299,16 @@ const BottomButton = styled.button`
     text-align: left;
 `;
 const Form = styled.form`
-    dlsplay: flex;
+    display: flex;
     flex-direction: column;
     max-width: 300px;
     margin: 0 auto
 `;
 
 const Label = styled.label`
-    margin-bottom; 0.5rem;
+    margin-bottom: 0.5rem;
     margin-top: 3rem;
-    font-wight: bold;
+    font-weight: bold;
 `;
 
 const Input = styled.input`
