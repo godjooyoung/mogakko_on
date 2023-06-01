@@ -104,17 +104,17 @@ function MainMap(props) {
             console.log("현재 지도의 중심좌표 요청 이벤트")
             // 디바운싱 - 마지막 호출만 적용 
             if (timer) {
-                console.log('clear timer');
-                clearTimeout(timer);
+                console.log('clear timer')
+                clearTimeout(timer)
             }
             const newTimer = setTimeout(async () => {
                 try {
                     await getMapCenterDebouncing()
                 } catch (e) {
-                    console.error('error', e);
+                    console.error('error', e)
                 }
-            }, 2000);
-                setTimer(newTimer);
+            }, 2000)
+                setTimer(newTimer)
 
             // 지도의 중심좌표를 얻어옵니다 
             const getMapCenterDebouncing = () => {
@@ -134,7 +134,7 @@ function MainMap(props) {
     };
 
     // 마커 이미지를 생성한다
-    const markerImage = new kakao.maps.MarkerImage(markerImageUrl, markerImageSize, markerImageOptions);
+    const markerImage = new kakao.maps.MarkerImage(markerImageUrl, markerImageSize, markerImageOptions)
     return (
         <MapContainer>
             <KaKaoMap id='map' ref={mapContainer}></KaKaoMap>
@@ -153,4 +153,4 @@ export const KaKaoMap = styled.div`
 
 `
 
-export default MainMap;
+export default MainMap
