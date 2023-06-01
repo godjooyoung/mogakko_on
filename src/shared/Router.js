@@ -5,11 +5,11 @@ import SignUp from "../pages/SignUp";
 import Main from "../pages/Main"
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
+import BgContainer from "../components/common/BgContainer";
+import Layout from "../components/common/Layout";
 import Room from "../pages/Room";
-// import Terms from "../pages/Terms";
 import Mypage from "../pages/Mypage";
-import BgContainer from "../components/BgContainer";
-import Layout from "../components/Layout";
+
 const Router = () => {
   return (
     <BrowserRouter>
