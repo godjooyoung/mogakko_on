@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Login } from '../axios/api/login';
 import { useMutation } from 'react-query';
+import { getCookie } from '../cookie/Cookie';
 const SignIn = () => {
 
     const navigate = useNavigate();
@@ -18,7 +19,7 @@ const SignIn = () => {
 
     const signInMutation = useMutation(Login, {
         onSuccess: () => {
-            navigate('/')
+            if(getCookie("token")?true:false) navigate('/')
         }
     })
 
@@ -86,7 +87,6 @@ const SignIn = () => {
         }else{
             alert('유효성을 확인해주세요')
         }
-        
     };
 
     return (
