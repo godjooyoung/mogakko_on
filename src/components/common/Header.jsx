@@ -41,7 +41,7 @@ function Header() {
 export const CommonHeader = styled.header`
     background: purple;
     color : white;
-    width : 100vw;
+    width : 100%;
     height : 50px;
 `
 export const ButtonWrap = styled.div`
