@@ -33,9 +33,7 @@ function Mypage() {
           e.preventDefault();
         }}
       >
-        <div>
-          <img src={preview} alt="프로필 사진" />
-        </div>
+        <ImageWrap BgImg={preview} />
         <div>
           <FileButton htmlFor="file">프로필사진 등록</FileButton>
           <FileInput type="file" id="file" onChange={handleFileChange} onClick={() => {
@@ -46,6 +44,17 @@ function Mypage() {
     </>
   )
 }
+
+const ImageWrap = styled.div`
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background-image: ${( props ) =>
+    `url(${props.BgImg})`
+  };
+  background-position:center;
+  background-size:contain;
+`
 
 const FileButton = styled.label`
   display: inline-block;
