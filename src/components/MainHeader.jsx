@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { styled } from 'styled-components';
 import { __userLocation } from '../redux/modules/search';
 import { useNavigate } from 'react-router-dom';
+import { getCookie, removeCookie } from '../cookie/Cookie';
 
 function MainHeader() {
 
@@ -10,9 +11,15 @@ function MainHeader() {
     const userInfo = useSelector((state) => {
         return state.userInfo
     })
-
     const navigate = useNavigate();   
-    
+
+    // 내부 상태
+    // const [isLogin, setIsLogin] = useState(false)
+
+    // useEffect(()=>{
+    //     getCookie('token')
+    // },[])
+
     // 방 생성하기
     const onClickRoomCreateHandler = () => {
         console.log("#### userInfo", userInfo)

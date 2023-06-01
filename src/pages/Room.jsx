@@ -7,13 +7,14 @@ import SockJS from "sockjs-client"
 import { Client } from "@stomp/stompjs"
 import { styled } from 'styled-components'
 import useInput from '../hooks/useInput';
+import { getCookie } from '../cookie/Cookie';
 
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
 function Room() {
   const location = useLocation()
   const sessionInfo = location.state
-
+  
   const [mySessionId, setMySessionId] = useState(sessionInfo.mySessionId) //진짜 세션아이디로 넣어줘야됨 (지금은 서버에서 input에 걸려있는 정규식이 영어만 됨)
   const [myUserName, setMyUserName] = useState(sessionInfo.myUserName) //유저의 이름을 넣어줘야됨 
   const [session, setSession] = useState(undefined)
@@ -389,7 +390,7 @@ function Room() {
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko',
       data,
       {
-        headers: { ACCESS_KEY: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MzJAbmF2ZXIuY29tIiwiZXhwIjoxNjg1NjA3Njg2LCJpYXQiOjE2ODU2MDQwODZ9.O7MMCSGW79U6uZ-lN0hMBqWAkJFXcqYvgHfYqS7CgCo'},
+        headers: { ACCESS_KEY: getCookie('token')},
       });
     console.log("##### sessionID ??????????", response.data.data.sessionId)
     return response.data.data.sessionId; // The sessionId
@@ -399,7 +400,7 @@ function Room() {
     console.log("##### createToken", sessionId)
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
       headers: { 
-        ACCESS_KEY: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MzJAbmF2ZXIuY29tIiwiZXhwIjoxNjg1NjA3Njg2LCJpYXQiOjE2ODU2MDQwODZ9.O7MMCSGW79U6uZ-lN0hMBqWAkJFXcqYvgHfYqS7CgCo',
+        ACCESS_KEY: getCookie('token'),
         // 'Access-Control-Allow-Origin': '*',
         // 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
         // 'Access-Control-Allow-Headers': 'Content-Type'
