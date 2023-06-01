@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { styled } from 'styled-components';
 import { __userLocation } from '../redux/modules/search';
 import { useNavigate } from 'react-router-dom';
-import { getCookie, removeCookie } from '../cookie/Cookie';
+import { getCookie } from '../cookie/Cookie';
 
 function MainHeader() {
 
@@ -14,24 +14,32 @@ function MainHeader() {
     const navigate = useNavigate();   
 
     // 내부 상태
-    // const [isLogin, setIsLogin] = useState(false)
+    const [isLogin, setIsLogin] = useState(false)
 
-    // useEffect(()=>{
-    //     getCookie('token')
-    // },[])
+    useEffect(()=>{
+        if(getCookie('token')?true:false){
+            setIsLogin(true)
+        }else{
+            setIsLogin(false)
+        }
+    },[])
 
     // 방 생성하기
     const onClickRoomCreateHandler = () => {
-        console.log("#### userInfo", userInfo)
-        const state = { 
-            mySessionId : '',
-            myUserName : '',
-            isDirect : false,
-            latitude : userInfo.userLatitude,
-            longitude : userInfo.userLongitude,
-            neighborhood : userInfo.userTown,
-        };
-        navigate('/room', { state : state });
+        if(isLogin){
+            console.log("#### userInfo", userInfo)
+            const state = { 
+                mySessionId : '',
+                myUserName : '',
+                isDirect : false,
+                latitude : userInfo.userLatitude,
+                longitude : userInfo.userLongitude,
+                neighborhood : userInfo.userTown,
+            };
+            navigate('/room', { state : state });
+        }else{
+            alert('로그인 이후 사용 가능합니다.')
+        }
     }
 
     return (

@@ -1,6 +1,7 @@
 import React from 'react';
 import { styled } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { removeCookie } from '../../cookie/Cookie';
 
 function Header() {
         const navigate = useNavigate();
@@ -16,6 +17,8 @@ function Header() {
         }
         const onClickLogOutHandler = () => {
             // 로그아웃 처리 쿠키 삭제
+            removeCookie('token')
+            navigate('/')
         }
         const onClickMyPageHandler = () => {
             navigate('/mypage')
