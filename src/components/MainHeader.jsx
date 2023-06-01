@@ -57,12 +57,14 @@ export const MainTitleWrap = styled.div`
     justify-content: center;
     flex-direction: column;
     align-items: center;
+    color : white;
 `
 export const MainDescWrap = styled.div`
     display : flex;
     justify-content: center;
     flex-direction: column;
     align-items: center;
+    color : white;
 `
 export const MainButtonWrap = styled.div`
     display : flex;

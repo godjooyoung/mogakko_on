@@ -12,6 +12,11 @@ function SignUp() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [nickname, setNickname] = useState('');
+    const [isEmailValid, setIsEmailValid] = useState(false);
+    const [isEmailAvailable, setIsEmailAvailable] = useState(false);
+    const [isPasswordValid, setIsPasswordValid] = useState(false);
+    const [isPasswordConfirmed, setIsPasswordConfirmed] = useState(false);
+    const [isNicknameAvailable, setIsNicknameAvailable] = useState(false);
     const [isAgreed, setIsAgreed] = useState(false);
     const [emailErrorMessage, setEmailErrorMessage] = useState('');
     const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
@@ -45,10 +50,12 @@ function SignUp() {
         setEmail(newEmail);
         setEmailErrorMessage('');
 
-        if (!validateEmail(newEmail)) {
-            setEmailErrorMessage('유효한 이메일 주소를 입력해주세요.');
+        if (validateEmail(newEmail)) {
+            setIsEmailValid(true);
+            setEmailErrorMessage('사용 가능한 이메일 주소입니다.');
         } else {
-            setEmailErrorMessage('');
+            setIsEmailValid(false);
+            setEmailErrorMessage('유효한 이메일 주소를 입력해주세요.');
         }
     };
     //이메일 중복검사
@@ -59,10 +66,14 @@ function SignUp() {
                 console.log(data);
                 if (data.message === "중복 확인 성공") {
                     setEmailErrorMessage('사용할 수 있는 이메일입니다.');
+                    setIsEmailValid(true);
                 } else if (data.message === "중복된 이메일 입니다.") {
-                    setEmailErrorMessage('이미 사용 중인 이메일 입니다.')
+                    setEmailErrorMessage('이미 사용 중인 이메일 입니다.');
+                    setIsEmailValid(false);
                 } else {
-                    setEmailErrorMessage('이메일 중복 체크에 실패했습니다.')
+                    setEmailErrorMessage('이메일 중복 체크에 실패했습니다.');
+                    setIsEmailValid(false);
+
                 }
             })
             .catch(error => {
@@ -79,10 +90,16 @@ function SignUp() {
     };
     useEffect(() => {
         if (!validatePassword(password)) {
-            if (password.length === 0) { setPasswordErrorMessage('') }
-            else { setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.') };
+            if (password.length === 0) { 
+                setPasswordErrorMessage('') 
+                setIsPasswordValid(false);
+            }else { 
+                setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.') 
+                setIsPasswordValid(false);
+        };
         } else {
             setPasswordErrorMessage('');
+            setIsPasswordValid(true);
         }
     }, [password])
     const confirmPasswordChangeHandler = (e) => {
@@ -91,9 +108,10 @@ function SignUp() {
 
         if (newConfirmPassword !== password) {
             setConfirmPasswordErrorMessage('비밀번호가 일치하지 않습니다.');
+            setIsPasswordConfirmed(false);
         } else {
             setConfirmPasswordErrorMessage('');
-
+            setIsPasswordConfirmed(true);
         }
     };
 
@@ -144,10 +162,13 @@ function SignUp() {
                 if (data.message === '중복 확인 성공') {
                     console.log(data.message)
                     setNicknameErrorMessage('사용할 수 있는 닉네임입니다.');
-                } else if (data.message === '중복된 닉네임입니다.') {
+                    setIsNicknameAvailable(true);
+                } else if (data.message === '중복된 닉네임 입니다.') {
                     setNicknameErrorMessage('이미 사용 중인 닉네임입니다.');
+                    setIsNicknameAvailable(false);
                 } else {
                     setNicknameErrorMessage(data.message); // Update this line
+                    setIsNicknameAvailable(false);
                 }
             })
             .catch((error) => {
@@ -273,7 +294,11 @@ function SignUp() {
                 <button onClick={(e) => {
                     e.preventDefault() //요청전 리로드 방지
                     sendHandler(sendData)
-                }}>회원가입</button>
+                }}
+                disabled={!isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed} 
+                >
+                회원가입
+                </button>
             </Form>
         </>
     );

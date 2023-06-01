@@ -39,21 +39,21 @@ function MainSearch() {
 
     const [languageList, setLanguageList] = useState(
         [
-            { language : '전체', isSelected : false },
-            { language : 'JAVA', isSelected : false },
-            { language : 'JAVASCRIPT', isSelected : false },
-            { language : 'PYTHON', isSelected : false },
-            { language : 'C', isSelected : false },
-            { language : 'CSHARP', isSelected : false },
-            { language : 'CPLPL', isSelected : false },
-            { language : 'RUBY', isSelected : false },
-            { language : 'KOTLIN', isSelected : false },
-            { language : 'SWIFT', isSelected : false },
-            { language : 'GO', isSelected : false },
-            { language : 'PHP', isSelected : false },
-            { language : 'RUST', isSelected : false },
-            { language : 'LUA', isSelected : false },
-            { language : 'ETC', isSelected : false},
+            { desc:'전체', language : '', isSelected : false },
+            { desc:'JAVA', language : 'JAVA', isSelected : false },
+            { desc:'JAVASCRIPT', language : 'JAVASCRIPT', isSelected : false },
+            { desc:'PYTHON', language : 'PYTHON', isSelected : false },
+            { desc:'C', language : 'C', isSelected : false },
+            { desc:'C#', language : 'CSHARP', isSelected : false },
+            { desc:'C++', language : 'CPLPL', isSelected : false },
+            { desc:'RUBY', language : 'RUBY', isSelected : false },
+            { desc:'KOTLIN', language : 'KOTLIN', isSelected : false },
+            { desc:'SWIFT', language : 'SWIFT', isSelected : false },
+            { desc:'GO', language : 'GO', isSelected : false },
+            { desc:'PHP', language : 'PHP', isSelected : false },
+            { desc:'RUST', language : 'RUST', isSelected : false },
+            { desc:'LUA', language : 'LUA', isSelected : false },
+            { desc:'ETC', language : 'ETC', isSelected : false},
         ]
     )
 
@@ -172,7 +172,7 @@ function MainSearch() {
                 <div>언어필터영역</div>
                 <div>
                     {languageList.map((language, idx) => {
-                        return <SearchLanguageBtn isSelected={language.isSelected} onClick={() => (onClickLanguageHandler(idx, language.isSelected))}>{language.language}</SearchLanguageBtn>
+                        return <SearchLanguageBtn isSelected={language.isSelected} onClick={() => (onClickLanguageHandler(idx, language.isSelected))}>{language.desc}</SearchLanguageBtn>
                     })}
                 </div>
             </div>
