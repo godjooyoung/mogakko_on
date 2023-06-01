@@ -27,6 +27,7 @@ function MainSearch() {
     const [townList, setTownList] = useState(
         {
             hotTown: [
+                { townNm: '전체 전체 전체' },
                 { townNm: '서울 강서구 염창동' },
                 { townNm: '서울 강서구 가양동' },
                 { townNm: '서울 영등포구 문래동' },
@@ -38,6 +39,7 @@ function MainSearch() {
 
     const [languageList, setLanguageList] = useState(
         [
+            { language : '전체', isSelected : false },
             { language : 'JAVA', isSelected : false },
             { language : 'JAVASCRIPT', isSelected : false },
             { language : 'PYTHON', isSelected : false },
