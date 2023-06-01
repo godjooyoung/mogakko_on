@@ -36,14 +36,12 @@ jwtInstance.interceptors.response.use(
 )
 
 /* 요청 */
-jwtInstance.interceptors.request.use(
-    function(config){
-        return config
-    },
-    function(error){
-        return Promise.reject(error)
-    },
-)
+jwtInstance.interceptors.request.use((config) => {
+    if (config.headers === undefined) return;
+    const token = getCookie("token");  
+    config.headers["ACCESS_KEY"] = `${token}`;
+    return config;
+});
 
 export { jwtInstance, kakaoInstance }
 export default instance

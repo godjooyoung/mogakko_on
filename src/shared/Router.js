@@ -17,8 +17,8 @@ const Router = () => {
         <Route element={<BgContainer />}>
           <Route element={<Layout />}>
             <Route path="/" element={<><Header /><Main /></>} />
-            <Route path="/signin" element={<><Header /><SignIn /><Footer /></>} />
-            <Route path="/signup" element={<><Header /><SignUp /><Footer /></>} />
+            <Route path="/signin" element={<><Header /><SignIn /></>} />
+            <Route path="/signup" element={<><Header /><SignUp /></>} />
             <Route path="/room" element={<Room />} />
             <Route path="/mypage" element={<Mypage />} />
           </Route>
