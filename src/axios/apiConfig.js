@@ -18,9 +18,9 @@ const jwtInstance = axios.create({
 // TODO access 키 환경변수로 빼기
 // kakao Rest API 요청 인스턴스
 const kakaoInstance = axios.create({
-    baseURL: 'https://dapi.kakao.com',
+    baseURL: process.env.REACT_APP_KAKAO_URL,
     headers: {
-        Authorization: 'KakaoAK 8d6d42d254e7524f2e1627ab38d27a6e',
+        Authorization: process.env.REACT_APP_KAKAO_KEY,
     }
 })
 
@@ -36,14 +36,12 @@ jwtInstance.interceptors.response.use(
 )
 
 /* 요청 */
-jwtInstance.interceptors.request.use(
-    function(config){
-        return config
-    },
-    function(error){
-        return Promise.reject(error)
-    },
-)
+jwtInstance.interceptors.request.use((config) => {
+    if (config.headers === undefined) return;
+    const token = getCookie("token");  
+    config.headers["ACCESS_KEY"] = `${token}`;
+    return config;
+});
 
 export { jwtInstance, kakaoInstance }
 export default instance

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import { Login } from '../axios/api/login';
+import { useMutation } from 'react-query';
 const SignIn = () => {
-    
+
     const navigate = useNavigate();
 
     const [email, setEmail] = useState('');
@@ -12,7 +13,21 @@ const SignIn = () => {
     const [emailError, setEmailError] = useState('');
     const [passwrodError, setPasswordError] = useState('');
     const [loginError, setLoginError] = useState('');
+    const [islValidationEmail, setIsValidationEmail] = useState(false);
+    const [islValidationPassword, setIsValidationPassword] = useState(false);
 
+    const signInMutation = useMutation(Login, {
+        onSuccess: () => {
+            navigate('/')
+        }
+    })
+
+    const signInUserInfo = {
+        email: email,
+        password: password
+    }
+    
+    
     const emailChangeHandler = (e) => {
         setEmail(e.target.value);
         setEmailError('');
@@ -23,39 +38,56 @@ const SignIn = () => {
         setPasswordError('');
     };
 
-    const submitHandler = async(e) => {
-        e.preventDefault();
-
+    // email state, password state 변경시 유효성 체크
+    useEffect(()=>{
+        // email 유효성 체크
         if (!email) {
-            setEmailError('이메일을 입력해주세요');
-            return
-        } else if (!/\S+@\S+\.\S+/.test(email)) {
-            setEmailError('올바른 이메일 형식이 아닙니다.');
-            return;
-        }
-        if (!password) {
-            setPasswordError('비밀번호를 입력해주세요.');
-            return;
-        } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password)) {
-            setPasswordError('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.');
-            return;
-        }
-
-        try {
-            const response = await axios.post('http://3.36.135.176:8080/members/login', {
-                email: email,
-                password: password
-            });
-            console.log(response.data);
-            if (response.data.message === '로그인 성공'){
-                navigate('/');
+            // setEmailError('이메일을 입력해주세요');
+            setIsValidationEmail(false)
+        } else {
+            if(!/\S+@\S+\.\S+/.test(email)){
+                setEmailError('올바른 이메일 형식이 아닙니다.');
+                setIsValidationEmail(false)
+            }else{
+                setEmailError('');
+                setIsValidationEmail(true)
             }
-        }   catch (error) {
-            console.error(error);
-            setLoginError('로그인에 실패했습니다. 다시 시도해 주세요.')
         }
-    };
+    },[email])
+    
+    useEffect(()=>{
+        // password 유효성 체크
+        if (!password) {
+            // setPasswordError('비밀번호를 입력해주세요.');
+            setIsValidationPassword(false)
+        }else{
+            if(!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password)){
+                setPasswordError('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.');
+                setIsValidationPassword(false)
+            }else{
+                setPasswordError('');
+                setIsValidationPassword(true)
+            }
+        }
+    },[password])
 
+    const validationInputHandler = () => {
+        if(islValidationEmail && islValidationPassword){
+            return true
+        }else{
+            return false
+        }
+    }
+
+    const submitHandler = async (e) => {
+        e.preventDefault();
+        if(validationInputHandler()){
+            signInMutation.mutate(signInUserInfo)
+        }else{
+            alert('유효성을 확인해주세요')
+        }
+        
+    };
 
     return (
         <Form onSubmit={submitHandler}>
@@ -67,7 +99,7 @@ const SignIn = () => {
                     onChange={emailChangeHandler}
                 />
                 {emailError && <ErrorMessage>{emailError}</ErrorMessage>}
-    
+
             </div>
             <div>
                 <Label>비밀번호</Label><br />
@@ -77,7 +109,7 @@ const SignIn = () => {
                     onChange={passwordChangeHandler}
                 />
                 {passwrodError && <ErrorMessage>{passwrodError}</ErrorMessage>}
-    
+
             </div>
             <Button type="submit">로그인</Button>
             {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>}
@@ -89,16 +121,16 @@ const SignIn = () => {
 export default SignIn;
 
 const Form = styled.form`
-    dlsplay: flex;
+    display: flex;
     flex-direction: column;
     max-width: 300px;
     margin: 0 auto
 `;
 
 const Label = styled.label`
-    margin-bottom; 0.5rem;
+    margin-bottom: 0.5rem;
     margin-top: 3rem;
-    font-wight: bold;
+    font-weight: bold;
 `;
 
 const Input = styled.input`

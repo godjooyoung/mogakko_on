@@ -4,24 +4,26 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
+import Modal from '../components/SignupModal';
+
 function SignUp() {
     const navigate = useNavigate();
-    const termsAlert = () => {
-        alert("자세한 약관 내용");
-    };
-
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [nickname, setNickname] = useState('');
+    const [isEmailValid, setIsEmailValid] = useState(false);
+    const [isEmailAvailable, setIsEmailAvailable] = useState(false);
+    const [isPasswordValid, setIsPasswordValid] = useState(false);
+    const [isPasswordConfirmed, setIsPasswordConfirmed] = useState(false);
+    const [isNicknameAvailable, setIsNicknameAvailable] = useState(false);
     const [isAgreed, setIsAgreed] = useState(false);
     const [emailErrorMessage, setEmailErrorMessage] = useState('');
     const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
     const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
     const [nicknameErrorMessage, setNicknameErrorMessage] = useState('');
     const [emailAvailability, setEmailAvailability] = useState('');
-
-
+    const [modalOpen, setModalOpen] = useState(false);
     const sendData = {
         email: email,
         nickname: nickname,
@@ -48,24 +50,30 @@ function SignUp() {
         setEmail(newEmail);
         setEmailErrorMessage('');
 
-        if (!validateEmail(newEmail)) {
-            setEmailErrorMessage('유효한 이메일 주소를 입력해주세요.');
+        if (validateEmail(newEmail)) {
+            setIsEmailValid(true);
+            setEmailErrorMessage('사용 가능한 이메일 주소입니다.');
         } else {
-            setEmailErrorMessage('');
+            setIsEmailValid(false);
+            setEmailErrorMessage('유효한 이메일 주소를 입력해주세요.');
         }
     };
     //이메일 중복검사
     const checkEmailExistence = (email) => {
-        fetch(`http://43.200.75.146:8080/members/signup/checkEmail?email=${email}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
+        axios.get(process.env.REACT_APP_SERVER_URL+`/members/signup/checkEmail?email=${email}`)
+            .then((response) => {
+                const data = response.data;
+                console.log(data);
                 if (data.message === "중복 확인 성공") {
                     setEmailErrorMessage('사용할 수 있는 이메일입니다.');
+                    setIsEmailValid(true);
                 } else if (data.message === "중복된 이메일 입니다.") {
-                    setEmailErrorMessage('이미 사용 중인 이메일 입니다.')
+                    setEmailErrorMessage('이미 사용 중인 이메일 입니다.');
+                    setIsEmailValid(false);
                 } else {
-                    setEmailErrorMessage('이메일 중복 체크에 실패했습니다.')
+                    setEmailErrorMessage('이메일 중복 체크에 실패했습니다.');
+                    setIsEmailValid(false);
+
                 }
             })
             .catch(error => {
@@ -82,10 +90,16 @@ function SignUp() {
     };
     useEffect(() => {
         if (!validatePassword(password)) {
-            if (password.length === 0) { setPasswordErrorMessage('') }
-            else { setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.') };
+            if (password.length === 0) { 
+                setPasswordErrorMessage('') 
+                setIsPasswordValid(false);
+            }else { 
+                setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.') 
+                setIsPasswordValid(false);
+        };
         } else {
             setPasswordErrorMessage('');
+            setIsPasswordValid(true);
         }
     }, [password])
     const confirmPasswordChangeHandler = (e) => {
@@ -94,9 +108,10 @@ function SignUp() {
 
         if (newConfirmPassword !== password) {
             setConfirmPasswordErrorMessage('비밀번호가 일치하지 않습니다.');
+            setIsPasswordConfirmed(false);
         } else {
             setConfirmPasswordErrorMessage('');
-
+            setIsPasswordConfirmed(true);
         }
     };
 
@@ -107,13 +122,27 @@ function SignUp() {
             setNicknameErrorMessage('');
         }
     };
+    // const setPopup= ()=>{
+    //     open: true,
+    //     title: "Confirm",
+    //     message: "회원 가입 성공!", 
+    //     callback: function(){
+    //         navigate("/signin");
+
+    // }
 
     const sendHandler = async (sendData) => {
         console.log("sendData:", sendData);
-        await axios.post('http://43.200.75.146:8080/members/signup', sendData)
+        await axios.post(process.env.REACT_APP_SERVER_URL+`/members/signup`, sendData)
             .then(response => {
-                // 성공적으로 데이터를 서버에 보냈을 때 실행할 코드
-                console.log(response.data);
+                const data = response.data;
+                console.log(data);
+                if (data.message === "회원 가입 성공") {
+                    alert("회원가입 성공하였습니다.")
+                    navigate("/signin");
+                } else {
+                    alert("회원가입에 실패했습니다. 회원가입을 다시 진행해 주세요.")
+                }
             })
             .catch(error => {
                 // 데이터 전송 중 오류가 발생했을 때 실행할 코드
@@ -126,17 +155,20 @@ function SignUp() {
     const checkNicknameExistence = (nickname) => {
         // 서버에 닉네임 중복 체크 요청 보내기
         // 예시로 axios를 사용하여 GET 요청을 보내는 방법을 보여드립니다.
-        fetch(`http://43.200.75.146:8080/members/signup/checkNickname?nickname=${nickname}`)
+        fetch(process.env.REACT_APP_SERVER_URL+`/members/signup/checkNickname?nickname=${nickname}`)
             .then((response) => response.json())
             .then((data) => {
                 console.log(data)
                 if (data.message === '중복 확인 성공') {
                     console.log(data.message)
                     setNicknameErrorMessage('사용할 수 있는 닉네임입니다.');
-                } else if (data.message === '중복된 닉네임입니다.') {
+                    setIsNicknameAvailable(true);
+                } else if (data.message === '중복된 닉네임 입니다.') {
                     setNicknameErrorMessage('이미 사용 중인 닉네임입니다.');
+                    setIsNicknameAvailable(false);
                 } else {
                     setNicknameErrorMessage(data.message); // Update this line
+                    setIsNicknameAvailable(false);
                 }
             })
             .catch((error) => {
@@ -150,16 +182,36 @@ function SignUp() {
         setIsAgreed(isAgreed);
     };
 
-    const handleTermsLinkClick = () => {
-        // 약관 페이지로 이동하는 코드 작성
-        // 예시로 window.open을 사용하여 새 창으로 약관 페이지를 열어줍니다.
-        window.open('/terms', '_blank');
-    };
 
     const termsButtonClickHandler = () => {
-        navigate('/terms');
+        openModal();
     };
+    const openModal = () => {
+        setModalOpen(true);
+    };
+    const closeModal = () => {
+        setModalOpen(false);
+    };
+    
+    const termsContent = `
+    [회원 서비스 약관]
+    1. 약관 내용 1...
+    2. 약관 내용 2...
+    3. 약관 내용 3...
+    ...
+    
+    [위치 기반 정보 제공 동의]
+    1. 약관 내용 1...
+    2. 약관 내용 2...
+    3. 약관 내용 3...
+    ...
 
+    [만 14세 이상 동의]
+    1. 약관 내용 1...
+    2. 약관 내용 2...
+    3. 약관 내용 3...
+    ...
+    `;
 
     return (
         <>
@@ -230,29 +282,23 @@ function SignUp() {
                         checked={isAgreed}
                         onChange={isAgreedChangeHandler}
                     /><BottomButton onClick={termsButtonClickHandler}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-navigate</BottomButton>
-                </Wrapper>
-                <Wrapper>
-                    <Input
-                        type="checkbox"
-                        checked={isAgreed}
-                        onChange={isAgreedChangeHandler}
-                    />
-                    <Link to="/terms">회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-link</Link><br />
-                </Wrapper>
-                <Wrapper>
-                    <Input
-                        type="checkbox"
-                        checked={isAgreed}
-                        onChange={isAgreedChangeHandler}
-                    />
-                    <BottomButton onClick={termsAlert}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-alert</BottomButton>
+                    <Modal open={modalOpen} close={closeModal}>
+                        <h2>서비스 이용 약관</h2>
+                        <pre>{termsContent}</pre>
+                        <button onClick={closeModal}>닫기</button>
+                    </Modal>
+
+
                 </Wrapper>
 
-                {/* <button type="submit">회원가입</button> */}
                 <button onClick={(e) => {
                     e.preventDefault() //요청전 리로드 방지
                     sendHandler(sendData)
-                }}>회원가입</button>
+                }}
+                disabled={!isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed} 
+                >
+                회원가입
+                </button>
             </Form>
         </>
     );
@@ -260,40 +306,40 @@ function SignUp() {
 
 export default SignUp;
 
-const FormField = styled.div`
-  margin-bottom: 20px;
+export const FormField = styled.div`
+    margin-bottom: 20px;
 `;
 
-const BottomButton = styled.button`
+export const BottomButton = styled.button`
     padding:0.5rem 1rem;
     background-color:white;    
-    color: #black;
+    color: black;
     text-decoration: underline;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     text-align: left;
 `;
-const Form = styled.form`
-    dlsplay: flex;
+export const Form = styled.form`
+    display: flex;
     flex-direction: column;
     max-width: 300px;
     margin: 0 auto
 `;
 
-const Label = styled.label`
-    margin-bottom; 0.5rem;
+export const Label = styled.label`
+    margin-bottom: 0.5rem;
     margin-top: 3rem;
-    font-wight: bold;
+    font-weight: bold;
 `;
 
-const Input = styled.input`
+export const Input = styled.input`
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius:4px;
 `;
 
-const Button = styled.button`
+export const Button = styled.button`
     padding:0.5rem 1rem;
     background-color: #007bff;
     color: #fff;
@@ -302,13 +348,13 @@ const Button = styled.button`
     cursor: pointer;
 `;
 
-const ErrorMessage = styled.div`
+export const ErrorMessage = styled.div`
     color: red; 
     margin-top: 0.5rem;
     font-size: 5px;
 `;
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
     display: flex;
     align-items: center;
 `
