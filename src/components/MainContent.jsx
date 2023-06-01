@@ -1,18 +1,37 @@
-import React from 'react';
-import MainMap from './MainMap';
-import MainRoom from './MainRoom';
-import MainSearch from './MainSearch';
-import { styled } from 'styled-components';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react'
+import MainMap from './MainMap'
+import MainRoom from './MainRoom'
+import MainSearch from './MainSearch'
+import { styled } from 'styled-components'
+import { useSelector } from 'react-redux'
+import { useMutation } from 'react-query'
+import { getRoomList } from '../axios/api/room'
 
 function MainContent() {
+
     // 전역
     const searchInfo = useSelector((state) => {
         console.log("searchInfo", state.searchInfo)
         return state.searchInfo
     })
 
+    // 조회
+    const isSearched = (isSearch) => {
+        return isSearch
+    }
+
     // TODO 조회요청 서버에 보내서 결과 프롭스로 내려주기
+    const roomListMutation = useMutation(getRoomList, {
+        onSuccess: () => {
+            console.log("success")
+        }
+    })
+
+    useEffect(()=>{
+        if(isSearched){
+            roomListMutation.mutate(searchInfo)
+        }
+    },[isSearched])
 
     // TODO sjy 조회요청 서버에 보내서 결과 프롭스로 내려주기
     const roomList = [
@@ -71,7 +90,7 @@ function MainContent() {
 
     return (
         <MainContentWrap>
-            <MainSearch/>
+            <MainSearch isSearched={isSearched}/>
             <MainMap roomList={roomList}/>
             <MainRoom roomList={roomList}/>
         </MainContentWrap>
@@ -84,4 +103,4 @@ export const MainContentWrap = styled.div`
     grid-template-rows: 1fr 1fr;
 `
 
-export default MainContent;
+export default MainContent
