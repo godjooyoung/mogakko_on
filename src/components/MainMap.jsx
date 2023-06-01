@@ -7,7 +7,7 @@ import { getCookie, removeCookie } from '../cookie/Cookie';
 // 카카오 지도 api
 const { kakao } = window;
 
-function MainMap() {
+function MainMap(props) {
 
     // 내부
     const [timer, setTimer] = useState(0); // 디바운싱 타이머
@@ -23,38 +23,6 @@ function MainMap() {
         console.log("searchInfo", state.searchInfo)
         return state.searchInfo
     })
-
-
-    // TODO  sjy props로 내려주는 서버 데이터로 변경 할 것 
-    const roomList = [
-        {   
-            "id" : 1,
-            "room_name": "같이 코딩해요",
-            "is_opened": true,
-            "room_people_num" : 8,
-            "lat" : 37.556516445779762,
-            "lon" : 126.86748345152914,
-            "elapsed_time" : "2:34:44"
-        },
-        {   
-            "id" : 2,
-            "room_name": "자스캠스모각모각",
-            "is_opened": true,
-            "room_people_num" : 6,
-            "lat" : 37.55484003481054,
-            "lon" : 126.86698846167442,
-            "elapsed_time" : "2:40:59"
-        },
-        {   
-            "id" : 3,
-            "room_name": "오늘의 우동왕",
-            "is_opened": false,
-            "room_people_num" : 4,
-            "lat" : 37.55471599685624,
-            "lon" : 126.86886734023552,
-            "elapsed_time" : "2:40:59"
-        },
-    ]
 
     // 로그인 여부에 따라서 사용자 접속 위치 및 동네이름 가져오기.
     useEffect(() => {
@@ -103,18 +71,18 @@ function MainMap() {
         const bounds = new kakao.maps.LatLngBounds();
         
         // 검색 목록 배열을 돌며 마커 생성해서 붙인다.
-        roomList.forEach((room)=>{
+        props.roomList.forEach((room)=>{
             const pointer = new kakao.maps.LatLng(room.lat, room.lon)
             bounds.extend(pointer)
             const marker = new kakao.maps.Marker({
                 image : markerImage, // 마커의 이미지
                 map: map, // 마커를 표시할 지도 객체
                 position: new kakao.maps.LatLng(room.lat, room.lon), // 마커의 좌표
-                titile: room.room_name
+                titile: room.title
             })
 
             const infowindow = new kakao.maps.InfoWindow({
-                content: room.room_name // 인포윈도우에 표시할 내용
+                content: room.title // 인포윈도우에 표시할 내용
             });
 
             // 마커에 mouseover 이벤트를 등록하고 마우스 오버 시 인포윈도우를 표시합니다 
