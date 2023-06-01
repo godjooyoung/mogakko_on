@@ -1,24 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getCookie, removeCookie } from '../cookie/Cookie';
 import { styled } from 'styled-components';
 import { useQuery, useQueryClient } from 'react-query';
 import { getLatLng } from '../axios/api/kakao'
-import { __userLocation, __searchLocation, __searchLanguage, __searchKeyword } from '../redux/modules/search';
+import { fetchUserLocation } from '../redux/modules/user'
+import { __searchLocation, __searchLanguage, __searchKeyword } from '../redux/modules/search';
 import useInput from '../hooks/useInput';
 // 메인화면 검색창 영역
 function MainSearch() {
+
     const dispatcher = useDispatch()
-
-    // 기본 좌표값 (전역)
-    const searchInfo = useSelector((state) => {
-        console.log("searchInfo", state.searchInfo)
-        return state.searchInfo
-    })
-
-    // 내부 states
-    // 로그인 여부
-    const [isLogin, setIsLogin] = useState(false)
     
     const formData = new FormData()
     
@@ -36,6 +27,7 @@ function MainSearch() {
     const [townList, setTownList] = useState(
         {
             hotTown: [
+                { townNm: '전체 전체 전체' },
                 { townNm: '서울 강서구 염창동' },
                 { townNm: '서울 강서구 가양동' },
                 { townNm: '서울 영등포구 문래동' },
@@ -47,6 +39,7 @@ function MainSearch() {
 
     const [languageList, setLanguageList] = useState(
         [
+            { language : '전체', isSelected : false },
             { language : 'JAVA', isSelected : false },
             { language : 'JAVASCRIPT', isSelected : false },
             { language : 'PYTHON', isSelected : false },
@@ -105,10 +98,10 @@ function MainSearch() {
     // 카카오 주소->좌표 성공 시 수행할 로직
     useEffect(() => {
         // 카카오 api 에서 위도 경도를 반대로 줘서 반대로 일단 받음. 
-
         if (getLatLngQuery.isSuccess) {
             console.log("[INFO] 좌표 요청 결과 (", getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x, ")")
-            dispatcher(__searchLocation({ longitude: getLatLngQuery.data.documents[0].y, latitude: getLatLngQuery.data.documents[0].x }))
+            dispatcher(fetchUserLocation({ latitude: getLatLngQuery.data.documents[0].y, longitude: getLatLngQuery.data.documents[0].x }))
+            dispatcher(__searchLocation({ latitude: getLatLngQuery.data.documents[0].y, longitude: getLatLngQuery.data.documents[0].x }))
             // 데이터 조회하기
             sendData(getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x)
         }
@@ -116,9 +109,9 @@ function MainSearch() {
 
     // TODO sjy 나중에 이 폼데이터를 서버에 보내야함. 
     // 서버에 폼 데이터 보내기
-    const sendData = (x, y, keyword, language) => {
-        formData.append('longitude_X', x);
-        formData.append('latitude_Y', y);
+    const sendData = (lat, lon , keyword, language) => {
+        formData.append('lat', lat);
+        formData.append('lon', lon);
         if (keyword) {
             formData.append('searchKeyword', '');
         } else {
@@ -132,49 +125,6 @@ function MainSearch() {
         }
         console.log("[INFO] Send formData ", [...formData])
     }
-
-    useEffect(() => {
-        // 로그인 여부
-        const checkLoginStatus = async () => {
-            // TODO sjy 백에서 넘겨주는 토큰 어떤 이름으로 저장할지 정해지면 변경할것. jwt? token? tk?
-            const token = await getCookie("token");
-            setIsLogin(token ? true : false);
-        };
-        checkLoginStatus()
-
-        // 만약 토큰이 없으면 로그인 상태가 아니므로 동네 지정 검색만 가능하게 한다.
-        // 토큰이 있어도(로그인상태) 브라우저의 권한을 제공하지 않았으면 동네 지정 검색만 가능하게 한다.
-        // 토큰이 있고, 브라우저에게 권한도 제공했으면 위치기반 검색을 가능하게 한다.
-        // 로그인 여부에 따른 기본 검색값 설정
-        const settingDefaultSearch = () => {
-            if (!isLogin) {
-                console.log("[INFO] 로그인을 하지 않은 사용자 입니다. 기본 조회위치를 지정합니다. (", isLogin, ")")
-                dispatcher(__userLocation({ longitude: searchInfo.userLongitude, latitude: searchInfo.userLatitude }))
-                dispatcher(__searchLocation({ longitude: searchInfo.userLongitude, latitude: searchInfo.userLatitude }))
-            } else {
-                console.log("[INFO] 로그인한 사용자 입니다.(", isLogin, ")")
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        position => {
-                            console.log("[INFO] 현재 접속된 위치로 조회위치를 변경합니다.")
-                            dispatcher(__userLocation({ longitude: position.coords.longitude, latitude: position.coords.latitude }))
-                            dispatcher(__searchLocation({ longitude: position.coords.longitude, latitude: position.coords.latitude }))
-                        },
-                        error => {
-                            console.log("[INFO] 현재 접속된 위치를 받아올 수 없습니다. 기본 조회위치를 지정합니다.")
-                            console.log("[ERROR]", error)
-                            dispatcher(__userLocation({ longitude: searchInfo.userLongitude, latitude: searchInfo.userLatitude }))
-                            dispatcher(__searchLocation({ longitude: searchInfo.userLongitude, latitude: searchInfo.userLatitude }))
-                        })
-                } else {
-                    console.log('[INFO] Geoloaction이 지원되지 않는 브라우저 입니다. 기본 조회위치를 지정합니다.')
-                    dispatcher(__userLocation({ longitude: searchInfo.userLongitude, latitude: searchInfo.userLatitude }))
-                    dispatcher(__searchLocation({ longitude: searchInfo.userLongitude, latitude: searchInfo.userLatitude }))
-                }
-            }
-        }
-        settingDefaultSearch()
-    }, [isLogin])
 
     useEffect(()=>{
         const setFiltering = () => {
@@ -197,10 +147,10 @@ function MainSearch() {
     },[keyword])
 
     if (getLatLngQuery.isError) {
-        return <div>주소-좌표 변환중 에러발생</div>
+        return <div>주소 to 좌표 변환중 에러발생</div>
     }
     if (getLatLngQuery.isLoading) {
-        return <div>주소-좌표 변환중</div>
+        return <div>주소 to 좌표 변환중</div>
     }
 
     return (
@@ -232,8 +182,8 @@ function MainSearch() {
 
 export const SearchContaniner = styled.div`
     background-color: pink;
-    width: 20%;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     
 `
 export const SearchLanguageBtn = styled.button`

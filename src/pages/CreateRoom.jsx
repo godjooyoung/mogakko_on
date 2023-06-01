@@ -60,8 +60,15 @@ function CreateRoom() {
   }, [mySessionId, deleteSubscriber, navigate, session, myUserName, subscribers]);
 
   useEffect(() => {
+    
     if (session) {
-
+      console.log('전달할 상태 값:', {
+        mySessionId,
+        myUserName,
+        session,
+        subscribers,
+      });
+      
       navigate(`/room/${mySessionId}`, {
         state: {
           mySessionId,
