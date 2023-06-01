@@ -8,7 +8,7 @@ function SignUp() {
     const navigate = useNavigate();
     const termsAlert = () => {
         alert("자세한 약관 내용");
-      };
+    };
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -18,17 +18,17 @@ function SignUp() {
     const [emailErrorMessage, setEmailErrorMessage] = useState('');
     const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
     const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
-    const [nicknameErrorMessage, setNicknameErrorMessage]= useState('');
+    const [nicknameErrorMessage, setNicknameErrorMessage] = useState('');
     const [emailAvailability, setEmailAvailability] = useState('');
 
 
     const sendData = {
-        email :email,
-        nickname:nickname,
-        password:password,
-        emailAuth :'',
+        email: email,
+        nickname: nickname,
+        password: password,
+        emailAuth: '',
         role: "ROLE_USER",
-    }  
+    }
     console.log(sendData);
 
     const validateEmail = (email) => {
@@ -51,50 +51,50 @@ function SignUp() {
         if (!validateEmail(newEmail)) {
             setEmailErrorMessage('유효한 이메일 주소를 입력해주세요.');
         } else {
-                setEmailErrorMessage('');
+            setEmailErrorMessage('');
         }
     };
     //이메일 중복검사
-    const checkEmailExistence=(email)=>{
+    const checkEmailExistence = (email) => {
         fetch(`http://43.200.75.146:8080/members/signup/checkEmail?email=${email}`)
-        .then(response=>response.json())
-        .then(data=>{
-            console.log(data)
-            if(data.message ==="중복 확인 성공"){
-                setEmailErrorMessage('사용할 수 있는 이메일입니다.');
-            }else if(data.message === "중복된 이메일 입니다."){
-                setEmailErrorMessage('이미 사용 중인 이메일 입니다.')
-            }else{
-                setEmailErrorMessage('이메일 중복 체크에 실패했습니다.')
-            }
-        })
-        .catch(error => {
-            // 오류 처리
-            setEmailErrorMessage('이메일 중복 체크에 실패했습니다.');
-            console.error('이메일 중복 체크 요청에 실패했습니다:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                if (data.message === "중복 확인 성공") {
+                    setEmailErrorMessage('사용할 수 있는 이메일입니다.');
+                } else if (data.message === "중복된 이메일 입니다.") {
+                    setEmailErrorMessage('이미 사용 중인 이메일 입니다.')
+                } else {
+                    setEmailErrorMessage('이메일 중복 체크에 실패했습니다.')
+                }
+            })
+            .catch(error => {
+                // 오류 처리
+                setEmailErrorMessage('이메일 중복 체크에 실패했습니다.');
+                console.error('이메일 중복 체크 요청에 실패했습니다:', error);
+            });
     };
 
     const passwordChangeHandler = (e) => {
         const newPassword = e.target.value;
         setPassword(newPassword);
-        setPasswordErrorMessage('');      
+        setPasswordErrorMessage('');
     };
-    useEffect(()=>{
+    useEffect(() => {
         if (!validatePassword(password)) {
-            if(password.length===0){setPasswordErrorMessage('')}
-            else{setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.')};
+            if (password.length === 0) { setPasswordErrorMessage('') }
+            else { setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.') };
         } else {
             setPasswordErrorMessage('');
         }
-    },[password])
+    }, [password])
     const confirmPasswordChangeHandler = (e) => {
         const newConfirmPassword = e.target.value;
         setConfirmPassword(newConfirmPassword);
 
         if (newConfirmPassword !== password) {
             setConfirmPasswordErrorMessage('비밀번호가 일치하지 않습니다.');
-        }else{
+        } else {
             setConfirmPasswordErrorMessage('');
 
         }
@@ -103,46 +103,47 @@ function SignUp() {
     const nicknameChangeHandler = (e) => {
         const newNickname = e.target.value;
         setNickname(newNickname);
-        if (newNickname) {setNicknameErrorMessage('');
-        } 
+        if (newNickname) {
+            setNicknameErrorMessage('');
+        }
     };
- 
-    const sendHandler = async(sendData)=>{
-        console.log("sendData:",sendData);
-       await axios.post('http://43.200.75.146:8080/members/signup', sendData)
-        .then(response => {
-          // 성공적으로 데이터를 서버에 보냈을 때 실행할 코드
-          console.log(response.data);
-        })
-        .catch(error => {
-          // 데이터 전송 중 오류가 발생했을 때 실행할 코드
-          console.error(error);
-        });
+
+    const sendHandler = async (sendData) => {
+        console.log("sendData:", sendData);
+        await axios.post('http://43.200.75.146:8080/members/signup', sendData)
+            .then(response => {
+                // 성공적으로 데이터를 서버에 보냈을 때 실행할 코드
+                console.log(response.data);
+            })
+            .catch(error => {
+                // 데이터 전송 중 오류가 발생했을 때 실행할 코드
+                console.error(error);
+            });
     }
-    
-    
+
+
 
     const checkNicknameExistence = (nickname) => {
-      // 서버에 닉네임 중복 체크 요청 보내기
-      // 예시로 axios를 사용하여 GET 요청을 보내는 방법을 보여드립니다.
-      fetch(`http://43.200.75.146:8080/members/signup/checkNickname?nickname=${nickname}`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data)
-        if (data.message === '중복 확인 성공') {
-            console.log(data.message)
-          setNicknameErrorMessage('사용할 수 있는 닉네임입니다.');
-        } else if (data.message === '중복된 닉네임입니다.') {
-          setNicknameErrorMessage('이미 사용 중인 닉네임입니다.');
-        } else {
-          setNicknameErrorMessage(data.message); // Update this line
-        }
-      })
-      .catch((error) => {
-        setNicknameErrorMessage('닉네임 중복 체크에 실패했습니다.');
-        console.error('닉네임 중복 체크 요청에 실패했습니다:', error);
-      });
-  };
+        // 서버에 닉네임 중복 체크 요청 보내기
+        // 예시로 axios를 사용하여 GET 요청을 보내는 방법을 보여드립니다.
+        fetch(`http://43.200.75.146:8080/members/signup/checkNickname?nickname=${nickname}`)
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data)
+                if (data.message === '중복 확인 성공') {
+                    console.log(data.message)
+                    setNicknameErrorMessage('사용할 수 있는 닉네임입니다.');
+                } else if (data.message === '중복된 닉네임입니다.') {
+                    setNicknameErrorMessage('이미 사용 중인 닉네임입니다.');
+                } else {
+                    setNicknameErrorMessage(data.message); // Update this line
+                }
+            })
+            .catch((error) => {
+                setNicknameErrorMessage('닉네임 중복 체크에 실패했습니다.');
+                console.error('닉네임 중복 체크 요청에 실패했습니다:', error);
+            });
+    };
 
     const isAgreedChangeHandler = (e) => {
         const isAgreed = e.target.checked;
@@ -150,9 +151,9 @@ function SignUp() {
     };
 
     const handleTermsLinkClick = () => {
-    // 약관 페이지로 이동하는 코드 작성
-    // 예시로 window.open을 사용하여 새 창으로 약관 페이지를 열어줍니다.
-    window.open('/terms', '_blank');
+        // 약관 페이지로 이동하는 코드 작성
+        // 예시로 window.open을 사용하여 새 창으로 약관 페이지를 열어줍니다.
+        window.open('/terms', '_blank');
     };
 
     const termsButtonClickHandler = () => {
@@ -162,12 +163,12 @@ function SignUp() {
 
     return (
         <>
-            <Form>  
-            {/* <Form onSubmit={submitHandler}> */}
+            <Form>
+                {/* <Form onSubmit={submitHandler}> */}
                 <div>
                     <Label>이메일</Label>
                 </div>
-                <div>    
+                <div>
                     <Input
                         type="email"
                         value={email}
@@ -184,7 +185,7 @@ function SignUp() {
                 <div>
                     <Label>비밀번호</Label>
                 </div>
-                <div>   
+                <div>
                     <Input
                         type="password"
                         value={password}
@@ -197,7 +198,7 @@ function SignUp() {
                 <div>
                     <Label>비밀번호 확인</Label>
                 </div>
-                <div>   
+                <div>
                     <Input
                         type="password"
                         value={confirmPassword}
@@ -210,7 +211,7 @@ function SignUp() {
                 <div>
                     <Label>닉네임</Label>
                 </div>
-                <FormField>       
+                <FormField>
                     <Input
                         type="text"
                         value={nickname}
@@ -228,15 +229,7 @@ function SignUp() {
                         type="checkbox"
                         checked={isAgreed}
                         onChange={isAgreedChangeHandler}
-                    /><BottomButton onClick={termsButtonClickHandler}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-navigate</BottomButton>                
-                </Wrapper>
-                <Wrapper>
-                    <Input
-                        type="checkbox"
-                        checked={isAgreed}
-                        onChange={isAgreedChangeHandler}
-                    />              
-                    <Link to="/terms">회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-link</Link><br/>
+                    /><BottomButton onClick={termsButtonClickHandler}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-navigate</BottomButton>
                 </Wrapper>
                 <Wrapper>
                     <Input
@@ -244,14 +237,22 @@ function SignUp() {
                         checked={isAgreed}
                         onChange={isAgreedChangeHandler}
                     />
-                    <BottomButton onClick={termsAlert}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-alert</BottomButton> 
+                    <Link to="/terms">회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-link</Link><br />
+                </Wrapper>
+                <Wrapper>
+                    <Input
+                        type="checkbox"
+                        checked={isAgreed}
+                        onChange={isAgreedChangeHandler}
+                    />
+                    <BottomButton onClick={termsAlert}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-alert</BottomButton>
                 </Wrapper>
 
                 {/* <button type="submit">회원가입</button> */}
-                <button onClick={(e)=>{
+                <button onClick={(e) => {
                     e.preventDefault() //요청전 리로드 방지
                     sendHandler(sendData)
-                    }}>회원가입</button>
+                }}>회원가입</button>
             </Form>
         </>
     );
