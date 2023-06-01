@@ -5,13 +5,15 @@ import UserVideoComponent from '../components/UserVideoComponent'
 import { useLocation } from 'react-router-dom'
 import SockJS from "sockjs-client"
 import { Client } from "@stomp/stompjs"
+import { styled } from 'styled-components'
+import useInput from '../hooks/useInput';
 
-const APPLICATION_SERVER_URL = process.env.NODE_ENV === 'production' ? '' : 'https://demos.openvidu.io/'
+const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
 function Room() {
   const location = useLocation()
   const sessionInfo = location.state
-
+  console.log(sessionInfo)
   const [mySessionId, setMySessionId] = useState(sessionInfo.mySessionId) //진짜 세션아이디로 넣어줘야됨 (지금은 서버에서 input에 걸려있는 정규식이 영어만 됨)
   const [myUserName, setMyUserName] = useState(sessionInfo.myUserName) //유저의 이름을 넣어줘야됨 
   const [session, setSession] = useState(undefined)
@@ -30,18 +32,73 @@ function Room() {
   const [isLoading, setIsLoading] = useState(true)
   const isConnected = useRef('')
   const stompClient = useRef(null)
+  // isOpen 
+  const [isOpened, setIsOpened] = useState(false)
+  // const [isOpened, setIsOpened] = useState('')
+
+  const [btnSelect, setBtnSelect] = useState('')
+
+  const publicHandler = () => {
+    setIsOpened(false)
+  }
+
+  const closedHandler = (e) => {
+    setIsOpened(true)
+  }
 
   // 보내는 메세지
   const [message, setMessage] = useState('')
 
+  // language
+  const [languageList, setLanguageList] = useState(
+    [
+      { language: 'JAVA', isSelected: false },
+      { language: 'JAVASCRIPT', isSelected: false },
+      { language: 'PYTHON', isSelected: false },
+      { language: 'C', isSelected: false },
+      { language: 'C#', isSelected: false },
+      { language: 'C++', isSelected: false },
+      { language: 'RUBY', isSelected: false },
+      { language: 'KOTLIN', isSelected: false },
+      { language: 'SWIFT', isSelected: false },
+      { language: 'GO', isSelected: false },
+      { language: 'PHP', isSelected: false },
+      { language: 'RUST', isSelected: false },
+      { language: 'LUA', isSelected: false },
+      { language: 'ETC', isSelected: false },
+    ]
+  )
+  // 언어 버튼 클릭 이벤트
+  const onClickLanguageHandler = (idx, isSelected) => {
+    const updateLanguageList = languageList.map((language, index) => {
+      if (index === idx) {
+        return { ...language, isSelected: !isSelected };
+      } else {
+        return { ...language, isSelected: false };
+      }
+    });
+    setLanguageList(updateLanguageList);
+  }
+
+  // maxMembers
+  const maxMembers = [2, 4, 6, 8]
+
+  const [curMaxMembers, setCurMaxMembers] = useState(0)
+  const maxMembersHandler = (e) => {
+    setCurMaxMembers(e)
+  }
+
+  const [closedPassword, onChangeClosedPassword, closedPasswordReset] = useInput('')
+  const [PasswordCheck, onChangePasswordCheck, passwordCheckReset] = useInput('')
+
   const OV = useRef(new OpenVidu())
 
-  const handleChangeSessionId = useCallback((e) => {
-    setMySessionId(e.target.value)
-  }, []);
+  // const handleChangeSessionId = useCallback((e) => {
+  //   setMySessionId(e.target.value)
+  // }, []);
 
-  const handleChangeUserName = useCallback((e) => {
-    setMyUserName(e.target.value)
+  const handleChangeRoomTitle = useCallback((e) => {
+    setRoomTitle(e.target.value)
   }, []);
 
   // 메인화면을 어느 스트림으로 할지 정하는 함수. 어느것을 추적해서 메인 화면으로 나타낼지
@@ -110,11 +167,11 @@ function Room() {
       });
       // 퍼블리셔를 세션에 게시
       session.publish(cameraPublisher)
-      
+
       // 기존 퍼블리시 제거
       session.unpublish(originPublish)
       setMainStreamManager(cameraPublisher)
-      
+
       // 상태 업데이트
       setPublisher(cameraPublisher)
       setIsScreenSharing(false)
@@ -164,7 +221,7 @@ function Room() {
       startScreenSharing(originPublish);
     }
   }, [isScreenSharing, startCameraSharing, startScreenSharing]);
-  
+
 
   useEffect(() => {
     // 세션이 있으면 그 세션에 publish해라 
@@ -264,17 +321,43 @@ function Room() {
     );
   }, [mySessionId]);
 
+
+
+  // "mogakkoRoomCreateRequestDto": {
+  //   "title": "string",
+  //   "language": "JAVA",
+  //   "maxMembers": 0,
+  //   "isOpened": true,
+  //   "neighborhood": "string",
+  //   "password": "string",
+  //   "lon": 0,
+  //   "lat": 0
+  // },
+  // 르탄이3zz
+  // ses_WR91bvlQis
+
+
+  // {
+  //  isOpened === '' || isOpened === 'public' ? false : true 
+  // }
+
   const createSession = async (sessionId) => {
-    const response = await axios.post(APPLICATION_SERVER_URL + 'api/sessions', { customSessionId: sessionId }, {
-      headers: { 'Content-Type': 'application/json', },
-    });
+    console.log("##### createSession", sessionId)
+    const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko',
+      { customSessionId: sessionId },
+      {
+        headers: { ACCESS_KEY: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkc2luMTExOEBrYWthby5jb20iLCJleHAiOjE2ODU0NTYwMDYsImlhdCI6MTY4NTQ1MjQwNn0.m6hvCBv3RMbz_SuUIbmecMKOcZNi0WUVhtmMQMPuszw', },
+      });
+    console.log("##### sessionID ??????????", response.data)
     return response.data; // The sessionId
   };
 
   const createToken = async (sessionId) => {
-    const response = await axios.post(APPLICATION_SERVER_URL + 'api/sessions/' + sessionId + '/connections', {}, {
-      headers: { 'Content-Type': 'application/json', },
+    console.log("##### createToken", sessionId)
+    const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
+      headers: { ACCESS_KEY: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkc2luMTExOEBrYWthby5jb20iLCJleHAiOjE2ODU0NTYwMDYsImlhdCI6MTY4NTQ1MjQwNn0.m6hvCBv3RMbz_SuUIbmecMKOcZNi0WUVhtmMQMPuszw', },
     });
+    console.log("##### createToken !!!!!!!!!!", response.data)
     return response.data; // The token
   };
 
@@ -346,7 +429,11 @@ function Room() {
       (data) => {
         console.log(" 구독됨", JSON.parse(data.body))
         const response = JSON.parse(data.body)
-        // setMessage() 여기에 response값 받아서 저장하고 이 state를 map해주면 될꺼같음
+        // setMessage() 여기에 response값 받아서 저장하고 이 state를 map해주면 될꺼같음 
+        // 타입 구별만 하면 끝 서버에서 response값으로 type을 보내주면 그거로 enter publish에 대한 값인지 talk에 대한값인지
+        // enter type은 입장메세지
+        // talk type은 채팅 메세지(내가 보낸 input값 상대가 보낸 메세지 값)
+        // 그러면 enter type 입장메세지도? massage state에 넣은후에? 뒤에 채팅 메세지를 스프레드 연산자로 붙여 넣고 그걸 mapping하면 될듯함
       }
     );
   };
@@ -403,26 +490,77 @@ function Room() {
       {session === undefined ? (
         <div>
           <div>
-            <h1> Join a video session </h1>
+            <h1> 방 만들기 </h1>
             <form onSubmit={joinSession}>
               <p>
-                <label>Participant: </label>
+                <label>방이름 </label>
                 <input
                   type="text"
-                  value={myUserName}
-                  onChange={handleChangeUserName}
+                  value={roomTitle}
+                  onChange={handleChangeRoomTitle}
                   required
                 />
               </p>
-              <p>
-                <label> Session: </label>
-                <input
-                  type="text"
-                  value={mySessionId}
-                  onChange={handleChangeSessionId}
-                  required
-                />
-              </p>
+              <div>
+                {
+                  languageList.map((language, idx) => {
+                    return (
+                      <button isSelected={language.isSelected} onClick={(e) => {
+                        e.preventDefault()
+                        onClickLanguageHandler(idx, language.isSelected)
+                      }}>{language.language}</button>
+                    )
+                  })
+                }
+              </div>
+              <div>
+                <p>최대인원</p>
+                {
+                  maxMembers.map((ele, idx) => {
+                    return (
+                      <button key={idx} onClick={(e) => {
+                        e.preventDefault()
+                        maxMembersHandler(ele)
+                      }}>{ele}</button>
+                    )
+                  })
+                }
+              </div>
+              <div>
+                <p>공개 여부</p>
+                <PublicBtn btnSelect={btnSelect}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setBtnSelect('public')
+                    publicHandler()
+                  }}>
+                  공개</PublicBtn>
+                <ClosedBtn btnSelect={btnSelect}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setBtnSelect('closed')
+                    closedHandler()
+                  }}>비공개</ClosedBtn>
+              </div>
+              {
+                isOpened &&
+                <div>
+                  <input type="text" 
+                  value={closedPassword} 
+                  onChange={(e) => {
+                    onChangeClosedPassword(e)
+                  }}
+                  placeholder='비밀번호를 입력해주세요'
+                  />
+                  <input type="text" 
+                  value={PasswordCheck}
+                  onChange={(e) => {
+                    onChangePasswordCheck(e)
+                  }}
+                  placeholder='비밀번호재입력'
+                  />
+                </div>
+              }
               <p>
                 <input name="commit" type="submit" value="JOIN" />
               </p>
@@ -441,7 +579,7 @@ function Room() {
               value="Leave session"
             />
           </div>
-          <button onClick={()=>{toggleSharingMode(publisher)}}>
+          <button onClick={() => { toggleSharingMode(publisher) }}>
             {isScreenSharing ? 'Switch to Camera' : 'Switch to Screen Sharing'}
           </button>
 
@@ -481,5 +619,20 @@ function Room() {
   );
 }
 
+const PublicBtn = styled.button`
+  width: 200px;
+  height: 50px;
+  background-color: ${({ btnSelect }) => 
+    btnSelect === 'public' ? 'yellow' : 'white'
+  };
+`
+
+const ClosedBtn = styled.button`
+  width: 200px;
+  height: 50px;
+  background-color: ${({ btnSelect }) => 
+    btnSelect === 'closed' ? 'yellow' : 'white'
+  };
+`
 
 export default Room

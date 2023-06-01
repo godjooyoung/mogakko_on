@@ -1,19 +1,23 @@
 import React from 'react';
 import { styled } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { __userLocation, __userTown} from '../redux/modules/user'
 
 function MainRoom() {
+
+    // 기본 좌표값 (전역)
+    const searchInfo = useSelector((state) => {
+        console.log("searchInfo", state.searchInfo)
+        return state.searchInfo
+    })
+
+    const userInfo = useSelector((state) => {
+        return state.userInfo
+    })
+
     const navigate = useNavigate();
 
-    // 방생성하기
-    const onClickRoomCreateHandler = () => {
-        const state = { 
-            mySessionId : '',
-            myUserName : '',
-            isDirect : false,
-        };
-        navigate('/room', {state : state });
-    }
     // 방참여하기
     const onClickJoinRoomHandler = (sessionId) => {
         alert(sessionId)
@@ -21,6 +25,9 @@ function MainRoom() {
             mySessionId : sessionId,
             myUserName : '신유저',
             isDirect : true,
+            latitude : userInfo.userLatitude,
+            longitude : userInfo.userLongitude,
+            neighborhood : userInfo.userTown,
         };
         navigate('/room', {state : state });
     }
@@ -60,16 +67,14 @@ function MainRoom() {
     ]
     return (
         <RoomContainer>
-            <button onClick={onClickRoomCreateHandler}> 방 등록하기 </button>
             <RoomList>
                 {roomList.map((room, idx)=>{
                     return (
                         <RoomCard>
                             <div>{room.room_name}</div>
-                            <div>1/{room.room_people_num}</div>
+                            <div>0/{room.room_people_num}</div>
                             <div>방언어 자바스크립트</div>
                             <div>
-                                <button>둘러보기</button>
                                 <button onClick={()=>{onClickJoinRoomHandler(room.room_session_id)}}>참여하기 버튼</button>
                             </div>
                         </RoomCard>
@@ -80,18 +85,19 @@ function MainRoom() {
     );
 }
 export const RoomContainer = styled.div`
-    width: 20vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
 `
 export const RoomList = styled.div`
     display: flex;
     justify-content: center;
     flex-direction: column;
+    align-items: center;
     width: 100%;
     gap: 5px;
 `
 export const RoomCard = styled.div`
-    width: 80%;
+    width: 100%;
     height: 100px;
     background-color: aqua;
 `

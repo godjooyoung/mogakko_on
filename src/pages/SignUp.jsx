@@ -8,9 +8,6 @@ import Modal from '../components/SignupModal';
 
 function SignUp() {
     const navigate = useNavigate();
-    const termsAlert = () => {
-        alert("자세한 약관 내용");
-      };
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -56,11 +53,11 @@ function SignUp() {
         }
     };
     //이메일 중복검사
-    const checkEmailExistence=(email)=>{
-        fetch(`${process.env.REACT_APP_SERVER_URL}/members/signup/checkEmail?email=${email}`)
-        .then(response=>response.json())
-        .then(data=>{
-            console.log(data)
+    const checkEmailExistence = (email) =>{
+        axios.get(`/members/signup/checkEmail?email=${email}`)
+        .then((response)=>{
+            const data = response.data;
+            console.log(data);
             if(data.message ==="중복 확인 성공"){
                 setEmailErrorMessage('사용할 수 있는 이메일입니다.');
             }else if(data.message === "중복된 이메일 입니다."){
@@ -120,10 +117,14 @@ function SignUp() {
         console.log("sendData:",sendData);
        await axios.post(`/members/signup`, sendData)
         .then(response => {
-          // 성공적으로 데이터를 서버에 보냈을 때 실행할 코드
-          console.log(response.data);
-            alert("회원가입 성공하였습니다.");
-            navigate("/signin");
+            const data = response.data;
+            console.log(data);
+            if(data.message === "회원 가입 성공"){
+                alert("회원가입 성공하였습니다.")
+                navigate("/signin");
+            }else{
+                alert("회원가입에 실패했습니다. 회원가입을 다시 진행해 주세요.")
+            }
         })
         .catch(error => {
           // 데이터 전송 중 오류가 발생했을 때 실행할 코드
@@ -160,11 +161,6 @@ function SignUp() {
         setIsAgreed(isAgreed);
     };
 
-    const handleTermsLinkClick = () => {
-    // 약관 페이지로 이동하는 코드 작성
-    // 예시로 window.open을 사용하여 새 창으로 약관 페이지를 열어줍니다.
-    window.open('/terms', '_blank');
-    };
 
     const termsButtonClickHandler = () => {
         openModal();
