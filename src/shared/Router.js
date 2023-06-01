@@ -6,7 +6,7 @@ import Main from "../pages/Main"
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
 import Room from "../pages/Room";
-import Terms from "../pages/Terms";
+// import Terms from "../pages/Terms";
 import Mypage from "../pages/Mypage";
 import BgContainer from "../components/BgContainer";
 import Layout from "../components/Layout";
@@ -20,7 +20,6 @@ const Router = () => {
             <Route path="/signin" element={<><Header /><SignIn /><Footer /></>} />
             <Route path="/signup" element={<><Header /><SignUp /><Footer /></>} />
             <Route path="/room" element={<Room />} />
-            <Route path="/terms" element={<Terms />} />
             <Route path="/mypage" element={<Mypage />} />
           </Route>
         </Route>
