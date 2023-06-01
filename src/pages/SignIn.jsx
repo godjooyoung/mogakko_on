@@ -42,7 +42,7 @@ const SignIn = () => {
         }
 
         try {
-            const response = await axios.post('http://3.36.135.176:8080/members/login', {
+            const response = await axios.post(process.env.LREACT_APP_SERVER_UR+`/members/login`, {
                 email: email,
                 password: password
             });
@@ -89,16 +89,16 @@ const SignIn = () => {
 export default SignIn;
 
 const Form = styled.form`
-    dlsplay: flex;
+    display: flex;
     flex-direction: column;
     max-width: 300px;
     margin: 0 auto
 `;
 
 const Label = styled.label`
-    margin-bottom; 0.5rem;
+    margin-bottom: 0.5rem;
     margin-top: 3rem;
-    font-wight: bold;
+    font-weight: bold;
 `;
 
 const Input = styled.input`

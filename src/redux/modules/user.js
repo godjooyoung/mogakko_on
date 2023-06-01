@@ -1,7 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { useQuery } from 'react-query';
 import { getAddress } from '../../axios/api/kakao'
-import { useDispatch, useSelector } from 'react-redux';
 
 // 초기상태 설정 (사용자 위치 정보가 없을 경우 지도에 보여줄 기본 위치)
 const initialState = {
