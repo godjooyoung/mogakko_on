@@ -53,7 +53,7 @@ function SignUp() {
     };
     //이메일 중복검사
     const checkEmailExistence = (email) => {
-        axios.get(process.env.REACT_APP_SERVER_URL+`members/signup/checkEmail?email=${email}`)
+        axios.get(process.env.REACT_APP_SERVER_URL+`/members/signup/checkEmail?email=${email}`)
             .then((response) => {
                 const data = response.data;
                 console.log(data);
@@ -115,7 +115,7 @@ function SignUp() {
 
     const sendHandler = async (sendData) => {
         console.log("sendData:", sendData);
-        await axios.post(process.env.REACT_APP_SERVER_URL+`members/signup`, sendData)
+        await axios.post(process.env.REACT_APP_SERVER_URL+`/members/signup`, sendData)
             .then(response => {
                 const data = response.data;
                 console.log(data);
@@ -137,7 +137,7 @@ function SignUp() {
     const checkNicknameExistence = (nickname) => {
         // 서버에 닉네임 중복 체크 요청 보내기
         // 예시로 axios를 사용하여 GET 요청을 보내는 방법을 보여드립니다.
-        fetch(process.env.REACT_APP_SERVER_URL+`members/signup/checkNickname?nickname=${nickname}`)
+        fetch(process.env.REACT_APP_SERVER_URL+`/members/signup/checkNickname?nickname=${nickname}`)
             .then((response) => response.json())
             .then((data) => {
                 console.log(data)

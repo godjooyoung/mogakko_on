@@ -42,7 +42,7 @@ const SignIn = () => {
         }
 
         try {
-            const response = await axios.post(process.env.REACT_APP_SERVER_URL+'members/login', {
+            const response = await axios.post(process.env.LREACT_APP_SERVER_UR+`/members/login`, {
                 email: email,
                 password: password
             });
