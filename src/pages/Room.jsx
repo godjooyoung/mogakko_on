@@ -13,7 +13,7 @@ const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 function Room() {
   const location = useLocation()
   const sessionInfo = location.state
-  console.log(sessionInfo)
+
   const [mySessionId, setMySessionId] = useState(sessionInfo.mySessionId) //진짜 세션아이디로 넣어줘야됨 (지금은 서버에서 input에 걸려있는 정규식이 영어만 됨)
   const [myUserName, setMyUserName] = useState(sessionInfo.myUserName) //유저의 이름을 넣어줘야됨 
   const [session, setSession] = useState(undefined)
@@ -33,17 +33,17 @@ function Room() {
   const isConnected = useRef('')
   const stompClient = useRef(null)
   // isOpen 
-  const [isOpened, setIsOpened] = useState(false)
+  const [isOpened, setIsOpened] = useState(true)
   // const [isOpened, setIsOpened] = useState('')
 
   const [btnSelect, setBtnSelect] = useState('')
 
   const publicHandler = () => {
-    setIsOpened(false)
+    setIsOpened(true)
   }
 
   const closedHandler = (e) => {
-    setIsOpened(true)
+    setIsOpened(false)
   }
 
   // 보내는 메세지
@@ -80,6 +80,19 @@ function Room() {
     setLanguageList(updateLanguageList);
   }
 
+  // 언어 버튼 선택한 value 가져오기
+  const [lang, setLang] = useState('')
+  useEffect(() => {
+    const setFiltering = () => {
+      languageList.map((language) => {
+        if (language.isSelected) {
+          setLang(language.language)
+        }
+      });
+    }
+    setFiltering()
+  }, [languageList])
+
   // maxMembers
   const maxMembers = [2, 4, 6, 8]
 
@@ -90,6 +103,17 @@ function Room() {
 
   const [closedPassword, onChangeClosedPassword, closedPasswordReset] = useInput('')
   const [PasswordCheck, onChangePasswordCheck, passwordCheckReset] = useInput('')
+
+  const [data, setData] = useState({
+    title: '',
+    language: '',
+    maxMembers: '',
+    isOpened: false,
+    password: '',
+    lon: sessionInfo.longitude,
+    lat: sessionInfo.latitude,
+    neighborhood: sessionInfo.neighborhood
+  })
 
   const OV = useRef(new OpenVidu())
 
@@ -128,8 +152,27 @@ function Room() {
     });
 
     setSession(mySession)
+
+    // setData({...data, ...{
+    //   title: roomTitle,
+    //   language: lang,
+    //   maxMembers: curMaxMembers,
+    //   isOpened,
+    //   password: closedPassword
+    // }})
   }, [])
 
+  // TEMP
+  const onClickTempButton = () => {
+    console.log("lang >>>>>>>>> ",lang)
+    setData({...data, ...{
+      title: roomTitle,
+      language : lang,
+      maxMembers: curMaxMembers,
+      isOpened,
+      password: closedPassword
+    }})
+  }
 
   // 목록에서 방으로 바로 접근 할경우 실행되는 useEffect
   useEffect(() => {
@@ -316,10 +359,10 @@ function Room() {
    * more about the integration of OpenVidu in your application server.
    */
   const getToken = useCallback(async () => {
-    return createSession(mySessionId).then(sessionId =>
+    return createSession(data).then(sessionId =>
       createToken(sessionId),
     );
-  }, [mySessionId]);
+  }, [data]);
 
 
 
@@ -341,23 +384,28 @@ function Room() {
   //  isOpened === '' || isOpened === 'public' ? false : true 
   // }
 
-  const createSession = async (sessionId) => {
-    console.log("##### createSession", sessionId)
+  const createSession = async (data) => {
+    console.log("##### createSession", data)
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko',
-      { customSessionId: sessionId },
+      data,
       {
-        headers: { ACCESS_KEY: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkc2luMTExOEBrYWthby5jb20iLCJleHAiOjE2ODU0NTYwMDYsImlhdCI6MTY4NTQ1MjQwNn0.m6hvCBv3RMbz_SuUIbmecMKOcZNi0WUVhtmMQMPuszw', },
+        headers: { ACCESS_KEY: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MzJAbmF2ZXIuY29tIiwiZXhwIjoxNjg1NjA3Njg2LCJpYXQiOjE2ODU2MDQwODZ9.O7MMCSGW79U6uZ-lN0hMBqWAkJFXcqYvgHfYqS7CgCo'},
       });
-    console.log("##### sessionID ??????????", response.data)
-    return response.data; // The sessionId
+    console.log("##### sessionID ??????????", response.data.data.sessionId)
+    return response.data.data.sessionId; // The sessionId
   };
 
   const createToken = async (sessionId) => {
     console.log("##### createToken", sessionId)
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
-      headers: { ACCESS_KEY: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkc2luMTExOEBrYWthby5jb20iLCJleHAiOjE2ODU0NTYwMDYsImlhdCI6MTY4NTQ1MjQwNn0.m6hvCBv3RMbz_SuUIbmecMKOcZNi0WUVhtmMQMPuszw', },
+      headers: { 
+        ACCESS_KEY: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MzJAbmF2ZXIuY29tIiwiZXhwIjoxNjg1NjA3Njg2LCJpYXQiOjE2ODU2MDQwODZ9.O7MMCSGW79U6uZ-lN0hMBqWAkJFXcqYvgHfYqS7CgCo',
+        // 'Access-Control-Allow-Origin': '*',
+        // 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
+        // 'Access-Control-Allow-Headers': 'Content-Type'
+      },
     });
-    console.log("##### createToken !!!!!!!!!!", response.data)
+    console.log("##### createToken !!!!!!!!!!>>>>", response)
     return response.data; // The token
   };
 
@@ -543,21 +591,21 @@ function Room() {
                   }}>비공개</ClosedBtn>
               </div>
               {
-                isOpened &&
+                !isOpened &&
                 <div>
-                  <input type="text" 
-                  value={closedPassword} 
-                  onChange={(e) => {
-                    onChangeClosedPassword(e)
-                  }}
-                  placeholder='비밀번호를 입력해주세요'
+                  <input type="text"
+                    value={closedPassword}
+                    onChange={(e) => {
+                      onChangeClosedPassword(e)
+                    }}
+                    placeholder='비밀번호를 입력해주세요'
                   />
-                  <input type="text" 
-                  value={PasswordCheck}
-                  onChange={(e) => {
-                    onChangePasswordCheck(e)
-                  }}
-                  placeholder='비밀번호재입력'
+                  <input type="text"
+                    value={PasswordCheck}
+                    onChange={(e) => {
+                      onChangePasswordCheck(e)
+                    }}
+                    placeholder='비밀번호재입력'
                   />
                 </div>
               }
@@ -565,6 +613,7 @@ function Room() {
                 <input name="commit" type="submit" value="JOIN" />
               </p>
             </form>
+            <button onClick={onClickTempButton}>TEMP</button>
           </div>
         </div>
       ) : null}
@@ -622,7 +671,7 @@ function Room() {
 const PublicBtn = styled.button`
   width: 200px;
   height: 50px;
-  background-color: ${({ btnSelect }) => 
+  background-color: ${({ btnSelect }) =>
     btnSelect === 'public' ? 'yellow' : 'white'
   };
 `
@@ -630,7 +679,7 @@ const PublicBtn = styled.button`
 const ClosedBtn = styled.button`
   width: 200px;
   height: 50px;
-  background-color: ${({ btnSelect }) => 
+  background-color: ${({ btnSelect }) =>
     btnSelect === 'closed' ? 'yellow' : 'white'
   };
 `

@@ -8,7 +8,6 @@ import Modal from '../components/SignupModal';
 
 function SignUp() {
     const navigate = useNavigate();
-
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -137,7 +136,7 @@ function SignUp() {
     const checkNicknameExistence = (nickname) => {
       // 서버에 닉네임 중복 체크 요청 보내기
       // 예시로 axios를 사용하여 GET 요청을 보내는 방법을 보여드립니다.
-      fetch(`http://43.200.75.146:8080/members/signup/checkNickname?nickname=${nickname}`)
+      fetch(`members/signup/checkNickname?nickname=${nickname}`)
       .then((response) => response.json())
       .then((data) => {
         console.log(data)
