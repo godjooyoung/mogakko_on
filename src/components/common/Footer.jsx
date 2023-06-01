@@ -11,7 +11,7 @@ function Footer(props) {
 
 export const CommonFooter = styled.footer`
     background: hotpink;
-    width : 100vw;
+    width : 100%;
     height : 50px;
 `
 export default Footer;
