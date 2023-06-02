@@ -71,7 +71,7 @@ function MainMap(props) {
         const bounds = new kakao.maps.LatLngBounds();
         
         // 검색 목록 배열을 돌며 마커 생성해서 붙인다.
-        props.roomList.forEach((room)=>{
+        props.roomList&&props.roomList.forEach((room)=>{
             const pointer = new kakao.maps.LatLng(room.lat, room.lon)
             bounds.extend(pointer)
             const marker = new kakao.maps.Marker({

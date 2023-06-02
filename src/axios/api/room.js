@@ -26,7 +26,7 @@ const setRequestURL = (searchInfo) => {
 export const getRoomList = async (searchInfo) => {    
     try {
         const response = await instance.post(`/mogakkos`+setRequestURL(searchInfo), {lon:searchInfo.searchLongitude, lat:searchInfo.searchLatitude})
-        return response.data
+        return response.data    
     }catch(error) {
         console.log(error)
     }

@@ -30,12 +30,17 @@ function MainHeader() {
         if (isLogin) {
             console.log("#### userInfo", userInfo)
             const state = {
-                mySessionId: '',
-                myUserName: '',
-                isDirect: false,
-                latitude: userInfo.userLatitude,
-                longitude: userInfo.userLongitude,
-                neighborhood: userInfo.userTown,
+                mySessionId : '',
+                myUserName : getCookie('nickName'),
+                isDirect : false,
+                title : '',
+                language : '',
+                maxMembers : '',
+                isOpened : true,
+                password : '',
+                latitude : userInfo.userLatitude,
+                longitude : userInfo.userLongitude,
+                neighborhood : userInfo.userTown,
             };
             navigate('/room', { state: state })
         } else {
