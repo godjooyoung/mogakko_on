@@ -16,7 +16,7 @@ function Room() {
   const sessionInfo = location.state
 
   const [mySessionId, setMySessionId] = useState(sessionInfo.mySessionId) //진짜 세션아이디로 넣어줘야됨 (지금은 서버에서 input에 걸려있는 정규식이 영어만 됨)
-  const [myUserName, setMyUserName] = useState(sessionInfo.nickName) //유저의 이름을 넣어줘야됨 
+  const [myUserName, setMyUserName] = useState(sessionInfo.myUserName) //유저의 이름을 넣어줘야됨 
   const [session, setSession] = useState(undefined)
   const [roomTitle, setRoomTitle] = useState(sessionInfo.title)
   const [mainStreamManager, setMainStreamManager] = useState(undefined)
@@ -136,7 +136,6 @@ function Room() {
   // 세션은 영상 및 음성 통신에 대한 컨테이너 역할(Room)
   const joinSession = useCallback(() => {
     const mySession = OV.current.initSession()
-
     mySession.on('streamCreated', (event) => {
       const subscriber = mySession.subscribe(event.stream, undefined)
       setSubscribers((subscribers) => [...subscribers, subscriber])
@@ -290,7 +289,9 @@ function Room() {
         getToken().then(async (response) => {
           console.log("화면왜안붙어!!!! >>>", response)
           try {
-            await session.connect(response.data);
+            // await session.connect(response.data);
+            await session.connect(response.data, { clientData: sessionInfo.myUserName });
+            
             // stream만들기 initPublisherAsync() 메소드는 스트림 생성 및 전송 담당를 초기화
             let publisher = await OV.current.initPublisherAsync(undefined, {
               audioSource: undefined,
@@ -318,7 +319,7 @@ function Room() {
           }
         });
       }
-    }, [session, myUserName]);
+    }, [session]);
 
 
     const leaveSession = useCallback(() => {
