@@ -1,16 +1,16 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react'
 
 function OpenViduVideoComponent({ streamManager }) {
-    const videoRef = useRef();
+    const videoRef = useRef()
 
     useEffect(() => {
         //streamManager와 videoRef.current가 존재하는 경우
         if (streamManager && videoRef.current) {
-            streamManager.addVideoElement(videoRef.current);
+            streamManager.addVideoElement(videoRef.current)
         }
-    }, [streamManager]);
+    }, [streamManager])
 
-    return <video autoPlay={true} ref={videoRef} />;
+    return <video autoPlay={true} ref={videoRef} />
 }
 
 // 스트림 관리자(streamManager)가 변경될 때마다 비디오 요소를 추가

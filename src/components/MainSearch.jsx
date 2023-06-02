@@ -14,7 +14,7 @@ function MainSearch(props) {
     // const formData = new FormData()
     
     // 리액트 쿼리
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient()
 
     // 주소 -> 좌표값 변환 api call
     const [isTargeting, setIsTargeting] = useState(false)
@@ -64,12 +64,12 @@ function MainSearch(props) {
     const onClickLanguageHandler = (idx, isSelected) => {
         const updateLanguageList = languageList.map((language, index) => {
             if (index === idx) {
-                return { ...language, isSelected: !isSelected };
+                return { ...language, isSelected: !isSelected }
             }else{
-                return { ...language, isSelected: false };
+                return { ...language, isSelected: false }
             }
         });
-        setLanguageList(updateLanguageList);
+        setLanguageList(updateLanguageList)
     }
     
 
@@ -106,6 +106,7 @@ function MainSearch(props) {
             // sendData(getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x)
         }
     }, [getLatLngQuery.isSuccess])
+
 
     // // TODO sjy 나중에 이 폼데이터를 서버에 보내야함. 
     // // 서버에 폼 데이터 보내기
@@ -194,7 +195,7 @@ export const SearchLanguageBtn = styled.button`
 
     
 `
-export default MainSearch;
+export default MainSearch
 
 
 

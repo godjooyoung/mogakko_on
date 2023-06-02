@@ -16,7 +16,7 @@ function MainRoom(props) {
         return state.userInfo
     })
 
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
     // 내부 상태
     const [roomDetails, setRoomDetails] = useState(props.roomList[0])
@@ -32,7 +32,7 @@ function MainRoom(props) {
             longitude : userInfo.userLongitude,
             neighborhood : userInfo.userTown,
         };
-        navigate('/room', {state : state });
+        navigate('/room', {state : state })
     }
 
     // 방 상세보기
@@ -100,4 +100,4 @@ export const RoomCard = styled.div`
     background-color: skyblue;
     cursor: pointer;
 `
-export default MainRoom;
+export default MainRoom
