@@ -8,6 +8,7 @@ const login = async (loginUserInfo) => {
       // 토큰 받기
       const token = response.headers["access_key"]
       setCookie("token", token)
+      setCookie("nickName", response.data.data)
       return Promise.resolve(response)
     }else if (response.status === 400){
       // 잘못된 비밀번호 입니다.

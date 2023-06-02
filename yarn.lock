@@ -7000,10 +7000,10 @@ open@^8.0.9, open@^8.4.0:
     is-docker "^2.1.1"
     is-wsl "^2.2.0"
 
-openvidu-browser@^2.28.0-beta1:
-  version "2.28.0-beta1"
-  resolved "https://registry.yarnpkg.com/openvidu-browser/-/openvidu-browser-2.28.0-beta1.tgz#1dc34fe5fc81e3bd73dc1264551f1b53a5a4da17"
-  integrity sha512-gISkSD3GSDesEFG/Rqq7L/iDH8cdHA4eChXTd4sO9f6SK/r1pvLMCsSvwgMHIOuNUhceidI48/TuPG/SR7wZLw==
+openvidu-browser@2.25.0:
+  version "2.25.0"
+  resolved "https://registry.yarnpkg.com/openvidu-browser/-/openvidu-browser-2.25.0.tgz#7d6ca7b6f2805d7d3fc12a8e4be1f50899da1214"
+  integrity sha512-arDKARUXCbt39AE3shLjgrsZR/1jwHlE81OGZGq8MLVHWALGEbvcZyjpYGFtymmwhYsAH6QcLh60Y3+fJoF7Ww==
   dependencies:
     events "3.3.0"
     freeice "2.2.2"

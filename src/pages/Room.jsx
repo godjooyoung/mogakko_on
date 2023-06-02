@@ -274,7 +274,8 @@ function Room() {
       getToken().then(async (response) => {
         console.log("입장토큰>",response.data)
         try {
-          await session.connect(response.data, { clientData: myUserName });
+          // await session.connect(response.data, { clientData: myUserName });
+          await session.connect(response.data);
           // stream만들기 initPublisherAsync() 메소드는 스트림 생성 및 전송 담당를 초기화
           let publisher = await OV.current.initPublisherAsync(undefined, {
             audioSource: undefined,
