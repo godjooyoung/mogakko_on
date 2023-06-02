@@ -14,7 +14,7 @@ const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 function Room() {
   const location = useLocation()
   const sessionInfo = location.state
-  
+
   const [mySessionId, setMySessionId] = useState(sessionInfo.mySessionId) //진짜 세션아이디로 넣어줘야됨 (지금은 서버에서 input에 걸려있는 정규식이 영어만 됨)
   const [myUserName, setMyUserName] = useState(sessionInfo.myUserName) //유저의 이름을 넣어줘야됨 
   const [session, setSession] = useState(undefined)
@@ -165,14 +165,16 @@ function Room() {
 
   // TEMP
   const onClickTempButton = () => {
-    console.log("lang >>>>>>>>> ",lang)
-    setData({...data, ...{
-      title: roomTitle,
-      language : lang,
-      maxMembers: curMaxMembers,
-      isOpened,
-      password: closedPassword
-    }})
+    console.log("lang >>>>>>>>> ", lang)
+    setData({
+      ...data, ...{
+        title: roomTitle,
+        language: lang,
+        maxMembers: curMaxMembers,
+        isOpened,
+        password: closedPassword
+      }
+    })
   }
 
   // 목록에서 방으로 바로 접근 할경우 실행되는 useEffect
@@ -272,7 +274,7 @@ function Room() {
     if (session) {
       // 토큰받아오기
       getToken().then(async (response) => {
-        console.log("입장토큰>",response.data)
+        console.log("입장토큰>", response.data)
         try {
           // await session.connect(response.data, { clientData: myUserName });
           await session.connect(response.data);
@@ -392,7 +394,7 @@ function Room() {
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko',
       data,
       {
-        headers: { ACCESS_KEY: getCookie('token')},
+        headers: { ACCESS_KEY: getCookie('token') },
       });
     console.log("##### sessionID ??????????", response.data.data.sessionId)
     return response.data.data.sessionId; // The sessionId
@@ -401,7 +403,7 @@ function Room() {
   const createToken = async (sessionId) => {
     console.log("##### createToken", sessionId)
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
-      headers: { 
+      headers: {
         ACCESS_KEY: getCookie('token'),
         // 'Access-Control-Allow-Origin': '*',
         // 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
@@ -622,7 +624,7 @@ function Room() {
       ) : null}
       {/* 세션이 있으면  */}
       {session !== undefined ? (
-        <div>
+        <RoomContainer>
           <div>
             <h1>{mySessionId}</h1>
             <input
@@ -665,11 +667,27 @@ function Room() {
               </div>
             ))}
           </div>
-        </div>
+
+          <ChattingWrap>
+            <ChattingHeader>chatting Header</ChattingHeader>
+            <ChatContentWrap>
+
+            </ChatContentWrap>
+            <ChatInput id="" cols="30" rows="10"></ChatInput>
+            <SendBtnWrap>
+              <SendBtn>보내기</SendBtn>
+            </SendBtnWrap>
+          </ChattingWrap>
+        </RoomContainer>
       ) : null}
     </div>
   );
 }
+
+const RoomContainer = styled.div`
+  display: flex;
+  overflow: hidden;
+`
 
 const PublicBtn = styled.button`
   width: 200px;
@@ -686,5 +704,63 @@ const ClosedBtn = styled.button`
     btnSelect === 'closed' ? 'yellow' : 'white'
   };
 `
+const ChattingWrap = styled.div`
+  width: 300px;
+  height: 880px;
+  position: relative;
+  background-color: red;
+`
 
+const ChattingHeader = styled.div`
+  height: 50px;
+  background-color: blue;
+`
+
+const ChatContentWrap = styled.div`
+    padding: 10px 25px;
+    height: 780px;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    margin-bottom: 10px;
+    position: relative;
+
+    display: flex;
+    flex-direction: column-reverse;
+`;
+
+const ChatInput = styled.textarea`
+    width: 100%;
+    height: 40px;
+    background-color: #e49c9c;
+    padding: 11px 65px 0 10px;
+    letter-spacing: 2.5px;
+    line-height: 20px;
+    resize: none;
+    box-sizing: border-box;
+    font-size: 16px;
+    font-weight: 900;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    outline: none;
+    border: none;
+`;
+
+const SendBtnWrap = styled.div`
+    position: absolute;
+    bottom: -2px;
+    right: 0px;
+    cursor: pointer;
+    padding: 6px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    text-align: center;
+`;
+
+const SendBtn = styled.button`
+    color: white;
+    font-size: 20px;
+`;
 export default Room
