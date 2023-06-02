@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { __userLocation, __userTown} from '../redux/modules/user'
+import { getCookie } from '../cookie/Cookie';
 
 function MainRoom(props) {
 
@@ -22,15 +23,20 @@ function MainRoom(props) {
     const [roomDetails, setRoomDetails] = useState(props.roomList[0])
 
     // 방참여하기
-    const onClickJoinRoomHandler = (sessionId) => {
-        alert(sessionId)
+    const onClickJoinRoomHandler = (details) => {
+        console.log(">>>>>>>>>>>>>>>>> details", details)
         const state = { 
-            mySessionId : sessionId,
-            myUserName : '신유저',
+            mySessionId : details.sessionId,
+            myUserName : getCookie('nickName'),
             isDirect : true,
-            latitude : userInfo.userLatitude,
-            longitude : userInfo.userLongitude,
-            neighborhood : userInfo.userTown,
+            title : details.title,
+            language : details.language,
+            maxMembers : details.maxMembers,
+            isOpened : details.opened,
+            password : details.password,
+            latitude : details.lat,
+            longitude : details.lon,
+            neighborhood : details.neighborhood,
         };
         navigate('/room', {state : state })
     }
@@ -43,7 +49,7 @@ function MainRoom(props) {
     return (
         <RoomContainer>
             <RoomList>
-                {props.roomList.map((room, idx)=>{
+                {props.roomList&&props.roomList.map((room, idx)=>{
                     return (
                         <RoomCard onClick={()=>{onClickRoomDetailsHandler(room)}}> 
                             <div>{room.title}</div>
@@ -56,13 +62,13 @@ function MainRoom(props) {
                 })}
             </RoomList>
             <RoomDetails>
-                <div>{roomDetails.title}</div>
-                <div>지역 : {roomDetails.neighborhood}</div>
-                <div>모각코시간 : {roomDetails.createdAt}</div>
-                <div>정원 : {roomDetails.cntMembers}/{roomDetails.maxMembers}</div>
-                <div>언어 : {roomDetails.language}</div>
+                <div>{roomDetails&&roomDetails.title}</div>
+                <div>지역 : {roomDetails&&roomDetails.neighborhood}</div>
+                <div>모각코시간 : {roomDetails&&roomDetails.createdAt}</div>
+                <div>정원 : {roomDetails&&roomDetails.cntMembers}/{roomDetails&&roomDetails.maxMembers}</div>
+                <div>언어 : {roomDetails&&roomDetails.language}</div>
                 <div>
-                    <button onClick={()=>{onClickJoinRoomHandler(roomDetails.sessionId)}}>참여하기</button>
+                    <button onClick={()=>{onClickJoinRoomHandler(roomDetails)}}>참여하기</button>
                 </div>
             </RoomDetails>
         </RoomContainer>
