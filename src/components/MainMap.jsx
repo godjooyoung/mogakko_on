@@ -114,7 +114,7 @@ function MainMap(props) {
                     console.error('error', e);
                 }
             }, 2000);
-                setTimer(newTimer);
+            setTimer(newTimer);
 
             // 지도의 중심좌표를 얻어옵니다 
             const getMapCenterDebouncing = () => {

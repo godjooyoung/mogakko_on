@@ -7,11 +7,11 @@ import { fetchUserLocation } from '../redux/modules/user'
 import { __searchLocation, __searchLanguage, __searchKeyword } from '../redux/modules/search';
 import useInput from '../hooks/useInput';
 // 메인화면 검색창 영역
-function MainSearch() {
+function MainSearch(props) {
 
     const dispatcher = useDispatch()
     
-    const formData = new FormData()
+    // const formData = new FormData()
     
     // 리액트 쿼리
     const queryClient = useQueryClient();
@@ -102,29 +102,29 @@ function MainSearch() {
             console.log("[INFO] 좌표 요청 결과 (", getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x, ")")
             dispatcher(fetchUserLocation({ latitude: getLatLngQuery.data.documents[0].y, longitude: getLatLngQuery.data.documents[0].x }))
             dispatcher(__searchLocation({ latitude: getLatLngQuery.data.documents[0].y, longitude: getLatLngQuery.data.documents[0].x }))
-            // 데이터 조회하기
-            sendData(getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x)
+            // // 데이터 조회하기
+            // sendData(getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x)
         }
     }, [getLatLngQuery.isSuccess])
 
-    // TODO sjy 나중에 이 폼데이터를 서버에 보내야함. 
-    // 서버에 폼 데이터 보내기
-    const sendData = (lat, lon , keyword, language) => {
-        formData.append('lat', lat);
-        formData.append('lon', lon);
-        if (keyword) {
-            formData.append('searchKeyword', '');
-        } else {
-            formData.append('searchKeyword', keyword);
-        }
+    // // TODO sjy 나중에 이 폼데이터를 서버에 보내야함. 
+    // // 서버에 폼 데이터 보내기
+    // const sendData = (lat, lon , keyword, language) => {
+    //     formData.append('lat', lat);
+    //     formData.append('lon', lon);
+    //     if (keyword) {
+    //         formData.append('searchKeyword', '');
+    //     } else {
+    //         formData.append('searchKeyword', keyword);
+    //     }
 
-        if (language) {
-            formData.append('language', '');
-        } else {
-            formData.append('language', language);
-        }
-        console.log("[INFO] Send formData ", [...formData])
-    }
+    //     if (language) {
+    //         formData.append('language', '');
+    //     } else {
+    //         formData.append('language', language);
+    //     }
+    //     console.log("[INFO] Send formData ", [...formData])
+    // }
 
     useEffect(()=>{
         const setFiltering = () => {
