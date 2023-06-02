@@ -18,12 +18,8 @@ function MainHeader() {
     const [isLogin, setIsLogin] = useState(false)
 
     useEffect(() => {
-        if (getCookie('token') ? true : false) {
-            setIsLogin(true)
-        } else {
-            setIsLogin(false)
-        }
-    }, [])
+        setIsLogin(getCookie('token') ? true : false)
+    })
 
     // 방 생성하기
     const onClickRoomCreateHandler = () => {

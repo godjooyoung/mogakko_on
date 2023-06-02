@@ -1,44 +1,44 @@
-import React, { useState } from 'react'
-import { useMutation } from "react-query";
-import { addprofile } from '../axios/api/mypage';
-import styled from "styled-components";
+import React, { useEffect, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { getProfile, addProfile } from '../axios/api/mypage'
+import styled from 'styled-components'
+
 function Mypage() {
+  
+  const { isLoading, isError, data } = useQuery("getProfile", getProfile)
+  
+  useEffect(()=>{
+    console.log("조회결과 ", data)
+  },[data])
 
-  const [fileAttach, setFileAttach] = useState("");
-  const [preview, setPreview] = useState("");
+  const [fileAttach, setFileAttach] = useState('')
+  const [preview, setPreview] = useState('')
 
-  const filemutation = useMutation(addprofile, {
+  const filemutation = useMutation(addProfile, {
     onSuccess: (response) => {
-      
+      console.log("addProfile 성공",  response)
     },
-  });
+  })
 
   const handleFileChange = (event) => {
-    setFileAttach(event.target.files[0]);
-    const objectUrl = URL.createObjectURL(event.target.files[0]);
-    setPreview(objectUrl);
-  };
+    setFileAttach(event.target.files[0])
+    const objectUrl = URL.createObjectURL(event.target.files[0])
+    setPreview(objectUrl)
+  }
 
   const submitButtonHandler = () => {
     const newFile = new FormData();
-    newFile.append("imageFile", fileAttach);
-    filemutation.mutate(newFile);
-  };
+    newFile.append("imageFile", fileAttach)
+    filemutation.mutate(newFile)
+  }
 
   return (
     <>
-      <form
-        encType="multipart/form-data"
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
+      <form encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
         <ImageWrap BgImg={preview} />
         <div>
           <FileButton htmlFor="file">프로필사진 등록</FileButton>
-          <FileInput type="file" id="file" onChange={handleFileChange} onClick={() => {
-            submitButtonHandler()
-          }}/>
+          <FileInput type="file" id="file" onChange={handleFileChange} onClick={() => { submitButtonHandler()}}/>
         </div>
       </form>
     </>
@@ -54,6 +54,7 @@ const ImageWrap = styled.div`
   };
   background-position:center;
   background-size:contain;
+  background-color : white;
 `
 
 const FileButton = styled.label`
