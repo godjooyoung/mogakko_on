@@ -20,13 +20,12 @@ const setRequestURL = (searchInfo) => {
         }
     }
 
-    console.log("요청URL", requestURL)
     return requestURL
 }
 
 export const getRoomList = async (searchInfo) => {    
     try {
-        const response = await instance.post(`/mogakko`+setRequestURL(searchInfo), {lon:searchInfo.searchLongitude, lat:searchInfo.searchLatitude})
+        const response = await instance.post(`/mogakkos`+setRequestURL(searchInfo), {lon:searchInfo.searchLongitude, lat:searchInfo.searchLatitude})
         return response.data
     }catch(error) {
         console.log(error)

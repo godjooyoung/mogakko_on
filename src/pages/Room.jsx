@@ -271,9 +271,10 @@ function Room() {
     // 세션이 있으면 그 세션에 publish해라 
     if (session) {
       // 토큰받아오기
-      getToken().then(async (token) => {
+      getToken().then(async (response) => {
+        console.log("입장토큰>",response.data)
         try {
-          await session.connect(token, { clientData: myUserName });
+          await session.connect(response.data, { clientData: myUserName });
           // stream만들기 initPublisherAsync() 메소드는 스트림 생성 및 전송 담당를 초기화
           let publisher = await OV.current.initPublisherAsync(undefined, {
             audioSource: undefined,
