@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { __userLocation } from '../redux/modules/search';
 import { useNavigate } from 'react-router-dom';
 import { getCookie } from '../cookie/Cookie';
@@ -44,30 +44,47 @@ function MainHeader() {
     }
 
     const completedTitle = useMemo(() => {
-        return `모각코를 위한 서비스 플랫폼`
-    }, [])
+        return `모각코를 위한 서비스 플랫폼`;
+    }, []);
 
-    const [landingTitle, setLandingTitle] = useState("")
-    const [count, setCount] = useState(0)
+    const [landingTitle, setLandingTitle] = useState("");
+    const [count, setCount] = useState(0);
+    const [isCompleted, setIsCompleted] = useState(false);
 
-    useInterval(() => {
-        if (count >= completedTitle.length) {
-            setCount(0)
-            setLandingTitle('')
-            return
+    useEffect(() => {
+        if (isCompleted) {
+            setCount(completedTitle.length);
+        }
+    }, [isCompleted, completedTitle.length]);
+
+    useEffect(() => {
+        if (isCompleted) {
+            return;
         }
 
-        setLandingTitle((prev) => {
-            let result = prev ? prev + completedTitle[count] : completedTitle[0]
-            setCount((prev) => prev + 1)
-            return result
-        })
-    }, 250)
+        const typingInterval = setInterval(() => {
+            if (count >= completedTitle.length) {
+                setIsCompleted(true);
+                clearInterval(typingInterval);
+                return;
+            }
+
+            setLandingTitle((prev) => {
+                let result = prev ? prev + completedTitle[count] : completedTitle[0];
+                setCount((prev) => prev + 1);
+                return result;
+            });
+        }, 250);
+
+        return () => {
+            clearInterval(typingInterval);
+        };
+    }, [completedTitle, count, isCompleted]);
 
     return (
         <MainHeaderWrap>
             <MainTitleWrap>
-                <Content>
+                <Content isCompleted={isCompleted}>
                     <FontSize>{landingTitle}</FontSize>
                 </Content>
                 {/* <div>모각코를 위한 서비스 플랫폼</div> */}
@@ -141,5 +158,10 @@ const typingCursor2 = keyframes`
 const Content = styled.div`
     animation: ${typingCursor1} 1s ease-in-out 0ms 2,
     ${typingCursor2} 1s ease-in-out 450ms infinite;
+    ${({ isCompleted }) =>
+        isCompleted &&
+        css`
+    animation: none;
+    `}
 `;
 export default MainHeader
