@@ -17,7 +17,7 @@ function Room() {
 
   const [mySessionId, setMySessionId] = useState(sessionInfo.mySessionId) //진짜 세션아이디로 넣어줘야됨 (지금은 서버에서 input에 걸려있는 정규식이 영어만 됨)
   const [myUserName, setMyUserName] = useState(sessionInfo.nickName) //유저의 이름을 넣어줘야됨 
-  const [session, setSession] = useState(sessionInfo.sessionId)
+  const [session, setSession] = useState(undefined)
   const [roomTitle, setRoomTitle] = useState(sessionInfo.title)
   const [mainStreamManager, setMainStreamManager] = useState(undefined)
   const [publisher, setPublisher] = useState(undefined)
@@ -192,7 +192,6 @@ function Room() {
 
   // 목록에서 방으로 바로 접근 할경우 실행되는 useEffect
   useEffect(() => {
-    console.log(">>>>>>>>>>>>>>>> 여기 오니 다이렉트야..? 0")
     if (sessionInfo) {
       if (sessionInfo.isDirect) {
           console.log(">>>>>>>>>>>>>>>> 여기 오니 다이렉트야..? 1")
@@ -286,16 +285,11 @@ function Room() {
 
     useEffect(() => {
       // 세션이 있으면 그 세션에 publish해라 
-      if (session) {
-        if(sessionInfo.isDirect){
-          console.log("00.바로접속하기 >> ", sessionInfo.sessionId, sessionInfo.isDirect)
-        }
-        
+      if (session) {  
         // 토큰받아오기
         getToken().then(async (response) => {
-          console.log("00.입장토큰=>", response.data)
+          console.log("화면왜안붙어!!!! >>>", response)
           try {
-            console.log("01.세션연결=>", session)
             await session.connect(response.data);
             // stream만들기 initPublisherAsync() 메소드는 스트림 생성 및 전송 담당를 초기화
             let publisher = await OV.current.initPublisherAsync(undefined, {
@@ -383,9 +377,16 @@ function Room() {
      * more about the integration of OpenVidu in your application server.
      */
     const getToken = useCallback(async () => {
-      return createSession(data).then(sessionId =>
-        createToken(sessionId),
-      );
+      console.log("########### getToken")
+      console.log("########### sessionInfo.mySessionId", sessionInfo.mySessionId)
+      console.log("########### sessionInfo.isDirect", sessionInfo.isDirect)
+      if(sessionInfo.isDirect){
+        return createToken(sessionInfo.mySessionId)
+      }else{
+        return createSession(data).then(sessionId =>
+          createToken(sessionId),
+        );
+      }
     }, [data]);
 
 
