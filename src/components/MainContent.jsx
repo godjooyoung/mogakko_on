@@ -28,9 +28,9 @@ function MainContent() {
     })
 
     useEffect(()=>{
-        // if(isSearched){
-        //     roomListMutation.mutate(searchInfo)
-        // }
+        if(isSearched){
+            roomListMutation.mutate(searchInfo)
+        }
     },[isSearched])
 
     // TODO sjy 조회요청 서버에 보내서 결과 프롭스로 내려주기
