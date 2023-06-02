@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import MainMap from './MainMap'
 import MainRoom from './MainRoom'
 import MainSearch from './MainSearch'
@@ -15,10 +15,8 @@ function MainContent() {
         return state.searchInfo
     })
 
-    // 조회
-    const isSearched = (isSearch) => {
-        return isSearch
-    }
+    // 내부
+    const [timer, setTimer] = useState(0); // 디바운싱 타이머
 
     // TODO 조회요청 서버에 보내서 결과 프롭스로 내려주기
     const roomListMutation = useMutation(getRoomList, {
@@ -28,10 +26,26 @@ function MainContent() {
     })
 
     useEffect(()=>{
-        if(isSearched){
+        if (timer) {
+            console.log('clear timer');
+            clearTimeout(timer);
+        }
+        const newTimer = setTimeout(async () => {
+            try {
+                await roomListMutationCall()
+            } catch (e) {
+                console.error('error', e);
+            }
+        }, 1000);
+
+        setTimer(newTimer);
+
+        // 방 목록 조회
+        const roomListMutationCall = () => {
             roomListMutation.mutate(searchInfo)
         }
-    },[isSearched])
+        
+    },[searchInfo])
 
     // TODO sjy 조회요청 서버에 보내서 결과 프롭스로 내려주기
     const roomList = [
@@ -90,7 +104,7 @@ function MainContent() {
 
     return (
         <MainContentWrap>
-            <MainSearch isSearched={isSearched}/>
+            <MainSearch />
             <MainMap roomList={roomList}/>
             <MainRoom roomList={roomList}/>
         </MainContentWrap>
