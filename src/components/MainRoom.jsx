@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { styled } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { __userLocation, __userTown} from '../redux/modules/user'
 
-function MainRoom() {
+function MainRoom(props) {
 
     // 기본 좌표값 (전역)
     const searchInfo = useSelector((state) => {
@@ -16,7 +16,10 @@ function MainRoom() {
         return state.userInfo
     })
 
-    const navigate = useNavigate();
+    const navigate = useNavigate()
+
+    // 내부 상태
+    const [roomDetails, setRoomDetails] = useState(props.roomList[0])
 
     // 방참여하기
     const onClickJoinRoomHandler = (sessionId) => {
@@ -29,70 +32,38 @@ function MainRoom() {
             longitude : userInfo.userLongitude,
             neighborhood : userInfo.userTown,
         };
-        navigate('/room', {state : state });
+        navigate('/room', {state : state })
     }
 
-    // TODO sjy 서버 데이터로 변경 지금은 하드코딩임
-    
-    const roomList = [
-        {
-            "createdAt": "2023-05-30T21:53:14.647244",
-            "modifiedAt": "2023-05-30T21:53:14.647244",
-            "sessionId": "ses_SYQM0lRmEl",
-            "title": "침묵의 모각코방 바로 화면 공유 ㄱ",
-            "password": "1234",
-            "language": "JAVA",
-            "masterMemberId": 3,
-            "maxMembers": 4,
-            "cntMembers": 1,
-            "roomDeleteTime": null,
-            "lat": 37.60787909179756,
-            "lon": 127.0873291901848,
-            "neighborhood": "서울시 강서구 등촌동",
-            "opened": false,
-            "deleted": false,
-        },
-        {
-            "createdAt": "2023-05-30T21:53:14.647244",
-            "modifiedAt": "2023-05-30T21:53:14.647244",
-            "sessionId": "ses_SYQM0lRmEl",
-            "title": "멋진 모각코방",
-            "password": "1234",
-            "language": "JAVA",
-            "masterMemberId": 3,
-            "maxMembers": 4,
-            "cntMembers": 1,
-            "roomDeleteTime": null,
-            "lat": 37.556516445779762,
-            "lon": 126.86748345152914,
-            "neighborhood": "서울시 강서구 염창동",
-            "opened": false,
-            "deleted": false,
-        }
-    ]
+    // 방 상세보기
+    const onClickRoomDetailsHandler = (details) => {
+        setRoomDetails(details)
+    }
+
     return (
         <RoomContainer>
             <RoomList>
-                {roomList.map((room, idx)=>{
+                {props.roomList.map((room, idx)=>{
                     return (
-                        <RoomCard>
+                        <RoomCard onClick={()=>{onClickRoomDetailsHandler(room)}}> 
                             <div>{room.title}</div>
+                            <div>지역 : {room.neighborhood}</div>
+                            <div>모각코시간 : {room.createdAt}</div>
                             <div>{room.cntMembers}/{room.maxMembers}</div>
                             <div>{room.language}</div>
-                            <div>
-                                <button onClick={()=>{onClickJoinRoomHandler(room.sessionId)}}>참여하기 버튼</button>
-                            </div>
                         </RoomCard>
                     )
                 })}
             </RoomList>
             <RoomDetails>
-                <div>방제목</div>
-                <div>지역</div>
-                <div>스터디시간</div>
-                <div>정원</div>
-                <div>언어</div>
-                <div><button>버튼</button></div>
+                <div>{roomDetails.title}</div>
+                <div>지역 : {roomDetails.neighborhood}</div>
+                <div>모각코시간 : {roomDetails.createdAt}</div>
+                <div>정원 : {roomDetails.cntMembers}/{roomDetails.maxMembers}</div>
+                <div>언어 : {roomDetails.language}</div>
+                <div>
+                    <button onClick={()=>{onClickJoinRoomHandler(roomDetails.sessionId)}}>참여하기</button>
+                </div>
             </RoomDetails>
         </RoomContainer>
     );
@@ -107,7 +78,6 @@ export const RoomContainer = styled.div`
 `
 export const RoomList = styled.div`
     display: flex;
-    /* justify-content: center; */
     flex-direction: column;
     align-items: center;
     width: 50%;
@@ -127,6 +97,7 @@ export const RoomCard = styled.div`
     min-height: 100px;
     width: 100%;
     height: 100px;
-    background-color: aqua;
+    background-color: skyblue;
+    cursor: pointer;
 `
-export default MainRoom;
+export default MainRoom

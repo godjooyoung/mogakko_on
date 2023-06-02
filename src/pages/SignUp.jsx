@@ -52,7 +52,7 @@ function SignUp() {
 
         if (validateEmail(newEmail)) {
             setIsEmailValid(true);
-            setEmailErrorMessage('사용 가능한 이메일 주소입니다.');
+            setEmailErrorMessage('');
         } else {
             setIsEmailValid(false);
             setEmailErrorMessage('유효한 이메일 주소를 입력해주세요.');
@@ -60,7 +60,7 @@ function SignUp() {
     };
     //이메일 중복검사
     const checkEmailExistence = (email) => {
-        axios.get(process.env.REACT_APP_SERVER_URL+`/members/signup/checkEmail?email=${email}`)
+        axios.get(process.env.REACT_APP_SERVER_URL + `/members/signup/checkEmail?email=${email}`, { withCredentials: true })
             .then((response) => {
                 const data = response.data;
                 console.log(data);
@@ -90,13 +90,13 @@ function SignUp() {
     };
     useEffect(() => {
         if (!validatePassword(password)) {
-            if (password.length === 0) { 
-                setPasswordErrorMessage('') 
+            if (password.length === 0) {
+                setPasswordErrorMessage('')
                 setIsPasswordValid(false);
-            }else { 
-                setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.') 
+            } else {
+                setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.')
                 setIsPasswordValid(false);
-        };
+            };
         } else {
             setPasswordErrorMessage('');
             setIsPasswordValid(true);
@@ -133,7 +133,7 @@ function SignUp() {
 
     const sendHandler = async (sendData) => {
         console.log("sendData:", sendData);
-        await axios.post(process.env.REACT_APP_SERVER_URL+`/members/signup`, sendData)
+        await axios.post(process.env.REACT_APP_SERVER_URL + `/members/signup`, sendData, { withCredentials: true })
             .then(response => {
                 const data = response.data;
                 console.log(data);
@@ -153,17 +153,15 @@ function SignUp() {
 
 
     const checkNicknameExistence = (nickname) => {
-        // 서버에 닉네임 중복 체크 요청 보내기
-        // 예시로 axios를 사용하여 GET 요청을 보내는 방법을 보여드립니다.
-        fetch(process.env.REACT_APP_SERVER_URL+`/members/signup/checkNickname?nickname=${nickname}`)
-            .then((response) => response.json())
-            .then((data) => {
-                console.log(data)
+        axios.get(process.env.REACT_APP_SERVER_URL + `/members/signup/checkNickname?nickname=${nickname}`, { withCredentials: true })
+            .then((response) => {
+                const data = response.data;
+                console.log(data);
                 if (data.message === '중복 확인 성공') {
-                    console.log(data.message)
+                    console.log(data.message);
                     setNicknameErrorMessage('사용할 수 있는 닉네임입니다.');
                     setIsNicknameAvailable(true);
-                } else if (data.message === '중복된 닉네임 입니다.') {
+                } else if (data.message === '중복된 닉네임입니다.') {
                     setNicknameErrorMessage('이미 사용 중인 닉네임입니다.');
                     setIsNicknameAvailable(false);
                 } else {
@@ -173,6 +171,7 @@ function SignUp() {
             })
             .catch((error) => {
                 setNicknameErrorMessage('닉네임 중복 체크에 실패했습니다.');
+                setIsNicknameAvailable(false);
                 console.error('닉네임 중복 체크 요청에 실패했습니다:', error);
             });
     };
@@ -192,7 +191,7 @@ function SignUp() {
     const closeModal = () => {
         setModalOpen(false);
     };
-    
+
     const termsContent = `
     [회원 서비스 약관]
     1. 약관 내용 1...
@@ -228,7 +227,11 @@ function SignUp() {
                         placeholder="이메일"
                         required
                     />
-                    <button type="button" onClick={() => checkEmailExistence(email)}>
+                    <button type="button" onClick={(e) => {
+                        e.preventDefault() //요청전 리로드 방지
+                        checkEmailExistence(email)
+                    }}>
+
                         중복체크
                     </button>
                 </div>
@@ -270,7 +273,11 @@ function SignUp() {
                         onChange={nicknameChangeHandler}
                         placeholder="닉네임"
                     />
-                    <button type="button" onClick={() => checkNicknameExistence(nickname)}>
+                    <button type="button" onClick={(e) => {
+                        e.preventDefault() //요청전 리로드 방지
+
+                        checkNicknameExistence(nickname)
+                    }}>
                         중복체크
                     </button>
                     {nicknameErrorMessage && <ErrorMessage>{nicknameErrorMessage}</ErrorMessage>}
@@ -281,7 +288,7 @@ function SignUp() {
                         type="checkbox"
                         checked={isAgreed}
                         onChange={isAgreedChangeHandler}
-                    /><BottomButton onClick={termsButtonClickHandler}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)-navigate</BottomButton>
+                    /><BottomButton onClick={termsButtonClickHandler}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</BottomButton>
                     <Modal open={modalOpen} close={closeModal}>
                         <h2>서비스 이용 약관</h2>
                         <pre>{termsContent}</pre>
@@ -295,9 +302,9 @@ function SignUp() {
                     e.preventDefault() //요청전 리로드 방지
                     sendHandler(sendData)
                 }}
-                disabled={!isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed} 
+                    disabled={!isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
                 >
-                회원가입
+                    회원가입
                 </button>
             </Form>
         </>

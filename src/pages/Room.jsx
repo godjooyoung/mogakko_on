@@ -7,13 +7,14 @@ import SockJS from "sockjs-client"
 import { Client } from "@stomp/stompjs"
 import { styled } from 'styled-components'
 import useInput from '../hooks/useInput';
+import { getCookie } from '../cookie/Cookie';
 
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
 function Room() {
   const location = useLocation()
   const sessionInfo = location.state
-
+  
   const [mySessionId, setMySessionId] = useState(sessionInfo.mySessionId) //진짜 세션아이디로 넣어줘야됨 (지금은 서버에서 input에 걸려있는 정규식이 영어만 됨)
   const [myUserName, setMyUserName] = useState(sessionInfo.myUserName) //유저의 이름을 넣어줘야됨 
   const [session, setSession] = useState(undefined)
@@ -270,9 +271,11 @@ function Room() {
     // 세션이 있으면 그 세션에 publish해라 
     if (session) {
       // 토큰받아오기
-      getToken().then(async (token) => {
+      getToken().then(async (response) => {
+        console.log("입장토큰>",response.data)
         try {
-          await session.connect(token, { clientData: myUserName });
+          // await session.connect(response.data, { clientData: myUserName });
+          await session.connect(response.data);
           // stream만들기 initPublisherAsync() 메소드는 스트림 생성 및 전송 담당를 초기화
           let publisher = await OV.current.initPublisherAsync(undefined, {
             audioSource: undefined,
@@ -389,7 +392,7 @@ function Room() {
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko',
       data,
       {
-        headers: { ACCESS_KEY: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MzJAbmF2ZXIuY29tIiwiZXhwIjoxNjg1NjA3Njg2LCJpYXQiOjE2ODU2MDQwODZ9.O7MMCSGW79U6uZ-lN0hMBqWAkJFXcqYvgHfYqS7CgCo'},
+        headers: { ACCESS_KEY: getCookie('token')},
       });
     console.log("##### sessionID ??????????", response.data.data.sessionId)
     return response.data.data.sessionId; // The sessionId
@@ -399,7 +402,7 @@ function Room() {
     console.log("##### createToken", sessionId)
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
       headers: { 
-        ACCESS_KEY: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MzJAbmF2ZXIuY29tIiwiZXhwIjoxNjg1NjA3Njg2LCJpYXQiOjE2ODU2MDQwODZ9.O7MMCSGW79U6uZ-lN0hMBqWAkJFXcqYvgHfYqS7CgCo',
+        ACCESS_KEY: getCookie('token'),
         // 'Access-Control-Allow-Origin': '*',
         // 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
         // 'Access-Control-Allow-Headers': 'Content-Type'

@@ -1,10 +1,37 @@
-import api from "../apiConfig"
-// 방 등록, 수정, 삭제, 조회 요청
-// // 조회
-// export const getPostList = async () => {
-//     const response = await api.get(`/posts`)
-//     return response.data
-// }
+import instance from "../apiConfig"
+
+// 요청 URL 세팅
+const setRequestURL = (searchInfo) => {    
+    const languageURL = searchInfo.searchLanguage?`language=${searchInfo.searchLanguage}`:''
+    const keywordURL = searchInfo.searchKeyword?`searchKeyword=${searchInfo.searchKeyword}`:''
+    let requestURL = ''
+    
+    if(languageURL){
+        if(keywordURL){
+            requestURL = '?'+languageURL+'&'+keywordURL
+        }else{
+            requestURL = '?'+languageURL
+        }
+    }else{
+        if(keywordURL){
+            requestURL = '?'+keywordURL
+        }else{
+            requestURL = ''
+        }
+    }
+
+    return requestURL
+}
+
+export const getRoomList = async (searchInfo) => {    
+    try {
+        const response = await instance.post(`/mogakkos`+setRequestURL(searchInfo), {lon:searchInfo.searchLongitude, lat:searchInfo.searchLatitude})
+        return response.data
+    }catch(error) {
+        console.log(error)
+    }
+}
+
 
 // // 단건 조회
 // export const getPost = async (id) => {

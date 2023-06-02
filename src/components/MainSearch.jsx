@@ -7,14 +7,14 @@ import { fetchUserLocation } from '../redux/modules/user'
 import { __searchLocation, __searchLanguage, __searchKeyword } from '../redux/modules/search';
 import useInput from '../hooks/useInput';
 // 메인화면 검색창 영역
-function MainSearch() {
+function MainSearch(props) {
 
     const dispatcher = useDispatch()
     
-    const formData = new FormData()
+    // const formData = new FormData()
     
     // 리액트 쿼리
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient()
 
     // 주소 -> 좌표값 변환 api call
     const [isTargeting, setIsTargeting] = useState(false)
@@ -39,21 +39,21 @@ function MainSearch() {
 
     const [languageList, setLanguageList] = useState(
         [
-            { language : '전체', isSelected : false },
-            { language : 'JAVA', isSelected : false },
-            { language : 'JAVASCRIPT', isSelected : false },
-            { language : 'PYTHON', isSelected : false },
-            { language : 'C', isSelected : false },
-            { language : 'CSHARP', isSelected : false },
-            { language : 'CPLPL', isSelected : false },
-            { language : 'RUBY', isSelected : false },
-            { language : 'KOTLIN', isSelected : false },
-            { language : 'SWIFT', isSelected : false },
-            { language : 'GO', isSelected : false },
-            { language : 'PHP', isSelected : false },
-            { language : 'RUST', isSelected : false },
-            { language : 'LUA', isSelected : false },
-            { language : 'ETC', isSelected : false},
+            { desc:'전체', language : '', isSelected : false },
+            { desc:'JAVA', language : 'JAVA', isSelected : false },
+            { desc:'JAVASCRIPT', language : 'JAVASCRIPT', isSelected : false },
+            { desc:'PYTHON', language : 'PYTHON', isSelected : false },
+            { desc:'C', language : 'C', isSelected : false },
+            { desc:'C#', language : 'CSHARP', isSelected : false },
+            { desc:'C++', language : 'CPLPL', isSelected : false },
+            { desc:'RUBY', language : 'RUBY', isSelected : false },
+            { desc:'KOTLIN', language : 'KOTLIN', isSelected : false },
+            { desc:'SWIFT', language : 'SWIFT', isSelected : false },
+            { desc:'GO', language : 'GO', isSelected : false },
+            { desc:'PHP', language : 'PHP', isSelected : false },
+            { desc:'RUST', language : 'RUST', isSelected : false },
+            { desc:'LUA', language : 'LUA', isSelected : false },
+            { desc:'ETC', language : 'ETC', isSelected : false},
         ]
     )
 
@@ -64,12 +64,12 @@ function MainSearch() {
     const onClickLanguageHandler = (idx, isSelected) => {
         const updateLanguageList = languageList.map((language, index) => {
             if (index === idx) {
-                return { ...language, isSelected: !isSelected };
+                return { ...language, isSelected: !isSelected }
             }else{
-                return { ...language, isSelected: false };
+                return { ...language, isSelected: false }
             }
         });
-        setLanguageList(updateLanguageList);
+        setLanguageList(updateLanguageList)
     }
     
 
@@ -102,29 +102,30 @@ function MainSearch() {
             console.log("[INFO] 좌표 요청 결과 (", getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x, ")")
             dispatcher(fetchUserLocation({ latitude: getLatLngQuery.data.documents[0].y, longitude: getLatLngQuery.data.documents[0].x }))
             dispatcher(__searchLocation({ latitude: getLatLngQuery.data.documents[0].y, longitude: getLatLngQuery.data.documents[0].x }))
-            // 데이터 조회하기
-            sendData(getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x)
+            // // 데이터 조회하기
+            // sendData(getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x)
         }
     }, [getLatLngQuery.isSuccess])
 
-    // TODO sjy 나중에 이 폼데이터를 서버에 보내야함. 
-    // 서버에 폼 데이터 보내기
-    const sendData = (lat, lon , keyword, language) => {
-        formData.append('lat', lat);
-        formData.append('lon', lon);
-        if (keyword) {
-            formData.append('searchKeyword', '');
-        } else {
-            formData.append('searchKeyword', keyword);
-        }
 
-        if (language) {
-            formData.append('language', '');
-        } else {
-            formData.append('language', language);
-        }
-        console.log("[INFO] Send formData ", [...formData])
-    }
+    // // TODO sjy 나중에 이 폼데이터를 서버에 보내야함. 
+    // // 서버에 폼 데이터 보내기
+    // const sendData = (lat, lon , keyword, language) => {
+    //     formData.append('lat', lat);
+    //     formData.append('lon', lon);
+    //     if (keyword) {
+    //         formData.append('searchKeyword', '');
+    //     } else {
+    //         formData.append('searchKeyword', keyword);
+    //     }
+
+    //     if (language) {
+    //         formData.append('language', '');
+    //     } else {
+    //         formData.append('language', language);
+    //     }
+    //     console.log("[INFO] Send formData ", [...formData])
+    // }
 
     useEffect(()=>{
         const setFiltering = () => {
@@ -172,7 +173,7 @@ function MainSearch() {
                 <div>언어필터영역</div>
                 <div>
                     {languageList.map((language, idx) => {
-                        return <SearchLanguageBtn isSelected={language.isSelected} onClick={() => (onClickLanguageHandler(idx, language.isSelected))}>{language.language}</SearchLanguageBtn>
+                        return <SearchLanguageBtn isSelected={language.isSelected} onClick={() => (onClickLanguageHandler(idx, language.isSelected))}>{language.desc}</SearchLanguageBtn>
                     })}
                 </div>
             </div>
@@ -194,7 +195,7 @@ export const SearchLanguageBtn = styled.button`
 
     
 `
-export default MainSearch;
+export default MainSearch
 
 
 
