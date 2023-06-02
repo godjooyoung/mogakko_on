@@ -1,5 +1,6 @@
 import React from 'react';
 import OpenViduVideoComponent from './OpenViduVideo';
+import { getCookie } from '../cookie/Cookie';
 
 function UserVideoComponent({ streamManager }) {
 
@@ -7,7 +8,8 @@ function UserVideoComponent({ streamManager }) {
     // 이 함수를 호출하면 현재 사용자의 닉네임을 가져옴.
     const getNicknameTag = () => {
         // Gets the nickName of the user
-        return JSON.parse(streamManager.stream.connection.data).clientData;
+        const nickName = getCookie('nickName')
+        return nickName
     }
 
     return (
