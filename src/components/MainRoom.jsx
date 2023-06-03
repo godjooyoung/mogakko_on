@@ -9,7 +9,7 @@ function MainRoom(props) {
 
     // 기본 좌표값 (전역)
     const searchInfo = useSelector((state) => {
-        console.log("searchInfo", state.searchInfo)
+        //console.log("searchInfo", state.searchInfo)
         return state.searchInfo
     })
 
