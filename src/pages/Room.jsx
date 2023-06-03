@@ -151,8 +151,6 @@ function Room() {
     })
 
     await setSession(mySession)
-    // connect(openViduSession)
-    // console.log('mySession>>>>>>>>>>>>>>>>>>>>>>>>>>',session)
   }, [])
 
   useEffect(()=>{
