@@ -7,62 +7,73 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 function Header() {
     const [isLogin, setIsLogin] = useState(false)
     const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
-    const [sseChk, setSseChk] = useState(true)
+    const [sseChecker, setSseChecker] = useState(0)
     const navigate = useNavigate();
 
     useEffect(() => {
         const checkLoginStatus = async () => {
             console.log("[INFO] 로그인 여부 체크 실행")
             const accessKey = await getCookie('token');
-            setIsLogin(accessKey ? true : false)
+            if(accessKey && !isLogin){
+                setIsLogin(accessKey ? true : false)
+            }
         }
         checkLoginStatus()
     })
 
-    // SSE TODO 헤더 말고 어디에서 넣어야 한번만 될까? 로그인 응답 시접에 한번만 연결할까?
     useEffect(() => {
-        // 로그인 상태일때 최초 한번만 구독 실행
-        const subcribeSSE = async () => {
-            const accessKey = await getCookie('token')
-            console.log("[INFO] SSE 구독요청 - accessKey 가져오기", accessKey)
-            
-            const EventSource = EventSourcePolyfill
-            if (isLogin && accessKey && sseChk ) {
-                console.log("[INFO] SSE 구독요청")
-                const eventSource = new EventSource(
-                    //헤더에 토큰
-                    `${process.env.REACT_APP_SERVER_URL}/subscribe`,
-                        {
-                            headers: {
-                                'ACCESS_KEY': accessKey,
-                            },
-                            withCredentials: true, // 토큰 값 전달을 위해 필요한 옵션
-                        }
-                )
-
-                console.log("[INFO] SSE",eventSource.withCredentials);
-                console.log("[INFO] SSE",eventSource.readyState);
-                console.log("[INFO] SSE",eventSource.url);
+         // 세션 스토리지에서 SSE 구독 상태를 확인
+        const isSubscribed = sessionStorage.getItem('isSubscribed');
+        console.log("[INFO] SSE isSubscribed", isSubscribed)
+        
+        if(isLogin && !isSubscribed){
+            // 로그인 상태일때 최초 한번만 구독 실행
+            const subcribeSSE = async () => {
+                const accessKey = await getCookie('token')
+                console.log("[INFO] SSE 구독요청 - accessKey 가져오기", accessKey)
                 
-                eventSource.addEventListener('open', (event) => {
-                    console.log("[INFO] SSE connection opened", event);
-                    // 연결이 열렸을 때 실행할 코드 작성
-                    setSseChk(false)
-                })
+                const EventSource = EventSourcePolyfill
+                if (isLogin && accessKey && !isSubscribed ) {
+                    console.log("[INFO] SSE 구독요청 ")
+                    const eventSource = new EventSource(
+                        //헤더에 토큰
+                        `${process.env.REACT_APP_SERVER_URL}/subscribe`,
+                            {
+                                headers: {
+                                    'ACCESS_KEY': accessKey,
+                                },
+                                withCredentials: true, // 토큰 값 전달을 위해 필요한 옵션
+                            }
+                    )
 
-                eventSource.addEventListener('message', (event) => {
-                    console.log("[INFO] SSE message event", event)
-                    const data = event.data
-                    console.log("[INFO] SSE message data ", data)
-                    // 메세지 응답 처리
-                    // TODO 화면에 붙여주기
-                })
-                return () => {
-                    eventSource.close(); // 컴포넌트 언마운트 시 SSE 연결 종료
-                };
-            }
-        };
-        subcribeSSE(); 
+                    console.log("[INFO] SSE",eventSource.withCredentials);
+                    console.log("[INFO] SSE",eventSource.readyState);
+                    console.log("[INFO] SSE",eventSource.url);
+                
+                    if(eventSource.readyState === 1){
+                        console.log("[INFO] SSE connection 상태")
+                    }
+
+                    eventSource.addEventListener('open', (event) => {
+                        console.log("[INFO] SSE connection opened", event)
+                        // 연결이 열렸을 때 실행할 코드 작성
+                        sessionStorage.setItem('isSubscribed', true);
+                    })
+
+                    eventSource.addEventListener('message', (event) => {
+                        console.log("[INFO] SSE message event", event)
+                        const data = event.data
+                        console.log("[INFO] SSE message data ", data)
+                        // 메세지 응답 처리
+                        // TODO 화면에 붙여주기
+                    })
+                    return () => {
+                        eventSource.close(); // 컴포넌트 언마운트 시 SSE 연결 종료
+                    };
+                }
+            };
+            subcribeSSE(); 
+        }
 
     }, [isLogin]);
 
@@ -79,6 +90,7 @@ function Header() {
         // 로그아웃 처리 쿠키 삭제
         removeCookie('token')
         removeCookie('nickName')
+        sessionStorage.removeItem('isSubscribed')
         navigate('/')
     }
     const onClickMyPageHandler = () => {
