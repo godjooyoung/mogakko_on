@@ -121,6 +121,8 @@ export const MainContentWrap = styled.div`
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
+    column-gap: 24px;
+    row-gap: 64px;
 `
 
 export default MainContent

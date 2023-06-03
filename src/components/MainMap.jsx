@@ -162,13 +162,15 @@ function MainMap(props) {
 }
 
 export const MapContainer = styled.div`
-    width: 100%;
-    height: 100%;
+    width: 486px;
+    height: 412px;
+    border-radius: 20px;
 `
 
 export const KaKaoMap = styled.div`
     width: 100%;
     height: 100%;
+    border-radius: 20px;
 
 `
 
