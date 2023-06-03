@@ -23,30 +23,31 @@ function MainSearch(props) {
     const getLatLngQuery = useQuery(['getLatLng', getLatLng], () => getLatLng(targetAddress), {
         enabled: isTargeting
     })
-    
-    
+
     // 인기동네 목록
+    const [townList, setTownList] = useState([
+        {count: 14, neighborhood: '서울특별시 강서구 염창동'},
+        {count: 13, neighborhood: '서울특별시 강서구 가양동'},
+        {count: 12, neighborhood: '서울특별시 영등포구 문래동'},
+        {count: 11, neighborhood: '서울특별시 관악구 신림동'}
+    ])
+
+    // 인기 동네 목록 조회
     const { isLoading, isError, data } = useQuery("getHotTowns", getHotTowns)
     
     useEffect(()=>{
         console.log("getHotTowns 조회결과 ", data)
-
-    },[data])
-
-
-
-    // TODO sjy 서버데이터 사용할 것 지금은 하드 코딩임
-    const [townList, setTownList] = useState(
-        {
-            hotTown: [
-                { townNm: '서울 강서구 염창동' },
-                { townNm: '서울 강서구 가양동' },
-                { townNm: '서울 영등포구 문래동' },
-                { townNm: '서울 관악구 신림동' },
-                { townNm: '서울 마포구 합정동' }
-            ],
+        if(!data || data.length === 0){
+            setTownList([
+                {count: 14, neighborhood: '서울특별시 강서구 염창동'},
+                {count: 13, neighborhood: '서울특별시 강서구 가양동'},
+                {count: 12, neighborhood: '서울특별시 영등포구 문래동'},
+                {count: 11, neighborhood: '서울특별시 관악구 신림동'}
+            ])
+        }else{
+            setTownList(data)
         }
-    )
+    },[data])
 
     const [languageList, setLanguageList] = useState(
         [
@@ -168,43 +169,62 @@ function MainSearch(props) {
     return (
         <SearchContaniner>
             <div>
-                <div>검색창영역</div>
-                <input type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='검색키워드' />
+                <div>내 주변 모각코 찾아보기</div>
+                <input type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='원하시는 모각코 장소, 제목을 검색하세요.' />
                 <button onClick={()=>{keywordReset()}}>X</button>
             </div>
             <div>
                 <div>인기동네버튼영역</div>
                 <div>
-                    {townList.hotTown.map((town) => {
-                        return <button onClick={() => (onClickGetLatLngHandler(town.townNm))}>{town.townNm.split(' ')[2]}</button>
+                    {townList.map((town) => {
+                        return <button onClick={() => (onClickGetLatLngHandler(town.neighborhood))}>{town.neighborhood.split(' ')[2]}</button>
                     })}
                 </div>
             </div>
             <div>
-                <div>언어필터영역</div>
-                <div>
+                <div>기술</div>
+                <SearchLanguageBtnWrap>
                     {languageList.map((language, idx) => {
                         return <SearchLanguageBtn isSelected={language.isSelected} onClick={() => (onClickLanguageHandler(idx, language.isSelected))}>{language.desc}</SearchLanguageBtn>
                     })}
-                </div>
+                </SearchLanguageBtnWrap>
             </div>
         </SearchContaniner>
     );
 }
 
 export const SearchContaniner = styled.div`
-    background-color: pink;
-    width: 100%;
-    height: 100%;
-    
+    position: relative;
+    width: 486px;
+    height: 413px;
+    background-color: transparent;
+    left: calc(100% - 486px);
+`
+export const SearchLanguageBtnWrap = styled.div`
 `
 export const SearchLanguageBtn = styled.button`
+    padding: 9px 20px;
+    margin-left: 9px;
+    margin-bottom: 12px;
+    /* text-align: center; */
+    /* gap: 10px; */
+    min-width: 72px;
+    height: 42px;
+    border: 0.5px solid #FFFFFF;
+    border-radius: 28px;
     cursor: pointer;
     background : ${(props)=>{
-        return props.isSelected?'yellow':'#593dd4'
+        return props.isSelected?'#00F0FF':'transparent'
     }};
-
-    
+    color : ${(props)=>{
+        return props.isSelected?'#464646':'#FFFFFF;'
+    }};
+    overflow: hidden;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 24px;
 `
 export default MainSearch
 
