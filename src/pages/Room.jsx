@@ -6,8 +6,8 @@ import { useLocation } from 'react-router-dom'
 import SockJS from "sockjs-client"
 import { Client } from "@stomp/stompjs"
 import { styled } from 'styled-components'
-import useInput from '../hooks/useInput';
-import { getCookie } from '../cookie/Cookie';
+import useInput from '../hooks/useInput'
+import { getCookie } from '../cookie/Cookie'
 
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
@@ -21,11 +21,12 @@ function Room() {
   const [roomTitle, setRoomTitle] = useState(sessionInfo.title)
   const [mainStreamManager, setMainStreamManager] = useState(undefined)
   const [publisher, setPublisher] = useState(undefined)
-  const [subscribers, setSubscribers] = useState([]); //서버에서 그 방을 만들때 선택한 인원수를 받아와서 length랑 비교해서 인원수 제한걸기
+  const [subscribers, setSubscribers] = useState([]) //서버에서 그 방을 만들때 선택한 인원수를 받아와서 length랑 비교해서 인원수 제한걸기
   const [currentVideoDevice, setCurrentVideoDevice] = useState(null)
   const [isScreenSharing, setIsScreenSharing] = useState(false)
   const [lang, setLang] = useState(sessionInfo.language)
   const [isOpened, setIsOpened] = useState(sessionInfo.isOpened)   // isOpen 
+  const [openViduSession, setOpenViduSession] = useState(undefined)
 
   //비디오, 오디오 on/off 상태
   const [videoEnabled, setVideoEnabled] = useState(true)
@@ -49,6 +50,9 @@ function Room() {
 
   // 보내는 메세지
   const [message, setMessage] = useState('')
+
+  // 받는 메세지 
+  const [chatMessages, setChatMessages] = useState([]);
 
   // language
   const [languageList, setLanguageList] = useState(
@@ -74,12 +78,12 @@ function Room() {
   const onClickLanguageHandler = (idx, isSelected) => {
     const updateLanguageList = languageList.map((language, index) => {
       if (index === idx) {
-        return { ...language, isSelected: !isSelected };
+        return { ...language, isSelected: !isSelected }
       } else {
-        return { ...language, isSelected: false };
+        return { ...language, isSelected: false }
       }
-    });
-    setLanguageList(updateLanguageList);
+    })
+    setLanguageList(updateLanguageList)
   }
 
   useEffect(() => {
@@ -114,12 +118,8 @@ function Room() {
     lat: sessionInfo.latitude,
     neighborhood: sessionInfo.neighborhood
   })
-
+  
   const OV = useRef(new OpenVidu())
-
-  // const handleChangeSessionId = useCallback((e) => {
-  //   setMySessionId(e.target.value)
-  // }, []);
 
   const handleChangeRoomTitle = useCallback((e) => {
     setRoomTitle(e.target.value)
@@ -134,25 +134,30 @@ function Room() {
 
   // 세션 만들기
   // 세션은 영상 및 음성 통신에 대한 컨테이너 역할(Room)
-  const joinSession = useCallback(() => {
+  const joinSession = useCallback( async () => {
     const mySession = OV.current.initSession()
     mySession.on('streamCreated', (event) => {
       const subscriber = mySession.subscribe(event.stream, undefined)
       setSubscribers((subscribers) => [...subscribers, subscriber])
-    });
+    })
 
     mySession.on('streamDestroyed', (event) => {
       deleteSubscriber(event.stream.streamManager)
-    });
+    })
 
     //세션 내에서 예외가 발생했을 때 콘솔에 경고메세지
     mySession.on('exception', (exception) => {
       console.warn(exception)
-    });
+    })
 
-    setSession(mySession)
-
+    await setSession(mySession)
   }, [])
+
+  useEffect(()=>{
+    if(openViduSession){
+      connect(openViduSession)
+    }
+  },[openViduSession])
 
   // TEMP
   const onClickTempButton = () => {
@@ -184,7 +189,6 @@ function Room() {
 
   useEffect(() => {
     if (sessionInfo.isDirect) {
-        console.log(">>>>>>>>>>>>>>>> 여기 오니 다이렉트야..? 3")
         joinSession()
     }
   }, [data])
@@ -193,7 +197,6 @@ function Room() {
   useEffect(() => {
     if (sessionInfo) {
       if (sessionInfo.isDirect) {
-          console.log(">>>>>>>>>>>>>>>> 여기 오니 다이렉트야..? 1")
           onClickTempButton()
       }
     }
@@ -237,11 +240,11 @@ function Room() {
       } catch (error) {
         console.log('Error starting camera sharing:', error.message)
       }
-    }, [currentVideoDevice, session]);
+    }, [currentVideoDevice, session])
 
     const startScreenSharing = useCallback(async (originPublish) => {
       try {
-
+      
         // 화면 공유용 퍼블리셔 초기화
         const screenSharingPublisher = OV.current.initPublisher(undefined, {
           videoSource: 'screen',
@@ -253,33 +256,33 @@ function Room() {
           resolution: '200x200',
           frameRate: 30,
           insertMode: 'APPEND',
-        });
+        })
 
         // 퍼블리셔를 세션에 게시
-        session.publish(screenSharingPublisher);
+        session.publish(screenSharingPublisher)
 
         // 기존 퍼블리시 제거
         session.unpublish(originPublish)
-        setMainStreamManager(screenSharingPublisher);
+        setMainStreamManager(screenSharingPublisher)
 
         // 상태 업데이트
-        setPublisher(screenSharingPublisher);
+        setPublisher(screenSharingPublisher)
 
-        setIsScreenSharing(true);
+        setIsScreenSharing(true)
       } catch (error) {
-        console.log('Error starting screen sharing:', error.message);
+        console.log('Error starting screen sharing:', error.message)
       }
-    }, [session]);
+    }, [session])
 
     const toggleSharingMode = useCallback((originPublish) => {
       if (isScreenSharing) {
         // 화면 공유 모드일 때, 카메라로 전환
-        startCameraSharing(originPublish);
+        startCameraSharing(originPublish)
       } else {
         // 카메라 모드일 때, 화면 공유로 전환
-        startScreenSharing(originPublish);
+        startScreenSharing(originPublish)
       }
-    }, [isScreenSharing, startCameraSharing, startScreenSharing]);
+    }, [isScreenSharing, startCameraSharing, startScreenSharing])
 
 
     useEffect(() => {
@@ -287,10 +290,10 @@ function Room() {
       if (session) {  
         // 토큰받아오기
         getToken().then(async (response) => {
-          console.log("화면왜안붙어!!!! >>>", response)
+          // console.log("화면왜안붙어!!!! >>>", response)
           try {
             // await session.connect(response.data);
-            await session.connect(response.data, { clientData: sessionInfo.myUserName });
+            await session.connect(response.data, { clientData: sessionInfo.myUserName })
             
             // stream만들기 initPublisherAsync() 메소드는 스트림 생성 및 전송 담당를 초기화
             let publisher = await OV.current.initPublisherAsync(undefined, {
@@ -302,81 +305,67 @@ function Room() {
               frameRate: 30,
               insertMode: 'APPEND',
               mirror: false,
-            });
+            })
 
-            session.publish(publisher);
+            session.publish(publisher)
 
-            const devices = await OV.current.getDevices();
-            const videoDevices = devices.filter(device => device.kind === 'videoinput');
-            const currentVideoDeviceId = publisher.stream.getMediaStream().getVideoTracks()[0].getSettings().deviceId;
-            const currentVideoDevice = videoDevices.find(device => device.deviceId === currentVideoDeviceId);
+            const devices = await OV.current.getDevices()
+            const videoDevices = devices.filter(device => device.kind === 'videoinput')
+            const currentVideoDeviceId = publisher.stream.getMediaStream().getVideoTracks()[0].getSettings().deviceId
+            const currentVideoDevice = videoDevices.find(device => device.deviceId === currentVideoDeviceId)
 
-            setMainStreamManager(publisher);
-            setPublisher(publisher);
-            setCurrentVideoDevice(currentVideoDevice);
+            setMainStreamManager(publisher)
+            setPublisher(publisher)
+            setCurrentVideoDevice(currentVideoDevice)
           } catch (error) {
-            console.log('There was an error connecting to the session:', error.code, error.message);
+            console.log('There was an error connecting to the session:', error.code, error.message)
           }
         });
       }
-    }, [session]);
+    }, [session])
 
 
     const leaveSession = useCallback(() => {
+      // TODO 방 떠났다는 요청 서버에 보내기
       // Leave the session
       if (session) {
-        session.disconnect();
+        session.disconnect()
       }
 
-      OV.current = new OpenVidu();
-      setSession(undefined);
-      setSubscribers([]);
-      setMySessionId(null);
-      setMyUserName(null);
-      setMainStreamManager(undefined);
-      setPublisher(undefined);
-    }, [session]);
+      OV.current = new OpenVidu()
+      setSession(undefined)
+      setSubscribers([])
+      setMySessionId(null)
+      setMyUserName(null)
+      setMainStreamManager(undefined)
+      setPublisher(undefined)
+    }, [session])
 
     const deleteSubscriber = useCallback((streamManager) => {
       setSubscribers((prevSubscribers) => {
-        const index = prevSubscribers.indexOf(streamManager);
+        const index = prevSubscribers.indexOf(streamManager)
         if (index > -1) {
-          const newSubscribers = [...prevSubscribers];
-          newSubscribers.splice(index, 1);
-          return newSubscribers;
+          const newSubscribers = [...prevSubscribers]
+          newSubscribers.splice(index, 1)
+          return newSubscribers
         } else {
-          return prevSubscribers;
+          return prevSubscribers
         }
-      });
-    }, []);
+      })
+    }, [])
 
     //창이 닫힐때 세션 종료
     useEffect(() => {
       const handleBeforeUnload = (event) => {
-        leaveSession();
+        leaveSession()
       };
-      window.addEventListener('beforeunload', handleBeforeUnload);
+      window.addEventListener('beforeunload', handleBeforeUnload)
 
       return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-      };
-    }, [leaveSession]);
+        window.removeEventListener('beforeunload', handleBeforeUnload)
+      }
+    }, [leaveSession])
 
-    /**
-     * --------------------------------------------
-     * GETTING A TOKEN FROM YOUR APPLICATION SERVER
-     * --------------------------------------------
-     * The methods below request the creation of a Session and a Token to
-     * your application server. This keeps your OpenVidu deployment secure.
-     *
-     * In this sample code, there is no user control at all. Anybody could
-     * access your application server endpoints! In a real production
-     * environment, your application server must identify the user to allow
-     * access to the endpoints.
-     *
-     * Visit https://docs.openvidu.io/en/stable/application-server to learn
-     * more about the integration of OpenVidu in your application server.
-     */
     const getToken = useCallback(async () => {
       console.log("########### getToken")
       console.log("########### sessionInfo.mySessionId", sessionInfo.mySessionId)
@@ -386,37 +375,18 @@ function Room() {
       }else{
         return createSession(data).then(sessionId =>
           createToken(sessionId),
-        );
+        )
       }
-    }, [data]);
-
-
-
-    // "mogakkoRoomCreateRequestDto": {
-    //   "title": "string",
-    //   "language": "JAVA",
-    //   "maxMembers": 0,
-    //   "isOpened": true,
-    //   "neighborhood": "string",
-    //   "password": "string",
-    //   "lon": 0,
-    //   "lat": 0
-    // },
-    // 르탄이3zz
-    // ses_WR91bvlQis
-
-
-    // {
-    //  isOpened === '' || isOpened === 'public' ? false : true 
-    // }
+    }, [data])
 
     const createSession = async (data) => {
       console.log("##### createSession", data)
       const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko', data, {
         headers: { ACCESS_KEY: getCookie('token') },
-      });
+      })
       console.log("##### sessionID ??????????", response.data.data.sessionId)
-      return response.data.data.sessionId; // The sessionId
+      setOpenViduSession(response.data.data.sessionId)
+      return response.data.data.sessionId // The sessionId
     };
 
     const createToken = async (sessionId) => {
@@ -424,17 +394,17 @@ function Room() {
       const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
         headers: {
           ACCESS_KEY: getCookie('token'),
-          // 'Access-Control-Allow-Origin': '*',
-          // 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-          // 'Access-Control-Allow-Headers': 'Content-Type'
         },
-      });
+      })
       console.log("##### createToken !!!!!!!!!!>>>>", response)
-      return response.data; // The token
+      return response.data // The token
     };
 
-
-    const connect = () => {
+    const connect = (openViduSession) => {
+      console.log('[INFO] chat connect')
+      console.log('openViduSession >>>>>>>>>>>>>> ',openViduSession)
+      
+      // console.log('mySession >>>>>>>>>>>', sessionId)
       // SockJS같은 별도의 솔루션을 이용하고자 하면 over 메소드를, 그렇지 않다면 Client 메소드를 사용해주면 되는 듯.
       stompClient.current = new Client({
         // brokerURL이 http 일경우 ws를 https일 경우 wss를 붙여서 사용하시면 됩니다!
@@ -445,10 +415,10 @@ function Room() {
         // brokerURL: `${process.env.REACT_APP_WEB_SOCKET_SERVER}`, // 웹소켓 서버로 직접 접속
         // connectHeaders: An object containing custom headers to send during the connection handshake.
         connectHeaders: {
-          // Authorization: `Bearer ${checkCookie}`,쿠키 넣으면됨
+          ACCESS_KEY: `${getCookie('token')}`
         },
         debug: (debug) => {
-          console.log("debug : ", debug);
+          console.log("debug : ", debug)
         },
         reconnectDelay: 0,
 
@@ -458,94 +428,101 @@ function Room() {
 
         // 검증 부분
         webSocketFactory: () => {
-          const socket = new SockJS("http://15.164.159.168:8080/ws-stomp");
+          const socket = new SockJS("https://codingking.store/ws")
           socket.onopen = function () {
             socket.send(
               JSON.stringify({
-                // Authorization: `Bearer ${checkCookie}`,쿠기 넣으면됨
+                ACCESS_KEY: `${getCookie('token')}` 
               })
-            );
-          };
-          return socket;
+            )
+          }
+          return socket
         },
 
         // 검증이 돼서 Room을 열어주는 서버랑 연결이 되면
-        onConnect: async () => {
-          console.log("Connected to the broker. Initiate subscribing.");
-          isConnected.current = true;
-          await subscribe();
-          await publish();
-          await textPublish();
+        onConnect: () => {
+          console.log("Connected to the broker. Initiate subscribing.")
+          isConnected.current = true
+          subscribe(openViduSession)
+          publish(openViduSession)
+          textPublish(openViduSession)
         },
 
         onStompError: (frame) => {
-          console.log(frame);
-          console.log("Broker reported error: " + frame.headers["message"]);
-          console.log("Additional details: " + frame.body);
+          console.log(frame)
+          console.log("Broker reported error: " + frame.headers["message"])
+          console.log("Additional details: " + frame.body)
         },
         onWebSocketError: (frame) => {
-          console.log(frame);
+          console.log(frame)
         },
         onWebSocketClose: () => {
-          console.log("web socket closed");
+          console.log("web socket closed")
         },
-      });
-      stompClient.current.activate();
-    };
+      })
+      stompClient.current.activate()
+    }
 
 
-    const subscribe = () => {
+    const subscribe = (openViduSession) => {
       stompClient.current.subscribe(
-        // `/sub/chat/room/${roomId}`,
+        `/sub/chat/room/${openViduSession}`,
 
         (data) => {
           console.log(" 구독됨", JSON.parse(data.body))
           const response = JSON.parse(data.body)
+          console.log('response>>>>>>>>>',response)
           // setMessage() 여기에 response값 받아서 저장하고 이 state를 map해주면 될꺼같음 
           // 타입 구별만 하면 끝 서버에서 response값으로 type을 보내주면 그거로 enter publish에 대한 값인지 talk에 대한값인지
           // enter type은 입장메세지
           // talk type은 채팅 메세지(내가 보낸 input값 상대가 보낸 메세지 값)
           // 그러면 enter type 입장메세지도? massage state에 넣은후에? 뒤에 채팅 메세지를 스프레드 연산자로 붙여 넣고 그걸 mapping하면 될듯함
         }
-      );
-    };
+      )
+    }
 
-    const publish = async () => {
+    const publish = async (openViduSession) => {
       if (!stompClient.current.connected) {
-        return;
+        return
       }
-      console.log("publish 시작");
-
+      console.log("publish 시작")
+      console.log('sessionID>>>>>>>>>',openViduSession)
       await stompClient.current.publish({
-        destination: "/pub/chat/message",
+        destination: "/pub/chat/room",
         body: JSON.stringify({
           type: "ENTER",
+          sessionId: openViduSession,
+          nickname: sessionInfo.myUserName
 
         }),
-        // headers: { authorization: `Bearer ${checkCookie}` }, 쿠키 넣어줘야됨
-
-        //
+        headers: { ACCESS_KEY: `${getCookie('token')}` }, 
       });
-      console.log("publish 끝");
-      setIsLoading(false);
+      console.log(getCookie('token'))
+      console.log("publish 끝")
+      setIsLoading(false)
     };
 
-    const textPublish = () => {
-      console.log("textPublish Start");
+    const textPublish = (openViduSession) => {
+      console.log("textPublish Start")
       if (message !== "") {
         stompClient.current.publish({
-          destination: "/pub/chat/message",
+          destination: "/pub/chat/room",
           body: JSON.stringify({
             type: "TALK",
-            message,
+            sessionId: openViduSession,
+            nickname: sessionInfo.myUserName,
+            message
           }),
-          // headers: { authorization: `Bearer ${checkCookie}` }, 쿠기 넣어줘야됨
-          //
-        });
-        console.log("textPublish End");
-        setMessage("");
+          headers: { ACCESS_KEY: `${getCookie('token')}` }
+        })
+        console.log("textPublish End")
+        setMessage("")
       }
     };
+    //connect 시작
+    // useEffect(() => {
+    //   connect()
+    // }, [])
 
     //TODO 로딩일때 화면만들어서 붙여주기 
     // if (isLoading) {
@@ -692,7 +669,7 @@ function Room() {
               <ChatContentWrap>
 
               </ChatContentWrap>
-              <ChatInput id="" cols="30" rows="10"></ChatInput>
+              <ChatInput value={message} onChange={(e) => setMessage(e.target.value)} cols="30" rows="10"></ChatInput>
               <SendBtnWrap>
                 <SendBtn>보내기</SendBtn>
               </SendBtnWrap>
