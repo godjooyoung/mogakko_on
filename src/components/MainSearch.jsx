@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { styled } from 'styled-components';
 import { useQuery, useQueryClient } from 'react-query';
 import { getLatLng } from '../axios/api/kakao'
+import { getHotTowns } from '../axios/api/location'
 import { fetchUserLocation } from '../redux/modules/user'
 import { __searchLocation, __searchLanguage, __searchKeyword } from '../redux/modules/search';
 import useInput from '../hooks/useInput';
@@ -22,12 +23,22 @@ function MainSearch(props) {
     const getLatLngQuery = useQuery(['getLatLng', getLatLng], () => getLatLng(targetAddress), {
         enabled: isTargeting
     })
+    
+    
+    // 인기동네 목록
+    const { isLoading, isError, data } = useQuery("getHotTowns", getHotTowns)
+    
+    useEffect(()=>{
+        console.log("getHotTowns 조회결과 ", data)
+
+    },[data])
+
+
 
     // TODO sjy 서버데이터 사용할 것 지금은 하드 코딩임
     const [townList, setTownList] = useState(
         {
             hotTown: [
-                { townNm: '전체 전체 전체' },
                 { townNm: '서울 강서구 염창동' },
                 { townNm: '서울 강서구 가양동' },
                 { townNm: '서울 영등포구 문래동' },
