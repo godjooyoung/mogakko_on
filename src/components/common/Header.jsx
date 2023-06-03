@@ -7,6 +7,7 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 function Header() {
     const [isLogin, setIsLogin] = useState(false)
     const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
+    const [sseChk, setSseChk] = useState(true)
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,7 +27,7 @@ function Header() {
             console.log("[INFO] SSE 구독요청 - accessKey 가져오기", accessKey)
             
             const EventSource = EventSourcePolyfill
-            if (isLogin && accessKey) {
+            if (isLogin && accessKey && sseChk ) {
                 console.log("[INFO] SSE 구독요청")
                 const eventSource = new EventSource(
                     //헤더에 토큰
@@ -42,6 +43,12 @@ function Header() {
                 console.log("[INFO] SSE",eventSource.withCredentials);
                 console.log("[INFO] SSE",eventSource.readyState);
                 console.log("[INFO] SSE",eventSource.url);
+                
+                eventSource.addEventListener('open', (event) => {
+                    console.log("[INFO] SSE connection opened", event);
+                    // 연결이 열렸을 때 실행할 코드 작성
+                    setSseChk(false)
+                })
 
                 eventSource.addEventListener('message', (event) => {
                     console.log("[INFO] SSE message event", event)
