@@ -29,7 +29,8 @@ function MainSearch(props) {
         {count: 14, neighborhood: '서울특별시 강서구 염창동'},
         {count: 13, neighborhood: '서울특별시 강서구 가양동'},
         {count: 12, neighborhood: '서울특별시 영등포구 문래동'},
-        {count: 11, neighborhood: '서울특별시 관악구 신림동'}
+        {count: 11, neighborhood: '서울특별시 관악구 신림동'},
+        {count: 11, neighborhood: '서울특별시 강남구 역삼동'}
     ])
 
     // 인기 동네 목록 조회
@@ -42,7 +43,8 @@ function MainSearch(props) {
                 {count: 14, neighborhood: '서울특별시 강서구 염창동'},
                 {count: 13, neighborhood: '서울특별시 강서구 가양동'},
                 {count: 12, neighborhood: '서울특별시 영등포구 문래동'},
-                {count: 11, neighborhood: '서울특별시 관악구 신림동'}
+                {count: 11, neighborhood: '서울특별시 관악구 신림동'},
+                {count: 11, neighborhood: '서울특별시 강남구 역삼동'},
             ])
         }else{
             setTownList(data)
