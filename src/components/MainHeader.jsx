@@ -18,24 +18,25 @@ function MainHeader() {
     const [isLogin, setIsLogin] = useState(false)
 
     useEffect(() => {
-        if (getCookie('token') ? true : false) {
-            setIsLogin(true)
-        } else {
-            setIsLogin(false)
-        }
-    }, [])
+        setIsLogin(getCookie('token') ? true : false)
+    })
 
     // 방 생성하기
     const onClickRoomCreateHandler = () => {
         if (isLogin) {
             console.log("#### userInfo", userInfo)
             const state = {
-                mySessionId: '',
-                myUserName: '',
-                isDirect: false,
-                latitude: userInfo.userLatitude,
-                longitude: userInfo.userLongitude,
-                neighborhood: userInfo.userTown,
+                mySessionId : '',
+                myUserName : getCookie('nickName'),
+                isDirect : false,
+                title : '',
+                language : '',
+                maxMembers : '',
+                isOpened : true,
+                password : '',
+                latitude : userInfo.userLatitude,
+                longitude : userInfo.userLongitude,
+                neighborhood : userInfo.userTown,
             };
             navigate('/room', { state: state })
         } else {
