@@ -1,6 +1,6 @@
 import { jwtInstance } from "../apiConfig";
 
-const leaveSession = async (sessionId) => {
+const leaveChatRoom = async (sessionId) => {
   try {
     const response = await jwtInstance.delete(`/mogakko/${sessionId}`)
     return response
@@ -9,4 +9,4 @@ const leaveSession = async (sessionId) => {
   }
 }
 
-export {leaveSession}
+export { leaveChatRoom }
