@@ -104,9 +104,19 @@ function MainHeader() {
 
 const FontSize = styled.p`
     font-size: 40px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 50px;
+    line-height: 68px;
+    text-align: center;
+    color: #FFFFFF;
 `
 
 export const MainHeaderWrap = styled.div`
+    width: 1280px;
+    height: 574px;
+    background: #172435;
     grid-column-start: 1;
     grid-column-end: 3;
     display : flex;

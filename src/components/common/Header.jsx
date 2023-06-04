@@ -9,6 +9,7 @@ function Header() {
     const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
     const [sseChecker, setSseChecker] = useState(0)
     const navigate = useNavigate();
+    const [alarmData, setAlarmData] = useState(null);
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -16,6 +17,8 @@ function Header() {
             const accessKey = await getCookie('token');
             if(accessKey && !isLogin){
                 setIsLogin(accessKey ? true : false)
+            }else if(!accessKey){
+                setIsLogin(false)
             }
         }
         checkLoginStatus()
@@ -66,8 +69,13 @@ function Header() {
                         console.log("[INFO] SSE message data ", data)
                         // 메세지 응답 처리
                         // TODO 화면에 붙여주기
+                        //EventStream Created. [memberId=1]
+                        //{"id":7,"content":"변희준3님이 친구요청을 보냈습니다.","url":"/friend/request/determine","isRead":false,"senderId":3,"receiverId":2,"createdAt":"2023-06-03 18:41:21"}
+                        //{"id":11,"content":"변희준5님이 친구요청을 보냈습니다.","url":"/friend/request/determine","isRead":false,"senderId":7,"receiverId":1,"createdAt":"2023-06-04 08:02:17"}
+                        setAlarmData(data);
                     })
                     return () => {
+                        sessionStorage.setItem('isSubscribed', false);
                         eventSource.close(); // 컴포넌트 언마운트 시 SSE 연결 종료
                     };
                 }
@@ -76,6 +84,19 @@ function Header() {
         }
 
     }, [isLogin]);
+
+    // 알림 내용 컴포넌트 생성 함수
+    const renderAlertComponent = () => {
+        if (alarmData) {
+            return (
+                <>
+                <AlearTitle>{alarmData}</AlearTitle>
+                <AlearTitle>test!@@@!</AlearTitle>
+                </>
+            );
+        }
+        return null;
+    };
 
     const onClickLogoHandler = () => {
         navigate('/')
@@ -88,9 +109,12 @@ function Header() {
     }
     const onClickLogOutHandler = () => {
         // 로그아웃 처리 쿠키 삭제
-        removeCookie('token')
-        removeCookie('nickName')
-        sessionStorage.removeItem('isSubscribed')
+        const remove = async() => {
+            await removeCookie('token')
+            await removeCookie('nickName')
+            await sessionStorage.removeItem('isSubscribed')
+        }
+        remove()
         navigate('/')
     }
     const onClickMyPageHandler = () => {
@@ -109,8 +133,10 @@ function Header() {
                         <button onClick={onClickSignUpHandler}>회원가입</button>
                         <button onClick={onClickSignInHandler}>로그인</button>
                     </> : <>
-                        <button onClick={onClickLogOutHandler}>로그아웃</button>
-                        <button onClick={onClickMyPageHandler}>마이페이지</button>
+                            <di></di>                        
+                            <button onClick={onClickLogOutHandler}>로그아웃</button>
+                            <button onClick={onClickMyPageHandler}>마이페이지</button>
+                        
                         <AlearmWrap>
                             <button onClick={() => { onClickAlearmHandler(isAlarmWindowOpen) }}>알람</button>
                             {!isAlarmWindowOpen ? <></> :
@@ -118,6 +144,7 @@ function Header() {
                                     <AlearHeader></AlearHeader>
                                     <AlearWrapContent>
                                         <AlearTitle>알림</AlearTitle>
+                                        {renderAlertComponent()}
                                     </AlearWrapContent>
                                 </>
                             }
@@ -131,10 +158,10 @@ function Header() {
 }
 
 export const CommonHeader = styled.header`
-    background: purple;
-    color : white;
+    background: transparent;
+    color: #FFFFFF;
     width : 100%;
-    height : 50px;
+    height: 79px;
 `
 export const ButtonWrap = styled.div`
     display: flex;
