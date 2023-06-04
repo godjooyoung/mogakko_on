@@ -2,21 +2,22 @@ import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { getProfile, addProfile } from '../axios/api/mypage'
 import styled from 'styled-components'
+import Header from "../components/common/Header";
 
 function Mypage() {
-  
+
   const { isLoading, isError, data } = useQuery("getProfile", getProfile)
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     console.log("조회결과 ", data)
-  },[data])
+  }, [data])
 
   const [fileAttach, setFileAttach] = useState('')
   const [preview, setPreview] = useState('')
 
   const filemutation = useMutation(addProfile, {
     onSuccess: (response) => {
-      console.log("addProfile 성공",  response)
+      console.log("addProfile 성공", response)
     },
   })
 
@@ -34,22 +35,62 @@ function Mypage() {
 
   return (
     <>
-      <form encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
-        <ImageWrap BgImg={preview} />
-        <div>
-          <FileButton htmlFor="file">프로필사진 등록</FileButton>
-          <FileInput type="file" id="file" onChange={handleFileChange} onClick={() => { submitButtonHandler()}}/>
-        </div>
-      </form>
+      <Header />
+      <MyPageTopContentWrap>
+        <ProfileModifyWrap>
+          <form encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
+            <ImageWrap BgImg={preview} />
+            <div>
+              <FileButton htmlFor="file"><img src={`${process.env.PUBLIC_URL}/image/change.svg`} alt="" /></FileButton>
+              <FileInput type="file" id="file" onChange={handleFileChange} onClick={() => { submitButtonHandler() }} />
+            </div>
+          </form>
+          <MyPageUserName>신주영</MyPageUserName>
+          <TimerWrap>
+            <div>
+              <p>총 순공시간</p>
+              <h1>12H 42M</h1>
+            </div>
+
+            <div>
+              <p>이번 주 순공 시간</p>
+              <h1>3H 8M</h1>
+            </div>
+
+            <div>
+              <p>Status</p>
+              <h1>200</h1>
+            </div>
+          </TimerWrap>
+        </ProfileModifyWrap>
+      </MyPageTopContentWrap>
     </>
   )
 }
 
+const MyPageTopContentWrap = styled.div`
+  height: 264px;
+  background-color: #394254;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+`
+
+const ProfileModifyWrap = styled.div`
+  display: flex;
+`
+
+const MyPageUserName = styled.p`
+  font-size: 32px;
+  color: white;
+`
+
 const ImageWrap = styled.div`
-  width: 300px;
-  height: 300px;
+  width: 190px;
+  height: 190px;
   border-radius: 50%;
-  background-image: ${( props ) =>
+  background-image: ${(props) =>
     `url(${props.BgImg})`
   };
   background-position:center;
@@ -59,15 +100,21 @@ const ImageWrap = styled.div`
 
 const FileButton = styled.label`
   display: inline-block;
-  padding: 10px 20px;
   color: black;
   background-color: #f7ddde;
   cursor: pointer;
+  width: 40px;
   height: 40px;
-  margin-left: 10px;
   box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  position: absolute;
+  left: 140px;
+  top: 181px;
   &:hover {
-    background-color:rgba(234, 30, 71, 0.8);
+    background-color:rgb(234, 30, 71);
     transition: all 0.3s;
   }
 `;
@@ -80,5 +127,13 @@ const FileInput = styled.input.attrs({ type: "file" })`
   overflow: hidden;
   border: 0;
 `;
+
+const TimerWrap = styled.div`
+  width: 550px;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 20px;
+`
 
 export default Mypage

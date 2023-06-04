@@ -9,7 +9,7 @@ import { getRoomList } from '../axios/api/room'
 
 function MainContent() {
 
-    
+
     // 전역
     const searchInfo = useSelector((state) => {
         //console.log("searchInfo", state.searchInfo)
@@ -19,19 +19,19 @@ function MainContent() {
     // 내부
     const [timer, setTimer] = useState(0); // 디바운싱 타이머
     const [roomList, setRoomList] = useState([])
-    
+
     // TODO 조회요청 서버에 보내서 결과 프롭스로 내려주기
     const roomListMutation = useMutation(getRoomList, {
         onSuccess: (response) => {
-            if(response.message === '근처에 모각코가 없습니다.'){
+            if (response.message === '근처에 모각코가 없습니다.') {
                 setRoomList([])
-            }else{
+            } else {
                 setRoomList(response.data)
             }
         }
     })
 
-    useEffect(()=>{
+    useEffect(() => {
         if (timer) {
             console.log('clear timer');
             clearTimeout(timer);
@@ -50,8 +50,8 @@ function MainContent() {
         const roomListMutationCall = () => {
             roomListMutation.mutate(searchInfo)
         }
-        
-    },[searchInfo])
+
+    }, [searchInfo])
 
     // // TODO sjy 조회요청 서버에 보내서 결과 프롭스로 내려주기
     // const roomList = [
@@ -111,8 +111,8 @@ function MainContent() {
     return (
         <MainContentWrap>
             <MainSearch />
-            <MainMap roomList={roomList}/>
-            <MainRoom roomList={roomList}/>
+            <MainMap roomList={roomList} />
+            <MainRoom roomList={roomList} />
         </MainContentWrap>
     );
 }
@@ -123,6 +123,7 @@ export const MainContentWrap = styled.div`
     grid-template-rows: 1fr 1fr;
     column-gap: 24px;
     row-gap: 64px;
+    margin-top: 150px;
 `
 
 export default MainContent
