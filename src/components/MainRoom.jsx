@@ -65,6 +65,7 @@ function MainRoom(props) {
                     </EmptyRoom>
                 </> :
                 <>
+                    <NonEmptyRoom>
                     <RoomList>
                         {props.roomList && props.roomList.map((room, idx) => {
                             return (
@@ -88,6 +89,7 @@ function MainRoom(props) {
                             <button onClick={() => { onClickJoinRoomHandler(roomDetails) }}>참여하기</button>
                         </div>
                     </RoomDetails>
+                    </NonEmptyRoom>
                 </>
 
             }
@@ -110,7 +112,8 @@ export const EmptyRoom = styled.div`
     height: 440px;
     background: #394254;
     border-radius: 20px;
-    position: absolute;
+    position: relative;
+    margin-bottom: 133px;
 `
 export const EmptyImgDiv = styled.div`
     width: 104px;
@@ -134,6 +137,13 @@ export const EmptyDesc = styled.p`
     text-align: center;
     color: #BEBEBE;
 `
+export const NonEmptyRoom = styled.div`
+    width: 996px;
+    height: 440px;
+    position: relative;
+    margin-bottom: 133px;
+`
+
 export const RoomList = styled.div`
     display: flex;
     flex-direction: column;
