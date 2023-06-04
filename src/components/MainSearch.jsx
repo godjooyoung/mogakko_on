@@ -53,7 +53,7 @@ function MainSearch(props) {
 
     const [languageList, setLanguageList] = useState(
         [
-            { desc:'전체', language : '', isSelected : false },
+            { desc:'전체', language : '', isSelected : true },
             { desc:'JAVA', language : 'JAVA', isSelected : false },
             { desc:'JAVASCRIPT', language : 'JAVASCRIPT', isSelected : false },
             { desc:'PYTHON', language : 'PYTHON', isSelected : false },
@@ -63,10 +63,10 @@ function MainSearch(props) {
             { desc:'RUBY', language : 'RUBY', isSelected : false },
             { desc:'KOTLIN', language : 'KOTLIN', isSelected : false },
             { desc:'SWIFT', language : 'SWIFT', isSelected : false },
-            { desc:'GO', language : 'GO', isSelected : false },
-            { desc:'PHP', language : 'PHP', isSelected : false },
-            { desc:'RUST', language : 'RUST', isSelected : false },
-            { desc:'LUA', language : 'LUA', isSelected : false },
+            // { desc:'GO', language : 'GO', isSelected : false },
+            // { desc:'PHP', language : 'PHP', isSelected : false },
+            // { desc:'RUST', language : 'RUST', isSelected : false },
+            // { desc:'LUA', language : 'LUA', isSelected : false },
             { desc:'ETC', language : 'ETC', isSelected : false},
         ]
     )
