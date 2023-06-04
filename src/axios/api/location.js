@@ -4,7 +4,6 @@ import instance from "../apiConfig"
 export const getHotTowns = async () => {
     try {
         const response = await instance.get('/mogakko/read')
-        console.log("getHotTowns response : ", response.data)
         if (response.status === 200 && response.data.message === '인기 지역 모각코 조회 성공') {
             return Promise.resolve(response.data.data)
         }else {
