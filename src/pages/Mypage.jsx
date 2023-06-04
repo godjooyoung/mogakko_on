@@ -106,6 +106,7 @@ const MyPageTopContentWrap = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 15px;
 `
 
 const ProfileModifyWrap = styled.div`

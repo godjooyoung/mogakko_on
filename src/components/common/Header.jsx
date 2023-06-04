@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { styled } from 'styled-components';
+import styled, { keyframes } from "styled-components";
 import { useNavigate } from 'react-router-dom';
 import { getCookie, removeCookie } from '../../cookie/Cookie';
 import { EventSourcePolyfill } from "event-source-polyfill";
@@ -153,7 +153,7 @@ function Header() {
                         <HeaderButton onClick={onClickLogOutHandler} width={67} marginRight={18} >로그아웃</HeaderButton>
                         <AlearmWrap>
                             <HeaderButton onClick={() => { onClickAlearmHandler(isAlarmWindowOpen) }} marginRight={17}>
-                                <img src={`${process.env.PUBLIC_URL}/image/alearmBtn.svg`} alt="알람버튼" />
+                                <AlearmImg src={`${process.env.PUBLIC_URL}/image/alearmBtn.svg`} alt="알람버튼" />
                             </HeaderButton>
                             {!isAlarmWindowOpen ? <></> :
                                 <>
@@ -204,6 +204,15 @@ export const ProfileImgDiv = styled.div`
     overflow: hidden;
 `
 
+const shakeAnimation = keyframes`
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+`;
+
 export const HeaderButton = styled.button`
     border: 0;
     background-color: transparent;
@@ -220,10 +229,20 @@ export const HeaderButton = styled.button`
         return props.border ? '52px;' : '0px';
     }};
     margin-right: ${(props) => {
-        return props.marginRight ? props.marginRight +'px' : 0;
+        return props.marginRight ? props.marginRight + 'px' : 0;
     }};
-
 `
+export const AlearmImg = styled.img`
+    position: relative;
+    display: inline-block;
+    
+    transition: all 0.3s;
+
+    &:hover {
+        animation: ${shakeAnimation} 0.6s;
+    }
+`
+
 export const AlearmWrap = styled.div`
     position: relative;
     display: inline-block;
