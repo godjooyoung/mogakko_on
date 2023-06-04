@@ -89,11 +89,11 @@ function MainHeader() {
                     <FontSize>{landingTitle}</FontSize>
                 </Content>
                 {/* <div>모각코를 위한 서비스 플랫폼</div> */}
-                <div>모각코 ON:</div>
+                <FontSize>모각코 ON:</FontSize>
             </MainTitleWrap>
             <MainDescWrap>
-                <div>근처에 있는 사람들과 모여서 각자 코딩하고</div>
-                <div>서로의 코드를 리뷰하며 성장하는 개발자가 되세요.</div>
+                <FontSizeS>근처에 있는 사람들과 모여서 각자 코딩하고</FontSizeS>
+                <FontSizeS>서로의 코드를 리뷰하며 성장하는 개발자가 되세요.</FontSizeS>
             </MainDescWrap>
             <MainButtonWrap>
                 <CreateRoomButton onClick={onClickRoomCreateHandler}>방 생성하기</CreateRoomButton>
@@ -112,7 +112,16 @@ const FontSize = styled.p`
     text-align: center;
     color: #FFFFFF;
 `
-
+const FontSizeS = styled.p`
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 35px;
+    /* or 206% */
+    text-align: center;
+    color: #FFFFFF;
+`
 export const MainHeaderWrap = styled.div`
     width: 1280px;
     height: 574px;
@@ -130,6 +139,7 @@ export const MainTitleWrap = styled.div`
     flex-direction: column;
     align-items: center;
     color : white;
+    margin-bottom: 21px;
 `
 export const MainDescWrap = styled.div`
     display : flex;
@@ -137,6 +147,7 @@ export const MainDescWrap = styled.div`
     flex-direction: column;
     align-items: center;
     color : white;
+    margin-bottom: 30px;
 `
 export const MainButtonWrap = styled.div`
     display : flex;

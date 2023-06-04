@@ -13,8 +13,9 @@ function BgContainer() {
 }
 
 const FullScreen = styled.div`
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background-color: #172435;
 `
+
 export default BgContainer
