@@ -82,11 +82,7 @@ function Room() {
       { language: 'RUBY', isSelected: false },
       { language: 'KOTLIN', isSelected: false },
       { language: 'SWIFT', isSelected: false },
-      { language: 'GO', isSelected: false },
-      { language: 'PHP', isSelected: false },
-      { language: 'RUST', isSelected: false },
-      { language: 'LUA', isSelected: false },
-      { language: 'ETC', isSelected: false },
+      { language: 'ETC', isSelected: false }
     ]
   )
 
