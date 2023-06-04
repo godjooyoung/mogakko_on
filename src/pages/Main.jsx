@@ -15,7 +15,7 @@ function Main() {
 export const MainContaniner = styled.div`
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 30vh 60vh;
+    grid-template-rows: max-content;
     width: 100%;
     height: 100%;
     column-gap: 10px;
