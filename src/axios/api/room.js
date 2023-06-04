@@ -32,7 +32,6 @@ export const getRoomList = async (searchInfo) => {
     }
 }
 
-
 // // 단건 조회
 // export const getPost = async (id) => {
 //     const response = await api.get(`/posts/`+id)

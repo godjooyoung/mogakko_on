@@ -2,12 +2,14 @@ import { OpenVidu } from 'openvidu-browser'
 import axios from 'axios'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import UserVideoComponent from '../components/UserVideoComponent'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import SockJS from "sockjs-client"
 import { Client } from "@stomp/stompjs"
 import { styled } from 'styled-components'
 import useInput from '../hooks/useInput'
 import { getCookie } from '../cookie/Cookie'
+import { useMutation } from 'react-query'
+import { leaveChatRoom } from '../axios/api/chat'
 
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
@@ -40,6 +42,20 @@ function Room() {
 
   const [btnSelect, setBtnSelect] = useState('')
 
+  // 네비게이트 선언
+  const navigate = useNavigate()
+ // 리브세션 서버 요청
+  const leaveSessionMutation = useMutation( leaveChatRoom, {
+    onSuccess: (response) => {
+      console.log("leaveSessionMutation",response)
+      if(session){
+        session.disconnect()
+        navigate('/')
+      }
+
+    } 
+  })
+  
   const publicHandler = () => {
     setIsOpened(true)
   }
@@ -66,11 +82,7 @@ function Room() {
       { language: 'RUBY', isSelected: false },
       { language: 'KOTLIN', isSelected: false },
       { language: 'SWIFT', isSelected: false },
-      { language: 'GO', isSelected: false },
-      { language: 'PHP', isSelected: false },
-      { language: 'RUST', isSelected: false },
-      { language: 'LUA', isSelected: false },
-      { language: 'ETC', isSelected: false },
+      { language: 'ETC', isSelected: false }
     ]
   )
 
@@ -326,10 +338,19 @@ function Room() {
 
 
     const leaveSession = useCallback(() => {
+      
+
       // TODO 방 떠났다는 요청 서버에 보내기
+      
+      const leaveSessionMutationCall = () => {
+        console.log("session>>> ",session)
+        console.log("openViduSession>>> ",openViduSession)
+        leaveSessionMutation.mutate(openViduSession)
+      }
+
       // Leave the session
       if (session) {
-        session.disconnect()
+        leaveSessionMutationCall()
       }
 
       OV.current = new OpenVidu()

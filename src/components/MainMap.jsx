@@ -16,11 +16,11 @@ function MainMap(props) {
     // 전역
     const dispatcher = useDispatch()
     const userInfo = useSelector((state) => {
-        console.log("userInfo", state.userInfo)
+        // 전역값 바뀌면 콘솔로그 찍어보기
         return state.userInfo
     })
     const searchInfo = useSelector((state) => {
-        console.log("searchInfo", state.searchInfo)
+        // 전역값 바뀌면 콘솔로그 찍어보기
         return state.searchInfo
     })
 
@@ -66,7 +66,6 @@ function MainMap(props) {
             center : new kakao.maps.LatLng(searchInfo.searchLatitude, searchInfo.searchLongitude),
             level : 4,
         }
-
         const map = new kakao.maps.Map(mapContainer.current, options)
         const bounds = new kakao.maps.LatLngBounds();
         
@@ -100,28 +99,48 @@ function MainMap(props) {
         // 마커들이 모두 보이는 위치로 지도를 옮김
         // map.setBounds(bounds);
 
-        kakao.maps.event.addListener(map, 'center_changed', function() {
-            console.log("현재 지도의 중심좌표 요청 이벤트")
-            // 디바운싱 - 마지막 호출만 적용 
-            if (timer) {
-                console.log('clear timer')
-                clearTimeout(timer)
-            }
-            const newTimer = setTimeout(async () => {
-                try {
-                    await getMapCenterDebouncing()
-                } catch (e) {
-                    console.error('error', e)
-                }
-            }, 2000)
-                setTimer(newTimer)
+        // kakao.maps.event.addListener(map, 'center_changed', function() {
+        //     console.log("현재 지도의 중심좌표 요청 이벤트")
+        //     // 디바운싱 - 마지막 호출만 적용 
+        //     if (timer) {
+        //         console.log('clear timer')
+        //         clearTimeout(timer)
+        //     }
+        //     const newTimer = setTimeout(async () => {
+        //         try {
+        //             await getMapCenterDebouncing()
+        //         } catch (e) {
+        //             console.error('error', e)
+        //         }
+        //     }, 2000)
+        //         setTimer(newTimer)
 
+        //     // 지도의 중심좌표를 얻어옵니다 
+        //     const getMapCenterDebouncing = () => {
+        //         dispatcher(fetchUserLocation({ latitude: map.getCenter().getLat(), longitude: map.getCenter().getLng()}))
+        //         dispatcher(__searchLocation({ latitude: map.getCenter().getLat(), longitude: map.getCenter().getLng() }))
+        //     }
+        // });
+
+        kakao.maps.event.addListener(map, 'dragend', function() {
+            console.log("[INFO] dragend")
+            // const latlng = map.getCenter(); 
             // 지도의 중심좌표를 얻어옵니다 
-            const getMapCenterDebouncing = () => {
-                dispatcher(fetchUserLocation({ latitude: map.getCenter().getLat(), longitude: map.getCenter().getLng()}))
-                dispatcher(__searchLocation({ latitude: map.getCenter().getLat(), longitude: map.getCenter().getLng() }))
+            const getCenterLatLng = async() => {
+                const latlng =  await map.getCenter(); 
+                setMapCenterDragend(latlng)   
             }
+            
+            // 변경된 중심좌표를 전역상태로 반영
+            const setMapCenterDragend = (latlng) => {
+                console.log("[INFO] getMapCenterDragend ", latlng.getLat(), latlng.getLng() )
+                dispatcher(fetchUserLocation({ latitude: latlng.getLat(), longitude: latlng.getLng()}))
+                dispatcher(__searchLocation({ latitude: latlng.getLat(), longitude: latlng.getLng() }))
+            }
+            
+            getCenterLatLng()
         });
+
 
     },[searchInfo.searchLatitude])
 
@@ -143,13 +162,15 @@ function MainMap(props) {
 }
 
 export const MapContainer = styled.div`
-    width: 100%;
-    height: 100%;
+    width: 486px;
+    height: 412px;
+    border-radius: 20px;
 `
 
 export const KaKaoMap = styled.div`
     width: 100%;
     height: 100%;
+    border-radius: 20px;
 
 `
 

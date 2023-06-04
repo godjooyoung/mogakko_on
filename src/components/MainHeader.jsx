@@ -48,7 +48,7 @@ function MainHeader() {
         return `모각코를 위한 서비스 플랫폼`;
     }, []);
 
-    const [landingTitle, setLandingTitle] = useState("");
+    const [landingTitle, setLandingTitle] = useState("\u00a0");
     const [count, setCount] = useState(0);
     const [isCompleted, setIsCompleted] = useState(false);
 
@@ -89,7 +89,7 @@ function MainHeader() {
                     <FontSize>{landingTitle}</FontSize>
                 </Content>
                 {/* <div>모각코를 위한 서비스 플랫폼</div> */}
-                <div>모각코 온에어</div>
+                <div>모각코 ON:</div>
             </MainTitleWrap>
             <MainDescWrap>
                 <div>근처에 있는 사람들과 모여서 각자 코딩하고</div>
@@ -104,9 +104,19 @@ function MainHeader() {
 
 const FontSize = styled.p`
     font-size: 40px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 50px;
+    line-height: 68px;
+    text-align: center;
+    color: #FFFFFF;
 `
 
 export const MainHeaderWrap = styled.div`
+    width: 1280px;
+    height: 574px;
+    background: #172435;
     grid-column-start: 1;
     grid-column-end: 3;
     display : flex;
@@ -135,7 +145,17 @@ export const MainButtonWrap = styled.div`
     align-items: center;
 `
 export const CreateRoomButton = styled.button`
-    width : 100px;
+    width: 223px;
+    height: 62px;
+    background: #00F0FF;
+    font-family: 'Pretendard-Regular';
+    border-radius: 52px;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 16px;
+    text-align: center;
+    color: #464646;
 `
 
 const typingCursor1 = keyframes`
