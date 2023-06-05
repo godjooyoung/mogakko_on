@@ -18,12 +18,8 @@ function MainHeader() {
     const [isLogin, setIsLogin] = useState(false)
 
     useEffect(() => {
-        if (getCookie('token') ? true : false) {
-            setIsLogin(true)
-        } else {
-            setIsLogin(false)
-        }
-    }, [])
+        setIsLogin(getCookie('token') ? true : false)
+    })
 
     // 방 생성하기
     const onClickRoomCreateHandler = () => {
@@ -52,7 +48,7 @@ function MainHeader() {
         return `모각코를 위한 서비스 플랫폼`;
     }, []);
 
-    const [landingTitle, setLandingTitle] = useState("");
+    const [landingTitle, setLandingTitle] = useState("\u00a0");
     const [count, setCount] = useState(0);
     const [isCompleted, setIsCompleted] = useState(false);
 
@@ -93,11 +89,11 @@ function MainHeader() {
                     <FontSize>{landingTitle}</FontSize>
                 </Content>
                 {/* <div>모각코를 위한 서비스 플랫폼</div> */}
-                <div>모각코 온에어</div>
+                <FontSize>모각코 ON:</FontSize>
             </MainTitleWrap>
             <MainDescWrap>
-                <div>근처에 있는 사람들과 모여서 각자 코딩하고</div>
-                <div>서로의 코드를 리뷰하며 성장하는 개발자가 되세요.</div>
+                <FontSizeS>근처에 있는 사람들과 모여서 각자 코딩하고</FontSizeS>
+                <FontSizeS>서로의 코드를 리뷰하며 성장하는 개발자가 되세요.</FontSizeS>
             </MainDescWrap>
             <MainButtonWrap>
                 <CreateRoomButton onClick={onClickRoomCreateHandler}>방 생성하기</CreateRoomButton>
@@ -108,9 +104,28 @@ function MainHeader() {
 
 const FontSize = styled.p`
     font-size: 40px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 50px;
+    line-height: 68px;
+    text-align: center;
+    color: #FFFFFF;
 `
-
+const FontSizeS = styled.p`
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 35px;
+    /* or 206% */
+    text-align: center;
+    color: #FFFFFF;
+`
 export const MainHeaderWrap = styled.div`
+    width: 1280px;
+    height: 574px;
+    background: #172435;
     grid-column-start: 1;
     grid-column-end: 3;
     display : flex;
@@ -124,6 +139,7 @@ export const MainTitleWrap = styled.div`
     flex-direction: column;
     align-items: center;
     color : white;
+    margin-bottom: 21px;
 `
 export const MainDescWrap = styled.div`
     display : flex;
@@ -131,6 +147,7 @@ export const MainDescWrap = styled.div`
     flex-direction: column;
     align-items: center;
     color : white;
+    margin-bottom: 30px;
 `
 export const MainButtonWrap = styled.div`
     display : flex;
@@ -139,7 +156,17 @@ export const MainButtonWrap = styled.div`
     align-items: center;
 `
 export const CreateRoomButton = styled.button`
-    width : 100px;
+    width: 223px;
+    height: 62px;
+    background: #00F0FF;
+    font-family: 'Pretendard-Regular';
+    border-radius: 52px;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 16px;
+    text-align: center;
+    color: #464646;
 `
 
 const typingCursor1 = keyframes`

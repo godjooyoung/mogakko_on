@@ -1,6 +1,18 @@
-import axios from "axios";
 import { jwtInstance } from "../apiConfig";
-const addprofile = async (file) => {
+
+// 프로필 조회
+const getProfile = async () => {
+  try {
+    const response = await jwtInstance.get('/members/mypage')
+    console.log("response : ", response)
+    return Promise.resolve(response)
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+// 프로필 수정
+const addProfile = async (file) => {
   try {
     const response = await jwtInstance.put('/members/mypage', file)
     return response
@@ -9,4 +21,4 @@ const addprofile = async (file) => {
   }
 }
 
-export {addprofile}
+export {getProfile, addProfile}

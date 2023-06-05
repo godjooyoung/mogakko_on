@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { styled } from 'styled-components';
 import { useQuery, useQueryClient } from 'react-query';
 import { getLatLng } from '../axios/api/kakao'
+import { getHotTowns } from '../axios/api/location'
 import { fetchUserLocation } from '../redux/modules/user'
 import { __searchLocation, __searchLanguage, __searchKeyword } from '../redux/modules/search';
 import useInput from '../hooks/useInput';
@@ -23,23 +24,37 @@ function MainSearch(props) {
         enabled: isTargeting
     })
 
-    // TODO sjy 서버데이터 사용할 것 지금은 하드 코딩임
-    const [townList, setTownList] = useState(
-        {
-            hotTown: [
-                { townNm: '전체 전체 전체' },
-                { townNm: '서울 강서구 염창동' },
-                { townNm: '서울 강서구 가양동' },
-                { townNm: '서울 영등포구 문래동' },
-                { townNm: '서울 관악구 신림동' },
-                { townNm: '서울 마포구 합정동' }
-            ],
+    // 인기동네 목록
+    const [townList, setTownList] = useState([
+        {count: 14, neighborhood: '서울특별시 강서구 염창동', isSelected:false},
+        {count: 13, neighborhood: '서울특별시 강서구 가양동', isSelected:false},
+        {count: 12, neighborhood: '서울특별시 영등포구 문래동', isSelected:false},
+        {count: 11, neighborhood: '서울특별시 관악구 신림동', isSelected:false},
+        {count: 11, neighborhood: '서울특별시 강남구 역삼동', isSelected:false}
+    ])
+
+    // 인기 동네 목록 조회
+    const { isLoading, isError, data } = useQuery("getHotTowns", getHotTowns)
+    
+    useEffect(()=>{
+        console.log("getHotTowns 조회결과 ", data)
+        if(!data || data.length === 0){
+            setTownList([
+                {count: 14, neighborhood: '서울특별시 강서구 염창동', isSelected:false},
+                {count: 13, neighborhood: '서울특별시 강서구 가양동', isSelected:false},
+                {count: 12, neighborhood: '서울특별시 영등포구 문래동', isSelected:false},
+                {count: 11, neighborhood: '서울특별시 관악구 신림동', isSelected:false},
+                {count: 11, neighborhood: '서울특별시 강남구 역삼동', isSelected:false},
+            ])
+        }else{
+            const updatedData = data.map(obj => ({ ...obj, isSelected: false }))
+            setTownList(updatedData)
         }
-    )
+    },[data])
 
     const [languageList, setLanguageList] = useState(
         [
-            { desc:'전체', language : '', isSelected : false },
+            { desc:'전체', language : '', isSelected : true },
             { desc:'JAVA', language : 'JAVA', isSelected : false },
             { desc:'JAVASCRIPT', language : 'JAVASCRIPT', isSelected : false },
             { desc:'PYTHON', language : 'PYTHON', isSelected : false },
@@ -49,10 +64,10 @@ function MainSearch(props) {
             { desc:'RUBY', language : 'RUBY', isSelected : false },
             { desc:'KOTLIN', language : 'KOTLIN', isSelected : false },
             { desc:'SWIFT', language : 'SWIFT', isSelected : false },
-            { desc:'GO', language : 'GO', isSelected : false },
-            { desc:'PHP', language : 'PHP', isSelected : false },
-            { desc:'RUST', language : 'RUST', isSelected : false },
-            { desc:'LUA', language : 'LUA', isSelected : false },
+            // { desc:'GO', language : 'GO', isSelected : false },
+            // { desc:'PHP', language : 'PHP', isSelected : false },
+            // { desc:'RUST', language : 'RUST', isSelected : false },
+            // { desc:'LUA', language : 'LUA', isSelected : false },
             { desc:'ETC', language : 'ETC', isSelected : false},
         ]
     )
@@ -74,8 +89,16 @@ function MainSearch(props) {
     
 
     // 동네 버튼 클릭 이벤트
-    const onClickGetLatLngHandler = (adress) => {
+    const onClickGetLatLngHandler = (idx, isSelected, adress) => {
         setIsTargeting(true)        // 쿼리 실행 여부 변경
+        const updateTownList = townList.map((town, index) => {
+            if (index === idx) {
+                return { ...town, isSelected: !isSelected }
+            }else{
+                return { ...town, isSelected: false }
+            }
+        });
+        setTownList(updateTownList)
         setTargetAddress(adress)    // 현재 클릭된 동네의 주소
     }
 
@@ -156,45 +179,154 @@ function MainSearch(props) {
 
     return (
         <SearchContaniner>
+            <Search>
+                <SearchTitle>내 주변 모각코 찾아보기</SearchTitle>
+                <SearchBar>
+                    <div>
+                        <img src={`${process.env.PUBLIC_URL}/image/zoomOut.svg`} alt="돋보기아이콘" width='20' height='20' />
+                    </div>
+                    <SearchInput type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='원하시는 모각코 장소, 제목을 검색하세요.' />
+                    <SearchResetBtn onClick={()=>{keywordReset()}}>X</SearchResetBtn>
+                </SearchBar>
+            </Search>
+            
             <div>
-                <div>검색창영역</div>
-                <input type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='검색키워드' />
-                <button onClick={()=>{keywordReset()}}>X</button>
-            </div>
-            <div>
-                <div>인기동네버튼영역</div>
+                <SearcFilterTitle>인기동네</SearcFilterTitle>
                 <div>
-                    {townList.hotTown.map((town) => {
-                        return <button onClick={() => (onClickGetLatLngHandler(town.townNm))}>{town.townNm.split(' ')[2]}</button>
+                    {townList.map((town, idx) => {
+                        return <SearchTownBtn isSelected={town.isSelected} onClick={() => (onClickGetLatLngHandler(idx, town.isSelected, town.neighborhood))}>{town.neighborhood.split(' ')[2]}</SearchTownBtn>
                     })}
                 </div>
             </div>
+            
             <div>
-                <div>언어필터영역</div>
-                <div>
+                <SearcFilterTitle>기술</SearcFilterTitle>
+                <SearchLanguageBtnWrap>
                     {languageList.map((language, idx) => {
                         return <SearchLanguageBtn isSelected={language.isSelected} onClick={() => (onClickLanguageHandler(idx, language.isSelected))}>{language.desc}</SearchLanguageBtn>
                     })}
-                </div>
+                </SearchLanguageBtnWrap>
             </div>
         </SearchContaniner>
     );
 }
 
 export const SearchContaniner = styled.div`
-    background-color: pink;
-    width: 100%;
-    height: 100%;
-    
+    position: relative;
+    width: 486px;
+    height: 413px;
+    background-color: transparent;
+    left: calc(100% - 486px);
+    display: flex;
+    flex-direction: column;
+    row-gap: 27px;
+`
+export const SearchLanguageBtnWrap = styled.div`
 `
 export const SearchLanguageBtn = styled.button`
+    padding: 9px 20px;
+    margin-left: 9px;
+    margin-bottom: 12px;
+    /* text-align: center; */
+    /* gap: 10px; */
+    min-width: 72px;
+    height: 42px;
+    border: 0.5px solid #FFFFFF;
+    border-radius: 28px;
     cursor: pointer;
     background : ${(props)=>{
-        return props.isSelected?'yellow':'#593dd4'
+        return props.isSelected?'#00F0FF':'transparent'
     }};
-
-    
+    color : ${(props)=>{
+        return props.isSelected?'#464646':'#FFFFFF'
+    }};
+    overflow: hidden;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 24px;
 `
+
+export const SearchTownBtn = styled.button`
+    padding: 9px 20px;
+    margin-left: 9px;
+    margin-bottom: 12px;
+    /* text-align: center; */
+    /* gap: 10px; */
+    min-width: 72px;
+    height: 42px;
+    border: 0.5px solid #FFFFFF;
+    border-radius: 28px;
+    cursor: pointer;
+    background : ${(props)=>{
+        return props.isSelected?'#00F0FF':'transparent'
+    }};
+    color : ${(props)=>{
+        return props.isSelected?'#464646':'#FFFFFF'
+    }};
+    overflow: hidden;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 24px;
+`
+
+export const SearchTitle = styled.h1`
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 29px;
+    line-height: 35px;
+    display: flex;
+    align-items: center;
+    /* 검정바탕 글 */
+    color: #FFFFFF;
+`
+export const SearcFilterTitle = styled.h2`
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    /* line-height: 24px; */
+    line-height : 109%;
+    /* 검정바탕 글 */
+    color: #FFFFFF;
+    margin-bottom: 20px;
+`
+export const SearchBar = styled.div`
+    width: 470px;
+    height: 40px;
+    background: #394254;
+    border-radius: 114px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+`
+export const SearchInput = styled.input`
+    appearance: none;
+    background: none;
+    width: 369px;
+    height: 23px;
+    border:none;
+    color: #FFFFFF;
+`
+export const SearchResetBtn = styled.button`
+    background: none;
+    border: none;
+    color: #FFFFFF;
+`
+
+export const Search = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap : 28px
+`
+
 export default MainSearch
 
 
