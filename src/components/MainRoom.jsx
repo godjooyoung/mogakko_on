@@ -97,16 +97,20 @@ function MainRoom(props) {
                             })}
                         </RoomList>
                         <RoomDetails>
-                            <RoomDetailsTitle>{roomDetails && roomDetails.title}</RoomDetailsTitle>
-                            <RoomDetailsDesc>
-                                <RoomDetilasDescP>지역 : {roomDetails && roomDetails.neighborhood}</RoomDetilasDescP>
-                                <RoomDetilasDescP>모각코시간 : {roomDetails && roomDetails.createdAt}</RoomDetilasDescP>
-                                <RoomDetilasDescP>정원 : {roomDetails && roomDetails.cntMembers}/{roomDetails && roomDetails.maxMembers}</RoomDetilasDescP>
-                                <RoomDetilasDescP>언어 : <LanguageIconSpan>기술아이콘</LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
-                            </RoomDetailsDesc>
-                            <RoomDetailsEnter>
-                                <button onClick={() => { onClickJoinRoomHandler(roomDetails) }}>참여하기</button>
-                            </RoomDetailsEnter>
+                            <RoomDetailsTop>
+                                <RoomDetailsTitle>{roomDetails && roomDetails.title}</RoomDetailsTitle>
+                            </RoomDetailsTop>
+                            <RoomDetailsBottom>
+                                <RoomDetailsDesc>
+                                    <RoomDetilasDescP>지역 : {roomDetails && roomDetails.neighborhood}</RoomDetilasDescP>
+                                    <RoomDetilasDescP>모각코시간 : {roomDetails && roomDetails.createdAt}</RoomDetilasDescP>
+                                    <RoomDetilasDescP>정원 : {roomDetails && roomDetails.cntMembers}/{roomDetails && roomDetails.maxMembers}</RoomDetilasDescP>
+                                    <RoomDetilasDescP>언어 : <LanguageIconSpan>기술아이콘</LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
+                                </RoomDetailsDesc>
+                                <RoomDetailsEnter>
+                                    <RoomEnterButton onClick={() => { onClickJoinRoomHandler(roomDetails) }}>참여하기→</RoomEnterButton>
+                                </RoomDetailsEnter>
+                            </RoomDetailsBottom>
                         </RoomDetails>
                     </NonEmptyRoom>
                 </>
@@ -182,17 +186,20 @@ export const RoomDetails = styled.div`
     height: 440px;
     background: #F9F9FA;
     border-radius: 20px;
+    row-gap: 46px;
 
 `
 export const RoomCard = styled.div`
-    display: flex;
-    flex-direction : column;
+    /* display: flex;
+    flex-direction : column; */
     background: linear-gradient(252.91deg, #00C4BD 0%, #267F82 20.31%, #394254 38.54%);
     border-radius: 20px;
     width: 443px;
     height: 167px;
     overflow : hidden;
     cursor: pointer;
+    flex-grow: 0;
+    flex-shrink: 0;
 `
 export const RoomCardBgImg = styled.img`
     position: relative;
@@ -291,9 +298,15 @@ export const RoomDetailsTitle = styled.p`
     font-size: 25px;
     line-height: 140%;
     color: #464646;
-    width: ;
+    margin-top: 50px;
+    margin-left: 48px;
+    margin-right: 87px;
 `
 export const RoomDetailsDesc = styled.div`
+    display: flex;
+    flex-direction: column;
+    row-gap : 17px;
+    margin-left: 48px;
     
 `
 
@@ -306,8 +319,38 @@ export const RoomDetilasDescP = styled.p`
     color: #464646;
     display: flex;
     flex-direction: row;
+    align-items: center;
+    gap: 5px;
 `
 export const RoomDetailsEnter = styled.div`
+    width: calc(100% - 85px);
+    margin:12px auto 0px;
+    display: flex;
+    justify-content: end;
     
+`
+export const RoomDetailsTop = styled.div`
+    width: 100%;
+    height: 120px;
+`
+export const RoomDetailsBottom = styled.div`
+    flex : 1;
+    width: 100%;
+    gap: 10px;
+`
+export const RoomEnterButton = styled.button`
+    align-items: center;
+    text-align: center;
+    color: #464646;
+    background: #00F0FF;
+    border-radius: 52px;
+    width: 152px;
+    height: 48px;
+    border : none;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 80%;
 `
 export default MainRoom
