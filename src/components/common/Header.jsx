@@ -252,21 +252,25 @@ export const AlearHeader = styled.div`
     width: 40px;
     height: 40px;
     position: absolute;
-    top: 40px;
-    left: -40px;
+    /* top: 40px;
+    left: -40px; */
     background-color: #EDF5FF;
     transform: rotate(-45deg); 
     border-top-right-radius: 6px;
+    top: 50px;
+    left: -5px;
 `
 
 export const AlearWrapContent = styled.div`
     width: 200px;
     height: 250px;
     position: absolute;
-    top: 50px;
-    right: 5px;
+    /* top: 50px;
+    right: 5px; */
     background-color: #EDF5FF;
     border-radius: 6px;
+    top: 55px;
+    right: -10px;
 `
 
 export const AlearTitle = styled.p`
