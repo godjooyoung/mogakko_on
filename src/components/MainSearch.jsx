@@ -26,11 +26,11 @@ function MainSearch(props) {
 
     // 인기동네 목록
     const [townList, setTownList] = useState([
-        {count: 14, neighborhood: '서울특별시 강서구 염창동'},
-        {count: 13, neighborhood: '서울특별시 강서구 가양동'},
-        {count: 12, neighborhood: '서울특별시 영등포구 문래동'},
-        {count: 11, neighborhood: '서울특별시 관악구 신림동'},
-        {count: 11, neighborhood: '서울특별시 강남구 역삼동'}
+        {count: 14, neighborhood: '서울특별시 강서구 염창동', isSelected:false},
+        {count: 13, neighborhood: '서울특별시 강서구 가양동', isSelected:false},
+        {count: 12, neighborhood: '서울특별시 영등포구 문래동', isSelected:false},
+        {count: 11, neighborhood: '서울특별시 관악구 신림동', isSelected:false},
+        {count: 11, neighborhood: '서울특별시 강남구 역삼동', isSelected:false}
     ])
 
     // 인기 동네 목록 조회
@@ -40,14 +40,15 @@ function MainSearch(props) {
         console.log("getHotTowns 조회결과 ", data)
         if(!data || data.length === 0){
             setTownList([
-                {count: 14, neighborhood: '서울특별시 강서구 염창동'},
-                {count: 13, neighborhood: '서울특별시 강서구 가양동'},
-                {count: 12, neighborhood: '서울특별시 영등포구 문래동'},
-                {count: 11, neighborhood: '서울특별시 관악구 신림동'},
-                {count: 11, neighborhood: '서울특별시 강남구 역삼동'},
+                {count: 14, neighborhood: '서울특별시 강서구 염창동', isSelected:false},
+                {count: 13, neighborhood: '서울특별시 강서구 가양동', isSelected:false},
+                {count: 12, neighborhood: '서울특별시 영등포구 문래동', isSelected:false},
+                {count: 11, neighborhood: '서울특별시 관악구 신림동', isSelected:false},
+                {count: 11, neighborhood: '서울특별시 강남구 역삼동', isSelected:false},
             ])
         }else{
-            setTownList(data)
+            const updatedData = data.map(obj => ({ ...obj, isSelected: false }))
+            setTownList(updatedData)
         }
     },[data])
 
@@ -60,9 +61,9 @@ function MainSearch(props) {
             { desc:'C', language : 'C', isSelected : false },
             { desc:'C#', language : 'CSHARP', isSelected : false },
             { desc:'C++', language : 'CPLPL', isSelected : false },
-            { desc:'RUBY', language : 'RUBY', isSelected : false },
+            // { desc:'RUBY', language : 'RUBY', isSelected : false },
             { desc:'KOTLIN', language : 'KOTLIN', isSelected : false },
-            { desc:'SWIFT', language : 'SWIFT', isSelected : false },
+            // { desc:'SWIFT', language : 'SWIFT', isSelected : false },
             // { desc:'GO', language : 'GO', isSelected : false },
             // { desc:'PHP', language : 'PHP', isSelected : false },
             // { desc:'RUST', language : 'RUST', isSelected : false },
@@ -88,8 +89,16 @@ function MainSearch(props) {
     
 
     // 동네 버튼 클릭 이벤트
-    const onClickGetLatLngHandler = (adress) => {
+    const onClickGetLatLngHandler = (idx, isSelected, adress) => {
         setIsTargeting(true)        // 쿼리 실행 여부 변경
+        const updateTownList = townList.map((town, index) => {
+            if (index === idx) {
+                return { ...town, isSelected: !isSelected }
+            }else{
+                return { ...town, isSelected: false }
+            }
+        });
+        setTownList(updateTownList)
         setTargetAddress(adress)    // 현재 클릭된 동네의 주소
     }
 
@@ -170,21 +179,28 @@ function MainSearch(props) {
 
     return (
         <SearchContaniner>
+            <Search>
+                <SearchTitle>내 주변 모각코 찾아보기</SearchTitle>
+                <SearchBar>
+                    <div>
+                        <img src={`${process.env.PUBLIC_URL}/image/zoomOut.svg`} alt="돋보기아이콘" width='20' height='20' />
+                    </div>
+                    <SearchInput type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='원하시는 모각코 장소, 제목을 검색하세요.' />
+                    <SearchResetBtn onClick={()=>{keywordReset()}}>X</SearchResetBtn>
+                </SearchBar>
+            </Search>
+            
             <div>
-                <div>내 주변 모각코 찾아보기</div>
-                <input type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='원하시는 모각코 장소, 제목을 검색하세요.' />
-                <button onClick={()=>{keywordReset()}}>X</button>
-            </div>
-            <div>
-                <div>인기동네버튼영역</div>
+                <SearcFilterTitle>인기동네</SearcFilterTitle>
                 <div>
-                    {townList.map((town) => {
-                        return <button onClick={() => (onClickGetLatLngHandler(town.neighborhood))}>{town.neighborhood.split(' ')[2]}</button>
+                    {townList.map((town, idx) => {
+                        return <SearchTownBtn isSelected={town.isSelected} onClick={() => (onClickGetLatLngHandler(idx, town.isSelected, town.neighborhood))}>{town.neighborhood.split(' ')[2]}</SearchTownBtn>
                     })}
                 </div>
             </div>
+            
             <div>
-                <div>기술</div>
+                <SearcFilterTitle>기술</SearcFilterTitle>
                 <SearchLanguageBtnWrap>
                     {languageList.map((language, idx) => {
                         return <SearchLanguageBtn isSelected={language.isSelected} onClick={() => (onClickLanguageHandler(idx, language.isSelected))}>{language.desc}</SearchLanguageBtn>
@@ -201,6 +217,9 @@ export const SearchContaniner = styled.div`
     height: 413px;
     background-color: transparent;
     left: calc(100% - 486px);
+    display: flex;
+    flex-direction: column;
+    row-gap: 27px;
 `
 export const SearchLanguageBtnWrap = styled.div`
 `
@@ -219,7 +238,7 @@ export const SearchLanguageBtn = styled.button`
         return props.isSelected?'#00F0FF':'transparent'
     }};
     color : ${(props)=>{
-        return props.isSelected?'#464646':'#FFFFFF;'
+        return props.isSelected?'#464646':'#FFFFFF'
     }};
     overflow: hidden;
     font-family: 'Pretendard';
@@ -228,6 +247,86 @@ export const SearchLanguageBtn = styled.button`
     font-size: 18px;
     line-height: 24px;
 `
+
+export const SearchTownBtn = styled.button`
+    padding: 9px 20px;
+    margin-left: 9px;
+    margin-bottom: 12px;
+    /* text-align: center; */
+    /* gap: 10px; */
+    min-width: 72px;
+    height: 42px;
+    border: 0.5px solid #FFFFFF;
+    border-radius: 28px;
+    cursor: pointer;
+    background : ${(props)=>{
+        return props.isSelected?'#00F0FF':'transparent'
+    }};
+    color : ${(props)=>{
+        return props.isSelected?'#464646':'#FFFFFF'
+    }};
+    overflow: hidden;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 24px;
+`
+
+export const SearchTitle = styled.h1`
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 29px;
+    line-height: 35px;
+    display: flex;
+    align-items: center;
+    /* 검정바탕 글 */
+    color: #FFFFFF;
+`
+export const SearcFilterTitle = styled.h2`
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    /* line-height: 24px; */
+    line-height : 109%;
+    /* 검정바탕 글 */
+    color: #FFFFFF;
+    margin-bottom: 20px;
+`
+export const SearchBar = styled.div`
+    width: 470px;
+    height: 40px;
+    background: #394254;
+    border-radius: 114px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+`
+export const SearchInput = styled.input`
+    appearance: none;
+    background: none;
+    width: 369px;
+    height: 23px;
+    border:none;
+    color: #FFFFFF;
+`
+export const SearchResetBtn = styled.button`
+    background: none;
+    border: none;
+    color: #FFFFFF;
+`
+
+export const Search = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap : 28px
+`
+
 export default MainSearch
 
 

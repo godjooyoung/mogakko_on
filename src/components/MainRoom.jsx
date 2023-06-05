@@ -66,29 +66,48 @@ function MainRoom(props) {
                 </> :
                 <>
                     <NonEmptyRoom>
-                    <RoomList>
-                        {props.roomList && props.roomList.map((room, idx) => {
-                            return (
-                                <RoomCard onClick={() => { onClickRoomDetailsHandler(room) }}>
-                                    <div>{room.title}</div>
-                                    <div>지역 : {room.neighborhood}</div>
-                                    <div>모각코시간 : {room.createdAt}</div>
-                                    <div>{room.cntMembers}/{room.maxMembers}</div>
-                                    <div>{room.language}</div>
-                                </RoomCard>
-                            )
-                        })}
-                    </RoomList>
-                    <RoomDetails>
-                        <div>{roomDetails && roomDetails.title}</div>
-                        <div>지역 : {roomDetails && roomDetails.neighborhood}</div>
-                        <div>모각코시간 : {roomDetails && roomDetails.createdAt}</div>
-                        <div>정원 : {roomDetails && roomDetails.cntMembers}/{roomDetails && roomDetails.maxMembers}</div>
-                        <div>언어 : {roomDetails && roomDetails.language}</div>
-                        <div>
-                            <button onClick={() => { onClickJoinRoomHandler(roomDetails) }}>참여하기</button>
-                        </div>
-                    </RoomDetails>
+                        <RoomList>
+                            {props.roomList && props.roomList.map((room, idx) => {
+                                return (
+                                    <RoomCard onClick={() => { onClickRoomDetailsHandler(room) }}>
+                                        <CardTop>
+                                            <CardTitle>{room.title}</CardTitle>
+                                        </CardTop>
+                                        <CardBottom>
+                                            <LanguageWrap>
+                                                <LanguageIconDiv>
+                                                    기술아이콘
+                                                </LanguageIconDiv>
+                                                <LanguageDesc>
+                                                    {room.language}
+                                                </LanguageDesc>
+                                            </LanguageWrap>
+                                            <RoomEnterMemberWrap>
+                                                <div>
+                                                    <img src={`${process.env.PUBLIC_URL}/image/peopleAlt.svg`} alt="사람아이콘" />
+                                                </div>
+                                                <RoomEnterMamberNum>
+                                                    {room.cntMembers}/{room.maxMembers}
+                                                </RoomEnterMamberNum>
+                                            </RoomEnterMemberWrap>
+                                        </CardBottom>
+                                        <RoomCardBgImg src={`${process.env.PUBLIC_URL}/image/cplpl.svg`} alt="언어 백그라운드" />
+                                    </RoomCard>
+                                )
+                            })}
+                        </RoomList>
+                        <RoomDetails>
+                            <RoomDetailsTitle>{roomDetails && roomDetails.title}</RoomDetailsTitle>
+                            <RoomDetailsDesc>
+                                <RoomDetilasDescP>지역 : {roomDetails && roomDetails.neighborhood}</RoomDetilasDescP>
+                                <RoomDetilasDescP>모각코시간 : {roomDetails && roomDetails.createdAt}</RoomDetilasDescP>
+                                <RoomDetilasDescP>정원 : {roomDetails && roomDetails.cntMembers}/{roomDetails && roomDetails.maxMembers}</RoomDetilasDescP>
+                                <RoomDetilasDescP>언어 : <LanguageIconSpan>기술아이콘</LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
+                            </RoomDetailsDesc>
+                            <RoomDetailsEnter>
+                                <button onClick={() => { onClickJoinRoomHandler(roomDetails) }}>참여하기</button>
+                            </RoomDetailsEnter>
+                        </RoomDetails>
                     </NonEmptyRoom>
                 </>
 
@@ -142,14 +161,16 @@ export const NonEmptyRoom = styled.div`
     height: 440px;
     position: relative;
     margin-bottom: 133px;
+    display: flex;
+    justify-content: space-between;
 `
 
 export const RoomList = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     width: 50%;
-    gap: 5px;
+    gap: 16px;
     overflow-y: scroll;
 `
 export const RoomDetails = styled.div`
@@ -157,15 +178,136 @@ export const RoomDetails = styled.div`
     justify-content: center;
     flex-direction: column;
     align-items: center;
-    width: 50%;
-    height: 100%;
-    background-color: darkgoldenrod;
+    width: 486px;
+    height: 440px;
+    background: #F9F9FA;
+    border-radius: 20px;
+
 `
 export const RoomCard = styled.div`
-    min-height: 100px;
-    width: 100%;
-    height: 100px;
-    background-color: skyblue;
+    display: flex;
+    flex-direction : column;
+    background: linear-gradient(252.91deg, #00C4BD 0%, #267F82 20.31%, #394254 38.54%);
+    border-radius: 20px;
+    width: 443px;
+    height: 167px;
+    overflow : hidden;
     cursor: pointer;
+`
+export const RoomCardBgImg = styled.img`
+    position: relative;
+    top: -160px;
+    width: 198px;
+    height: 177.44px;
+    left: 280px;
+    
+`
+export const CardTop = styled.div`
+    /* flex: 1; CardTop이 남은 공간을 차지하도록 설정 */
+    display: flex;
+    align-items: center; /* 세로 방향으로 가운데 정렬 */
+    margin: 0 auto;
+    width: calc(100% - 54px);
+`
+export const CardTitle = styled.div`
+    position: relative;
+    top: 22px;
+    width: 250px;
+    height: 67px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 28px;
+    color: #FFFFFF;
+`
+
+export const CardBottom = styled.div`
+    display: flex;
+    align-items: center; /* 세로 방향으로 가운데 정렬 */
+    justify-content: space-between;
+    color: #FFFFFF;
+    margin: 43px auto 22px;
+    width: calc(100% - 54px);
+    
+`
+
+export const LanguageIconDiv = styled.div`
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #2F91E7;
+    overflow: hidden;
+`
+export const LanguageIconSpan = styled.span`
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #2F91E7;
+    overflow: hidden;
+`
+
+export const LanguageDesc = styled.div`
+    width: 112px;
+    height: 20px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 28px;
+    display: flex;
+    align-items: center;
+    color: #FFFFFF;
+`
+
+export const LanguageWrap = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 10px;
+`
+
+export const RoomEnterMemberWrap = styled.div`
+    gap: 8px;
+    display: flex;
+    flex-direction: row;
+    /* justify-content: center; */
+    align-items: center;
+`
+
+export const RoomEnterMamberNum = styled.p`
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 24px;
+    text-align: right;
+    color: #FFFFFF;
+`
+
+export const RoomDetailsTitle = styled.p`
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 140%;
+    color: #464646;
+    width: ;
+`
+export const RoomDetailsDesc = styled.div`
+    
+`
+
+export const RoomDetilasDescP = styled.p`
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 15px;
+    /* 흰바탕 글 */
+    color: #464646;
+    display: flex;
+    flex-direction: row;
+`
+export const RoomDetailsEnter = styled.div`
+    
 `
 export default MainRoom

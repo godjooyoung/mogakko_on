@@ -10,6 +10,7 @@ import useInput from '../hooks/useInput'
 import { getCookie } from '../cookie/Cookie'
 import { useMutation } from 'react-query'
 import { leaveChatRoom } from '../axios/api/chat'
+import Header from "../components/common/Header";
 
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
@@ -235,7 +236,6 @@ function Room() {
         audioSource: undefined,
         publishAudio: audioEnabled,
         publishVideo: videoEnabled,
-        resolution: '200x200',
         frameRate: 30,
         insertMode: 'APPEND',
       });
@@ -265,7 +265,6 @@ function Room() {
         audioSource: undefined,
         publishAudio: audioEnabled,
         publishVideo: videoEnabled,
-        resolution: '200x200',
         frameRate: 30,
         insertMode: 'APPEND',
       })
@@ -313,7 +312,6 @@ function Room() {
             videoSource: undefined,
             publishAudio: audioEnabled,
             publishVideo: videoEnabled,
-            resolution: '200x200',
             frameRate: 30,
             insertMode: 'APPEND',
             mirror: false,
@@ -558,126 +556,149 @@ function Room() {
     <div className="container">
       {/* 세션이 없으면  */}
       {session === undefined ? (
-        <FlexCenter>
-          <RoomCreateContainer>
-            <RoomCreateWrap>
-              <RoomCreateTitle> 방 만들기 </RoomCreateTitle>
-              <form onSubmit={joinSession}>
-                <RoomNameWrap>
-                  <RoomName>방이름 :</RoomName>
-                  <RoomNameInput
-                    type="text"
-                    value={roomTitle}
-                    onChange={handleChangeRoomTitle}
-                    placeholder='어떤 모각코인지 설명해주세요'
-                    required
-                  />
-                </RoomNameWrap>
-                <LanguageWrap>
-                  <LanguageTitle>언어 :</LanguageTitle>
-                  <LanguageBtnWrap>
-                    {
-                      languageList.map((language, idx) => {
-                        return (
-                          <LanguageBtn isSelected={language.isSelected} onClick={(e) => {
-                            e.preventDefault()
-                            onClickLanguageHandler(idx, language.isSelected)
-                          }}>{language.language}</LanguageBtn>
-                        )
-                      })
-                    }
-                  </LanguageBtnWrap>
-                </LanguageWrap>
-                <MaxMembersWrap>
-                  <MaxMembersTitle>최대인원 :</MaxMembersTitle>
-                  <MaxMembersBtnWrap>
-                    {
-                      maxMembers.map((ele, idx) => {
-                        return (
-                          <MaxMembersBtn key={idx} onClick={(e) => {
-                            e.preventDefault()
-                            maxMembersHandler(ele)
-                          }}>{ele}</MaxMembersBtn>
-                        )
-                      })
-                    }
-                  </MaxMembersBtnWrap>
-                </MaxMembersWrap>
-                <PublicWrap>
-                  <PublicTitle>공개 여부 : </PublicTitle>
-                  <PublicBtnWrap>
-                    <PublicBtn btnSelect={btnSelect}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setBtnSelect('public')
-                        publicHandler()
-                      }}>
-                      공개</PublicBtn>
-                    <ClosedBtn btnSelect={btnSelect}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setBtnSelect('closed')
-                        closedHandler()
-                      }}>비공개</ClosedBtn>
-                  </PublicBtnWrap>
-                </PublicWrap>
-                {
-                  !isOpened &&
-                  <PasswordWrap>
-                    <PasswordInputWrap>
-                      <PasswordTitle>비밀번호 : </PasswordTitle>
-                      <PasswordInput type="text"
-                        value={closedPassword}
-                        onChange={(e) => {
-                          onChangeClosedPassword(e)
-                        }}
-                        placeholder='비밀번호를 입력해주세요'
-                      />
-                    </PasswordInputWrap>
-                    <PasswordInputWrap>
-                      <PasswordTitle>비밀번호 확인 : </PasswordTitle>
-                      <PasswordInput type="text"
-                        value={PasswordCheck}
-                        onChange={(e) => {
-                          onChangePasswordCheck(e)
-                        }}
-                        placeholder='비밀번호재입력'
-                      />
-                    </PasswordInputWrap>
-                  </PasswordWrap>
-                }
-                <JoinBtnWrap>
-                  <JoinBtn name="commit" type="submit" value="JOIN" />
-                </JoinBtnWrap>
-              </form>
-              <button onClick={onClickTempButton}>TEMP</button>
-            </RoomCreateWrap>
-          </RoomCreateContainer>
-        </FlexCenter>
+        <>
+          <Header />
+          <FlexCenter>
+            <RoomCreateContainer>
+              <RoomCreateWrap>
+                <RoomCreateTitle> 방 만들기 </RoomCreateTitle>
+                <form onSubmit={joinSession}>
+                  <RoomNameWrap>
+                    <RoomName>방이름 :</RoomName>
+                    <RoomNameInput
+                      type="text"
+                      value={roomTitle}
+                      onChange={handleChangeRoomTitle}
+                      placeholder='어떤 모각코인지 설명해주세요'
+                      required
+                    />
+                  </RoomNameWrap>
+                  <LanguageWrap>
+                    <LanguageTitle>언어 :</LanguageTitle>
+                    <LanguageBtnWrap>
+                      {
+                        languageList.map((language, idx) => {
+                          return (
+                            <LanguageBtn isSelected={language.isSelected} onClick={(e) => {
+                              e.preventDefault()
+                              onClickLanguageHandler(idx, language.isSelected)
+                            }}>{language.language}</LanguageBtn>
+                          )
+                        })
+                      }
+                    </LanguageBtnWrap>
+                  </LanguageWrap>
+                  <MaxMembersWrap>
+                    <MaxMembersTitle>최대인원 :</MaxMembersTitle>
+                    <MaxMembersBtnWrap>
+                      {
+                        maxMembers.map((ele, idx) => {
+                          return (
+                            <MaxMembersBtn key={idx} onClick={(e) => {
+                              e.preventDefault()
+                              maxMembersHandler(ele)
+                            }}>{ele}</MaxMembersBtn>
+                          )
+                        })
+                      }
+                    </MaxMembersBtnWrap>
+                  </MaxMembersWrap>
+                  <PublicWrap>
+                    <PublicTitle>공개 여부 : </PublicTitle>
+                    <PublicBtnWrap>
+                      <PublicBtn btnSelect={btnSelect}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setBtnSelect('public')
+                          publicHandler()
+                        }}>
+                        공개</PublicBtn>
+                      <ClosedBtn btnSelect={btnSelect}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setBtnSelect('closed')
+                          closedHandler()
+                        }}>비공개</ClosedBtn>
+                    </PublicBtnWrap>
+                  </PublicWrap>
+                  {
+                    !isOpened &&
+                    <PasswordWrap>
+                      <PasswordInputWrap>
+                        <PasswordTitle>비밀번호 : </PasswordTitle>
+                        <PasswordInput type="text"
+                          value={closedPassword}
+                          onChange={(e) => {
+                            onChangeClosedPassword(e)
+                          }}
+                          placeholder='비밀번호를 입력해주세요'
+                        />
+                      </PasswordInputWrap>
+                      <PasswordInputWrap>
+                        <PasswordTitle>비밀번호 확인 : </PasswordTitle>
+                        <PasswordInput type="text"
+                          value={PasswordCheck}
+                          onChange={(e) => {
+                            onChangePasswordCheck(e)
+                          }}
+                          placeholder='비밀번호재입력'
+                        />
+                      </PasswordInputWrap>
+                    </PasswordWrap>
+                  }
+                  <JoinBtnWrap>
+                    <JoinBtn name="commit" type="submit" value="JOIN" />
+                  </JoinBtnWrap>
+                </form>
+                <button onClick={onClickTempButton}>TEMP</button>
+              </RoomCreateWrap>
+            </RoomCreateContainer>
+          </FlexCenter>
+        </>
       ) : null}
       {/* 세션이 있으면  */}
       {session !== undefined ? (
-        <RoomContainer>
-          <div>
-            <h1>{mySessionId}</h1>
-            <input
-              type="button"
-              onClick={leaveSession}
-              value="Leave session"
-            />
-          </div>
-
-          {mainStreamManager !== undefined ? (
+        <div>
+          <RoomInHeader>
+            <span>모던 자바스크립트 딥다이브 스터디 모집합니다!</span>
             <div>
-              <UserVideoComponent streamManager={mainStreamManager} />
+              <h1>{mySessionId}</h1>
+              <button
+                onClick={leaveSession}
+              >
+                <img src={`${process.env.PUBLIC_URL}/image/roomLeaveBtn.svg`} alt="" />
+              </ button>
             </div>
-          ) : null}
-          <div>
-            {publisher !== undefined ? (
-              <div onClick={() => handleMainVideoStream(publisher)}>
-                <UserVideoComponent
-                  streamManager={publisher} />
+          </RoomInHeader>
+          <RoomContainer>
+            <VideoWrap>
+              <PubilshSession>
+                <div>
+                  {publisher !== undefined ? (
+                    <PubilsherVideoContainer>
+                      <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)}>
+                        <UserVideoComponent
+                          streamManager={publisher} />
+                      </PubilsherVideoWrap>
+                    </PubilsherVideoContainer>
+                  ) : null}
+                </div>
 
+                {mainStreamManager !== undefined ? (
+                    <MainStreamWrap>
+                      <UserVideoComponent streamManager={mainStreamManager}/>
+                    </MainStreamWrap>
+                ) : null}
+
+                {subscribers.map((e, i) => (
+                  <div key={e.id} onClick={() => handleMainVideoStream(e)}>
+                    <span>{e.id}</span>
+                    <UserVideoComponent streamManager={e} />
+                  </div>
+                ))}
+              </PubilshSession>
+
+              <div>
                 <button onClick={() => { toggleSharingMode(publisher) }}>
                   {isScreenSharing ? 'Switch to Camera' : 'Switch to Screen Sharing'}
                 </button>
@@ -691,28 +712,20 @@ function Room() {
                   onClick={AudioTogglehandler}
                   value={audioEnabled ? "Audio Off" : "Audio On"}
                 />
-
               </div>
-            ) : null}
-            {subscribers.map((e, i) => (
-              <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                <span>{e.id}</span>
-                <UserVideoComponent streamManager={e} />
-              </div>
-            ))}
-          </div>
+            </VideoWrap>
+            <ChattingWrap>
+              <ChattingHeader>chatting Header</ChattingHeader>
+              <ChatContentWrap>
 
-          <ChattingWrap>
-            <ChattingHeader>chatting Header</ChattingHeader>
-            <ChatContentWrap>
-
-            </ChatContentWrap>
-            <ChatInput value={message} onChange={(e) => setMessage(e.target.value)} cols="30" rows="10"></ChatInput>
-            <SendBtnWrap>
-              <SendBtn>보내기</SendBtn>
-            </SendBtnWrap>
-          </ChattingWrap>
-        </RoomContainer>
+              </ChatContentWrap>
+              <ChatInput value={message} onChange={(e) => setMessage(e.target.value)} cols="30" rows="10"></ChatInput>
+              <SendBtnWrap>
+                <SendBtn>보내기</SendBtn>
+              </SendBtnWrap>
+            </ChattingWrap>
+          </RoomContainer>
+        </div>
       ) : null}
     </div>
   );
@@ -721,7 +734,7 @@ function Room() {
 export const FlexCenter = styled.div`
   display: flex;
   width: 1280px;
-  min-height: 935px;
+  height: 935px;
   justify-content: center;
   align-items: center;
 `
@@ -731,18 +744,19 @@ export const RoomCreateContainer = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  background-color: #394254;
+  /* background-color: #394254; */
   padding: 50px 0 50px 0;
   box-sizing: border-box;
-  border-radius: 8px;
+  height: 935px;
 `
 
 export const RoomCreateWrap = styled.div`
   display: flex;
   flex-direction: column;
   width: 800px;
-  background-color: red;
+  background-color: #394254;
   padding: 50px;
+  border-radius: 8px;
 `
 
 export const RoomCreateTitle = styled.div`
@@ -767,10 +781,6 @@ export const RoomNameInput = styled.input`
   padding: 10px;
   outline: none;
   border: none;
-`
-
-export const RoomContainer = styled.div`
-  display: flex;
 `
 
 export const LanguageWrap = styled.div`
@@ -891,9 +901,65 @@ export const JoinBtn = styled.input`
   padding: 10px 0 10px 0;
 `
 
+export const RoomInHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 90px;
+  padding: 0 30px 0 30px;
+
+  span {
+    color: white;
+    font-size: 22px;
+  }
+`
+
+export const RoomContainer = styled.div`
+  width: 100%;
+  height: 845px;
+  /* background-color: #746262; */
+  display: flex;
+  justify-content: space-between;
+`
+
+export const VideoWrap = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`
+
+export const PubilshSession = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+`
+
+export const PubilsherVideoContainer = styled.div`
+  padding: 5px;
+  margin-bottom: 30px;
+`
+
+export const PubilsherVideoWrap = styled.div` 
+  width: 240px;
+  height: 135px;
+  border-radius: 10px;
+`
+
+export const MainStreamWrap = styled.div`
+  width: 1030px;
+  display: flex;
+  justify-content: center;
+  padding-left: 5px;
+  video {
+    height: 590px;
+  }
+`
+
 export const ChattingWrap = styled.div`
   width: 300px;
-  height: 880px;
+  height: 845px;
   position: relative;
   background-color: red;
 `
@@ -905,7 +971,7 @@ export const ChattingHeader = styled.div`
 
 export const ChatContentWrap = styled.div`
     padding: 10px 25px;
-    height: 780px;
+    height: 745px;
     overflow-y: scroll;
     &::-webkit-scrollbar {
         display: none;
