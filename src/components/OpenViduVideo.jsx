@@ -10,7 +10,10 @@ function OpenViduVideoComponent({ streamManager }) {
         }
     }, [streamManager])
 
-    return <video autoPlay={true} ref={videoRef} />
+    return <video autoPlay={true} ref={videoRef} style={{
+        borderRadius: '10px',
+        objectFit: 'cover'
+    }}/>
 }
 
 // 스트림 관리자(streamManager)가 변경될 때마다 비디오 요소를 추가
