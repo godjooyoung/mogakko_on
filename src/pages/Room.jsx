@@ -464,7 +464,6 @@ function Room() {
         isConnected.current = true
         subscribe(openViduSession)
         publish(openViduSession)
-        textPublish(openViduSession)
       },
 
       onStompError: (frame) => {
@@ -677,25 +676,23 @@ function Room() {
                   {publisher !== undefined ? (
                     <PubilsherVideoContainer>
                       <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)}>
-                        <UserVideoComponent
-                          streamManager={publisher} />
+                        <UserVideoComponent streamManager={publisher} />
+                        {subscribers.map((e, i) => (
+                          <div key={e.id} onClick={() => handleMainVideoStream(e)}>
+                            <span>{e.id}</span>
+                            <UserVideoComponent streamManager={e} />
+                          </div>
+                        ))}
                       </PubilsherVideoWrap>
                     </PubilsherVideoContainer>
                   ) : null}
                 </div>
 
                 {mainStreamManager !== undefined ? (
-                    <MainStreamWrap>
-                      <UserVideoComponent streamManager={mainStreamManager}/>
-                    </MainStreamWrap>
+                  <MainStreamWrap>
+                    <UserVideoComponent streamManager={mainStreamManager} />
+                  </MainStreamWrap>
                 ) : null}
-
-                {subscribers.map((e, i) => (
-                  <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                    <span>{e.id}</span>
-                    <UserVideoComponent streamManager={e} />
-                  </div>
-                ))}
               </PubilshSession>
 
               <div>
@@ -721,7 +718,9 @@ function Room() {
               </ChatContentWrap>
               <ChatInput value={message} onChange={(e) => setMessage(e.target.value)} cols="30" rows="10"></ChatInput>
               <SendBtnWrap>
-                <SendBtn>보내기</SendBtn>
+                <SendBtn onClick={() => {
+                  textPublish(openViduSession)
+                }}>보내기</SendBtn>
               </SendBtnWrap>
             </ChattingWrap>
           </RoomContainer>
@@ -943,8 +942,15 @@ export const PubilsherVideoContainer = styled.div`
 
 export const PubilsherVideoWrap = styled.div` 
   width: 240px;
-  height: 135px;
+  height: 145px;
   border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  video {
+      height: 145px;
+  }
 `
 
 export const MainStreamWrap = styled.div`
