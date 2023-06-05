@@ -168,7 +168,7 @@ function MainRoom(props) {
                                     <RoomDetilasDescP>지역 : {roomDetails && roomDetails.neighborhood}</RoomDetilasDescP>
                                     <RoomDetilasDescP>모각코시간 : {roomDetails && roomDetails.createdAt}</RoomDetilasDescP>
                                     <RoomDetilasDescP>정원 : {roomDetails && roomDetails.cntMembers}/{roomDetails && roomDetails.maxMembers}</RoomDetilasDescP>
-                                    <RoomDetilasDescP>언어 : <LanguageIconSpan language={roomDetails.language}></LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
+                                    <RoomDetilasDescP>언어 : <LanguageIconSpan language={roomDetails&&roomDetails.language}></LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
                                 </RoomDetailsDesc>
                                 <RoomDetailsEnter>
                                     <RoomEnterButton onClick={() => { onClickJoinRoomHandler(roomDetails) }}>참여하기→</RoomEnterButton>
