@@ -109,6 +109,8 @@ function SignUp() {
         const newPassword = e.target.value;
         setPassword(newPassword);
         setPasswordErrorMessage('');
+        setIsPasswordConfirmed(false);
+
     };
     useEffect(() => {
         if (!validatePassword(password)) {
@@ -124,6 +126,15 @@ function SignUp() {
             setIsPasswordValid(true);
         }
     }, [password])
+
+    useEffect(() => {
+        if(!isPasswordConfirmed&&password.length!==0){
+            setConfirmPasswordErrorMessage('비밀번호가 일치하지 않습니다.');
+        } else {
+            setConfirmPasswordErrorMessage('');
+        }
+    }, [isPasswordConfirmed])
+
     const confirmPasswordChangeHandler = (e) => {
         const newConfirmPassword = e.target.value;
         setConfirmPassword(newConfirmPassword);
@@ -232,7 +243,9 @@ function SignUp() {
         <>
             <Form>
                 {/* <Form onSubmit={submitHandler}> */}
-               
+                <div>
+                <Label>이메일</Label>
+                </div>   
                 <div>
                     <Input
                         type="email"
@@ -251,18 +264,22 @@ function SignUp() {
                 </div>
                 {emailErrorMessage && <ErrorMessage>{emailErrorMessage}</ErrorMessage>}
                 {emailAvailability && <ErrorMessage>{emailAvailability}</ErrorMessage>}
-               
+                <div>
+                <Label>비밀번호</Label>
+                </div>
                 <div>
                     <Input
                         type="password"
                         value={password}
                         onChange={passwordChangeHandler}
                         placeholder="비밀번호"
-                        ><BiLock/></Input>
+                    />
                 </div>
                 {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
 
-                
+                <div>
+                <Label>비밀번호 확인</Label>
+                </div>
                 <div>
                     <Input
                         type="password"
@@ -272,8 +289,9 @@ function SignUp() {
                     />
                 </div>
                 {confirmPasswordErrorMessage && <ErrorMessage>{confirmPasswordErrorMessage}</ErrorMessage>}
-
-              
+                <div>
+                <Label>닉네임</Label>
+                </div>    
                 <FormField>
                     <Input
                         type="text"
@@ -310,7 +328,7 @@ function SignUp() {
                     e.preventDefault() //요청전 리로드 방지
                     sendHandler(sendData)
                 }}
-                    disabled={!isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
+                    disabled={nicknameChanged||emailChanged||!isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
                 >
                     회원가입
                 </button>
@@ -318,11 +336,24 @@ function SignUp() {
         </>
     );
 }
+//중복체크까지 잘하고 회원가입이 활성화된 상태에서 저 칸 중의 하나라도 바뀌면 회원가입이 비활성화되야 하는데...
+// 이메일 고치고 비밀번호 고치거나 닉네임 고쳐도 회원가입 활성화상태다. 
+// 중복체크 한 뒤 이메일이나 닉네임 수정하면->에러메세지가 "다시 중복체크가 필요합니다."
+// 비밀번호가 바뀌면 아래있는 비밀번호와 달라도 다르다는 메세지 안 나옴. 
+// 회원가입 disabled만드는 값들을 수정되는 순간 false가 되어야 하고.
+
+
 
 export default SignUp;
 
 export const FormField = styled.div`
     margin-bottom: 20px;
+`;
+
+const Label = styled.label`
+    margin-bottom: 0.5rem;
+    margin-top: 3rem;
+    font-weight: bold;
 `;
 
 export const BottomButton = styled.button`
