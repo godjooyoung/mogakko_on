@@ -245,7 +245,7 @@ function SignUp() {
                 <div>
                 <Label>이메일</Label>
                 </div>   
-                < InputWrapper>
+                <InputWrapper>
                     <Input
                         type="email"
                         value={email}
@@ -266,7 +266,7 @@ function SignUp() {
                 <div>
                 <Label>비밀번호</Label>
                 </div>
-                < InputWrapper>
+                <InputWrapper>
                     <Input
                         type="password"
                         value={password}
@@ -274,7 +274,7 @@ function SignUp() {
                         placeholder="비밀번호"
                     />
 
-                < /InputWrapper>
+                </InputWrapper>
                 {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
 
                 <div>
