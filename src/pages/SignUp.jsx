@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import Modal from '../components/SignupModal';
-import {BiLock } from "react-icons/bi";
 axios.defaults.withCredentials = true;
 
 function SignUp() {
@@ -246,7 +245,7 @@ function SignUp() {
                 <div>
                 <Label>이메일</Label>
                 </div>   
-                <div>
+                < InputWrapper>
                     <Input
                         type="email"
                         value={email}
@@ -254,27 +253,28 @@ function SignUp() {
                         placeholder="이메일"
                         required
                     />
-                    <button type="button" disabled={!emailChanged} onClick={(e) => {
+                    <CheckButton type="button" disabled={!emailChanged} onClick={(e) => {
                         e.preventDefault() //요청전 리로드 방지
                         checkEmailExistence(email)
                     }}>
 
                         중복체크
-                    </button>
-                </div>
+                    </CheckButton>
+                </InputWrapper>
                 {emailErrorMessage && <ErrorMessage>{emailErrorMessage}</ErrorMessage>}
                 {emailAvailability && <ErrorMessage>{emailAvailability}</ErrorMessage>}
                 <div>
                 <Label>비밀번호</Label>
                 </div>
-                <div>
+                < InputWrapper>
                     <Input
                         type="password"
                         value={password}
                         onChange={passwordChangeHandler}
                         placeholder="비밀번호"
                     />
-                </div>
+
+                < /InputWrapper>
                 {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
 
                 <div>
@@ -373,20 +373,26 @@ export const Form = styled.form`
     margin: 0 auto
 `;
 
-
+export const InputWrapper = styled.div`
+    display: flex;
+    align-items: stretch;
+    width: 300px;
+    border-radius: ㄴㄴ4px;
+    overflow: hidden;
+    box-shadow: 0 0 5px rgba(0,0,0,0,3);
+`;
 export const Input = styled.input`
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius:4px;
-    margin: 5px;
+    flex-glow: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
 `;
 
-export const Button = styled.button`
-    padding:0.5rem 1rem;
-    background-color: #007bff;
-    color: #fff;
+export const CheckButton = styled.button`
+    padding:10px;
+    background: #007bff;
+    color: white;
     border: none;
-    border-radius: 4px;
     cursor: pointer;
 `;
 

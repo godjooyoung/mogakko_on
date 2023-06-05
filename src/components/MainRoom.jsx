@@ -97,14 +97,20 @@ function MainRoom(props) {
                             })}
                         </RoomList>
                         <RoomDetails>
-                            <div>{roomDetails && roomDetails.title}</div>
-                            <div>지역 : {roomDetails && roomDetails.neighborhood}</div>
-                            <div>모각코시간 : {roomDetails && roomDetails.createdAt}</div>
-                            <div>정원 : {roomDetails && roomDetails.cntMembers}/{roomDetails && roomDetails.maxMembers}</div>
-                            <div>언어 : {roomDetails && roomDetails.language}</div>
-                            <div>
-                                <button onClick={() => { onClickJoinRoomHandler(roomDetails) }}>참여하기</button>
-                            </div>
+                            <RoomDetailsTop>
+                                <RoomDetailsTitle>{roomDetails && roomDetails.title}</RoomDetailsTitle>
+                            </RoomDetailsTop>
+                            <RoomDetailsBottom>
+                                <RoomDetailsDesc>
+                                    <RoomDetilasDescP>지역 : {roomDetails && roomDetails.neighborhood}</RoomDetilasDescP>
+                                    <RoomDetilasDescP>모각코시간 : {roomDetails && roomDetails.createdAt}</RoomDetilasDescP>
+                                    <RoomDetilasDescP>정원 : {roomDetails && roomDetails.cntMembers}/{roomDetails && roomDetails.maxMembers}</RoomDetilasDescP>
+                                    <RoomDetilasDescP>언어 : <LanguageIconSpan>기술아이콘</LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
+                                </RoomDetailsDesc>
+                                <RoomDetailsEnter>
+                                    <RoomEnterButton onClick={() => { onClickJoinRoomHandler(roomDetails) }}>참여하기→</RoomEnterButton>
+                                </RoomDetailsEnter>
+                            </RoomDetailsBottom>
                         </RoomDetails>
                     </NonEmptyRoom>
                 </>
@@ -160,6 +166,7 @@ export const NonEmptyRoom = styled.div`
     position: relative;
     margin-bottom: 133px;
     display: flex;
+    justify-content: space-between;
 `
 
 export const RoomList = styled.div`
@@ -175,19 +182,24 @@ export const RoomDetails = styled.div`
     justify-content: center;
     flex-direction: column;
     align-items: center;
-    width: 50%;
-    height: 100%;
-    background-color: darkgoldenrod;
+    width: 486px;
+    height: 440px;
+    background: #F9F9FA;
+    border-radius: 20px;
+    row-gap: 46px;
+
 `
 export const RoomCard = styled.div`
-    display: flex;
-    flex-direction : column;
+    /* display: flex;
+    flex-direction : column; */
     background: linear-gradient(252.91deg, #00C4BD 0%, #267F82 20.31%, #394254 38.54%);
     border-radius: 20px;
     width: 443px;
     height: 167px;
     overflow : hidden;
     cursor: pointer;
+    flex-grow: 0;
+    flex-shrink: 0;
 `
 export const RoomCardBgImg = styled.img`
     position: relative;
@@ -234,6 +246,13 @@ export const LanguageIconDiv = styled.div`
     background: #2F91E7;
     overflow: hidden;
 `
+export const LanguageIconSpan = styled.span`
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #2F91E7;
+    overflow: hidden;
+`
 
 export const LanguageDesc = styled.div`
     width: 112px;
@@ -272,4 +291,66 @@ export const RoomEnterMamberNum = styled.p`
     color: #FFFFFF;
 `
 
+export const RoomDetailsTitle = styled.p`
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 140%;
+    color: #464646;
+    margin-top: 50px;
+    margin-left: 48px;
+    margin-right: 87px;
+`
+export const RoomDetailsDesc = styled.div`
+    display: flex;
+    flex-direction: column;
+    row-gap : 17px;
+    margin-left: 48px;
+    
+`
+
+export const RoomDetilasDescP = styled.p`
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 15px;
+    /* 흰바탕 글 */
+    color: #464646;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+`
+export const RoomDetailsEnter = styled.div`
+    width: calc(100% - 85px);
+    margin:12px auto 0px;
+    display: flex;
+    justify-content: end;
+    
+`
+export const RoomDetailsTop = styled.div`
+    width: 100%;
+    height: 120px;
+`
+export const RoomDetailsBottom = styled.div`
+    flex : 1;
+    width: 100%;
+    gap: 10px;
+`
+export const RoomEnterButton = styled.button`
+    align-items: center;
+    text-align: center;
+    color: #464646;
+    background: #00F0FF;
+    border-radius: 52px;
+    width: 152px;
+    height: 48px;
+    border : none;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 80%;
+`
 export default MainRoom
