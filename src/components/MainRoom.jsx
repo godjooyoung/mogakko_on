@@ -190,14 +190,16 @@ export const RoomDetails = styled.div`
 
 `
 export const RoomCard = styled.div`
-    display: flex;
-    flex-direction : column;
+    /* display: flex;
+    flex-direction : column; */
     background: linear-gradient(252.91deg, #00C4BD 0%, #267F82 20.31%, #394254 38.54%);
     border-radius: 20px;
     width: 443px;
     height: 167px;
     overflow : hidden;
     cursor: pointer;
+    flex-grow: 0;
+    flex-shrink: 0;
 `
 export const RoomCardBgImg = styled.img`
     position: relative;
