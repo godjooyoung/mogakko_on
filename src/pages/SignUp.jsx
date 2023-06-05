@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import Modal from '../components/SignupModal';
+import {BiLock } from "react-icons/bi";
+axios.defaults.withCredentials = true;
 
 function SignUp() {
     const navigate = useNavigate();
@@ -12,18 +14,30 @@ function SignUp() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [nickname, setNickname] = useState('');
+
     const [isEmailValid, setIsEmailValid] = useState(false);
     const [isEmailAvailable, setIsEmailAvailable] = useState(false);
+    const [emailAvailability, setEmailAvailability] = useState('');
+    const [emailChanged, setEmailChanged] = useState(false);
+
+
+
     const [isPasswordValid, setIsPasswordValid] = useState(false);
     const [isPasswordConfirmed, setIsPasswordConfirmed] = useState(false);
+    
     const [isNicknameAvailable, setIsNicknameAvailable] = useState(false);
+    const [nicknameChanged, setNicknameChanged] = useState(true);
+
     const [isAgreed, setIsAgreed] = useState(false);
+    
     const [emailErrorMessage, setEmailErrorMessage] = useState('');
     const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
     const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
     const [nicknameErrorMessage, setNicknameErrorMessage] = useState('');
-    const [emailAvailability, setEmailAvailability] = useState('');
+    
+    
     const [modalOpen, setModalOpen] = useState(false);
+    
     const sendData = {
         email: email,
         nickname: nickname,
@@ -50,12 +64,16 @@ function SignUp() {
         setEmail(newEmail);
         setEmailErrorMessage('');
 
+
         if (validateEmail(newEmail)) {
             setIsEmailValid(true);
             setEmailErrorMessage('');
+            setEmailChanged(true);
+
         } else {
             setIsEmailValid(false);
             setEmailErrorMessage('유효한 이메일 주소를 입력해주세요.');
+
         }
     };
     //이메일 중복검사
@@ -67,12 +85,16 @@ function SignUp() {
                 if (data.message === "중복 확인 성공") {
                     setEmailErrorMessage('사용할 수 있는 이메일입니다.');
                     setIsEmailValid(true);
+                    setIsEmailAvailable(true);
+                    setEmailChanged(false);
                 } else if (data.message === "중복된 이메일 입니다.") {
                     setEmailErrorMessage('이미 사용 중인 이메일 입니다.');
                     setIsEmailValid(false);
+                    setIsEmailAvailable(false);
                 } else {
                     setEmailErrorMessage('이메일 중복 체크에 실패했습니다.');
                     setIsEmailValid(false);
+
 
                 }
             })
@@ -87,6 +109,8 @@ function SignUp() {
         const newPassword = e.target.value;
         setPassword(newPassword);
         setPasswordErrorMessage('');
+        setIsPasswordConfirmed(false);
+
     };
     useEffect(() => {
         if (!validatePassword(password)) {
@@ -102,6 +126,15 @@ function SignUp() {
             setIsPasswordValid(true);
         }
     }, [password])
+
+    useEffect(() => {
+        if(!isPasswordConfirmed&&password.length!==0){
+            setConfirmPasswordErrorMessage('비밀번호가 일치하지 않습니다.');
+        } else {
+            setConfirmPasswordErrorMessage('');
+        }
+    }, [isPasswordConfirmed])
+
     const confirmPasswordChangeHandler = (e) => {
         const newConfirmPassword = e.target.value;
         setConfirmPassword(newConfirmPassword);
@@ -120,17 +153,10 @@ function SignUp() {
         setNickname(newNickname);
         if (newNickname) {
             setNicknameErrorMessage('');
+            setNicknameChanged(true);
         }
     };
-    // const setPopup= ()=>{
-    //     open: true,
-    //     title: "Confirm",
-    //     message: "회원 가입 성공!", 
-    //     callback: function(){
-    //         navigate("/signin");
-
-    // }
-
+  
     const sendHandler = async (sendData) => {
         console.log("sendData:", sendData);
         await axios.post(process.env.REACT_APP_SERVER_URL + `/members/signup`, sendData, { withCredentials: true })
@@ -161,6 +187,7 @@ function SignUp() {
                     console.log(data.message);
                     setNicknameErrorMessage('사용할 수 있는 닉네임입니다.');
                     setIsNicknameAvailable(true);
+                    setNicknameChanged(false);
                 } else if (data.message === '중복된 닉네임입니다.') {
                     setNicknameErrorMessage('이미 사용 중인 닉네임입니다.');
                     setIsNicknameAvailable(false);
@@ -217,8 +244,8 @@ function SignUp() {
             <Form>
                 {/* <Form onSubmit={submitHandler}> */}
                 <div>
-                    <Label>이메일</Label>
-                </div>
+                <Label>이메일</Label>
+                </div>   
                 <div>
                     <Input
                         type="email"
@@ -227,7 +254,7 @@ function SignUp() {
                         placeholder="이메일"
                         required
                     />
-                    <button type="button" onClick={(e) => {
+                    <button type="button" disabled={!emailChanged} onClick={(e) => {
                         e.preventDefault() //요청전 리로드 방지
                         checkEmailExistence(email)
                     }}>
@@ -238,7 +265,7 @@ function SignUp() {
                 {emailErrorMessage && <ErrorMessage>{emailErrorMessage}</ErrorMessage>}
                 {emailAvailability && <ErrorMessage>{emailAvailability}</ErrorMessage>}
                 <div>
-                    <Label>비밀번호</Label>
+                <Label>비밀번호</Label>
                 </div>
                 <div>
                     <Input
@@ -251,7 +278,7 @@ function SignUp() {
                 {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
 
                 <div>
-                    <Label>비밀번호 확인</Label>
+                <Label>비밀번호 확인</Label>
                 </div>
                 <div>
                     <Input
@@ -262,10 +289,9 @@ function SignUp() {
                     />
                 </div>
                 {confirmPasswordErrorMessage && <ErrorMessage>{confirmPasswordErrorMessage}</ErrorMessage>}
-
                 <div>
-                    <Label>닉네임</Label>
-                </div>
+                <Label>닉네임</Label>
+                </div>    
                 <FormField>
                     <Input
                         type="text"
@@ -273,7 +299,7 @@ function SignUp() {
                         onChange={nicknameChangeHandler}
                         placeholder="닉네임"
                     />
-                    <button type="button" onClick={(e) => {
+                    <button type="button" disabled={!nicknameChanged} onClick={(e) => {
                         e.preventDefault() //요청전 리로드 방지
 
                         checkNicknameExistence(nickname)
@@ -302,7 +328,7 @@ function SignUp() {
                     e.preventDefault() //요청전 리로드 방지
                     sendHandler(sendData)
                 }}
-                    disabled={!isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
+                    disabled={nicknameChanged||emailChanged||!isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
                 >
                     회원가입
                 </button>
@@ -310,11 +336,24 @@ function SignUp() {
         </>
     );
 }
+//중복체크까지 잘하고 회원가입이 활성화된 상태에서 저 칸 중의 하나라도 바뀌면 회원가입이 비활성화되야 하는데...
+// 이메일 고치고 비밀번호 고치거나 닉네임 고쳐도 회원가입 활성화상태다. 
+// 중복체크 한 뒤 이메일이나 닉네임 수정하면->에러메세지가 "다시 중복체크가 필요합니다."
+// 비밀번호가 바뀌면 아래있는 비밀번호와 달라도 다르다는 메세지 안 나옴. 
+// 회원가입 disabled만드는 값들을 수정되는 순간 false가 되어야 하고.
+
+
 
 export default SignUp;
 
 export const FormField = styled.div`
     margin-bottom: 20px;
+`;
+
+const Label = styled.label`
+    margin-bottom: 0.5rem;
+    margin-top: 3rem;
+    font-weight: bold;
 `;
 
 export const BottomButton = styled.button`
@@ -334,16 +373,12 @@ export const Form = styled.form`
     margin: 0 auto
 `;
 
-export const Label = styled.label`
-    margin-bottom: 0.5rem;
-    margin-top: 3rem;
-    font-weight: bold;
-`;
 
 export const Input = styled.input`
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius:4px;
+    margin: 5px;
 `;
 
 export const Button = styled.button`
