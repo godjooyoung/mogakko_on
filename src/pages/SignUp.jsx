@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import Modal from '../components/SignupModal';
+import {BiLock } from "react-icons/bi";
+axios.defaults.withCredentials = true;
 
 function SignUp() {
     const navigate = useNavigate();
@@ -230,9 +232,7 @@ function SignUp() {
         <>
             <Form>
                 {/* <Form onSubmit={submitHandler}> */}
-                <div>
-                    <Label>이메일</Label>
-                </div>
+               
                 <div>
                     <Input
                         type="email"
@@ -251,22 +251,18 @@ function SignUp() {
                 </div>
                 {emailErrorMessage && <ErrorMessage>{emailErrorMessage}</ErrorMessage>}
                 {emailAvailability && <ErrorMessage>{emailAvailability}</ErrorMessage>}
-                <div>
-                    <Label>비밀번호</Label>
-                </div>
+               
                 <div>
                     <Input
                         type="password"
                         value={password}
                         onChange={passwordChangeHandler}
                         placeholder="비밀번호"
-                    />
+                        ><BiLock/></Input>
                 </div>
                 {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
 
-                <div>
-                    <Label>비밀번호 확인</Label>
-                </div>
+                
                 <div>
                     <Input
                         type="password"
@@ -277,9 +273,7 @@ function SignUp() {
                 </div>
                 {confirmPasswordErrorMessage && <ErrorMessage>{confirmPasswordErrorMessage}</ErrorMessage>}
 
-                <div>
-                    <Label>닉네임</Label>
-                </div>
+              
                 <FormField>
                     <Input
                         type="text"
@@ -348,16 +342,12 @@ export const Form = styled.form`
     margin: 0 auto
 `;
 
-export const Label = styled.label`
-    margin-bottom: 0.5rem;
-    margin-top: 3rem;
-    font-weight: bold;
-`;
 
 export const Input = styled.input`
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius:4px;
+    margin: 5px;
 `;
 
 export const Button = styled.button`
