@@ -157,6 +157,7 @@ function Stopwatch(props) {
 export const TimerWrap = styled.div`
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 150px;
     height: 39px;
 `
@@ -183,7 +184,7 @@ export const TimerButton = styled.div`
     };
     border-radius: 50%;
     &:hover {
-    background-color: rgba(187,187,187,255);
+    background-color: rgba(187,187,187,0.3);
     }
 `
 
