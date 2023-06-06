@@ -6,11 +6,11 @@ import Header from "../components/common/Header";
 
 function Mypage() {
 
-  
+
   const [friendList, setFriendList] = useState([]) // 친구목록
   const [friendReqList, setFriendReqList] = useState([]) // 친구 요청 목록
   const { isLoading, isError, data } = useQuery("getProfile", getProfile)
-  
+
   useEffect(() => {
     if (data) {
       console.log("마이페이지 조회 결과", data)
@@ -41,7 +41,7 @@ function Mypage() {
       console.log(">>> getFriendList 성공2", response.data.data) // 친구목록
       console.log(">>> getFriendList 성공3", response.data.data[0])
       setFriendList(response.data.data)
-      
+
     },
   })
 
@@ -51,7 +51,7 @@ function Mypage() {
       console.log(">>> getFriendRequestList 성공1", response)
       console.log(">>> getFriendRequestList 성공2", response.data.data)
       setFriendReqList(response.data.data)
-    
+
     },
   })
 
@@ -123,7 +123,14 @@ function Mypage() {
               <FileInput type="file" id="file" onChange={handleFileChange} onClick={() => { submitButtonHandler() }} />
             </div>
           </ProfileModifyContent>
-          <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
+          {/* <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName> */}
+          <MyPageUserNameWrap>
+            <MyPageUserName>신주영</MyPageUserName>
+            <div>
+              <p>매너온도</p>
+              <p>프로그래스</p>
+            </div>
+          </MyPageUserNameWrap>
           <TimerWrap>
             <div>
               <TopContentTitle>총 순공시간</TopContentTitle>
@@ -144,40 +151,17 @@ function Mypage() {
       </MyPageTopContentWrap>
 
       <MyPageMiddleContentWrap>
+        <p>깃허브 잔디</p>
         <MyPageMiddleContent>
           <GitHubImage src="https://ghchart.rshah.org/394254/Shinheeje" />
         </MyPageMiddleContent>
       </MyPageMiddleContentWrap>
 
       <MyPageBottomContentWrap>
-        <FriendRequestWrap>
-          <h1>친구 요청</h1>
-          {/* for문 */}
-          {
-            friendReqList&&friendReqList.map((friend, idx) => {
-              return (
-                <>
-                  <FriendWrap>
-                    <FriendLeftContent>
-                      <FriendProfile></FriendProfile>
-                      <p>{friend.nickname}</p>
-                    </FriendLeftContent>
-                    <ButtonWrap>
-                      <button onClick={()=>{onClickRequestFriendButtonHandler(friend.nickname, true)}}>수락</button>
-                      <button onClick={()=>{onClickRequestFriendButtonHandler(friend.nickname, false)}}>거절</button>
-                    </ButtonWrap>
-                  </FriendWrap>
-                </>
-              )
-            })
-          }
-
-        </FriendRequestWrap>
-
         <FriendListWrap>
           <p>친구 목록</p>
           {/* for문 */}
-          {friendList&&friendList.map((friend, idx) => {
+          {friendList && friendList.map((friend, idx) => {
             return (
               <>
                 <FriendList>
@@ -189,14 +173,36 @@ function Mypage() {
             )
           })}
         </FriendListWrap>
+
+        <FriendRequestWrap>
+          <p>친구 요청</p>
+          {/* for문 */}
+          {
+            friendReqList && friendReqList.map((friend, idx) => {
+              return (
+                <>
+                  <FriendWrap>
+                    <FriendLeftContent>
+                      <FriendProfile></FriendProfile>
+                      <p>{friend.nickname}</p>
+                    </FriendLeftContent>
+                    <ButtonWrap>
+                      <button onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, true) }}>수락</button>
+                      <button onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, false) }}>거절</button>
+                    </ButtonWrap>
+                  </FriendWrap>
+                </>
+              )
+            })
+          }
+        </FriendRequestWrap>
       </MyPageBottomContentWrap>
     </>
   )
 }
 
 const MyPageTopContentWrap = styled.div`
-  height: 264px;
-  background-color: #394254;
+  height: 220px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -205,21 +211,31 @@ const MyPageTopContentWrap = styled.div`
 
 const ProfileModifyWrap = styled.div`
   display: flex;
+  gap: 30px;
 `
 
 const ProfileModifyContent = styled.form`
   position: relative;
 `
 
-const MyPageUserName = styled.p`
-  font-size: 32px;
+const MyPageUserNameWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
   color: white;
-  margin-right: 100px;
+`
+
+const MyPageUserName = styled.p`
+  width: 100%;
+  font-size: 32px;
+  color: white; 
 `
 
 const ImageWrap = styled.div`
-  width: 190px;
-  height: 190px;
+width: 155px;
+height: 155px;
   border-radius: 50%;
   background-image: ${(props) =>
     `url(${props.BgImg})`
@@ -227,26 +243,32 @@ const ImageWrap = styled.div`
   background-position:center;
   background-size:contain;
   background-color : white;
+  border: 2px solid white;
+  box-sizing:border-box;
 `
 
 const FileButton = styled.label`
   display: inline-block;
   color: black;
-  background-color: #f7ddde;
+  background-color: #00F0FF;
   cursor: pointer;
-  width: 40px;
-  height: 40px;
+  width: 32.46px;
+  height: 33.27px;
   box-sizing: border-box;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 50%;
   position: absolute;
-  right: 10px;
+  right: 5px;
   bottom: 10px;
   &:hover {
-    background-color:rgb(234, 30, 71);
+    background-color:#ea1e47;
     transition: all 0.3s;
+  }
+  img {
+    width: 18px;
+    height: 18px;
   }
 `;
 
@@ -263,24 +285,33 @@ const TimerWrap = styled.div`
   width: 550px;
   display: flex;
   justify-content: space-between;
-  align-items: end;
-  margin-bottom: 20px;
+  align-items: center;
+  margin-left: 70px;
 `
 const TopContentTitle = styled.p`
   font-size: 18px;
+  color: #00F0FF;
 `
 
 const TopContentTitleItem = styled.h1`
   font-size: 32px;
+  color: white;
 `
 
 const MyPageMiddleContentWrap = styled.div`
-  height: 204px;
-  background-color: #394254;
+  height: 280px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
+  p {
+    width: 1020px;
+    color: white;
+    font-weight: 500;
+    font-size: 21px;
+    margin-bottom: 10px;
+  }
 `
 
 const MyPageMiddleContent = styled.div`
@@ -291,26 +322,29 @@ const MyPageMiddleContent = styled.div`
 `
 
 const GitHubImage = styled.img`
-  width: 1200px;
+  width: 996px;
 `
 
 const MyPageBottomContentWrap = styled.div`
   height: 300px;
-  background-color: #394254;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 10px;
   gap: 20px;
 `
 
 const FriendRequestWrap = styled.div`
-  width: 500px;
-  height: 250px;
-  background-color:#EAEBED;;
+  width: 400px;
+  height: 100%;
   padding: 10px;
   box-sizing: border-box;
   border-radius: 8px;
+
+  p{
+    color: white;
+    font-weight: 500;
+    font-size: 21px;
+  }
 `
 
 const FriendWrap = styled.div`
@@ -353,11 +387,16 @@ const ButtonWrap = styled.div`
 `
 
 const FriendListWrap = styled.div`
-  width: 710px;
-  height: 250px;
-  background-color:#EAEBED;;
+  width: 610px;
+  height: 100%;
   border-radius: 8px;
   padding: 10px;
+
+  p{
+    color: white;
+    font-weight: 500;
+    font-size: 21px;
+  }
 `
 
 const FriendList = styled.div`
