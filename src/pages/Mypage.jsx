@@ -6,71 +6,24 @@ import Header from "../components/common/Header";
 
 function Mypage() {
 
+  
+  const [friendList, setFriendList] = useState([]) // 친구목록
+  const [friendReqList, setFriendReqList] = useState([]) // 친구 요청 목록
   const { isLoading, isError, data } = useQuery("getProfile", getProfile)
-
+  
   useEffect(() => {
     if (data) {
-      console.log("조회결과1 ", data)
-      console.log("조회결과2", data.data)
-      console.log("조회결과---------------------------")
-      console.log("조회결과3", data.data.data.member)
-      console.log("조회결과4-profileImage", data.data.data.member.profileImage)
-      console.log("조회결과4-nickname", data.data.data.member.nickname)
-      console.log("조회결과---------------------------")
-      console.log("조회결과3", data.data.data.mogakkoTotalTime)
+      console.log("마이페이지 조회 결과", data)
+      console.log("마이페이지 조회 결과-profileImage", data.data.data.member.profileImage)
+      console.log("마이페이지 조회 결과-nickname", data.data.data.member.nickname)
+      setPreview(data.data.data.member.profileImage)
     }
     // 친구목록 조회 뮤테이트 콜
-    friendListMutation.mutate()
+    setFriendList(friendListMutation.mutate())
 
     // 친구요청 목록 조회 뮤테이트 콜
-    friendRequestListMutation.mutate()
-
+    setFriendReqList(friendRequestListMutation.mutate())
   }, [data])
-
-  // 친구 목록 하드코딩
-  const _FriendList = [
-    {
-      "id": 123,
-      "email": "user1@example.com",
-      "nickname": "친구1",
-      "role": "USER",
-      "socialType": "null",
-      "profileImage": "profile_image_url",
-      "socialUid": "null"
-    },
-    {
-      "id": 456,
-      "email": "user2@example.com",
-      "nickname": "친구2",
-      "role": "USER",
-      "socialType": "null",
-      "profileImage": "profile_image_url",
-      "socialUid": "null"
-    }]
-
-  // 친구요청 목록 하드코딩
-  const _FriendRequestList = [
-    {
-      "id": 123,
-      "email": "user1@example.com",
-      "nickname": "친구해주세요1",
-      "password": "[hidden]",
-      "role": "USER",
-      "socialType": "null",
-      "profileImage": "profile_image_url",
-      "socialUid": "null"
-    },
-    {
-      "id": 456,
-      "email": "user2@example.com",
-      "nickname": "친구해주세요2",
-      "password": "[hidden]",
-      "role": "USER",
-      "socialType": "null",
-      "profileImage": "profile_image_url",
-      "socialUid": "null"
-    }
-  ]
 
   const [fileAttach, setFileAttach] = useState('')
   const [preview, setPreview] = useState(data && data.data.data.member.profileImage)
@@ -85,16 +38,19 @@ function Mypage() {
   const friendListMutation = useMutation(getFriendList, {
     onSuccess: (response) => {
       console.log(">>> getFriendList 성공1", response)
-      console.log(">>> getFriendList 성공2", response.data.data)
+      console.log(">>> getFriendList 성공2", response.data.data) // 친구목록
       console.log(">>> getFriendList 성공3", response.data.data[0])
+      return response.data.data
+      
     },
   })
 
   // 친구 요청 목록 조회
   const friendRequestListMutation = useMutation(getFriendRequestList, {
     onSuccess: (response) => {
-      console.log(">>> getFriendRequestList 성공", response)
-      console.log(">>> getFriendRequestList 성공", response.data.data)
+      console.log(">>> getFriendRequestList 성공1", response)
+      console.log(">>> getFriendRequestList 성공2", response.data.data)
+      return response.data.data
     },
   })
 
@@ -114,11 +70,11 @@ function Mypage() {
 
   // 친구 요청 수락/취소 버튼 클릭 이벤트
   const onClickRequestFriendButtonHandler = (targetNickName, isAccept) => {
-    console.log("삭제할 친구 닉네임", targetNickName)
-    console.log("수락, 거부 여부", isAccept)
+    console.log("친구 요청을 해준 닉네임", targetNickName)
+    console.log("(친구요청?) 수락 거부", isAccept)
     //{"requestSenderNickname": String,"determineRequest": boolean}
     const target = { requestSenderNickname: targetNickName, determineRequest: isAccept }
-    deleteFriendMutation.mutate(target)
+    reciveFriendMutation.mutate(target)
   }
 
   // 친구 삭제 버튼 클릭 이벤트
@@ -139,6 +95,7 @@ function Mypage() {
 
   // 파일 수정
   const handleFileChange = (event) => {
+    console.log("프로필 이미지 수정 핸들러 실행")
     setFileAttach(event.target.files[0])
     const objectUrl = URL.createObjectURL(event.target.files[0])
     setPreview(objectUrl)
@@ -146,6 +103,7 @@ function Mypage() {
 
   // 프로필 이미지 수정
   const submitButtonHandler = () => {
+    console.log("프로필 이미지 전송 핸들러 실행")
     const newFile = new FormData();
     newFile.append("imageFile", fileAttach)
     filemutation.mutate(newFile)
@@ -195,7 +153,7 @@ function Mypage() {
           <h1>친구 요청</h1>
           {/* for문 */}
           {
-            _FriendRequestList.map((friend, idx) => {
+            friendReqList&&friendReqList.map((friend, idx) => {
               return (
                 <>
                   <FriendWrap>
@@ -204,8 +162,8 @@ function Mypage() {
                       <p>{friend.nickname}</p>
                     </FriendLeftContent>
                     <ButtonWrap>
-                      <button onCanPlay={()=>{reciveFriendMutation(friend.nickname, true)}}>수락</button>
-                      <button onCanPlay={()=>{reciveFriendMutation(friend.nickname, false)}}>거절</button>
+                      <button onClick={()=>{onClickRequestFriendButtonHandler(friend.nickname, true)}}>수락</button>
+                      <button onClick={()=>{onClickRequestFriendButtonHandler(friend.nickname, false)}}>거절</button>
                     </ButtonWrap>
                   </FriendWrap>
                 </>
@@ -218,7 +176,7 @@ function Mypage() {
         <FriendListWrap>
           <p>친구 목록</p>
           {/* for문 */}
-          {_FriendList.map((friend, idx) => {
+          {friendList&&friendList.map((friend, idx) => {
             return (
               <>
                 <FriendList>

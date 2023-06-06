@@ -74,14 +74,14 @@ function Room() {
   // language
   const [languageList, setLanguageList] = useState(
     [
-      { language: 'JAVA', isSelected: false, img: `${process.env.PUBLIC_URL}/image/roomIconJava.webp`, value: 'Java' },
-      { language: 'JAVASCRIPT', isSelected: false, img: `${process.env.PUBLIC_URL}/image/roomIconJs.webp`, value: 'JavaScript' },
-      { language: 'PYTHON', isSelected: false, img: `${process.env.PUBLIC_URL}/image/roomIconPy.webp`, value: 'Python' },
-      { language: 'C', isSelected: false, img: `${process.env.PUBLIC_URL}/image/roomIconC.webp`, value: 'C' },
-      { language: 'C#', isSelected: false, img: `${process.env.PUBLIC_URL}/image/roomIconCshrp.webp`, value: 'C#' },
-      { language: 'C++', isSelected: false, img: `${process.env.PUBLIC_URL}/image/roomIconCpl.webp`, value: 'C++' },
-      { language: 'KOTLIN', isSelected: false, img: `${process.env.PUBLIC_URL}/image/roomIconKt.webp`, value: 'Kotlin' },
-      { language: 'ETC', isSelected: false, img: `${process.env.PUBLIC_URL}/image/roomIconEtc.webp`, value: '' }
+      { language: 'JAVA', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmJava0.webp`, value: 'Java' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmJava1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmJava2.webp`,},
+      { language: 'JAVASCRIPT', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmJs0.webp`, value: 'JavaScript' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmJs1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmJs2.webp`,},
+      { language: 'PYTHON', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmPy0.webp`, value: 'Python' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmPy1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmPy2.webp`,},
+      { language: 'C', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmC0.webp`, value: 'C' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmC1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmC2.webp`,},
+      { language: 'C#', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmCs0.webp`, value: 'C#' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmCs1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmCs2.webp`,},
+      { language: 'C++', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmCp0.webp`, value: 'C++' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmCp1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmCp2.webp`,},
+      { language: 'KOTLIN', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmKt0.webp`, value: 'Kotlin' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmKt1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmKt2.webp`,},
+      { language: 'ETC', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmEtc0.webp`, value: '' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmEtc1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmEtc2.webp`,}
     ]
   )
 
@@ -109,10 +109,25 @@ function Room() {
   }, [languageList])
 
   // maxMembers
-  const maxMembers = [2, 4, 6, 8]
+  const [maxMembers, setMaxMembers] = useState([
+    {num:2, isSelected:false},
+    {num:4, isSelected:false},
+    {num:6, isSelected:false},
+    {num:8, isSelected:false},
+  ])
 
   const [curMaxMembers, setCurMaxMembers] = useState(0)
-  const maxMembersHandler = (e) => {
+  
+
+  const maxMembersHandler = (e, isSelected, idx) => {
+    const updateMaxMembersList = maxMembers.map((num, index) => {
+      if (index === idx) {
+        return { ...num, isSelected: !isSelected }
+      } else {
+        return { ...num, isSelected: false }
+      }
+    })
+    setMaxMembers(updateMaxMembersList)
     setCurMaxMembers(e)
   }
 
@@ -197,6 +212,11 @@ function Room() {
       }
     }
   }
+
+  // 값이 입력될때마다 입력된 state들을 세팅
+  useEffect(()=>{
+    onClickTempButton()
+  },[roomTitle, lang, isOpened, curMaxMembers])
 
   useEffect(() => {
     if (sessionInfo.isDirect) {
@@ -580,7 +600,7 @@ function Room() {
                               <LanguageBtn isSelected={language.isSelected} onClick={(e) => {
                                 e.preventDefault()
                                 onClickLanguageHandler(idx, language.isSelected)
-                              }} language={language.img}>{language.language}</LanguageBtn>
+                              }} language={language.img} imgSeltedUrl={language.imgSeltedUrl} imgHoverUrl={language.imgHoverUrl} >{language.language}</LanguageBtn>
                               <span>{language.value}</span>
                             </LanguageBtnBox>
                           )
@@ -594,10 +614,10 @@ function Room() {
                       {
                         maxMembers.map((ele, idx) => {
                           return (
-                            <MaxMembersBtn key={idx} onClick={(e) => {
+                            <MaxMembersBtn isSelected={ele.isSelected} key={idx} onClick={(e) => {
                               e.preventDefault()
-                              maxMembersHandler(ele)
-                            }}>{ele}</MaxMembersBtn>
+                              maxMembersHandler(ele.num, ele.isSelected, idx)
+                            }}>{ele.num}</MaxMembersBtn>
                           )
                         })
                       }
@@ -650,7 +670,7 @@ function Room() {
                     <JoinBtn name="commit" type="submit" value="방 생성하기" />
                   </JoinBtnWrap>
                 </form>
-                <button onClick={onClickTempButton}>TEMP</button>
+                {/* <button onClick={onClickTempButton}>TEMP</button> */}
               </RoomCreateWrap>
             </RoomCreateContainer>
           </FlexCenter>
@@ -795,6 +815,7 @@ export const RoomNameInput = styled.input`
   border: none;
   background-color: #394254;
   border-radius: 114px;
+  color : #FFFFFF;
   &::placeholder{
     color: #BEBEBE;;
   }
@@ -836,17 +857,23 @@ export const LanguageBtnBox = styled.div`
 export const LanguageBtn = styled.button`
   width: 50px;
   height: 50px;
-  background: #626873;
+  background: transparent;
   border-radius: 30px;  
   border: none;
   font-size: 0;
   background-image: url(
     ${(props) => {
-    return props.language
-  }}
-  );
+    return props.isSelected ? props.imgSeltedUrl : props.language;
+  }});
   background-repeat: no-repeat;
   background-size: cover;
+  &:hover {
+    background-image: url(
+      ${(props) => {
+    return props.imgHoverUrl
+  }}
+    );
+  }
 `
 
 export const MaxMembersWrap = styled.div`
@@ -873,10 +900,20 @@ export const MaxMembersBtn = styled.button`
   width: 125px;
   height: 48px;
   border-radius: 114px;
-  background-color: transparent;
-  color: white;
+  /* background-color: transparent; */
+  background-color: ${(props) => {
+    return props.isSelected ? '#00F0FF' : 'transparent';
+  }};
+  color: ${(props) => {
+    return props.isSelected ? '#464646' : '#FFFFFF';
+  }};
   border: 2px solid white;
-  font-weight: 900;
+
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 150%;
 `
 
 
@@ -904,30 +941,44 @@ export const PublicBtn = styled.button`
   height: 50px;
 
   color: ${({ btnSelect }) =>
-    btnSelect === 'public' ? 'black' : 'white'
+    btnSelect === 'public' ? '#464646' : '#FFFFFF'
   };
 
   background-color: ${({ btnSelect }) =>
     btnSelect === 'public' ? '#00F0FF' : 'transparent'
   };
   border: 2px solid white;
-  font-weight: 900;
   border-radius: 114px;
+
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 150%;
+  text-align: center;
 `
 
 export const ClosedBtn = styled.button`
   width: 200px;
   height: 50px;
+
   color: ${({ btnSelect }) =>
-    btnSelect === 'closed' ? 'black' : 'white'
+    btnSelect === 'closed' ? '#464646' : '#FFFFFF'
   };
 
   background-color: ${({ btnSelect }) =>
     btnSelect === 'closed' ? '#00F0FF' : 'transparent'
   };
   border: 2px solid white;
-  font-weight: 900;
+  
   border-radius: 114px;
+
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 150%;
+  text-align: center;
 `
 
 export const PasswordWrap = styled.div`
@@ -981,6 +1032,10 @@ export const JoinBtn = styled.input`
   color: #464646;
   border: none;
   cursor: pointer;
+  
+  line-height: 73%;
+  font-family: 'Pretendard';
+  font-style: normal;
 `
 
 export const RoomInHeader = styled.div`
