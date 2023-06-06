@@ -5,6 +5,71 @@ import { useSelector } from 'react-redux';
 import { __userLocation, __userTown } from '../redux/modules/user'
 import { getCookie } from '../cookie/Cookie';
 
+// 백그라운드 지정 함수    
+const getBgImg = (lang) => {
+    let imgUrl;
+    switch (lang) {
+        case "JAVA":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomJava.webp`
+            break;
+        case "JAVASCRIPT":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomJs.webp`
+            break;
+        case "PYTHON":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomPy.webp`
+            break;
+        case "C":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomC.webp`
+            break;
+        case "C#":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomCshrp.webp`
+            break;
+        case "C++":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomCpl.webp`
+            break;
+        case "KOTLIN":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomKt.webp`
+            break;
+        default:
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomEtc.webp`
+            break;
+    }
+    return imgUrl
+}
+
+// 아이콘 지정 함수    
+const getLangIcon = (lang) => {
+    let imgUrl;
+    switch (lang) {
+        case "JAVA":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomIconJava.webp`
+            break;
+        case "JAVASCRIPT":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomIconJs.webp`
+            break;
+        case "PYTHON":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomIconPy.webp`
+            break;
+        case "C":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomIconC.webp`
+            break;
+        case "C#":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomIconCshrp.webp`
+            break;
+        case "C++":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomIconCpl.webp`
+            break;
+        case "KOTLIN":
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomIconKt.webp`
+            break;
+        default:
+            imgUrl = `${process.env.PUBLIC_URL}/image/roomIconEtc.webp`
+            break;
+    }
+    return imgUrl
+}
+
+
 function MainRoom(props) {
 
     // 기본 좌표값 (전역)
@@ -20,7 +85,7 @@ function MainRoom(props) {
     const navigate = useNavigate()
 
     // 내부 상태
-    const [roomDetails, setRoomDetails] = useState(props.roomList[0])
+    const [roomDetails, setRoomDetails] = useState(props.roomList?.[0])
 
     // 방참여하기
     const onClickJoinRoomHandler = (details) => {
@@ -69,14 +134,13 @@ function MainRoom(props) {
                         <RoomList>
                             {props.roomList && props.roomList.map((room, idx) => {
                                 return (
-                                    <RoomCard onClick={() => { onClickRoomDetailsHandler(room) }}>
+                                    <RoomCard onClick={() => { onClickRoomDetailsHandler(room) }} language={room.language}>
                                         <CardTop>
                                             <CardTitle>{room.title}</CardTitle>
                                         </CardTop>
                                         <CardBottom>
                                             <LanguageWrap>
-                                                <LanguageIconDiv>
-                                                    기술아이콘
+                                                <LanguageIconDiv language={room.language}>
                                                 </LanguageIconDiv>
                                                 <LanguageDesc>
                                                     {room.language}
@@ -91,7 +155,6 @@ function MainRoom(props) {
                                                 </RoomEnterMamberNum>
                                             </RoomEnterMemberWrap>
                                         </CardBottom>
-                                        <RoomCardBgImg src={`${process.env.PUBLIC_URL}/image/cplpl.svg`} alt="언어 백그라운드" />
                                     </RoomCard>
                                 )
                             })}
@@ -105,7 +168,7 @@ function MainRoom(props) {
                                     <RoomDetilasDescP>지역 : {roomDetails && roomDetails.neighborhood}</RoomDetilasDescP>
                                     <RoomDetilasDescP>모각코시간 : {roomDetails && roomDetails.createdAt}</RoomDetilasDescP>
                                     <RoomDetilasDescP>정원 : {roomDetails && roomDetails.cntMembers}/{roomDetails && roomDetails.maxMembers}</RoomDetilasDescP>
-                                    <RoomDetilasDescP>언어 : <LanguageIconSpan>기술아이콘</LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
+                                    <RoomDetilasDescP>언어 : <LanguageIconSpan language={roomDetails&&roomDetails.language}></LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
                                 </RoomDetailsDesc>
                                 <RoomDetailsEnter>
                                     <RoomEnterButton onClick={() => { onClickJoinRoomHandler(roomDetails) }}>참여하기→</RoomEnterButton>
@@ -200,6 +263,9 @@ export const RoomCard = styled.div`
     cursor: pointer;
     flex-grow: 0;
     flex-shrink: 0;
+    background-image : url(
+        ${(props) => { return getBgImg(props.language) }}
+    );
 `
 export const RoomCardBgImg = styled.img`
     position: relative;
@@ -243,15 +309,19 @@ export const LanguageIconDiv = styled.div`
     width: 35px;
     height: 35px;
     border-radius: 50%;
-    background: #2F91E7;
     overflow: hidden;
+    background-image : url(
+        ${(props) => { return getLangIcon(props.language) }}
+    );
 `
 export const LanguageIconSpan = styled.span`
     width: 35px;
     height: 35px;
     border-radius: 50%;
-    background: #2F91E7;
     overflow: hidden;
+    background-image : url(
+        ${(props) => { return getLangIcon(props.language) }}
+    );
 `
 
 export const LanguageDesc = styled.div`
