@@ -568,21 +568,16 @@ function Room() {
   // }
 
   const slideRef = useRef();
+  const [position, setPosition] = useState(0);
 
   const scrollLeft = () => {
-    slideRef.current.scrollBy({
-      top: 0,
-      left: -100,
-      behavior: "smooth",
-    });
+    console.log("왼쪽으로 가기!!!!!")
+    setPosition((prevPosition) => prevPosition - 200); // 왼쪽으로 100px 이동
   };
 
   const scrollRight = () => {
-    slideRef.current.scrollBy({
-      top: 0,
-      left: 100,
-      behavior: "smooth",
-    });
+    console.log("오른쪽으로 가기!!!!!")
+    setPosition((prevPosition) => prevPosition + 200); // 오른쪽으로 100px 이동
   };
 
 
@@ -714,7 +709,7 @@ function Room() {
                     <SlideLeftBtn onClick={() => {
                       scrollLeft()
                     }}>left</SlideLeftBtn>
-                    <PubilsherVideoWrap ref={slideRef} onClick={() => handleMainVideoStream(publisher)}>
+                    <PubilsherVideoWrap ref={slideRef} onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
                       <UserVideoComponent streamManager={publisher} />
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
@@ -1155,6 +1150,14 @@ export const PubilsherVideoWrap = styled.div`
       width: 240px;
       height: 145px;
   }
+  background-color: yellow;
+  overflow: hidden;
+  transition: transform 0.5s ease;
+  transform: translateX(
+    ${(props) => {
+    return props.movePositon+'px'
+  }}
+  );
 `
 
 export const SlideLeftBtn = styled.button`
