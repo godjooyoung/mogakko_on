@@ -19,10 +19,10 @@ function Mypage() {
       setPreview(data.data.data.member.profileImage)
     }
     // 친구목록 조회 뮤테이트 콜
-    setFriendList(friendListMutation.mutate())
+    friendListMutation.mutate()
 
     // 친구요청 목록 조회 뮤테이트 콜
-    setFriendReqList(friendRequestListMutation.mutate())
+    friendRequestListMutation.mutate()
   }, [data])
 
   const [fileAttach, setFileAttach] = useState('')
@@ -40,7 +40,7 @@ function Mypage() {
       console.log(">>> getFriendList 성공1", response)
       console.log(">>> getFriendList 성공2", response.data.data) // 친구목록
       console.log(">>> getFriendList 성공3", response.data.data[0])
-      return response.data.data
+      setFriendList(response.data.data)
       
     },
   })
@@ -50,7 +50,8 @@ function Mypage() {
     onSuccess: (response) => {
       console.log(">>> getFriendRequestList 성공1", response)
       console.log(">>> getFriendRequestList 성공2", response.data.data)
-      return response.data.data
+      setFriendReqList(response.data.data)
+    
     },
   })
 
