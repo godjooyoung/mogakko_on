@@ -12,7 +12,7 @@ function OpenViduVideoComponent({ streamManager }) {
 
     return <video autoPlay={true} ref={videoRef} width={'1200px'} style={{
         borderRadius: '10px',
-        objectFit: 'cover'
+        objectFit: 'fill'
     }}/>
 }
 
