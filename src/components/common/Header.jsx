@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getCookie, removeCookie } from '../../cookie/Cookie';
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useDispatch, useSelector } from 'react-redux';
-import { __alarmSender } from '../../redux/modules/alarm'
+import { __alarmSender, __alarmClean } from '../../redux/modules/alarm'
 
 function Header() {
     const [isLogin, setIsLogin] = useState(false)
@@ -26,6 +26,7 @@ function Header() {
     })
 
     const dispatcher = useDispatch()
+    
     // 전역에 등록된 알람 내역 가져오기
     const alarmInfo = useSelector((state) => {
         return state.alarmInfo
@@ -86,6 +87,7 @@ function Header() {
                     return () => {
                         if (eventSourceRef.current && !isLogin) {
                             sessionStorage.setItem('isSubscribed', false);
+                            dispatcher(__alarmClean())
                             eventSourceRef.current.close(); // 로그아웃 시 SSE 연결 종료
                         }
                     };
@@ -103,27 +105,40 @@ function Header() {
             console.log("alarmInfo[0]", alarmInfo?.[0])
             const alarmInfoTest1 = ['EventStream Created. [memberId=8]', '{ "id": 7, "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }']
             const alarmInfoTest2 = ['EventStream Created. [memberId=8]']
+            const alarmInfoTest3 = ['EventStream Created. [memberId=8]', 'EventStream Created. [memberId=8]']
             const slicedArray = alarmInfo.slice(1);
-
-            return (
-                <>
-                    {slicedArray?.map((alarm) => {
-                        return (
-                            <AlearmContent>
-                                <AlearmContentMsg>
-                                    {JSON.parse(alarm).content}
-                                </AlearmContentMsg>
-                                <AlearmContentTime>
-                                    {JSON.parse(alarm).createdAt}
-                                </AlearmContentTime>
-                            </AlearmContent>
-                        )
-                    })}
-
-                </>
-            );
+            if(slicedArray.length === 0){
+                return (
+                    <>
+                        <NoneMessageImg src={`${process.env.PUBLIC_URL}/image/bell.webp`} alt="알람없을때아이콘" />
+                        <NoneMessage>아직 온 알람이 없어요!</NoneMessage>
+                    </>
+                )
+            }else{
+                return (
+                    <>
+                        {slicedArray && slicedArray.map((alarm) => {
+                            return (
+                                <AlearmContent>
+                                    <AlearmContentMsg>
+                                        {JSON.parse(alarm).content}
+                                    </AlearmContentMsg>
+                                    <AlearmContentTime>
+                                        {JSON.parse(alarm).createdAt}
+                                    </AlearmContentTime>
+                                </AlearmContent>
+                            )
+                        })}
+                    </>
+                );
+            }
         }
-        return null;
+        return (
+            <>
+                <NoneMessageImg src={`${process.env.PUBLIC_URL}/image/bell.webp`} alt="알람없을때아이콘" />
+                <NoneMessage>아직 온 알람이 없어요!</NoneMessage>
+            </>
+        );
     };
 
     const onClickLogoHandler = () => {
@@ -141,6 +156,7 @@ function Header() {
             await removeCookie('token')
             await removeCookie('nickName')
             await sessionStorage.removeItem('isSubscribed')
+            dispatcher(__alarmClean())
             if (eventSourceRef.current) {
                 eventSourceRef.current.close(); // SSE 연결 종료
             }
@@ -331,6 +347,20 @@ export const AlearmContentTime = styled.p`
     line-height: 229%;
     text-align: right;
     color: #464646;
+`
+
+export const NoneMessageImg = styled.img`
+    margin: 102px 93px 12px;
+
+`
+export const NoneMessage = styled.p`
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 10px;
+    line-height: 160%;
+    text-align: center;
+    color: #BEBEBE;
 `
 
 export default Header;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { getUserProfile } from '../axios/api/mypage'
+import { getUserProfile, requestFriend } from '../axios/api/mypage'
 import styled from 'styled-components'
 import Header from "../components/common/Header";
 import { useParams } from 'react-router-dom';
@@ -8,20 +8,27 @@ import { useParams } from 'react-router-dom';
 function MemberPage() {
 
     const { id } = useParams();
-    const { isLoading, isError, data } = useQuery("getUserProfile", ()=>{getUserProfile(id)})
+    const { isLoading, isError, data } = useQuery("getUserProfile", () => getUserProfile(id))
+    
+    // 친구 요청 보내기
+    const friendRequetMutation = useMutation(requestFriend, {
+      onSuccess: (response) => {
+        console.log(">>> 친구 요청 보내기 성공", response)
+        console.log(">>> 친구 요청 보내기 성공", response.data.data)
+      },
+    })
 
     useEffect(() => {
-        if (data) {
-            console.log("조회결과1 ", data)
-            console.log("조회결과2", data.data)
-            console.log("조회결과---------------------------")
-            console.log("조회결과3", data.data.data.member)
-            console.log("조회결과4-profileImage", data.data.data.member.profileImage)
-            console.log("조회결과4-nickname", data.data.data.member.nickname)
-            console.log("조회결과---------------------------")
-            console.log("조회결과3", data.data.data.mogakkoTotalTime)
+        if(isLoading){
+          console.log("조회결과 loading")
         }
-
+        if(isError){
+          console.log("조회결과 error")
+        }
+        if (data) {
+            console.log("조회결과 data", data)
+            setPreview(data.data.data.member.profileImage)
+        }
     }, [data])
 
     const [preview, setPreview] = useState(data && data.data.data.member.profileImage)
@@ -36,6 +43,15 @@ function MemberPage() {
         return `${formattedHours}H${formattedMinutes}M`;
     }
 
+    // 친구요청 
+    const onClickRqFriendshipBtnHandler = (target) => {
+      console.log("나랑 친구할래?",target)
+      friendRequetMutation.mutate(target)
+    }
+
+    if(isLoading){
+      return <>loading...</>
+    }
     return (
         <>
             <Header />
@@ -43,6 +59,7 @@ function MemberPage() {
                 <ProfileModifyWrap>
                     <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
                         <ImageWrap BgImg={preview} />
+                        <button onClick={()=>(onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname))}>친구요청</button>
                     </ProfileModifyContent>
                     <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
                     <TimerWrap>
