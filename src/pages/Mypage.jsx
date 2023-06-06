@@ -1,19 +1,32 @@
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { getProfile, addProfile } from '../axios/api/mypage'
+import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend } from '../axios/api/mypage'
 import styled from 'styled-components'
 import Header from "../components/common/Header";
 
 function Mypage() {
 
+  
+  const [friendList, setFriendList] = useState([]) // 친구목록
+  const [friendReqList, setFriendReqList] = useState([]) // 친구 요청 목록
   const { isLoading, isError, data } = useQuery("getProfile", getProfile)
-
+  
   useEffect(() => {
-    console.log("조회결과 ", data)
+    if (data) {
+      console.log("마이페이지 조회 결과", data)
+      console.log("마이페이지 조회 결과-profileImage", data.data.data.member.profileImage)
+      console.log("마이페이지 조회 결과-nickname", data.data.data.member.nickname)
+      setPreview(data.data.data.member.profileImage)
+    }
+    // 친구목록 조회 뮤테이트 콜
+    setFriendList(friendListMutation.mutate())
+
+    // 친구요청 목록 조회 뮤테이트 콜
+    setFriendReqList(friendRequestListMutation.mutate())
   }, [data])
 
   const [fileAttach, setFileAttach] = useState('')
-  const [preview, setPreview] = useState('')
+  const [preview, setPreview] = useState(data && data.data.data.member.profileImage)
 
   const filemutation = useMutation(addProfile, {
     onSuccess: (response) => {
@@ -21,17 +34,81 @@ function Mypage() {
     },
   })
 
+  // 친구 목록 조회
+  const friendListMutation = useMutation(getFriendList, {
+    onSuccess: (response) => {
+      console.log(">>> getFriendList 성공1", response)
+      console.log(">>> getFriendList 성공2", response.data.data) // 친구목록
+      console.log(">>> getFriendList 성공3", response.data.data[0])
+      return response.data.data
+      
+    },
+  })
+
+  // 친구 요청 목록 조회
+  const friendRequestListMutation = useMutation(getFriendRequestList, {
+    onSuccess: (response) => {
+      console.log(">>> getFriendRequestList 성공1", response)
+      console.log(">>> getFriendRequestList 성공2", response.data.data)
+      return response.data.data
+    },
+  })
+
+  // 친구 수락/거절
+  const reciveFriendMutation = useMutation(reciveFriendRequest, {
+    onSuccess: (response) => {
+      console.log(">>> reciveFriendRequest 성공", response)
+    },
+  })
+
+  // 친구 삭제
+  const deleteFriendMutation = useMutation(deleteFriend, {
+    onSuccess: (response) => {
+      console.log(">>> deleteFriendMutation 성공", response)
+    },
+  })
+
+  // 친구 요청 수락/취소 버튼 클릭 이벤트
+  const onClickRequestFriendButtonHandler = (targetNickName, isAccept) => {
+    console.log("친구 요청을 해준 닉네임", targetNickName)
+    console.log("(친구요청?) 수락 거부", isAccept)
+    //{"requestSenderNickname": String,"determineRequest": boolean}
+    const target = { requestSenderNickname: targetNickName, determineRequest: isAccept }
+    reciveFriendMutation.mutate(target)
+  }
+
+  // 친구 삭제 버튼 클릭 이벤트
+  const onClickDeleteFriendButtonHandler = (targetNickName) => {
+    console.log("삭제할 친구 닉네임", targetNickName)
+    deleteFriendMutation.mutate(targetNickName)
+  }
+
+  // 00:00:00 to 00H00M
+  const formatTime = (timeString) => {
+    const time = new Date(`2000-01-01T${timeString}`);
+    const hours = time.getHours();
+    const minutes = time.getMinutes();
+    const formattedHours = hours < 10 ? `0${hours}` : hours;
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    return `${formattedHours}H${formattedMinutes}M`;
+  }
+
+  // 파일 수정
   const handleFileChange = (event) => {
+    console.log("프로필 이미지 수정 핸들러 실행")
     setFileAttach(event.target.files[0])
     const objectUrl = URL.createObjectURL(event.target.files[0])
     setPreview(objectUrl)
   }
 
+  // 프로필 이미지 수정
   const submitButtonHandler = () => {
+    console.log("프로필 이미지 전송 핸들러 실행")
     const newFile = new FormData();
     newFile.append("imageFile", fileAttach)
     filemutation.mutate(newFile)
   }
+
 
   return (
     <>
@@ -45,11 +122,11 @@ function Mypage() {
               <FileInput type="file" id="file" onChange={handleFileChange} onClick={() => { submitButtonHandler() }} />
             </div>
           </ProfileModifyContent>
-          <MyPageUserName>신주영</MyPageUserName>
+          <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
           <TimerWrap>
             <div>
               <TopContentTitle>총 순공시간</TopContentTitle>
-              <TopContentTitleItem>12H 42M</TopContentTitleItem>
+              <TopContentTitleItem>{formatTime(data && data.data.data.mogakkoTotalTime)}</TopContentTitleItem>
             </div>
 
             <div>
@@ -74,26 +151,42 @@ function Mypage() {
       <MyPageBottomContentWrap>
         <FriendRequestWrap>
           <h1>친구 요청</h1>
+          {/* for문 */}
+          {
+            friendReqList&&friendReqList.map((friend, idx) => {
+              return (
+                <>
+                  <FriendWrap>
+                    <FriendLeftContent>
+                      <FriendProfile></FriendProfile>
+                      <p>{friend.nickname}</p>
+                    </FriendLeftContent>
+                    <ButtonWrap>
+                      <button onClick={()=>{onClickRequestFriendButtonHandler(friend.nickname, true)}}>수락</button>
+                      <button onClick={()=>{onClickRequestFriendButtonHandler(friend.nickname, false)}}>거절</button>
+                    </ButtonWrap>
+                  </FriendWrap>
+                </>
+              )
+            })
+          }
 
-          <FriendWrap>
-            <FriendLeftContent>
-              <FriendProfile></FriendProfile>
-              <p>신주영</p>
-            </FriendLeftContent>
-            <ButtonWrap>
-              <button>수락</button>
-              <button>거절</button>
-            </ButtonWrap>
-          </FriendWrap>
         </FriendRequestWrap>
 
         <FriendListWrap>
           <p>친구 목록</p>
-
-          <FriendList>
-            <FriendListImage></FriendListImage>
-            <FriendListName>신주영</FriendListName>
-          </FriendList>
+          {/* for문 */}
+          {friendList&&friendList.map((friend, idx) => {
+            return (
+              <>
+                <FriendList>
+                  <FriendListImage></FriendListImage>
+                  <FriendListName>{friend.nickname}</FriendListName>
+                  <button onClick={() => { onClickDeleteFriendButtonHandler(friend.nickname) }}>삭제</button>
+                </FriendList>
+              </>
+            )
+          })}
         </FriendListWrap>
       </MyPageBottomContentWrap>
     </>
