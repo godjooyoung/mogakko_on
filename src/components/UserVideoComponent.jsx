@@ -1,7 +1,7 @@
 import React from 'react';
 import OpenViduVideoComponent from './OpenViduVideo';
 import { getCookie } from '../cookie/Cookie';
-
+import { styled } from 'styled-components'
 function UserVideoComponent({ streamManager }) {
 
     // stream 속성의 connection.data 값을 파싱, 그 안에서 clientData 속성의 값을 반환 
@@ -15,13 +15,24 @@ function UserVideoComponent({ streamManager }) {
     return (
         <div>
             {streamManager !== undefined ? (
-                <div className="streamcomponent">
+                <VideoComponentWrap className="streamcomponent">
                     <OpenViduVideoComponent streamManager={streamManager} />
-                    <div><p>{getNicknameTag()}</p></div>
-                </div>
+                    <UserNickName>{getNicknameTag()}</UserNickName>
+                </VideoComponentWrap>
             ) : null}
         </div>
     );
 }
 
+export const VideoComponentWrap = styled.div`
+    position: relative;
+`
+
+export const UserNickName = styled.span`
+    color: white;
+    font-size: 14px;
+    position: absolute;
+    left: 15px;
+    bottom: 15px;
+`
 export default UserVideoComponent
