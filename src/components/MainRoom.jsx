@@ -82,27 +82,38 @@ function MainRoom(props) {
         return state.userInfo
     })
 
+
+
     const navigate = useNavigate()
 
     // 내부 상태
     const [roomDetails, setRoomDetails] = useState(props.roomList?.[0])
+    const [isLogin, setIsLogin] = useState(false)
+
+    useEffect(() => {
+        setIsLogin(getCookie('token') ? true : false)
+    })
 
     // 방참여하기
     const onClickJoinRoomHandler = (details) => {
-        const state = {
-            mySessionId: details.sessionId,
-            myUserName: getCookie('nickName'),
-            isDirect: true,
-            title: details.title,
-            language: details.language,
-            maxMembers: details.maxMembers,
-            isOpened: details.opened,
-            password: details.password,
-            latitude: details.lat,
-            longitude: details.lon,
-            neighborhood: details.neighborhood,
-        };
-        navigate('/room', { state: state })
+        if (isLogin){
+            const state = {
+                mySessionId: details.sessionId,
+                myUserName: getCookie('nickName'),
+                isDirect: true,
+                title: details.title,
+                language: details.language,
+                maxMembers: details.maxMembers,
+                isOpened: details.opened,
+                password: details.password,
+                latitude: details.lat,
+                longitude: details.lon,
+                neighborhood: details.neighborhood,
+            };
+            navigate('/room', { state: state })
+        }else{
+            alert('로그인 이후 사용 가능합니다.')
+        }
     }
 
     // 방 상세보기
