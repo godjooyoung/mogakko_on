@@ -247,22 +247,29 @@ export const RoomList = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 50%;
     gap: 16px;
     overflow-y: scroll;
+    width: 48%;
 
     &::-webkit-scrollbar{
-        width: 8px;
-        background-color: white;
+        width: 7px;
+        background-color: transparent;
         border-radius: 8px;
     }
 
     &::-webkit-scrollbar-thumb {
-        width: 50px;
+        /* width: 10px; */
         height: 10%; 
-        background-color: #394254;
+        background-color: white;
         border-radius: 10px;
         height: 30px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background-color: white;
+        border-left: 3px solid transparent;
+        border-right: 3px solid transparent;
+        background-clip: padding-box;
     }
 `
 export const RoomDetails = styled.div`
