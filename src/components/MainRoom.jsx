@@ -96,7 +96,7 @@ function MainRoom(props) {
 
     // 방참여하기
     const onClickJoinRoomHandler = (details) => {
-        if (isLogin){
+        if (isLogin) {
             const state = {
                 mySessionId: details.sessionId,
                 myUserName: getCookie('nickName'),
@@ -111,7 +111,7 @@ function MainRoom(props) {
                 neighborhood: details.neighborhood,
             };
             navigate('/room', { state: state })
-        }else{
+        } else {
             alert('로그인 이후 사용 가능합니다.')
         }
     }
@@ -179,7 +179,7 @@ function MainRoom(props) {
                                     <RoomDetilasDescP>지역 : {roomDetails && roomDetails.neighborhood}</RoomDetilasDescP>
                                     <RoomDetilasDescP>모각코시간 : {roomDetails && roomDetails.createdAt}</RoomDetilasDescP>
                                     <RoomDetilasDescP>정원 : {roomDetails && roomDetails.cntMembers}/{roomDetails && roomDetails.maxMembers}</RoomDetilasDescP>
-                                    <RoomDetilasDescP>언어 : <LanguageIconSpan language={roomDetails&&roomDetails.language}></LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
+                                    <RoomDetilasDescP>언어 : <LanguageIconSpan language={roomDetails && roomDetails.language}></LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
                                 </RoomDetailsDesc>
                                 <RoomDetailsEnter>
                                     <RoomEnterButton onClick={() => { onClickJoinRoomHandler(roomDetails) }}>참여하기→</RoomEnterButton>
@@ -250,6 +250,20 @@ export const RoomList = styled.div`
     width: 50%;
     gap: 16px;
     overflow-y: scroll;
+
+    &::-webkit-scrollbar{
+        width: 8px;
+        background-color: white;
+        border-radius: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        width: 50px;
+        height: 10%; 
+        background-color: #394254;
+        border-radius: 10px;
+        height: 30px;
+    }
 `
 export const RoomDetails = styled.div`
     display: flex;
