@@ -243,95 +243,107 @@ function SignUp() {
             <Form>
                 {/* <Form onSubmit={submitHandler}> */}
                 <div>
-                <Label>이메일</Label>
+                    <Label>이메일</Label>
+                    
+                    <InputWrapper>
+                        <Input
+                            type="email"
+                            value={email}
+                            onChange={emailChangeHandler}
+                            placeholder="이메일"
+                            required
+                        />
+                        <ButtonWrapper>
+                            <CheckButton type="button" disabled={!emailChanged} onClick={(e) => {
+                            e.preventDefault() //요청전 리로드 방지
+                            checkEmailExistence(email)
+                            }}>
+                            중복체크
+                            </CheckButton>
+                        </ButtonWrapper>
+                    </InputWrapper>
+                    <ErrorMessageContainer>
+                        {emailErrorMessage && <ErrorMessage>{emailErrorMessage}</ErrorMessage>}
+                        {emailAvailability && <ErrorMessage>{emailAvailability}</ErrorMessage>}
+                    </ErrorMessageContainer>
                 </div>   
-                <InputWrapper>
-                    <Input
-                        type="email"
-                        value={email}
-                        onChange={emailChangeHandler}
-                        placeholder="이메일"
-                        required
-                    />
-                    <CheckButton type="button" disabled={!emailChanged} onClick={(e) => {
-                        e.preventDefault() //요청전 리로드 방지
-                        checkEmailExistence(email)
-                    }}>
-
-                        중복체크
-                    </CheckButton>
-                </InputWrapper>
-                {emailErrorMessage && <ErrorMessage>{emailErrorMessage}</ErrorMessage>}
-                {emailAvailability && <ErrorMessage>{emailAvailability}</ErrorMessage>}
                 <div>
-                <Label>비밀번호</Label>
+                    <Label>비밀번호</Label>
+                    <PasswordWrapper>
+                        <Input
+                            type="password"
+                            value={password}
+                            onChange={passwordChangeHandler}
+                            placeholder="비밀번호"
+                        />
+
+                    </PasswordWrapper>
+                    <ErrorMessageContainer>
+                        {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
+                    </ErrorMessageContainer>
                 </div>
-                <InputWrapper>
-                    <Input
-                        type="password"
-                        value={password}
-                        onChange={passwordChangeHandler}
-                        placeholder="비밀번호"
-                    />
-
-                </InputWrapper>
-                {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
 
                 <div>
-                <Label>비밀번호 확인</Label>
+                    <Label>비밀번호 확인</Label>
+                    <PasswordWrapper>
+                        <Input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={confirmPasswordChangeHandler}
+                            placeholder="비밀번호 재입력"
+                        />
+                    </PasswordWrapper>
+                    <ErrorMessageContainer>
+                        {confirmPasswordErrorMessage && <ErrorMessage>{confirmPasswordErrorMessage}</ErrorMessage>}
+                    </ErrorMessageContainer>
+        
                 </div>
                 <div>
-                    <Input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={confirmPasswordChangeHandler}
-                        placeholder="비밀번호 재입력"
-                    />
-                </div>
-                {confirmPasswordErrorMessage && <ErrorMessage>{confirmPasswordErrorMessage}</ErrorMessage>}
-                <div>
-                <Label>닉네임</Label>
-                </div>    
-                <FormField>
-                    <Input
-                        type="text"
-                        value={nickname}
-                        onChange={nicknameChangeHandler}
-                        placeholder="닉네임"
-                    />
-                    <button type="button" disabled={!nicknameChanged} onClick={(e) => {
-                        e.preventDefault() //요청전 리로드 방지
+                    <Label>닉네임</Label>
+                    <InputWrapper>
+                        <Input
+                            type="text"
+                            value={nickname}
+                            onChange={nicknameChangeHandler}
+                            placeholder="닉네임"
+                        />
+                        <ButtonWrapper>
+                            <CheckButton type="button" disabled={!nicknameChanged} onClick={(e) => {
+                                e.preventDefault() //요청전 리로드 방지
+                                checkNicknameExistence(nickname)
+                            }}>
+                                중복체크
+                            </CheckButton>
+                        </ButtonWrapper>
+                    </InputWrapper>
+                    <ErrorMessageContainer>
+                        {nicknameErrorMessage && <ErrorMessage>{nicknameErrorMessage}</ErrorMessage>}
+                    </ErrorMessageContainer>
 
-                        checkNicknameExistence(nickname)
-                    }}>
-                        중복체크
-                    </button>
-                    {nicknameErrorMessage && <ErrorMessage>{nicknameErrorMessage}</ErrorMessage>}
-
-                </FormField>
-                <Wrapper>
-                    <Input
-                        type="checkbox"
-                        checked={isAgreed}
-                        onChange={isAgreedChangeHandler}
-                    /><BottomButton onClick={termsButtonClickHandler}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</BottomButton>
-                    <Modal open={modalOpen} close={closeModal}>
-                        <h2>서비스 이용 약관</h2>
-                        <pre>{termsContent}</pre>
-                        <button onClick={closeModal}>닫기</button>
-                    </Modal>
+                </div>   
+                    <Wrapper>
+                        <input
+                            type="checkbox"
+                            checked={isAgreed}
+                            onChange={isAgreedChangeHandler}
+                        /><BottomButton onClick={termsButtonClickHandler}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</BottomButton>
+                        <Modal open={modalOpen} close={closeModal}>
+                            <h2>서비스 이용 약관</h2>
+                            <pre>{termsContent}</pre>
+                            <button onClick={closeModal}>닫기</button>
+                        </Modal>
 
 
-                </Wrapper>
+                    </Wrapper><br/>
 
-                <button onClick={(e) => {
+                <SignupButton onClick={(e) => {
                     e.preventDefault() //요청전 리로드 방지
                     sendHandler(sendData)
                 }}
                     disabled={nicknameChanged||emailChanged||!isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
                 >
                     회원가입
-                </button>
+                </SignupButton>
             </Form>
         </>
     );
@@ -346,26 +358,6 @@ function SignUp() {
 
 export default SignUp;
 
-export const FormField = styled.div`
-    margin-bottom: 20px;
-`;
-
-const Label = styled.label`
-    margin-bottom: 0.5rem;
-    margin-top: 3rem;
-    font-weight: bold;
-`;
-
-export const BottomButton = styled.button`
-    padding:0.5rem 1rem;
-    background-color:white;    
-    color: black;
-    text-decoration: underline;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-align: left;
-`;
 export const Form = styled.form`
     display: flex;
     flex-direction: column;
@@ -373,36 +365,109 @@ export const Form = styled.form`
     margin: 0 auto
 `;
 
+export const Label = styled.label`
+    margin-bottom: 3rem;
+    margin-top: 3rem;
+    color:white;
+    padding-bottom: 8px;
+    
+`;
+
+export const BottomButton = styled.button`
+    padding:0.5rem 1rem;
+    background-color:transparent;    
+    color: white;
+    text-decoration: underline;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+`;
+
+
 export const InputWrapper = styled.div`
     display: flex;
     align-items: stretch;
     width: 300px;
-    border-radius: ㄴㄴ4px;
+    border-radius:10px;
     overflow: hidden;
     box-shadow: 0 0 5px rgba(0,0,0,0,3);
+    margin-bottom: 15px; 
+
 `;
+
+export const ButtonWrapper = styled.div`
+    overflow:hidden;
+`;
+export const PasswordWrapper=styled(InputWrapper)`
+`;
+
+
 export const Input = styled.input`
     flex-glow: 1;
     padding: 10px;
     border: none;
     outline: none;
+    width: 100%;
+    height: 40px;
+    background: #394254;
+    color: #FFFFFF;
 `;
+const ErrorMessageContainer = styled.div`
+    height: 20px;
+`;    
 
 export const CheckButton = styled.button`
     padding:10px;
-    background: #007bff;
-    color: white;
+    background: ${props => props.disabled ? '#BEBEBE' : '#00F0FF'}; 
+    color: 172435;
     border: none;
     cursor: pointer;
+    flex-grow:0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+
 `;
 
 export const ErrorMessage = styled.div`
     color: red; 
-    margin-top: 0.5rem;
+    margin-top: 0.1rem;
     font-size: 5px;
 `;
+
+
+export const SignupButton = styled.button`
+    padding: 9px 20px;
+    margin-left: 9px;
+    margin-bottom: 12px;
+    /* text-align: center; */
+    /* gap: 10px; */
+    // min-width: 72px;
+    height: 42px;
+    border: 0.5px solid #FFFFFF;
+    border-radius: 28px;
+    cursor: pointer;
+    background : transparent;
+    color :#FFFFFF;
+    overflow: hidden;
+    font-family: 'Pretendard';
+    font-style: normal;
+    // font-weight: 700;
+    font-size: 17px;
+    line-height: 24px;
+    width:200px;
+    margin: auto;
+
+    &:not(:disabled){
+        background: #00F0FF;
+        color: #464646;
+    }
+`
+
 
 export const Wrapper = styled.div`
     display: flex;
     align-items: center;
 `
+
