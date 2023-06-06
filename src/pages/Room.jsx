@@ -74,14 +74,14 @@ function Room() {
   // language
   const [languageList, setLanguageList] = useState(
     [
-      { language: 'JAVA', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmJava0.webp`, value: 'Java' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmJava1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmJava2.webp`,},
-      { language: 'JAVASCRIPT', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmJs0.webp`, value: 'JavaScript' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmJs1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmJs2.webp`,},
-      { language: 'PYTHON', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmPy0.webp`, value: 'Python' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmPy1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmPy2.webp`,},
-      { language: 'C', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmC0.webp`, value: 'C' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmC1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmC2.webp`,},
-      { language: 'C#', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmCs0.webp`, value: 'C#' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmCs1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmCs2.webp`,},
-      { language: 'C++', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmCp0.webp`, value: 'C++' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmCp1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmCp2.webp`,},
-      { language: 'KOTLIN', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmKt0.webp`, value: 'Kotlin' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmKt1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmKt2.webp`,},
-      { language: 'ETC', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmEtc0.webp`, value: '' , imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmEtc1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmEtc2.webp`,}
+      { language: 'JAVA', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmJava0.webp`, value: 'Java', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmJava1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmJava2.webp`, },
+      { language: 'JAVASCRIPT', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmJs0.webp`, value: 'JavaScript', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmJs1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmJs2.webp`, },
+      { language: 'PYTHON', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmPy0.webp`, value: 'Python', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmPy1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmPy2.webp`, },
+      { language: 'C', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmC0.webp`, value: 'C', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmC1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmC2.webp`, },
+      { language: 'C#', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmCs0.webp`, value: 'C#', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmCs1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmCs2.webp`, },
+      { language: 'C++', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmCp0.webp`, value: 'C++', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmCp1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmCp2.webp`, },
+      { language: 'KOTLIN', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmKt0.webp`, value: 'Kotlin', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmKt1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmKt2.webp`, },
+      { language: 'ETC', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmEtc0.webp`, value: '', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmEtc1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmEtc2.webp`, }
     ]
   )
 
@@ -110,14 +110,14 @@ function Room() {
 
   // maxMembers
   const [maxMembers, setMaxMembers] = useState([
-    {num:2, isSelected:false},
-    {num:4, isSelected:false},
-    {num:6, isSelected:false},
-    {num:8, isSelected:false},
+    { num: 2, isSelected: false },
+    { num: 4, isSelected: false },
+    { num: 6, isSelected: false },
+    { num: 8, isSelected: false },
   ])
 
   const [curMaxMembers, setCurMaxMembers] = useState(0)
-  
+
 
   const maxMembersHandler = (e, isSelected, idx) => {
     const updateMaxMembersList = maxMembers.map((num, index) => {
@@ -214,9 +214,9 @@ function Room() {
   }
 
   // 값이 입력될때마다 입력된 state들을 세팅
-  useEffect(()=>{
+  useEffect(() => {
     onClickTempButton()
-  },[roomTitle, lang, isOpened, curMaxMembers])
+  }, [roomTitle, lang, isOpened, curMaxMembers])
 
   useEffect(() => {
     if (sessionInfo.isDirect) {
@@ -507,12 +507,9 @@ function Room() {
       (data) => {
         console.log(" 구독됨", JSON.parse(data.body))
         const response = JSON.parse(data.body)
-        console.log('response>>>>>>>>>', response)
-        // setMessage() 여기에 response값 받아서 저장하고 이 state를 map해주면 될꺼같음 
-        // 타입 구별만 하면 끝 서버에서 response값으로 type을 보내주면 그거로 enter publish에 대한 값인지 talk에 대한값인지
-        // enter type은 입장메세지
-        // talk type은 채팅 메세지(내가 보낸 input값 상대가 보낸 메세지 값)
-        // 그러면 enter type 입장메세지도? massage state에 넣은후에? 뒤에 채팅 메세지를 스프레드 연산자로 붙여 넣고 그걸 mapping하면 될듯함
+        if (response.type === 'TALK') {
+          chatMessages.push(response)
+        }
       }
     )
   }
@@ -746,7 +743,21 @@ function Room() {
             <ChattingWrap>
               <ChattingHeader>채팅</ChattingHeader>
               <ChatContentWrap>
-
+                {chatMessages
+                  .map((data, idx) =>
+                    data.nickname === getCookie('nickName') ? (
+                      <MyChatWrap key={idx}>
+                        {/* <WrittenTime>{data.createdAt}</WrittenTime> */}
+                        <UserNickName>{data.nickname}</UserNickName>
+                        <MyChat>{data.message}</MyChat>
+                      </MyChatWrap>
+                    ) : (
+                      <YourChatWrap key={idx}>
+                        <YourChat>{data.message}</YourChat>
+                        {/* <WrittenTime>{data.createdAt}</WrittenTime> */}
+                      </YourChatWrap>
+                    )
+                  )}
               </ChatContentWrap>
               <ChatInputWrap>
                 <ChatInput value={message} onChange={(e) => setMessage(e.target.value)} cols="30" rows="10"></ChatInput>
@@ -1225,8 +1236,50 @@ export const ChatContentWrap = styled.div`
     }
     position: relative;
 
+    /* display: flex;
+    flex-direction: column-reverse; */
+`;
+
+const UserNickName = styled.p`
+  font-size: 11px;
+  padding-right: 10px;
+  color: white;
+`
+
+const YourChatWrap = styled.div`
     display: flex;
-    flex-direction: column-reverse;
+    align-items: end;
+    gap: 5px;
+    margin-block: 15px;
+`;
+
+const YourChat = styled.p`
+    height: 30px;
+    background-color: #616670;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 30px;
+    font-size: 12px;
+    padding-inline: 10px;
+`;
+
+const MyChatWrap = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: end;
+    gap: 5px;
+    margin-block: 15px;
+`;
+
+const MyChat = styled.p`
+    height: 30px;
+    background-color: #E2E2E2;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 30px;
+    font-size: 12px;
+    padding-inline: 10px;
 `;
 
 export const ChatInputWrap = styled.div`
@@ -1249,6 +1302,7 @@ export const ChatInput = styled.textarea`
     outline: none;
     border: none;
     border-radius: 114px;
+    font-family: 'Pretendard-Regular';
 `;
 
 export const SendBtnWrap = styled.div`
