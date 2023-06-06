@@ -10,4 +10,15 @@ const leaveChatRoom = async (sessionId) => {
   }
 }
 
-export { leaveChatRoom }
+const recordTimer = async (diffTime) => {
+  console.log("[INFO] recordTimer" , diffTime)
+  const objDiffTime = { "mogakkoTimer" : diffTime }
+  try {
+    const response = await jwtInstance.put(`/mogakko/timer`, objDiffTime)
+    return response
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export { leaveChatRoom,  recordTimer}

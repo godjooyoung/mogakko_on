@@ -10,8 +10,8 @@ import useInput from '../hooks/useInput'
 import { getCookie } from '../cookie/Cookie'
 import { useMutation } from 'react-query'
 import { leaveChatRoom } from '../axios/api/chat'
-import Header from "../components/common/Header";
-
+import Header from '../components/common/Header';
+import Stopwatch from '../components/Stopwatch'
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
 function Room() {
@@ -746,6 +746,9 @@ function Room() {
               </PubilshSession>
 
               <VideoBtnWrap>
+                <StopwatchWrap>
+                  <Stopwatch />
+                </StopwatchWrap>
                 <VideoShareBtn
                   onClick={() => { toggleSharingMode(publisher) }}
                   ShareOffBtn={`${process.env.PUBLIC_URL}/image/ShareOn.webp`}
@@ -1236,11 +1239,19 @@ export const MainStreamWrap = styled.div`
   }
 `
 
+
 export const VideoBtnWrap = styled.div`
   height: 80px;
   display: flex;
   justify-content: center;
   align-content: center;
+  position: relative;
+`
+
+export const StopwatchWrap = styled.div`
+  position: absolute;
+  left: 30px;
+  top: 10px
 `
 
 export const VideoShareBtn = styled.button`
