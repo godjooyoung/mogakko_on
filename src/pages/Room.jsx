@@ -567,25 +567,23 @@ function Room() {
   //   );
   // }
 
-  const slideRef = useRef();
-
+  const [position, setPosition] = useState(0);
+  const [count, setCount] = useState(0)
   const scrollLeft = () => {
-    slideRef.current.scrollBy({
-      top: 0,
-      left: -100,
-      behavior: "smooth",
-    });
+    console.log("왼쪽으로 가기!!!!!")
+    setPosition((prevPosition) => prevPosition + 1045); // 왼쪽으로 100px 이동
+    const newCount = count
+    setCount(newCount - 1)
   };
 
   const scrollRight = () => {
-    slideRef.current.scrollBy({
-      top: 0,
-      left: 100,
-      behavior: "smooth",
-    });
+    console.log("오른쪽으로 가기!!!!!")
+    setPosition((prevPosition) => prevPosition - 1045); // 오른쪽으로 100px 이동
+    const newCount = count
+    setCount(newCount + 1)
   };
 
-
+  console.log('count>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', count)
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -711,10 +709,15 @@ function Room() {
               <PubilshSession>
                 {publisher !== undefined ? (
                   <PubilsherVideoContainer>
-                    <SlideLeftBtn onClick={() => {
-                      scrollLeft()
-                    }}>left</SlideLeftBtn>
-                    <PubilsherVideoWrap ref={slideRef} onClick={() => handleMainVideoStream(publisher)}>
+                    {count === 1 && curMaxMembers >= 5 ?
+                      <SlideLeftBtn onClick={() => {
+                        scrollLeft()
+                      }}
+                        SlideLeft={`${process.env.PUBLIC_URL}/image/slideLeft.webp`}
+                      ></SlideLeftBtn> :
+                      null
+                    }
+                    <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
                       <UserVideoComponent streamManager={publisher} />
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
@@ -723,9 +726,14 @@ function Room() {
                         </div>
                       ))}
                     </PubilsherVideoWrap>
-                    <SlideRightBtn onClick={() => {
-                      scrollRight()
-                    }}>right</SlideRightBtn>
+                    {count === 0 && curMaxMembers >= 5 ?
+                      <SlideRightBtn onClick={() => {
+                        scrollRight()
+                      }}
+                        SlideRight={`${process.env.PUBLIC_URL}/image/slideRight.webp`}
+                      ></SlideRightBtn> :
+                      null
+                    }
                   </PubilsherVideoContainer>
                 ) : null}
 
@@ -1137,56 +1145,81 @@ export const PubilsherVideoContainer = styled.div`
   gap: 10px;
   overflow: hidden;
   position: relative;
-  width: 100%;
+  width: 1030px;
   scroll-snap-type: x mandatory;
 `
 
 export const PubilsherVideoWrap = styled.div` 
-  width: 100%;
+  width: 2000px;
   height: 145px;
   border-radius: 10px;
   display: flex;
+  flex-shrink: 0;
   justify-content: flex-start;
   align-items: center;
   gap: 10px;
   scroll-snap-align: start;
   scroll-behavior: smooth;
+  /* background-color: yellow; */
+  transition: transform 0.5s ease;
+  transform: translateX(
+    ${(props) => {
+    return props.movePositon + 'px'
+  }}
+  );
   video {
-      width: 240px;
+      min-width: 250px;
+      max-width: 250px;
       height: 145px;
   }
 `
 
 export const SlideLeftBtn = styled.button`
-  background-color: white;
   border: none;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-  border-radius: 20px;
-  width: 40px;
-  height: 40px;
+  border-radius: 5px;
+  width: 20px;
+  height: 52px;
   font-size: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: absolute;
-  left: 0;
-  z-index: 1;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 5px;
+  z-index: 4;
+  background-image: url(
+    ${(props) => {
+    return props.SlideLeft;
+  }});
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
 `
 
 export const SlideRightBtn = styled.button`
-  background-color: white;
   border: none;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-  border-radius: 20px;
-  width: 40px;
-  height: 40px;
+  border-radius: 5px;
+  width: 20px;
+  height: 52px;
   font-size: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   right: 0;
-  z-index: 1;
+  z-index: 4;
+  background-image: url(
+    ${(props) => {
+    return props.SlideRight;
+  }});
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
 `
 
 
@@ -1194,7 +1227,6 @@ export const MainStreamWrap = styled.div`
   width: 1030px;
   display: flex;
   justify-content: center;
-  padding-left: 5px;
   video {
     height: 550px;
   }
@@ -1295,7 +1327,7 @@ export const ChattingHeader = styled.p`
 `
 
 export const ChatContentWrap = styled.div`
-    padding: 10px 25px;
+    padding: 10px 15px;
     height: 735px;
     overflow-y: scroll;
     &::-webkit-scrollbar {
@@ -1327,13 +1359,14 @@ export const YourNickName = styled.p`
 `
 
 const YourChat = styled.p`
-    height: 30px;
+    max-width: 180px;
     background-color: #616670;
-    border-radius: 10px;
-    text-align: center;
-    line-height: 30px;
-    font-size: 12px;
-    padding-inline: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: start;
+    line-height: 20px;
+    padding: 5px 10px;
+    word-wrap: break-word;
 `;
 
 const MyChatWrap = styled.div`
@@ -1346,13 +1379,14 @@ const MyChatWrap = styled.div`
 `;
 
 const MyChat = styled.p`
-    height: 30px;
+    max-width: 180px;
     background-color: #E2E2E2;
-    border-radius: 10px;
-    text-align: center;
-    line-height: 30px;
-    font-size: 12px;
-    padding-inline: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: start;
+    line-height: 20px;
+    padding: 5px 10px;
+    word-wrap: break-word;
 `;
 
 export const ChatInputWrap = styled.div`
