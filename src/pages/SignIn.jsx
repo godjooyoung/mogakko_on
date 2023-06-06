@@ -4,21 +4,26 @@ import { useNavigate } from 'react-router-dom'
 import { login } from '../axios/api/login'
 import { useMutation } from 'react-query'
 import { getCookie } from '../cookie/Cookie'
+
 const SignIn = () => {
 
     const navigate = useNavigate()
-
+    
+    // 내부 상태
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [emailError, setEmailError] = useState('')
     const [passwrodError, setPasswordError] = useState('')
-    const [loginError, setLoginError] = useState('')
+    // const [loginError, setLoginError] = useState('') 사용 안되고 있어서 주석 처리 했습니다. - sjy
     const [isValidationEmail, setIsValidationEmail] = useState(false)
     const [isValidationPassword, setIsValidationPassword] = useState(false)
 
     const signInMutation = useMutation(login, {
         onSuccess: () => {
             if(getCookie("token")?true:false) navigate('/')
+        },
+        onError: (error) => {
+            alert(error)
         }
     })
 
@@ -117,7 +122,7 @@ const SignIn = () => {
                 </ErrorMessageContainer>
             </div>
             <LoginButton type="submit" disabled={!isValidationEmail||!isValidationPassword}>로그인</LoginButton>
-            {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>}
+            {/* {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>} */}
 
         </Form>
     );
