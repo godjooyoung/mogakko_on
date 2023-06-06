@@ -72,7 +72,9 @@ const deleteFriend = async (targetFriend) => {
 const requestFriend = async (targetFriend) => {
   //{”receiverNickname” : String}
   console.log("친구 요청 보내기. ("+targetFriend+") 아 나랑 친구할래?")
-  const target = {requestReceiverNickname : targetFriend}
+  // const target = {requestReceiverNickname : targetFriend}
+  const target = {receiverNickname : targetFriend}
+  
   try {
     const response = await jwtInstance.post('/friendship/requests', target)
     console.log("requestFriend response : ", response.data.message)
