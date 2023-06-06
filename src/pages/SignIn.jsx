@@ -4,21 +4,26 @@ import { useNavigate } from 'react-router-dom'
 import { login } from '../axios/api/login'
 import { useMutation } from 'react-query'
 import { getCookie } from '../cookie/Cookie'
+
 const SignIn = () => {
 
     const navigate = useNavigate()
-
+    
+    // 내부 상태
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [emailError, setEmailError] = useState('')
     const [passwrodError, setPasswordError] = useState('')
-    const [loginError, setLoginError] = useState('')
-    const [islValidationEmail, setIsValidationEmail] = useState(false)
-    const [islValidationPassword, setIsValidationPassword] = useState(false)
+    // const [loginError, setLoginError] = useState('') 사용 안되고 있어서 주석 처리 했습니다. - sjy
+    const [isValidationEmail, setIsValidationEmail] = useState(false)
+    const [isValidationPassword, setIsValidationPassword] = useState(false)
 
     const signInMutation = useMutation(login, {
         onSuccess: () => {
             if(getCookie("token")?true:false) navigate('/')
+        },
+        onError: (error) => {
+            alert(error)
         }
     })
 
@@ -72,7 +77,7 @@ const SignIn = () => {
     },[password])
 
     const validationInputHandler = () => {
-        if(islValidationEmail && islValidationPassword){
+        if(isValidationEmail && isValidationPassword){
             return true
         }else{
             return false
@@ -92,26 +97,32 @@ const SignIn = () => {
         <Form onSubmit={submitHandler}>
             <div>
                 <Label>이메일</Label><br />
-                <Input
-                    type="email"
-                    value={email}
-                    onChange={emailChangeHandler}
-                />
+                <InputWrapper>
+                    <Input
+                        type="email"
+                        value={email}
+                        onChange={emailChangeHandler}
+                    />
+                </InputWrapper>
+                <ErrorMessageContainer>
                 {emailError && <ErrorMessage>{emailError}</ErrorMessage>}
-
+                </ErrorMessageContainer>
             </div>
             <div>
                 <Label>비밀번호</Label><br />
-                <Input
-                    type="password"
-                    value={password}
-                    onChange={passwordChangeHandler}
-                />
-                {passwrodError && <ErrorMessage>{passwrodError}</ErrorMessage>}
-
+                <InputWrapper>
+                    <Input
+                        type="password"
+                        value={password}
+                        onChange={passwordChangeHandler}
+                    />
+                </InputWrapper>
+                <ErrorMessageContainer>
+                    {passwrodError && <ErrorMessage>{passwrodError}</ErrorMessage>}
+                </ErrorMessageContainer>
             </div>
-            <Button type="submit">로그인</Button>
-            {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>}
+            <LoginButton type="submit" disabled={!isValidationEmail||!isValidationPassword}>로그인</LoginButton>
+            {/* {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>} */}
 
         </Form>
     );
@@ -127,15 +138,32 @@ const Form = styled.form`
 `;
 
 const Label = styled.label`
-    margin-bottom: 0.5rem;
+    margin-bottom: 3rem;
     margin-top: 3rem;
-    font-weight: bold;
+    color:white;
+    padding-bottom: 8px;
 `;
-
+export const InputWrapper = styled.div`
+    display: flex;
+    align-items: stretch;
+    width: 300px;
+    border-radius:10px;
+    overflow: hidden;
+    box-shadow: 0 0 5px rgba(0,0,0,0,3);
+    margin-bottom: 15px; 
+`
 const Input = styled.input`
-    padding: 0.5rem;
-    border: 1px solid #ccc;
+    // padding: 0.5rem;
+    // border: 1px solid #ccc;
     border-radius:4px;
+    flex-glow: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
+    width: 100%;
+    height: 40px;
+    background: #394254;
+    color: #FFFFFF;
 `;
 
 const Button = styled.button`
@@ -152,4 +180,29 @@ const ErrorMessage = styled.div`
     margin-top: 0.5rem;
     font-size: 5px;
 `;
+const ErrorMessageContainer = styled.div`
+    height: 20px;
+`; 
+export const LoginButton = styled.button`
+    padding: 9px 20px;
+    margin-left: 9px;
+    margin-bottom: 12px;
+    height: 42px;
+    border: 0.5px solid ${props => props.disabled ? '#BEBEBE' : '#00F0FF'}; 
+    border-radius: 28px;
+    cursor: pointer;
+    background : transparent;
+    color :#FFFFFF;
+    overflow: hidden;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-size: 17px;
+    line-height: 24px;
+    width:200px;
+    margin: auto;
 
+    &:not(:disabled){
+        background: #00F0FF;
+        color: #464646;
+    }
+`
