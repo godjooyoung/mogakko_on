@@ -509,6 +509,7 @@ function Room() {
         const response = JSON.parse(data.body)
         if (response.type === 'TALK') {
           chatMessages.push(response)
+          setChatMessages([...chatMessages])
         }
       }
     )
@@ -565,6 +566,25 @@ function Room() {
   //     </div>
   //   );
   // }
+
+  const slideRef = useRef();
+
+  const scrollLeft = () => {
+    slideRef.current.scrollBy({
+      top: 0,
+      left: -100,
+      behavior: "smooth",
+    });
+  };
+
+  const scrollRight = () => {
+    slideRef.current.scrollBy({
+      top: 0,
+      left: 100,
+      behavior: "smooth",
+    });
+  };
+
 
   return (
     <div className="container">
@@ -689,21 +709,26 @@ function Room() {
           <RoomContainer>
             <VideoWrap>
               <PubilshSession>
-                <div>
-                  {publisher !== undefined ? (
-                    <PubilsherVideoContainer>
-                      <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)}>
-                        <UserVideoComponent streamManager={publisher} />
-                        {subscribers.map((e, i) => (
-                          <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                            <span>{e.id}</span>
-                            <UserVideoComponent streamManager={e} />
-                          </div>
-                        ))}
-                      </PubilsherVideoWrap>
-                    </PubilsherVideoContainer>
-                  ) : null}
-                </div>
+                {publisher !== undefined ? (
+                  <PubilsherVideoContainer>
+                    <SlideLeftBtn onClick={() => {
+                      scrollLeft()
+                    }}>left</SlideLeftBtn>
+                    <PubilsherVideoWrap ref={slideRef} onClick={() => handleMainVideoStream(publisher)}>
+                      <UserVideoComponent streamManager={publisher} />
+                      {subscribers.map((e, i) => (
+                        <div key={e.id} onClick={() => handleMainVideoStream(e)}>
+                          <span>{e.id}</span>
+                          <UserVideoComponent streamManager={e} />
+                        </div>
+                      ))}
+                    </PubilsherVideoWrap>
+                    <SlideRightBtn onClick={() => {
+                      scrollRight()
+                    }}>right</SlideRightBtn>
+                  </PubilsherVideoContainer>
+                ) : null}
+
 
                 {mainStreamManager !== undefined ? (
                   <MainStreamWrap>
@@ -748,11 +773,12 @@ function Room() {
                     data.nickname === getCookie('nickName') ? (
                       <MyChatWrap key={idx}>
                         {/* <WrittenTime>{data.createdAt}</WrittenTime> */}
-                        <UserNickName>{data.nickname}</UserNickName>
+                        <MyNickName>{data.nickname}</MyNickName>
                         <MyChat>{data.message}</MyChat>
                       </MyChatWrap>
                     ) : (
                       <YourChatWrap key={idx}>
+                        <YourNickName>{data.nickname}</YourNickName>
                         <YourChat>{data.message}</YourChat>
                         {/* <WrittenTime>{data.createdAt}</WrittenTime> */}
                       </YourChatWrap>
@@ -1107,6 +1133,12 @@ export const PubilshSession = styled.div`
 
 export const PubilsherVideoContainer = styled.div`
   padding: 5px;
+  display: flex;
+  gap: 10px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  scroll-snap-type: x mandatory;
 `
 
 export const PubilsherVideoWrap = styled.div` 
@@ -1117,11 +1149,46 @@ export const PubilsherVideoWrap = styled.div`
   justify-content: flex-start;
   align-items: center;
   gap: 10px;
+  scroll-snap-align: start;
+  scroll-behavior: smooth;
   video {
       width: 240px;
       height: 145px;
   }
 `
+
+export const SlideLeftBtn = styled.button`
+  background-color: white;
+  border: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  left: 0;
+  z-index: 1;
+`
+
+export const SlideRightBtn = styled.button`
+  background-color: white;
+  border: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: 0;
+  z-index: 1;
+`
+
 
 export const MainStreamWrap = styled.div`
   width: 1030px;
@@ -1240,7 +1307,7 @@ export const ChatContentWrap = styled.div`
     flex-direction: column-reverse; */
 `;
 
-const UserNickName = styled.p`
+export const MyNickName = styled.p`
   font-size: 11px;
   padding-right: 10px;
   color: white;
@@ -1252,6 +1319,12 @@ const YourChatWrap = styled.div`
     gap: 5px;
     margin-block: 15px;
 `;
+
+export const YourNickName = styled.p`
+  font-size: 11px;
+  padding-left: 10px;
+  color: white;
+`
 
 const YourChat = styled.p`
     height: 30px;
