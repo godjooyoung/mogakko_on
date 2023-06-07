@@ -322,7 +322,8 @@ function Room() {
         // console.log("화면왜안붙어!!!! >>>", response)
         try {
           // await session.connect(response.data);
-          await session.connect(response.data, { clientData: getCookie('nickName')})
+          // await session.connect(response.data, { clientData: getCookie('nickName')})
+          await session.connect(response.data)
 
           // stream만들기 initPublisherAsync() 메소드는 스트림 생성 및 전송 담당를 초기화
           let publisher = await OV.current.initPublisherAsync(undefined, {
@@ -718,11 +719,11 @@ function Room() {
                       null
                     }
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
-                      <UserVideoComponent streamManager={publisher} />
+                      <UserVideoComponent streamManager={publisher} audioEnabled={audioEnabled}/>
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
                           <span>{e.id}</span>
-                          <UserVideoComponent streamManager={e} />
+                          <UserVideoComponent streamManager={e} audioEnabled={audioEnabled}/>
                         </div>
                       ))}
                     </PubilsherVideoWrap>
@@ -740,7 +741,7 @@ function Room() {
 
                 {mainStreamManager !== undefined ? (
                   <MainStreamWrap>
-                    <UserVideoComponent streamManager={mainStreamManager} />
+                    <UserVideoComponent streamManager={mainStreamManager}/>
                   </MainStreamWrap>
                 ) : null}
               </PubilshSession>
@@ -1236,6 +1237,10 @@ export const MainStreamWrap = styled.div`
 
   span {
     font-size: 22px;
+  }
+
+  img {
+    display: none;
   }
 `
 
