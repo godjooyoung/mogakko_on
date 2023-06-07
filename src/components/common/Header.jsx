@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getCookie, removeCookie } from '../../cookie/Cookie';
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useDispatch, useSelector } from 'react-redux';
-import { __alarmSender } from '../../redux/modules/alarm'
+import { __alarmSender, __alarmClean } from '../../redux/modules/alarm'
 
 function Header() {
     const [isLogin, setIsLogin] = useState(false)
@@ -26,6 +26,7 @@ function Header() {
     })
 
     const dispatcher = useDispatch()
+    
     // 전역에 등록된 알람 내역 가져오기
     const alarmInfo = useSelector((state) => {
         return state.alarmInfo
@@ -86,6 +87,7 @@ function Header() {
                     return () => {
                         if (eventSourceRef.current && !isLogin) {
                             sessionStorage.setItem('isSubscribed', false);
+                            dispatcher(__alarmClean())
                             eventSourceRef.current.close(); // 로그아웃 시 SSE 연결 종료
                         }
                     };
@@ -100,14 +102,43 @@ function Header() {
     const renderAlertComponent = () => {
         if (alarmInfo) {
             console.log("alarmInfo..", alarmInfo)
-            return (
-                <>
-                    <AlearTitle>{alarmInfo?.[0]}</AlearTitle>
-                    <AlearTitle>test!@@@!</AlearTitle>
-                </>
-            );
+            console.log("alarmInfo[0]", alarmInfo?.[0])
+            const alarmInfoTest1 = ['EventStream Created. [memberId=8]', '{ "id": 7, "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }']
+            const alarmInfoTest2 = ['EventStream Created. [memberId=8]']
+            const alarmInfoTest3 = ['EventStream Created. [memberId=8]', 'EventStream Created. [memberId=8]']
+            const slicedArray = alarmInfo.slice(1);
+            if(slicedArray.length === 0){
+                return (
+                    <>
+                        <NoneMessageImg src={`${process.env.PUBLIC_URL}/image/bell.webp`} alt="알람없을때아이콘" />
+                        <NoneMessage>아직 온 알람이 없어요!</NoneMessage>
+                    </>
+                )
+            }else{
+                return (
+                    <>
+                        {slicedArray && slicedArray.map((alarm) => {
+                            return (
+                                <AlearmContent>
+                                    <AlearmContentMsg>
+                                        {JSON.parse(alarm).content}
+                                    </AlearmContentMsg>
+                                    <AlearmContentTime>
+                                        {JSON.parse(alarm).createdAt}
+                                    </AlearmContentTime>
+                                </AlearmContent>
+                            )
+                        })}
+                    </>
+                );
+            }
         }
-        return null;
+        return (
+            <>
+                <NoneMessageImg src={`${process.env.PUBLIC_URL}/image/bell.webp`} alt="알람없을때아이콘" />
+                <NoneMessage>아직 온 알람이 없어요!</NoneMessage>
+            </>
+        );
     };
 
     const onClickLogoHandler = () => {
@@ -125,6 +156,7 @@ function Header() {
             await removeCookie('token')
             await removeCookie('nickName')
             await sessionStorage.removeItem('isSubscribed')
+            dispatcher(__alarmClean())
             if (eventSourceRef.current) {
                 eventSourceRef.current.close(); // SSE 연결 종료
             }
@@ -204,14 +236,14 @@ export const ProfileImgDiv = styled.div`
     overflow: hidden;
 `
 
-const shakeAnimation = keyframes`
-  0% { transform: translateX(0); }
-  20% { transform: translateX(-3px); }
-  40% { transform: translateX(3px); }
-  60% { transform: translateX(-3px); }
-  80% { transform: translateX(3px); }
-  100% { transform: translateX(0); }
-`;
+export const shakeAnimation = keyframes`
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-3px); }
+    40% { transform: translateX(3px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+    100% { transform: translateX(0); }
+`
 
 export const HeaderButton = styled.button`
     border: 0;
@@ -254,11 +286,12 @@ export const AlearHeader = styled.div`
     position: absolute;
     /* top: 40px;
     left: -40px; */
-    background-color: #EDF5FF;
+    background-color: #F9F9FA;
     transform: rotate(-45deg); 
     border-top-right-radius: 6px;
     top: 50px;
     left: -5px;
+    
 `
 
 export const AlearWrapContent = styled.div`
@@ -267,17 +300,67 @@ export const AlearWrapContent = styled.div`
     position: absolute;
     /* top: 50px;
     right: 5px; */
-    background-color: #EDF5FF;
-    border-radius: 6px;
+    border-radius: 10px;
     top: 55px;
     right: -10px;
+    width: 239px;
+    height: 373.95px;
+    background-color: #F9F9FA;
 `
 
 export const AlearTitle = styled.p`
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 500;
     font-size: 14px;
-    color: black;
-    padding-top: 5px;
-    padding-left: 5px;
+    line-height: 114%;
+
+    color: #464646;
+    padding-top: 16px;
+    padding-left: 19px;
     box-sizing: border-box;
+    margin-bottom: 3px;
 `
+export const AlearmContent = styled.div`
+    width: 209px;   
+    height: 66px;
+    background: #FFFFFF;
+    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    margin : 10px 13px 10px 13px;
+    padding: 12px;
+`
+
+export const AlearmContentMsg = styled.p`
+    font-family: 'Noto Sans';   
+    font-style: normal;
+    font-weight: 400;
+    font-size: 9px;
+    line-height: 178%;
+    color: #464646;
+`
+export const AlearmContentTime = styled.p`
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 7px;
+    line-height: 229%;
+    text-align: right;
+    color: #464646;
+`
+
+export const NoneMessageImg = styled.img`
+    margin: 102px 93px 12px;
+
+`
+export const NoneMessage = styled.p`
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 10px;
+    line-height: 160%;
+    text-align: center;
+    color: #BEBEBE;
+`
+
 export default Header;

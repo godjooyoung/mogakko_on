@@ -8,6 +8,8 @@ import BgContainer from "../components/common/BgContainer";
 import Layout from "../components/common/Layout";
 import Room from "../pages/Room";
 import Mypage from "../pages/Mypage";
+import MemberPage from "../pages/MemberPage";
+import Test from '../pages/Test'
 
 const Router = () => {
   return (
@@ -20,6 +22,8 @@ const Router = () => {
             <Route path="/signup" element={<><Header /><SignUp /></>} />
             <Route path="/room" element={<Room />} />
             <Route path="/mypage" element={<Mypage />} />
+            <Route path="/profile/:id" element={<MemberPage />} />
+            <Route path="/timer" element={<Test />} />
           </Route>
         </Route>
       </Routes>

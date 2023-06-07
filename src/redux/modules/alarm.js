@@ -8,10 +8,13 @@ const alarmSlice = createSlice({
     reducers: {
         __alarmSender: (state, action) => {
             state = state.push(action.payload);
+        },
+        __alarmClean: (state, action) => {
+            state = initialState;
         }
     }
 })
 
 
-export const { __alarmSender } = alarmSlice.actions
+export const { __alarmSender, __alarmClean } = alarmSlice.actions
 export default alarmSlice.reducer

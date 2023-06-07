@@ -10,19 +10,11 @@ const login = async (loginUserInfo) => {
       setCookie("token", token)
       setCookie("nickName", response.data.data)
       return Promise.resolve(response)
-    }else if (response.status === 400){
-      // 잘못된 비밀번호 입니다.
-      return Promise.reject(response)
-    }else if (response.status === 404){
-      // 찾을수 없는 회원입니다.
-      return Promise.reject(response)
-    }else {
-      // 로그인실패
-      return Promise.reject(response)
     }
   } catch (error) {
     // 로그인 실패
-    console.log(error)
+    console.log("로그인실패 예외 처리", error.response.data.message)
+    return Promise.reject(error.response.data.message)
   }
 }
 

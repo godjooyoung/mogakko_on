@@ -5,13 +5,13 @@ import UserVideoComponent from '../components/UserVideoComponent'
 import { useLocation, useNavigate } from 'react-router-dom'
 import SockJS from "sockjs-client"
 import { Client } from "@stomp/stompjs"
-import { styled } from 'styled-components'
+import { styled, keyframes } from 'styled-components'
 import useInput from '../hooks/useInput'
 import { getCookie } from '../cookie/Cookie'
 import { useMutation } from 'react-query'
 import { leaveChatRoom } from '../axios/api/chat'
-import Header from "../components/common/Header";
-
+import Header from '../components/common/Header';
+import Stopwatch from '../components/Stopwatch'
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
 function Room() {
@@ -74,16 +74,14 @@ function Room() {
   // language
   const [languageList, setLanguageList] = useState(
     [
-      { language: 'JAVA', isSelected: false },
-      { language: 'JAVASCRIPT', isSelected: false },
-      { language: 'PYTHON', isSelected: false },
-      { language: 'C', isSelected: false },
-      { language: 'C#', isSelected: false },
-      { language: 'C++', isSelected: false },
-      { language: 'RUBY', isSelected: false },
-      { language: 'KOTLIN', isSelected: false },
-      { language: 'SWIFT', isSelected: false },
-      { language: 'ETC', isSelected: false }
+      { language: 'JAVA', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmJava0.webp`, value: 'Java', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmJava1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmJava2.webp`, },
+      { language: 'JAVASCRIPT', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmJs0.webp`, value: 'JavaScript', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmJs1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmJs2.webp`, },
+      { language: 'PYTHON', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmPy0.webp`, value: 'Python', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmPy1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmPy2.webp`, },
+      { language: 'C', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmC0.webp`, value: 'C', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmC1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmC2.webp`, },
+      { language: 'C#', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmCs0.webp`, value: 'C#', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmCs1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmCs2.webp`, },
+      { language: 'C++', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmCp0.webp`, value: 'C++', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmCp1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmCp2.webp`, },
+      { language: 'KOTLIN', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmKt0.webp`, value: 'Kotlin', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmKt1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmKt2.webp`, },
+      { language: 'ETC', isSelected: false, img: `${process.env.PUBLIC_URL}/image/mkRmEtc0.webp`, value: '', imgSeltedUrl: `${process.env.PUBLIC_URL}/image/mkRmEtc1.webp`, imgHoverUrl: `${process.env.PUBLIC_URL}/image/mkRmEtc2.webp`, }
     ]
   )
 
@@ -111,10 +109,25 @@ function Room() {
   }, [languageList])
 
   // maxMembers
-  const maxMembers = [2, 4, 6, 8]
+  const [maxMembers, setMaxMembers] = useState([
+    { num: 2, isSelected: false },
+    { num: 4, isSelected: false },
+    { num: 6, isSelected: false },
+    { num: 8, isSelected: false },
+  ])
 
   const [curMaxMembers, setCurMaxMembers] = useState(0)
-  const maxMembersHandler = (e) => {
+
+
+  const maxMembersHandler = (e, isSelected, idx) => {
+    const updateMaxMembersList = maxMembers.map((num, index) => {
+      if (index === idx) {
+        return { ...num, isSelected: !isSelected }
+      } else {
+        return { ...num, isSelected: false }
+      }
+    })
+    setMaxMembers(updateMaxMembersList)
     setCurMaxMembers(e)
   }
 
@@ -199,6 +212,11 @@ function Room() {
       }
     }
   }
+
+  // 값이 입력될때마다 입력된 state들을 세팅
+  useEffect(() => {
+    onClickTempButton()
+  }, [roomTitle, lang, isOpened, curMaxMembers])
 
   useEffect(() => {
     if (sessionInfo.isDirect) {
@@ -304,7 +322,8 @@ function Room() {
         // console.log("화면왜안붙어!!!! >>>", response)
         try {
           // await session.connect(response.data);
-          await session.connect(response.data, { clientData: sessionInfo.myUserName })
+          // await session.connect(response.data, { clientData: getCookie('nickName')})
+          await session.connect(response.data)
 
           // stream만들기 initPublisherAsync() 메소드는 스트림 생성 및 전송 담당를 초기화
           let publisher = await OV.current.initPublisherAsync(undefined, {
@@ -464,7 +483,6 @@ function Room() {
         isConnected.current = true
         subscribe(openViduSession)
         publish(openViduSession)
-        textPublish(openViduSession)
       },
 
       onStompError: (frame) => {
@@ -490,12 +508,10 @@ function Room() {
       (data) => {
         console.log(" 구독됨", JSON.parse(data.body))
         const response = JSON.parse(data.body)
-        console.log('response>>>>>>>>>', response)
-        // setMessage() 여기에 response값 받아서 저장하고 이 state를 map해주면 될꺼같음 
-        // 타입 구별만 하면 끝 서버에서 response값으로 type을 보내주면 그거로 enter publish에 대한 값인지 talk에 대한값인지
-        // enter type은 입장메세지
-        // talk type은 채팅 메세지(내가 보낸 input값 상대가 보낸 메세지 값)
-        // 그러면 enter type 입장메세지도? massage state에 넣은후에? 뒤에 채팅 메세지를 스프레드 연산자로 붙여 넣고 그걸 mapping하면 될듯함
+        if (response.type === 'TALK') {
+          chatMessages.push(response)
+          setChatMessages([...chatMessages])
+        }
       }
     )
   }
@@ -552,6 +568,23 @@ function Room() {
   //   );
   // }
 
+  const [position, setPosition] = useState(0);
+  const [count, setCount] = useState(0)
+  const scrollLeft = () => {
+    console.log("왼쪽으로 가기!!!!!")
+    setPosition((prevPosition) => prevPosition + 1045); // 왼쪽으로 100px 이동
+    const newCount = count
+    setCount(newCount - 1)
+  };
+
+  const scrollRight = () => {
+    console.log("오른쪽으로 가기!!!!!")
+    setPosition((prevPosition) => prevPosition - 1045); // 오른쪽으로 100px 이동
+    const newCount = count
+    setCount(newCount + 1)
+  };
+
+  console.log('count>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', count)
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -579,10 +612,13 @@ function Room() {
                       {
                         languageList.map((language, idx) => {
                           return (
-                            <LanguageBtn isSelected={language.isSelected} onClick={(e) => {
-                              e.preventDefault()
-                              onClickLanguageHandler(idx, language.isSelected)
-                            }}>{language.language}</LanguageBtn>
+                            <LanguageBtnBox>
+                              <LanguageBtn isSelected={language.isSelected} onClick={(e) => {
+                                e.preventDefault()
+                                onClickLanguageHandler(idx, language.isSelected)
+                              }} language={language.img} imgSeltedUrl={language.imgSeltedUrl} imgHoverUrl={language.imgHoverUrl} >{language.language}</LanguageBtn>
+                              <span>{language.value}</span>
+                            </LanguageBtnBox>
                           )
                         })
                       }
@@ -594,10 +630,10 @@ function Room() {
                       {
                         maxMembers.map((ele, idx) => {
                           return (
-                            <MaxMembersBtn key={idx} onClick={(e) => {
+                            <MaxMembersBtn isSelected={ele.isSelected} key={idx} onClick={(e) => {
                               e.preventDefault()
-                              maxMembersHandler(ele)
-                            }}>{ele}</MaxMembersBtn>
+                              maxMembersHandler(ele.num, ele.isSelected, idx)
+                            }}>{ele.num}</MaxMembersBtn>
                           )
                         })
                       }
@@ -647,10 +683,10 @@ function Room() {
                     </PasswordWrap>
                   }
                   <JoinBtnWrap>
-                    <JoinBtn name="commit" type="submit" value="JOIN" />
+                    <JoinBtn name="commit" type="submit" value="방 생성하기" />
                   </JoinBtnWrap>
                 </form>
-                <button onClick={onClickTempButton}>TEMP</button>
+                {/* <button onClick={onClickTempButton}>TEMP</button> */}
               </RoomCreateWrap>
             </RoomCreateContainer>
           </FlexCenter>
@@ -660,68 +696,116 @@ function Room() {
       {session !== undefined ? (
         <div>
           <RoomInHeader>
-            <span>모던 자바스크립트 딥다이브 스터디 모집합니다!</span>
+            <span>{roomTitle}</span>
             <div>
-              <h1>{mySessionId}</h1>
-              <button
+              <LeaveBtn
                 onClick={leaveSession}
-              >
-                <img src={`${process.env.PUBLIC_URL}/image/roomLeaveBtn.svg`} alt="" />
-              </ button>
+                LeaveBtnImg={`${process.env.PUBLIC_URL}/image/roomLeaveBtn.webp`}
+                LeaveBtnHoverImg={`${process.env.PUBLIC_URL}/image/leaveHover.webp`}
+              />
             </div>
           </RoomInHeader>
           <RoomContainer>
             <VideoWrap>
               <PubilshSession>
-                <div>
-                  {publisher !== undefined ? (
-                    <PubilsherVideoContainer>
-                      <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)}>
-                        <UserVideoComponent
-                          streamManager={publisher} />
-                      </PubilsherVideoWrap>
-                    </PubilsherVideoContainer>
-                  ) : null}
-                </div>
-
-                {mainStreamManager !== undefined ? (
-                    <MainStreamWrap>
-                      <UserVideoComponent streamManager={mainStreamManager}/>
-                    </MainStreamWrap>
+                {publisher !== undefined ? (
+                  <PubilsherVideoContainer>
+                    {count === 1 && curMaxMembers >= 5 ?
+                      <SlideLeftBtn onClick={() => {
+                        scrollLeft()
+                      }}
+                        SlideLeft={`${process.env.PUBLIC_URL}/image/slideLeft.webp`}
+                      ></SlideLeftBtn> :
+                      null
+                    }
+                    <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
+                      <UserVideoComponent streamManager={publisher} audioEnabled={audioEnabled}/>
+                      {subscribers.map((e, i) => (
+                        <div key={e.id} onClick={() => handleMainVideoStream(e)}>
+                          <span>{e.id}</span>
+                          <UserVideoComponent streamManager={e} audioEnabled={audioEnabled}/>
+                        </div>
+                      ))}
+                    </PubilsherVideoWrap>
+                    {count === 0 && curMaxMembers >= 5 ?
+                      <SlideRightBtn onClick={() => {
+                        scrollRight()
+                      }}
+                        SlideRight={`${process.env.PUBLIC_URL}/image/slideRight.webp`}
+                      ></SlideRightBtn> :
+                      null
+                    }
+                  </PubilsherVideoContainer>
                 ) : null}
 
-                {subscribers.map((e, i) => (
-                  <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                    <span>{e.id}</span>
-                    <UserVideoComponent streamManager={e} />
-                  </div>
-                ))}
+
+                {mainStreamManager !== undefined ? (
+                  <MainStreamWrap>
+                    <UserVideoComponent streamManager={mainStreamManager}/>
+                  </MainStreamWrap>
+                ) : null}
               </PubilshSession>
 
-              <div>
-                <button onClick={() => { toggleSharingMode(publisher) }}>
-                  {isScreenSharing ? 'Switch to Camera' : 'Switch to Screen Sharing'}
-                </button>
-                <input
-                  type="button"
+              <VideoBtnWrap>
+                <StopwatchWrap>
+                  <Stopwatch />
+                </StopwatchWrap>
+                <VideoShareBtn
+                  onClick={() => { toggleSharingMode(publisher) }}
+                  ShareOffBtn={`${process.env.PUBLIC_URL}/image/ShareOn.webp`}
+                  ShareOnBtn={`${process.env.PUBLIC_URL}/image/ShareOff.webp`}
+                  ShareHoverBtn={`${process.env.PUBLIC_URL}/image/ShareHover.webp`}
+                  ShareOnHoverBtn={`${process.env.PUBLIC_URL}/image/screenOnHover.webp`}
+                  isScreenSharing={isScreenSharing}
+                >
+                </VideoShareBtn>
+                <VideoToggleBtn
                   onClick={VideoTogglehandler}
-                  value={videoEnabled ? "Cam Off" : "Cam On"}
+                  VideoOffBtn={`${process.env.PUBLIC_URL}/image/VideoOff.webp`}
+                  VideoOnBtn={`${process.env.PUBLIC_URL}/image/VideoOn.webp`}
+                  VideoHoverBtn={`${process.env.PUBLIC_URL}/image/videoHover.webp`}
+                  VideoOnHoverBtn={`${process.env.PUBLIC_URL}/image/videoOnHover.webp`}
+                  VideoEnabled={videoEnabled}
                 />
-                <input
-                  type="button"
+                <AudioToggleBtn
                   onClick={AudioTogglehandler}
-                  value={audioEnabled ? "Audio Off" : "Audio On"}
+                  AudioOffBtn={`${process.env.PUBLIC_URL}/image/microphoneOff.webp`}
+                  AudioOnBtn={`${process.env.PUBLIC_URL}/image/microphoneOn.webp`}
+                  AudioHoverBtn={`${process.env.PUBLIC_URL}/image/microphoneHover.webp`}
+                  AudioOnHoverBtn={`${process.env.PUBLIC_URL}/image/mcOnHover.webp`}
+                  AudioEnabled={audioEnabled}
                 />
-              </div>
+              </VideoBtnWrap>
             </VideoWrap>
             <ChattingWrap>
-              <ChattingHeader>chatting Header</ChattingHeader>
+              <ChattingHeader>채팅</ChattingHeader>
               <ChatContentWrap>
-
+                {chatMessages
+                  .map((data, idx) =>
+                    data.nickname === getCookie('nickName') ? (
+                      <MyChatWrap key={idx}>
+                        {/* <WrittenTime>{data.createdAt}</WrittenTime> */}
+                        <MyNickName>{data.nickname}</MyNickName>
+                        <MyChat>{data.message}</MyChat>
+                      </MyChatWrap>
+                    ) : (
+                      <YourChatWrap key={idx}>
+                        <YourNickName>{data.nickname}</YourNickName>
+                        <YourChat>{data.message}</YourChat>
+                        {/* <WrittenTime>{data.createdAt}</WrittenTime> */}
+                      </YourChatWrap>
+                    )
+                  )}
               </ChatContentWrap>
-              <ChatInput value={message} onChange={(e) => setMessage(e.target.value)} cols="30" rows="10"></ChatInput>
+              <ChatInputWrap>
+                <ChatInput value={message} onChange={(e) => setMessage(e.target.value)} cols="30" rows="10"></ChatInput>
+              </ChatInputWrap>
               <SendBtnWrap>
-                <SendBtn>보내기</SendBtn>
+                <SendBtn onClick={() => {
+                  textPublish(openViduSession)
+                }}
+                  send={`${process.env.PUBLIC_URL}/image/sendMessage.webp`}
+                ></SendBtn>
               </SendBtnWrap>
             </ChattingWrap>
           </RoomContainer>
@@ -732,19 +816,14 @@ function Room() {
 }
 
 export const FlexCenter = styled.div`
-  display: flex;
   width: 1280px;
   height: 935px;
-  justify-content: center;
-  align-items: center;
 `
 
 export const RoomCreateContainer = styled.div`
   display: flex;
   justify-content: center;
-  align-items: center;
   width: 100%;
-  /* background-color: #394254; */
   padding: 50px 0 50px 0;
   box-sizing: border-box;
   height: 935px;
@@ -754,7 +833,6 @@ export const RoomCreateWrap = styled.div`
   display: flex;
   flex-direction: column;
   width: 800px;
-  background-color: #394254;
   padding: 50px;
   border-radius: 8px;
 `
@@ -762,59 +840,102 @@ export const RoomCreateWrap = styled.div`
 export const RoomCreateTitle = styled.div`
   font-size: 36px;
   margin-bottom: 50px;
+  color: white;
 `
 
 export const RoomNameWrap = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 `
 
 export const RoomName = styled.label`
   width: 150px;
-  font-size: 17px;
+  font-size: 21px;
+  color: white;
 `
 
 export const RoomNameInput = styled.input`
   margin-left: 10px;
   width: 100%;
-  padding: 10px;
+  height: 40px;
+  padding: 10px 10px 10px 15px;
   outline: none;
   border: none;
+  background-color: #394254;
+  border-radius: 114px;
+  color : #FFFFFF;
+  &::placeholder{
+    color: #BEBEBE;;
+  }
 `
 
 export const LanguageWrap = styled.div`
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   display: flex;
   align-items: center;
 `
 
 export const LanguageTitle = styled.p`
   width: 150px;
-  font-size: 17px;
+  font-size: 21px;
   margin-bottom: 15px;
+  color: white;
 `
 
 export const LanguageBtnWrap = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap:15px;
+  margin-left: 20px;
+  gap:10px;
+`
+
+export const LanguageBtnBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+
+  span {
+    color: white;
+    font-weight: 700;
+    font-size: 12px;
+  }
 `
 
 export const LanguageBtn = styled.button`
-  padding: 5px;
+  width: 50px;
+  height: 50px;
+  background: transparent;
+  border-radius: 30px;  
+  border: none;
+  font-size: 0;
+  background-image: url(
+    ${(props) => {
+    return props.isSelected ? props.imgSeltedUrl : props.language;
+  }});
+  background-repeat: no-repeat;
+  background-size: cover;
+  &:hover {
+    background-image: url(
+      ${(props) => {
+    return props.imgHoverUrl
+  }}
+    );
+  }
 `
 
 export const MaxMembersWrap = styled.div`
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   display: flex;
   align-items: center;
 `
 
 export const MaxMembersTitle = styled.p`
   width: 130px;
-  font-size: 17px;
+  font-size: 21px;
   margin-bottom: 15px;
+  color: white;
 `
 
 export const MaxMembersBtnWrap = styled.div`
@@ -827,20 +948,36 @@ export const MaxMembersBtnWrap = styled.div`
 export const MaxMembersBtn = styled.button`
   width: 125px;
   height: 48px;
+  border-radius: 114px;
+  /* background-color: transparent; */
+  background-color: ${(props) => {
+    return props.isSelected ? '#00F0FF' : 'transparent';
+  }};
+  color: ${(props) => {
+    return props.isSelected ? '#464646' : '#FFFFFF';
+  }};
+  border: 2px solid white;
+
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 150%;
 `
 
 
 
 export const PublicWrap = styled.div`
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   display: flex;
   align-items: center;
 `
 
 export const PublicTitle = styled.p`
   width: 130px;
-  font-size: 17px;
+  font-size: 21px;
   margin-bottom: 15px;
+  color: white;
 `
 
 export const PublicBtnWrap = styled.div`
@@ -851,19 +988,46 @@ export const PublicBtnWrap = styled.div`
 export const PublicBtn = styled.button`
   width: 200px;
   height: 50px;
-  background-color: ${({ btnSelect }) =>
-    btnSelect === 'public' ? 'yellow' : 'white'
+
+  color: ${({ btnSelect }) =>
+    btnSelect === 'public' ? '#464646' : '#FFFFFF'
   };
-  border: none;
+
+  background-color: ${({ btnSelect }) =>
+    btnSelect === 'public' ? '#00F0FF' : 'transparent'
+  };
+  border: 2px solid white;
+  border-radius: 114px;
+
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 150%;
+  text-align: center;
 `
 
 export const ClosedBtn = styled.button`
   width: 200px;
   height: 50px;
-  background-color: ${({ btnSelect }) =>
-    btnSelect === 'closed' ? 'yellow' : 'white'
+
+  color: ${({ btnSelect }) =>
+    btnSelect === 'closed' ? '#464646' : '#FFFFFF'
   };
-  border: none;
+
+  background-color: ${({ btnSelect }) =>
+    btnSelect === 'closed' ? '#00F0FF' : 'transparent'
+  };
+  border: 2px solid white;
+  
+  border-radius: 114px;
+
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 150%;
+  text-align: center;
 `
 
 export const PasswordWrap = styled.div`
@@ -875,30 +1039,52 @@ export const PasswordWrap = styled.div`
 
 export const PasswordInputWrap = styled.div`
   display: flex;
+  margin-bottom: 14px;
 `
 
 export const PasswordTitle = styled.p`
   width: 130px;
-  font-size: 17px;
-  margin-bottom: 15px;
+  font-size: 14px;
+  margin-top: 10px;
+  color: white;
 `
 
 export const PasswordInput = styled.input`
-  width: 400px;
-  padding: 10px;
+  margin-left: 10px;
+  width: 589px;
+  height: 40px;
+  padding: 10px 10px 10px 15px;
   outline: none;
   border: none;
+  background-color: #394254;
+  border-radius: 114px;
+  &::placeholder{
+    color: #BEBEBE;;
+  }
 `
 
 export const JoinBtnWrap = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 20px;
+  
 `
 
 export const JoinBtn = styled.input`
   width: 200px;
+  height: 60px;
   padding: 10px 0 10px 0;
+  background: #00F0FF;
+  border-radius: 52px;
+  font-weight: 700;
+  font-size: 22px;
+  color: #464646;
+  border: none;
+  cursor: pointer;
+  
+  line-height: 73%;
+  font-family: 'Pretendard';
+  font-style: normal;
 `
 
 export const RoomInHeader = styled.div`
@@ -914,10 +1100,31 @@ export const RoomInHeader = styled.div`
   }
 `
 
+export const LeaveBtn = styled.button`
+  width: 38px;
+  height: 38px;
+  border: none;
+  background-image: url(
+    ${(props) => {
+    return props.LeaveBtnImg
+  }}
+  );
+  background-color: transparent;
+  background-size: cover;
+  background-repeat: no-repeat;
+  transition: all 0.3s;
+  &:hover {
+    background-image: url(
+      ${(props) => {
+    return props.LeaveBtnHoverImg
+  }}
+    );
+  }
+`
+
 export const RoomContainer = styled.div`
   width: 100%;
   height: 845px;
-  /* background-color: #746262; */
   display: flex;
   justify-content: space-between;
 `
@@ -938,58 +1145,276 @@ export const PubilshSession = styled.div`
 
 export const PubilsherVideoContainer = styled.div`
   padding: 5px;
-  margin-bottom: 30px;
+  display: flex;
+  gap: 10px;
+  overflow: hidden;
+  position: relative;
+  width: 1030px;
+  scroll-snap-type: x mandatory;
 `
 
 export const PubilsherVideoWrap = styled.div` 
-  width: 240px;
-  height: 135px;
+  width: 2000px;
+  height: 145px;
   border-radius: 10px;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  scroll-snap-align: start;
+  scroll-behavior: smooth;
+  /* background-color: yellow; */
+  transition: transform 0.5s ease;
+  transform: translateX(
+    ${(props) => {
+    return props.movePositon + 'px'
+  }}
+  );
+  video {
+      min-width: 250px;
+      max-width: 250px;
+      height: 145px;
+  }
 `
+
+export const SlideLeftBtn = styled.button`
+  border: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+  width: 20px;
+  height: 52px;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 5px;
+  z-index: 4;
+  background-image: url(
+    ${(props) => {
+    return props.SlideLeft;
+  }});
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+`
+
+export const SlideRightBtn = styled.button`
+  border: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+  width: 20px;
+  height: 52px;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0;
+  z-index: 4;
+  background-image: url(
+    ${(props) => {
+    return props.SlideRight;
+  }});
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+`
+
 
 export const MainStreamWrap = styled.div`
   width: 1030px;
   display: flex;
   justify-content: center;
-  padding-left: 5px;
   video {
-    height: 590px;
+    height: 550px;
+  }
+
+  span {
+    font-size: 22px;
+  }
+
+  img {
+    display: none;
+  }
+`
+
+
+export const VideoBtnWrap = styled.div`
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  position: relative;
+`
+
+export const StopwatchWrap = styled.div`
+  position: absolute;
+  left: 30px;
+  top: 10px
+`
+
+export const VideoShareBtn = styled.button`
+  width: 98px;
+  height: 60px;
+  border: none;
+  background-color: transparent;
+  background-image: url(
+    ${(props) => {
+    return props.isScreenSharing ? props.ShareOnBtn : props.ShareOffBtn
+  }}
+  );
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: all 0.3s;
+  &:hover{
+  background-image: url(
+    ${(props) => {
+    return props.isScreenSharing ? props.ShareOnHoverBtn : props.ShareHoverBtn
+  }}
+    );
+  }
+`
+
+export const VideoToggleBtn = styled.button`
+  width: 98px;
+  height: 60px;
+  border: none;
+  background-color: transparent;
+  background-image: url(
+    ${(props) => {
+    return props.VideoEnabled ? props.VideoOnBtn : props.VideoOffBtn
+  }}
+  );
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: all 0.3s;
+  &:hover{
+  background-image: url(
+    ${(props) => {
+    return props.VideoEnabled ? props.VideoOnHoverBtn : props.VideoHoverBtn
+  }}
+  );
+  }
+`
+
+export const AudioToggleBtn = styled.button`
+  width: 98px;
+  height: 60px;
+  border: none;
+  background-color: transparent;
+  background-image: url(
+    ${(props) => {
+    return props.AudioEnabled ? props.AudioOnBtn : props.AudioOffBtn
+  }}
+  );
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: all 0.3s;
+  &:hover{
+  background-image: url(
+    ${(props) => {
+    return props.AudioEnabled ? props.AudioOnHoverBtn : props.AudioHoverBtn
+  }}
+  );
   }
 `
 
 export const ChattingWrap = styled.div`
   width: 300px;
-  height: 845px;
+  height: 840px;
   position: relative;
-  background-color: red;
+  background-color: #394254;
+  border-radius: 10px;
 `
 
-export const ChattingHeader = styled.div`
+export const ChattingHeader = styled.p`
+  font-size: 20px;
   height: 50px;
-  background-color: blue;
+  line-height: 30px;
+  padding: 10px;
+  box-sizing: border-box;
+  color:white;
 `
 
 export const ChatContentWrap = styled.div`
-    padding: 10px 25px;
-    height: 745px;
+    padding: 10px 15px;
+    height: 735px;
     overflow-y: scroll;
     &::-webkit-scrollbar {
         display: none;
     }
-    margin-bottom: 10px;
     position: relative;
 
-    display: flex;
-    flex-direction: column-reverse;
+    /* display: flex;
+    flex-direction: column-reverse; */
 `;
 
-export const ChatInput = styled.textarea`
-    width: 100%;
-    height: 40px;
-    background-color: #e49c9c;
-    padding: 11px 65px 0 10px;
-    letter-spacing: 2.5px;
+export const MyNickName = styled.p`
+  font-size: 11px;
+  padding-right: 10px;
+  color: white;
+`
+
+const YourChatWrap = styled.div`
+    display: flex;
+    align-items: end;
+    gap: 5px;
+    margin-block: 15px;
+`;
+
+export const YourNickName = styled.p`
+  font-size: 11px;
+  padding-left: 10px;
+  color: white;
+`
+
+const YourChat = styled.p`
+    max-width: 180px;
+    background-color: #616670;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: start;
     line-height: 20px;
+    padding: 5px 10px;
+    word-wrap: break-word;
+`;
+
+const MyChatWrap = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: end;
+    gap: 5px;
+    margin-block: 15px;
+`;
+
+const MyChat = styled.p`
+    max-width: 180px;
+    background-color: #E2E2E2;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: start;
+    line-height: 20px;
+    padding: 5px 10px;
+    word-wrap: break-word;
+`;
+
+export const ChatInputWrap = styled.div`
+  text-align: center;
+`
+
+export const ChatInput = styled.textarea`
+    width: 234px;
+    height: 50px;
+    background-color: #626873;
+    padding: 18px 35px 0 20px;
+    letter-spacing: 2.5px;
     resize: none;
     box-sizing: border-box;
     font-size: 16px;
@@ -999,21 +1424,43 @@ export const ChatInput = styled.textarea`
     }
     outline: none;
     border: none;
+    border-radius: 114px;
+    font-family: 'Pretendard-Regular';
 `;
 
 export const SendBtnWrap = styled.div`
     position: absolute;
-    bottom: -2px;
-    right: 0px;
+    bottom: 14px;
+    right: 10px;
     cursor: pointer;
     padding: 6px;
     box-sizing: border-box;
-    border-radius: 50%;
-    text-align: center;
+`;
+
+export const shakeAnimation = keyframes`
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-2px); }
+  40% { transform: translateX(2px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
 `;
 
 export const SendBtn = styled.button`
-    color: white;
-    font-size: 20px;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-size: cover;
+    background-image: url(
+    ${(props) => {
+    return props.send
+  }}
+  );
+  transition: all 0.3s;
+  &:hover {
+    animation: ${shakeAnimation} 0.6s;
+  }
 `;
 export default Room

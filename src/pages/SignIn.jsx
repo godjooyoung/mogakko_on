@@ -4,21 +4,26 @@ import { useNavigate } from 'react-router-dom'
 import { login } from '../axios/api/login'
 import { useMutation } from 'react-query'
 import { getCookie } from '../cookie/Cookie'
+
 const SignIn = () => {
 
     const navigate = useNavigate()
-
+    
+    // 내부 상태
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [emailError, setEmailError] = useState('')
     const [passwrodError, setPasswordError] = useState('')
-    const [loginError, setLoginError] = useState('')
+    // const [loginError, setLoginError] = useState('') 사용 안되고 있어서 주석 처리 했습니다. - sjy
     const [isValidationEmail, setIsValidationEmail] = useState(false)
     const [isValidationPassword, setIsValidationPassword] = useState(false)
 
     const signInMutation = useMutation(login, {
         onSuccess: () => {
             if(getCookie("token")?true:false) navigate('/')
+        },
+        onError: (error) => {
+            alert(error)
         }
     })
 
@@ -90,12 +95,16 @@ const SignIn = () => {
 
     return (
         <Form onSubmit={submitHandler}>
+            <SigninIntro>
+                로그인
+            </SigninIntro>
             <div>
                 <Label>이메일</Label><br />
                 <InputWrapper>
                     <Input
                         type="email"
                         value={email}
+                        placeholder="이메일"
                         onChange={emailChangeHandler}
                     />
                 </InputWrapper>
@@ -109,6 +118,7 @@ const SignIn = () => {
                     <Input
                         type="password"
                         value={password}
+                        placeholder="비밀번호"
                         onChange={passwordChangeHandler}
                     />
                 </InputWrapper>
@@ -117,7 +127,7 @@ const SignIn = () => {
                 </ErrorMessageContainer>
             </div>
             <LoginButton type="submit" disabled={!isValidationEmail||!isValidationPassword}>로그인</LoginButton>
-            {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>}
+            {/* {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>} */}
 
         </Form>
     );
@@ -128,20 +138,28 @@ export default SignIn;
 const Form = styled.form`
     display: flex;
     flex-direction: column;
-    max-width: 300px;
+    max-width: 384px;
     margin: 0 auto
 `;
 
+const SigninIntro =styled.div`
+    color:white;
+    height: 42.96px;
+    font-size: 36px;
+    margin-bottom: 70px;
+    margin-up:100px;
+`;
 const Label = styled.label`
     margin-bottom: 3rem;
     margin-top: 3rem;
     color:white;
     padding-bottom: 8px;
+    font-size: 24px;
 `;
 export const InputWrapper = styled.div`
     display: flex;
     align-items: stretch;
-    width: 300px;
+    // width: 300px;
     border-radius:10px;
     overflow: hidden;
     box-shadow: 0 0 5px rgba(0,0,0,0,3);
@@ -150,7 +168,7 @@ export const InputWrapper = styled.div`
 const Input = styled.input`
     // padding: 0.5rem;
     // border: 1px solid #ccc;
-    border-radius:4px;
+    border-radius:1144px;
     flex-glow: 1;
     padding: 10px;
     border: none;
@@ -171,18 +189,20 @@ const Button = styled.button`
 `;
 
 const ErrorMessage = styled.div`
-    color: red; 
+    color: #FF635D;
     margin-top: 0.5rem;
-    font-size: 5px;
+    font-size: 14px;
+
 `;
 const ErrorMessageContainer = styled.div`
-    height: 20px;
+    height: 24px;
 `; 
 export const LoginButton = styled.button`
+    width:383px;
     padding: 9px 20px;
     margin-left: 9px;
     margin-bottom: 12px;
-    height: 42px;
+    height: 40px;
     border: 0.5px solid ${props => props.disabled ? '#BEBEBE' : '#00F0FF'}; 
     border-radius: 28px;
     cursor: pointer;
@@ -193,7 +213,6 @@ export const LoginButton = styled.button`
     font-style: normal;
     font-size: 17px;
     line-height: 24px;
-    width:200px;
     margin: auto;
 
     &:not(:disabled){
