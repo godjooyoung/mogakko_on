@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { __userLocation, __userTown } from '../redux/modules/user'
 import { getCookie } from '../cookie/Cookie';
+import useInput from '../hooks/useInput';
 
 // 백그라운드 지정 함수    
 const getBgImg = (lang) => {
@@ -94,23 +95,50 @@ function MainRoom(props) {
         setIsLogin(getCookie('token') ? true : false)
     })
 
+    const [roomEnterPw, onChangeRoomEnterPw, roomEnterPwReset] = useInput('')
+
     // 방참여하기
     const onClickJoinRoomHandler = (details) => {
         if (isLogin) {
-            const state = {
-                mySessionId: details.sessionId,
-                myUserName: getCookie('nickName'),
-                isDirect: true,
-                title: details.title,
-                language: details.language,
-                maxMembers: details.maxMembers,
-                isOpened: details.opened,
-                password: details.password,
-                latitude: details.lat,
-                longitude: details.lon,
-                neighborhood: details.neighborhood,
-            };
-            navigate('/room', { state: state })
+            if(details.opened){
+                console.log("공개방 입장")
+                const state = {
+                    mySessionId: details.sessionId,
+                    myUserName: getCookie('nickName'),
+                    isDirect: true,
+                    title: details.title,
+                    language: details.language,
+                    maxMembers: details.maxMembers,
+                    isOpened: details.opened,
+                    password: details.password,
+                    latitude: details.lat,
+                    longitude: details.lon,
+                    neighborhood: details.neighborhood,
+                };
+                navigate('/room', { state: state })
+            }else{
+                console.log("비공개방 입장", roomEnterPw)
+                if(roomEnterPw.length !== 0){
+                    const state = {
+                        mySessionId: details.sessionId,
+                        myUserName: getCookie('nickName'),
+                        isDirect: true,
+                        title: details.title,
+                        language: details.language,
+                        maxMembers: details.maxMembers,
+                        isOpened: details.opened,
+                        password: roomEnterPw,
+                        latitude: details.lat,
+                        longitude: details.lon,
+                        neighborhood: details.neighborhood,
+                    };
+                    navigate('/room', { state: state })
+                }else{
+                    alert('비밀번호를 입력하세요.')
+                }
+            }
+            
+            
         } else {
             alert('로그인 이후 사용 가능합니다.')
         }
@@ -121,6 +149,8 @@ function MainRoom(props) {
         console.log("방값->", details)
         setRoomDetails(details)
     }
+
+    
 
     return (
         <RoomContainer>
@@ -148,7 +178,7 @@ function MainRoom(props) {
                                 return (
                                     <RoomCard onClick={() => { onClickRoomDetailsHandler(room) }} language={room.language}>
                                         <CardTop>
-                                            <CardTitle>{room.title}</CardTitle>
+                                            <CardTitle>{room.opened?<></>:<RoomLockCardImg src={`${process.env.PUBLIC_URL}/image/lockRoomS.webp`} width='18' height='18'/>}<span>{room.title}</span></CardTitle>
                                         </CardTop>
                                         <CardBottom>
                                             <LanguageWrap>
@@ -183,11 +213,10 @@ function MainRoom(props) {
                                     <RoomDetilasDescP>언어 : <LanguageIconSpan language={roomDetails && roomDetails.language}></LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
                                 </RoomDetailsDesc>
                                 <RoomDetailsEnter>
-                                    {roomDetails&&roomDetails.opened?<></>:<div>
-                                        <RoomEnterPassword type='password' placeholder='비밀번호 입력'></RoomEnterPassword>
-                                        
-                                        </div>}
-                                    <RoomEnterButton onClick={() => { onClickJoinRoomHandler(roomDetails) }}>참여하기→</RoomEnterButton>
+                                    {roomDetails&&roomDetails.opened?<div></div>:<RoomEnterPasswordWrap>
+                                        <RoomEnterPassword type='password' placeholder='비밀번호 입력' autocomplete='off' value={roomEnterPw} onChange={onChangeRoomEnterPw}></RoomEnterPassword>
+                                        </RoomEnterPasswordWrap>}
+                                    <RoomEnterButton onClick={() => { onClickJoinRoomHandler(roomDetails) }}>{roomDetails&&roomDetails.opened?<></>:<LockRoomImg src={`${process.env.PUBLIC_URL}/image/lockRoom.webp`} ></LockRoomImg>}참여하기<img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="방입장 화살표" width='16' height='16' /></RoomEnterButton>
                                 </RoomDetailsEnter>
                             </RoomDetailsBottom>
                         </RoomDetails>
@@ -320,6 +349,8 @@ export const CardTop = styled.div`
     width: calc(100% - 54px);
 `
 export const CardTitle = styled.div`
+    display: flex;
+    align-items: flex-start;
     position: relative;
     top: 22px;
     width: 250px;
@@ -340,6 +371,11 @@ export const CardBottom = styled.div`
     margin: 43px auto 22px;
     width: calc(100% - 54px);
     
+`
+
+export const RoomLockCardImg = styled.img`
+    margin-top: 3px;
+    margin-right: 7px;
 `
 
 export const LanguageIconDiv = styled.div`
@@ -433,7 +469,7 @@ export const RoomDetailsEnter = styled.div`
     width: calc(100% - 85px);
     margin:12px auto 0px;
     display: flex;
-    justify-content: end;
+    justify-content: space-between;
     
 `
 export const RoomDetailsTop = styled.div`
@@ -461,10 +497,22 @@ export const RoomEnterButton = styled.button`
     line-height: 80%;
 `
 
+export const RoomEnterPasswordWrap = styled.div`
+    display: flex;
+    align-items: center;
+`
+
 export const RoomEnterPassword = styled.input`
     width: 205px;
     height: 34px;
     background: #E2E2E2;
-    border-radius: 10px;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 22px;
+`
+
+export const LockRoomImg = styled.img`
+    width: 19px;
+    height: 19px;
 `
 export default MainRoom
