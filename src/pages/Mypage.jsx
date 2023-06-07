@@ -121,7 +121,7 @@ function Mypage() {
           <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
             <ImageWrap BgImg={preview} />
             <div>
-              <FileButton htmlFor="file"><img src={`${process.env.PUBLIC_URL}/image/change.svg`} alt="" /></FileButton>
+              <FileButton htmlFor="file"><img src={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`} alt="" /></FileButton>
               <FileInput type="file" id="file" onChange={handleFileChange} onClick={() => { submitButtonHandler() }} />
             </div>
           </ProfileModifyContent>
@@ -129,18 +129,18 @@ function Mypage() {
           <MyPageUserNameWrap>
             <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
             <div>
-              <p>매너온도</p>
+              <p>코딩온도</p>
               <p>프로그래스</p>
             </div>
           </MyPageUserNameWrap>
           <TimerWrap>
             <div>
-              <TopContentTitle>총 순공시간</TopContentTitle>
+              <TopContentTitle>총 공부시간</TopContentTitle>
               <TopContentTitleItem>{formatTime(data && data.data.data.totalTimer)}</TopContentTitleItem>
             </div>
 
             <div>
-              <TopContentTitle>이번 주 순공 시간</TopContentTitle>
+              <TopContentTitle>이번 주 공부 시간</TopContentTitle>
               <TopContentTitleItem>{formatTime(data && data.data.data.totalTimerWeek)}</TopContentTitleItem>
             </div>
 
@@ -252,7 +252,7 @@ height: 155px;
 const FileButton = styled.label`
   display: inline-block;
   color: black;
-  background-color: #00F0FF;
+  /* background-color: #00F0FF; */
   cursor: pointer;
   width: 32.46px;
   height: 33.27px;
@@ -265,7 +265,7 @@ const FileButton = styled.label`
   right: 5px;
   bottom: 10px;
   &:hover {
-    background-color:#ea1e47;
+    background-color:#00F0FF;
     transition: all 0.3s;
   }
   img {
