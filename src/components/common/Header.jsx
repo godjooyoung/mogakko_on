@@ -9,6 +9,7 @@ import { __alarmSender, __alarmClean } from '../../redux/modules/alarm'
 function Header() {
     const [isLogin, setIsLogin] = useState(false)
     const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
+    const [profileImg, setProfileImg] = useState('')
     const navigate = useNavigate();
     const eventSourceRef = useRef(null);
 
@@ -86,17 +87,27 @@ function Header() {
                     })
                     return () => {
                         if (eventSourceRef.current && !isLogin) {
-                            sessionStorage.setItem('isSubscribed', false);
+                            sessionStorage.setItem('isSubscribed', false)
                             dispatcher(__alarmClean())
-                            eventSourceRef.current.close(); // 로그아웃 시 SSE 연결 종료
+                            eventSourceRef.current.close() // 로그아웃 시 SSE 연결 종료
                         }
                     };
                 }
             };
-            subcribeSSE();
+            subcribeSSE()
+            avataGenHandler()
         }
 
     }, [isLogin]);
+
+    // 아바타 생성 함수
+    const avataGenHandler = () => {
+        // TODO 기존 프로필이 있는 유저일경우 등록된 프로필을 보여준다.
+        const nickName =  getCookie('nickName');
+        //const avataGen = `http://www.gravatar.com/avatar/${nickName}?d=identicon&s=400`
+        const avataGen = `https://source.boringavatars.com/beam/120/${nickName}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
+        return <><img src={avataGen} alt="프로필사진" /></>
+    }
 
     // 알림 내용 컴포넌트 생성 함수
     const renderAlertComponent = () => {
@@ -140,6 +151,8 @@ function Header() {
             </>
         );
     };
+
+
 
     const onClickLogoHandler = () => {
         navigate('/')
@@ -200,7 +213,11 @@ function Header() {
 
                         <HeaderButton onClick={onClickMyPageHandler} marginRight={39}>
                             <ProfileImgDiv>
-                                <img src={`${process.env.PUBLIC_URL}/image/profileEmpty.svg`} alt="프로필사진" />
+                                {
+                                    // console.log("profileImg",profileImg)
+                                    //profileImg === '' ? <img src={`${process.env.PUBLIC_URL}/image/profileEmpty.svg`} alt="프로필사진" />:<img src='http://www.gravatar.com/avatar/테스트유저1?d=identicon&s=400' alt="프로필사진" />
+                                    avataGenHandler()
+                                }
                             </ProfileImgDiv>
                         </HeaderButton>
                     </>

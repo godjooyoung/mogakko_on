@@ -104,7 +104,6 @@ function Mypage() {
     const objectUrl = URL.createObjectURL(event.target.files[0])
     setPreview(objectUrl)
     setIsFileModify(true)
-
   }
 
   // onchange 랑 onClick이랑 동시에 동작하면 왜 온클릭이 무시될까요? 일단 바꿈 
@@ -123,6 +122,21 @@ function Mypage() {
     }
   },[fileAttach])
 
+
+  useEffect(()=>{
+    // 프로필 이미지가 기본 이미지일때는 랜덤 프로필 사진 보여줌. 등록했을 경우에는 등록된 이미지 파일 보여줌
+    if(preview){
+      if(preview === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU'){
+        console.log("기본 프로필 입니다. 랜덤프로필 작업 필요")
+        // const avataGen = `https://avatars.dicebear.com/api/identicon/${data.data.data.member.nickname}.svg`
+        // const avataGen = `http://www.gravatar.com/avatar/${data.data.data.member.nickname}?d=identicon&s=400`
+        const avataGen = `https://source.boringavatars.com/beam/120/${data.data.data.member.nickname}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
+        setPreview(avataGen)
+      }else{
+        console.log("유저가 프로필을 등록한 사용자입니다. 현재 프로필 이미지는  => ", preview)
+      }
+    }
+  },[preview])
 
   return (
     <>
