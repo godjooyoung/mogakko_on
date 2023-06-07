@@ -16,27 +16,26 @@ function SignUp() {
 
     const [isEmailValid, setIsEmailValid] = useState(false);
     const [isEmailAvailable, setIsEmailAvailable] = useState(false);
-    const [emailAvailability, setEmailAvailability] = useState('');
     const [emailChanged, setEmailChanged] = useState(false);
 
 
 
     const [isPasswordValid, setIsPasswordValid] = useState(false);
     const [isPasswordConfirmed, setIsPasswordConfirmed] = useState(false);
-    
+
     const [isNicknameAvailable, setIsNicknameAvailable] = useState(false);
-    const [nicknameChanged, setNicknameChanged] = useState(true);
+    const [nicknameChanged, setNicknameChanged] = useState(false);
 
     const [isAgreed, setIsAgreed] = useState(false);
-    
+
     const [emailErrorMessage, setEmailErrorMessage] = useState('');
     const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
     const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
     const [nicknameErrorMessage, setNicknameErrorMessage] = useState('');
-    
-    
+
+
     const [modalOpen, setModalOpen] = useState(false);
-    
+
     const sendData = {
         email: email,
         nickname: nickname,
@@ -127,7 +126,7 @@ function SignUp() {
     }, [password])
 
     useEffect(() => {
-        if(!isPasswordConfirmed&&password.length!==0){
+        if (!isPasswordConfirmed && password.length !== 0) {
             setConfirmPasswordErrorMessage('비밀번호가 일치하지 않습니다.');
         } else {
             setConfirmPasswordErrorMessage('');
@@ -150,12 +149,16 @@ function SignUp() {
     const nicknameChangeHandler = (e) => {
         const newNickname = e.target.value;
         setNickname(newNickname);
-        if (newNickname) {
-            setNicknameErrorMessage('');
+        if (newNickname.length<4) {
+            setNicknameErrorMessage('닉네임이 너무 짧습니다. 4자 이상이어야 합니다.');
+            setNicknameChanged(false);
+        }else{
+            setNicknameErrorMessage('')
             setNicknameChanged(true);
+
         }
     };
-  
+
     const sendHandler = async (sendData) => {
         console.log("sendData:", sendData);
         await axios.post(process.env.REACT_APP_SERVER_URL + `/members/signup`, sendData, { withCredentials: true })
@@ -244,29 +247,31 @@ function SignUp() {
                 {/* <Form onSubmit={submitHandler}> */}
                 <div>
                     <Label>이메일</Label>
-                    
-                    <InputWrapper>
-                        <Input
-                            type="email"
-                            value={email}
-                            onChange={emailChangeHandler}
-                            placeholder="이메일"
-                            required
-                        />
-                        <ButtonWrapper>
-                            <CheckButton type="button" disabled={!emailChanged} onClick={(e) => {
-                            e.preventDefault() //요청전 리로드 방지
-                            checkEmailExistence(email)
-                            }}>
-                            중복체크
-                            </CheckButton>
-                        </ButtonWrapper>
-                    </InputWrapper>
+                    <ContainerWrapper>
+                        <InputWrapper>
+                            <Input
+                                type="email"
+                                value={email}
+                                onChange={emailChangeHandler}
+                                placeholder="이메일"
+                                required
+                            />
+                            <ButtonWrapper>
+                                <CheckButton type="button" disabled={!emailChanged} onClick={(e) => {
+                                    e.preventDefault() //요청전 리로드 방지
+                                    checkEmailExistence(email)
+                                }}>
+                                    중복체크
+                                </CheckButton>
+                            </ButtonWrapper>
+                        </InputWrapper>
+                    </ContainerWrapper>
+
                     <ErrorMessageContainer>
-                        {emailErrorMessage && <ErrorMessage>{emailErrorMessage}</ErrorMessage>}
-                        {emailAvailability && <ErrorMessage>{emailAvailability}</ErrorMessage>}
+                        {emailErrorMessage==='사용할 수 있는 이메일입니다.'? <SuccessMessage>{emailErrorMessage}</SuccessMessage>: 
+                        <ErrorMessage>{emailErrorMessage}</ErrorMessage>}        
                     </ErrorMessageContainer>
-                </div>   
+                </div>
                 <div>
                     <Label>비밀번호</Label>
                     <PasswordWrapper>
@@ -279,6 +284,7 @@ function SignUp() {
 
                     </PasswordWrapper>
                     <ErrorMessageContainer>
+                      
                         {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
                     </ErrorMessageContainer>
                 </div>
@@ -296,7 +302,7 @@ function SignUp() {
                     <ErrorMessageContainer>
                         {confirmPasswordErrorMessage && <ErrorMessage>{confirmPasswordErrorMessage}</ErrorMessage>}
                     </ErrorMessageContainer>
-        
+
                 </div>
                 <div>
                     <Label>닉네임</Label>
@@ -317,30 +323,31 @@ function SignUp() {
                         </ButtonWrapper>
                     </InputWrapper>
                     <ErrorMessageContainer>
-                        {nicknameErrorMessage && <ErrorMessage>{nicknameErrorMessage}</ErrorMessage>}
+                        {nicknameErrorMessage==='사용할 수 있는 닉네임입니다.'?  <SuccessMessage>{nicknameErrorMessage}</SuccessMessage>:
+                        <ErrorMessage>{nicknameErrorMessage}</ErrorMessage>}
                     </ErrorMessageContainer>
 
-                </div>   
-                    <Wrapper>
-                        <input
-                            type="checkbox"
-                            checked={isAgreed}
-                            onChange={isAgreedChangeHandler}
-                        /><BottomButton onClick={termsButtonClickHandler}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</BottomButton>
-                        <Modal open={modalOpen} close={closeModal}>
-                            <h2>서비스 이용 약관</h2>
-                            <pre>{termsContent}</pre>
-                            <button onClick={closeModal}>닫기</button>
-                        </Modal>
+                </div>
+                <Wrapper>
+                    <input
+                        type="checkbox"
+                        checked={isAgreed}
+                        onChange={isAgreedChangeHandler}
+                    /><BottomButton onClick={termsButtonClickHandler}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</BottomButton>
+                    <Modal open={modalOpen} close={closeModal}>
+                        <h2>서비스 이용 약관</h2>
+                        <pre>{termsContent}</pre>
+                        <button onClick={closeModal}>닫기</button>
+                    </Modal>
 
 
-                    </Wrapper><br/>
+                </Wrapper><br />
 
                 <SignupButton onClick={(e) => {
                     e.preventDefault() //요청전 리로드 방지
                     sendHandler(sendData)
                 }}
-                    disabled={nicknameChanged||emailChanged||!isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
+                    disabled={nicknameChanged || emailChanged || !isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
                 >
                     회원가입
                 </SignupButton>
@@ -373,6 +380,11 @@ export const Label = styled.label`
     
 `;
 
+export const ContainerWrapper=styled.div`
+    display:flex;
+    justify-content: space-between;
+    
+`
 export const BottomButton = styled.button`
     padding:0.5rem 1rem;
     background-color:transparent;    
@@ -386,57 +398,74 @@ export const BottomButton = styled.button`
 
 
 export const InputWrapper = styled.div`
-    display: flex;
-    align-items: stretch;
+    // display: flex;
+    // align-items: stretch;
     width: 300px;
-    border-radius:10px;
     overflow: hidden;
     box-shadow: 0 0 5px rgba(0,0,0,0,3);
     margin-bottom: 15px; 
+    // height: 40px;
+    display:flex;
+    flex-direction:row;
+    // margin-right: 5px;
+    justify-content: space-between;
 
 `;
 
 export const ButtonWrapper = styled.div`
     overflow:hidden;
+    height: 40px;
+    display: plex;
+    flex-direction: row;
+    boder-radius:10px;
+    overflow:hidden;
+    margin-left:10px;
+
 `;
-export const PasswordWrapper=styled(InputWrapper)`
+export const PasswordWrapper = styled(InputWrapper)`
+    
 `;
 
 
 export const Input = styled.input`
     flex-glow: 1;
     padding: 10px;
-    border: none;
+    border: solid 0.5px #394254;
     outline: none;
     width: 100%;
     height: 40px;
     background: #394254;
     color: #FFFFFF;
+    border-radius:4px;
+    box-sizing: border-box;
 `;
-const ErrorMessageContainer = styled.div`
-    height: 20px;
-`;    
 
 export const CheckButton = styled.button`
     padding:10px;
-    background: ${props => props.disabled ? '#BEBEBE' : '#00F0FF'}; 
-    color: 172435;
-    border: none;
+    background: ${props => props.disabled ? 'transparent' : '#00F0FF'}; 
+    color: ${props => props.disabled ? 'white' : '#172435'};
+    border:  ${props => props.disabled ? '0.5px solid white' : '#00F0FF'};
     cursor: pointer;
     flex-grow:0;
     height: 40px;
     display: flex;
     align-items: center;
+    border-radius:4px;
+`;
 
+const ErrorMessageContainer = styled.div`
+    height: 20px;
 `;
 
 export const ErrorMessage = styled.div`
-    color: red; 
-    margin-top: 0.1rem;
+    color:red;
     font-size: 5px;
 `;
 
-
+export const SuccessMessage=styled.div`
+    color: #00F0FF;
+    font-size: 5px;
+`
 export const SignupButton = styled.button`
     padding: 9px 20px;
     margin-left: 9px;
