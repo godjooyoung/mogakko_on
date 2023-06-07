@@ -118,6 +118,7 @@ function MainRoom(props) {
 
     // 방 상세보기
     const onClickRoomDetailsHandler = (details) => {
+        console.log("방값->", details)
         setRoomDetails(details)
     }
 
