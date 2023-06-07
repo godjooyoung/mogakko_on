@@ -10,6 +10,7 @@ function Mypage() {
   const [friendList, setFriendList] = useState([]) // 친구목록
   const [friendReqList, setFriendReqList] = useState([]) // 친구 요청 목록
   const { isLoading, isError, data } = useQuery("getProfile", getProfile)
+  
 
   useEffect(() => {
     if (data) {
@@ -28,7 +29,7 @@ function Mypage() {
 
   const [fileAttach, setFileAttach] = useState('')
   const [preview, setPreview] = useState(data && data.data.data.member.profileImage)
-
+  const [isFileModify, setIsFileModify] = useState(false)
   const filemutation = useMutation(addProfile, {
     onSuccess: (response) => {
       console.log("addProfile 성공", response)
@@ -102,15 +103,25 @@ function Mypage() {
     setFileAttach(event.target.files[0])
     const objectUrl = URL.createObjectURL(event.target.files[0])
     setPreview(objectUrl)
+    setIsFileModify(true)
+
   }
 
-  // 프로필 이미지 수정
-  const submitButtonHandler = () => {
-    console.log("프로필 이미지 전송 핸들러 실행")
-    const newFile = new FormData();
-    newFile.append("imageFile", fileAttach)
-    filemutation.mutate(newFile)
+  // onchange 랑 onClick이랑 동시에 동작하면 왜 온클릭이 무시될까요? 일단 바꿈 
+  // 프로필 이미지 저장
+  const submitImgHandler = () => {
+      console.log("프로필 이미지 전송 핸들러 실행")
+      const newFile = new FormData();
+      newFile.append("imageFile", fileAttach)
+      filemutation.mutate(newFile)
+      setIsFileModify(false)
   }
+
+  useEffect(()=>{
+    if(isFileModify){
+      submitImgHandler()
+    }
+  },[fileAttach])
 
 
   return (
@@ -122,7 +133,7 @@ function Mypage() {
             <ImageWrap BgImg={preview} />
             <div>
               <FileButton htmlFor="file"><img src={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`} alt="" /></FileButton>
-              <FileInput type="file" id="file" onChange={handleFileChange} onClick={() => { submitButtonHandler() }} />
+              <FileInput type="file" id="file" onChange={handleFileChange}/>
             </div>
           </ProfileModifyContent>
           {/* <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName> */}
