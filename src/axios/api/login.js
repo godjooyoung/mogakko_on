@@ -8,7 +8,8 @@ const login = async (loginUserInfo) => {
       // 토큰 받기
       const token = response.headers["access_key"]
       setCookie("token", token)
-      setCookie("nickName", response.data.data)
+      setCookie("nickName", response.data.data.nickname)
+      setCookie("profileImage", response.data.data.profileImage)
       return Promise.resolve(response)
     }
   } catch (error) {
