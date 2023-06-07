@@ -10,6 +10,7 @@ function Mypage() {
   const [friendList, setFriendList] = useState([]) // 친구목록
   const [friendReqList, setFriendReqList] = useState([]) // 친구 요청 목록
   const { isLoading, isError, data } = useQuery("getProfile", getProfile)
+  
 
   useEffect(() => {
     if (data) {
@@ -17,6 +18,7 @@ function Mypage() {
       console.log("마이페이지 조회 결과-profileImage", data.data.data.member.profileImage)
       console.log("마이페이지 조회 결과-nickname", data.data.data.member.nickname)
       setPreview(data.data.data.member.profileImage)
+
     }
     // 친구목록 조회 뮤테이트 콜
     friendListMutation.mutate()
@@ -27,7 +29,7 @@ function Mypage() {
 
   const [fileAttach, setFileAttach] = useState('')
   const [preview, setPreview] = useState(data && data.data.data.member.profileImage)
-
+  const [isFileModify, setIsFileModify] = useState(false)
   const filemutation = useMutation(addProfile, {
     onSuccess: (response) => {
       console.log("addProfile 성공", response)
@@ -86,6 +88,7 @@ function Mypage() {
 
   // 00:00:00 to 00H00M
   const formatTime = (timeString) => {
+    console.log("formatting 전 timeString > ",timeString)
     const time = new Date(`2000-01-01T${timeString}`);
     const hours = time.getHours();
     const minutes = time.getMinutes();
@@ -100,15 +103,25 @@ function Mypage() {
     setFileAttach(event.target.files[0])
     const objectUrl = URL.createObjectURL(event.target.files[0])
     setPreview(objectUrl)
+    setIsFileModify(true)
+
   }
 
-  // 프로필 이미지 수정
-  const submitButtonHandler = () => {
-    console.log("프로필 이미지 전송 핸들러 실행")
-    const newFile = new FormData();
-    newFile.append("imageFile", fileAttach)
-    filemutation.mutate(newFile)
+  // onchange 랑 onClick이랑 동시에 동작하면 왜 온클릭이 무시될까요? 일단 바꿈 
+  // 프로필 이미지 저장
+  const submitImgHandler = () => {
+      console.log("프로필 이미지 전송 핸들러 실행")
+      const newFile = new FormData();
+      newFile.append("imageFile", fileAttach)
+      filemutation.mutate(newFile)
+      setIsFileModify(false)
   }
+
+  useEffect(()=>{
+    if(isFileModify){
+      submitImgHandler()
+    }
+  },[fileAttach])
 
 
   return (
@@ -119,32 +132,32 @@ function Mypage() {
           <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
             <ImageWrap BgImg={preview} />
             <div>
-              <FileButton htmlFor="file"><img src={`${process.env.PUBLIC_URL}/image/change.svg`} alt="" /></FileButton>
-              <FileInput type="file" id="file" onChange={handleFileChange} onClick={() => { submitButtonHandler() }} />
+              <FileButton htmlFor="file"><img src={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`} alt="" /></FileButton>
+              <FileInput type="file" id="file" onChange={handleFileChange}/>
             </div>
           </ProfileModifyContent>
           {/* <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName> */}
           <MyPageUserNameWrap>
-            <MyPageUserName>신주영</MyPageUserName>
+            <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
             <div>
-              <p>매너온도</p>
+              <p>코딩온도</p>
               <p>프로그래스</p>
             </div>
           </MyPageUserNameWrap>
           <TimerWrap>
             <div>
-              <TopContentTitle>총 순공시간</TopContentTitle>
-              <TopContentTitleItem>{formatTime(data && data.data.data.mogakkoTotalTime)}</TopContentTitleItem>
+              <TopContentTitle>총 공부시간</TopContentTitle>
+              <TopContentTitleItem>{formatTime(data && data.data.data.totalTimer)}</TopContentTitleItem>
             </div>
 
             <div>
-              <TopContentTitle>이번 주 순공 시간</TopContentTitle>
-              <TopContentTitleItem>3H 8M</TopContentTitleItem>
+              <TopContentTitle>이번 주 공부 시간</TopContentTitle>
+              <TopContentTitleItem>{formatTime(data && data.data.data.totalTimerWeek)}</TopContentTitleItem>
             </div>
 
             <div>
               <TopContentTitle>Status</TopContentTitle>
-              <TopContentTitleItem>502</TopContentTitleItem>
+              <TopContentTitleItem>{data && data.data.data.member.memberStatusCode}</TopContentTitleItem>
             </div>
           </TimerWrap>
         </ProfileModifyWrap>
@@ -250,7 +263,7 @@ height: 155px;
 const FileButton = styled.label`
   display: inline-block;
   color: black;
-  background-color: #00F0FF;
+  /* background-color: #00F0FF; */
   cursor: pointer;
   width: 32.46px;
   height: 33.27px;
@@ -262,13 +275,13 @@ const FileButton = styled.label`
   position: absolute;
   right: 5px;
   bottom: 10px;
+  // 호버 시 쉐도우 처리 함.
+  box-shadow: none;
   &:hover {
-    background-color:#ea1e47;
+    // 호버 시 쉐도우 처리 함. 이미지 필터 처리. 디자인 아직 안나와서 이걸로함.
+    filter: brightness(1.2) contrast(1.5);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     transition: all 0.3s;
-  }
-  img {
-    width: 18px;
-    height: 18px;
   }
 `;
 
