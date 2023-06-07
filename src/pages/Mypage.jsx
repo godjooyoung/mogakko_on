@@ -275,13 +275,13 @@ const FileButton = styled.label`
   position: absolute;
   right: 5px;
   bottom: 10px;
+  // 호버 시 쉐도우 처리 함.
+  box-shadow: none;
   &:hover {
-    background-color:#00F0FF;
+    // 호버 시 쉐도우 처리 함. 이미지 필터 처리. 디자인 아직 안나와서 이걸로함.
+    filter: brightness(1.2) contrast(1.5);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     transition: all 0.3s;
-  }
-  img {
-    width: 18px;
-    height: 18px;
   }
 `;
 
