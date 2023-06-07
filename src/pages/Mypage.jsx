@@ -17,6 +17,7 @@ function Mypage() {
       console.log("마이페이지 조회 결과-profileImage", data.data.data.member.profileImage)
       console.log("마이페이지 조회 결과-nickname", data.data.data.member.nickname)
       setPreview(data.data.data.member.profileImage)
+
     }
     // 친구목록 조회 뮤테이트 콜
     friendListMutation.mutate()
@@ -86,6 +87,7 @@ function Mypage() {
 
   // 00:00:00 to 00H00M
   const formatTime = (timeString) => {
+    console.log("formatting 전 timeString > ",timeString)
     const time = new Date(`2000-01-01T${timeString}`);
     const hours = time.getHours();
     const minutes = time.getMinutes();
@@ -125,7 +127,7 @@ function Mypage() {
           </ProfileModifyContent>
           {/* <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName> */}
           <MyPageUserNameWrap>
-            <MyPageUserName>신주영</MyPageUserName>
+            <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
             <div>
               <p>매너온도</p>
               <p>프로그래스</p>
@@ -134,17 +136,17 @@ function Mypage() {
           <TimerWrap>
             <div>
               <TopContentTitle>총 순공시간</TopContentTitle>
-              <TopContentTitleItem>{formatTime(data && data.data.data.mogakkoTotalTime)}</TopContentTitleItem>
+              <TopContentTitleItem>{formatTime(data && data.data.data.totalTimer)}</TopContentTitleItem>
             </div>
 
             <div>
               <TopContentTitle>이번 주 순공 시간</TopContentTitle>
-              <TopContentTitleItem>3H 8M</TopContentTitleItem>
+              <TopContentTitleItem>{formatTime(data && data.data.data.totalTimerWeek)}</TopContentTitleItem>
             </div>
 
             <div>
               <TopContentTitle>Status</TopContentTitle>
-              <TopContentTitleItem>502</TopContentTitleItem>
+              <TopContentTitleItem>{data && data.data.data.member.memberStatusCode}</TopContentTitleItem>
             </div>
           </TimerWrap>
         </ProfileModifyWrap>
