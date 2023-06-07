@@ -180,8 +180,14 @@ function Room() {
   }, [])
 
   useEffect(() => {
+    console.log("useEffect 커텍트 하기 전 >> openViduSession : ", openViduSession)
+    console.log("useEffect 커텍트 하기 전 >> mySessionId :",     mySessionId)
     if (openViduSession) {
+      console.log("방바로 입장 : ",     openViduSession)
       connect(openViduSession)
+    }else{
+      console.log("방생성후 입장 :",     mySessionId)
+      connect(mySessionId)
     }
   }, [openViduSession])
 
@@ -502,9 +508,10 @@ function Room() {
 
 
   const subscribe = (openViduSession) => {
+    console.log("로그 잘 찍으세요 시제님!! subscribe", openViduSession)
+    console.log("url", `/sub/chat/room/${openViduSession}`)
     stompClient.current.subscribe(
       `/sub/chat/room/${openViduSession}`,
-
       (data) => {
         console.log(" 구독됨", JSON.parse(data.body))
         const response = JSON.parse(data.body)
@@ -538,6 +545,7 @@ function Room() {
   };
 
   const textPublish = (openViduSession) => {
+    console.log("openViduSession >>>>>>>>>>>>>>>>>>>>>>", openViduSession)
     console.log("textPublish Start")
     if (message !== "") {
       stompClient.current.publish({
@@ -584,7 +592,7 @@ function Room() {
     setCount(newCount + 1)
   };
 
-  console.log('count>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', count)
+  console.log('count >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', count)
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -710,7 +718,7 @@ function Room() {
               <PubilshSession>
                 {publisher !== undefined ? (
                   <PubilsherVideoContainer>
-                    {count === 1 && curMaxMembers >= 5 ?
+                    {count === 1 && data.maxMembers >= 5 ?
                       <SlideLeftBtn onClick={() => {
                         scrollLeft()
                       }}
@@ -727,7 +735,7 @@ function Room() {
                         </div>
                       ))}
                     </PubilsherVideoWrap>
-                    {count === 0 && curMaxMembers >= 5 ?
+                    {count === 0 && data.maxMembers >= 5 ?
                       <SlideRightBtn onClick={() => {
                         scrollRight()
                       }}
@@ -802,7 +810,7 @@ function Room() {
               </ChatInputWrap>
               <SendBtnWrap>
                 <SendBtn onClick={() => {
-                  textPublish(openViduSession)
+                  textPublish(openViduSession?openViduSession:mySessionId)
                 }}
                   send={`${process.env.PUBLIC_URL}/image/sendMessage.webp`}
                 ></SendBtn>
@@ -1256,7 +1264,7 @@ export const VideoBtnWrap = styled.div`
 export const StopwatchWrap = styled.div`
   position: absolute;
   left: 30px;
-  top: 10px
+  top: 10px;
 `
 
 export const VideoShareBtn = styled.button`
@@ -1363,6 +1371,8 @@ export const MyNickName = styled.p`
 
 const YourChatWrap = styled.div`
     display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
     align-items: end;
     gap: 5px;
     margin-block: 15px;
