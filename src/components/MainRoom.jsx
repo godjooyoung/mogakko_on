@@ -118,6 +118,7 @@ function MainRoom(props) {
 
     // 방 상세보기
     const onClickRoomDetailsHandler = (details) => {
+        console.log("방값->", details)
         setRoomDetails(details)
     }
 
@@ -182,6 +183,10 @@ function MainRoom(props) {
                                     <RoomDetilasDescP>언어 : <LanguageIconSpan language={roomDetails && roomDetails.language}></LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
                                 </RoomDetailsDesc>
                                 <RoomDetailsEnter>
+                                    {roomDetails&&roomDetails.opened?<></>:<div>
+                                        <RoomEnterPassword type='password' placeholder='비밀번호 입력'></RoomEnterPassword>
+                                        
+                                        </div>}
                                     <RoomEnterButton onClick={() => { onClickJoinRoomHandler(roomDetails) }}>참여하기→</RoomEnterButton>
                                 </RoomDetailsEnter>
                             </RoomDetailsBottom>
@@ -454,5 +459,12 @@ export const RoomEnterButton = styled.button`
     font-weight: 700;
     font-size: 20px;
     line-height: 80%;
+`
+
+export const RoomEnterPassword = styled.input`
+    width: 205px;
+    height: 34px;
+    background: #E2E2E2;
+    border-radius: 10px;
 `
 export default MainRoom
