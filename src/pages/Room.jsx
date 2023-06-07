@@ -322,7 +322,8 @@ function Room() {
         // console.log("화면왜안붙어!!!! >>>", response)
         try {
           // await session.connect(response.data);
-          await session.connect(response.data, { clientData: getCookie('nickName')})
+          // await session.connect(response.data, { clientData: getCookie('nickName')})
+          await session.connect(response.data)
 
           // stream만들기 initPublisherAsync() 메소드는 스트림 생성 및 전송 담당를 초기화
           let publisher = await OV.current.initPublisherAsync(undefined, {
