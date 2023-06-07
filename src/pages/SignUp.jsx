@@ -244,6 +244,9 @@ function SignUp() {
     return (
         <>
             <Form>
+                <SigninIntro>
+                    회원가입
+                </SigninIntro>
                 {/* <Form onSubmit={submitHandler}> */}
                 <div>
                     <Label>이메일</Label>
@@ -261,7 +264,7 @@ function SignUp() {
                                     e.preventDefault() //요청전 리로드 방지
                                     checkEmailExistence(email)
                                 }}>
-                                    중복체크
+                                    중복확인
                                 </CheckButton>
                             </ButtonWrapper>
                         </InputWrapper>
@@ -318,7 +321,7 @@ function SignUp() {
                                 e.preventDefault() //요청전 리로드 방지
                                 checkNicknameExistence(nickname)
                             }}>
-                                중복체크
+                                중복확인
                             </CheckButton>
                         </ButtonWrapper>
                     </InputWrapper>
@@ -368,16 +371,22 @@ export default SignUp;
 export const Form = styled.form`
     display: flex;
     flex-direction: column;
-    max-width: 300px;
+    max-width: 384px;
     margin: 0 auto
 `;
-
+export const SigninIntro =styled.div`
+    color:white;
+    height: 42.96px;
+    font-size: 36px;
+    margin-bottom: 70px;
+    margin-up:100px;
+`;
 export const Label = styled.label`
     margin-bottom: 3rem;
     margin-top: 3rem;
     color:white;
     padding-bottom: 8px;
-    
+    font-size: 24px;
 `;
 
 export const ContainerWrapper=styled.div`
@@ -400,14 +409,12 @@ export const BottomButton = styled.button`
 export const InputWrapper = styled.div`
     // display: flex;
     // align-items: stretch;
-    width: 300px;
+    width: 384px;
     overflow: hidden;
     box-shadow: 0 0 5px rgba(0,0,0,0,3);
     margin-bottom: 15px; 
-    // height: 40px;
     display:flex;
     flex-direction:row;
-    // margin-right: 5px;
     justify-content: space-between;
 
 `;
@@ -415,9 +422,10 @@ export const InputWrapper = styled.div`
 export const ButtonWrapper = styled.div`
     overflow:hidden;
     height: 40px;
+    width: 102px;
     display: plex;
     flex-direction: row;
-    boder-radius:10px;
+    boder-radius:114px;
     overflow:hidden;
     margin-left:10px;
 
@@ -436,7 +444,7 @@ export const Input = styled.input`
     height: 40px;
     background: #394254;
     color: #FFFFFF;
-    border-radius:4px;
+    border-radius:114px;
     box-sizing: border-box;
 `;
 
@@ -450,7 +458,8 @@ export const CheckButton = styled.button`
     height: 40px;
     display: flex;
     align-items: center;
-    border-radius:4px;
+    border-radius:114px;
+    
 `;
 
 const ErrorMessageContainer = styled.div`
@@ -458,7 +467,7 @@ const ErrorMessageContainer = styled.div`
 `;
 
 export const ErrorMessage = styled.div`
-    color:red;
+    color:#ff635d;
     font-size: 5px;
 `;
 
@@ -473,7 +482,7 @@ export const SignupButton = styled.button`
     /* text-align: center; */
     /* gap: 10px; */
     // min-width: 72px;
-    height: 42px;
+    height: 40px;
     border: 0.5px solid #FFFFFF;
     border-radius: 28px;
     cursor: pointer;
@@ -485,7 +494,7 @@ export const SignupButton = styled.button`
     // font-weight: 700;
     font-size: 17px;
     line-height: 24px;
-    width:200px;
+    width:383px;
     margin: auto;
 
     &:not(:disabled){
