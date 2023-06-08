@@ -225,12 +225,15 @@ function Room() {
 
 
   useEffect(() => {
+    console.log("이게 두번되나..? 왜냐면 오픈비듀세션이 두번바쎠거..?", openViduSession)
     if (data.isDirect) {
+      console.log("방장아닌놈 채팅 커넥트 호출")
       connect(openViduSession)
     } else {
+      console.log("방장인놈 채팅 커넥트 호출")
       connect(mySessionId)
     }
-  }, [openViduSession])
+  }, [])
 
   // TEMP
   const onClickTempButton = () => {
@@ -516,8 +519,15 @@ function Room() {
       console.log("토큰만들기 - 방장")
     }
     
-    setMySessionId(sessionId)
-    setOpenViduSession(sessionId)
+    if(sessionInfo){
+      if(sessionInfo.isDirect){
+        setMySessionId(sessionId)
+        setOpenViduSession(sessionId)
+      }
+    }else{
+      setMySessionId(sessionId)
+    }
+
     
     const setRequestBody = () => {
       let payload = {}
@@ -628,6 +638,7 @@ function Room() {
     stompClient.current.subscribe(
       `/sub/chat/room/${openViduSession}`,
       (data) => {
+        console.log(" 콘솔때무이라고?>>>>>", data)
         console.log(" 구독됨", JSON.parse(data.body))
         const response = JSON.parse(data.body)
         if (response.type === 'TALK') {
@@ -637,6 +648,12 @@ function Room() {
       }
     )
   }
+
+  // chatMessages 어떻게 담기는지 찍을 꺼임 콘솔 찍기용이므로 추후 삭제
+  useEffect(()=>{
+    console.log("chatMessages 어떻게 담기는지 찍을 꺼임")
+    console.log("chatMessages", chatMessages)
+  },[chatMessages])
 
   const publish = async (openViduSession) => {
     if (!stompClient.current.connected) {
