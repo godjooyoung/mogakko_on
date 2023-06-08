@@ -6,12 +6,13 @@ import Header from "../components/common/Header";
 
 function Mypage() {
 
-
+  const queryClient = useQueryClient()
   const [friendList, setFriendList] = useState([]) // 친구목록
   const [friendReqList, setFriendReqList] = useState([]) // 친구 요청 목록
   const { isLoading, isError, data } = useQuery("getProfile", getProfile)
-
-
+  const [friendListDelete, setFriendListDelete] = useState(false) // 친구 삭제 버튼 
+  const [onMouse, setOnMouse] = useState(false)
+  const [friendDeleteArr, setFriendDeleteArr] = useState([])
   useEffect(() => {
     if (data) {
       console.log("마이페이지 조회 결과", data)
@@ -46,7 +47,6 @@ function Mypage() {
 
     },
   })
-
   // 친구 요청 목록 조회
   const friendRequestListMutation = useMutation(getFriendRequestList, {
     onSuccess: (response) => {
@@ -61,13 +61,21 @@ function Mypage() {
   const reciveFriendMutation = useMutation(reciveFriendRequest, {
     onSuccess: (response) => {
       console.log(">>> reciveFriendRequest 성공", response)
+      queryClient.invalidateQueries(getProfile)
     },
   })
+
+  // 친구 삭제 버튼
+  const friendListDeleteHandler = () => {
+    setFriendListDelete(!friendListDelete)
+  }
+
 
   // 친구 삭제
   const deleteFriendMutation = useMutation(deleteFriend, {
     onSuccess: (response) => {
       console.log(">>> deleteFriendMutation 성공", response)
+      queryClient.invalidateQueries(getProfile)
     },
   })
 
@@ -138,6 +146,15 @@ function Mypage() {
     }
   }, [preview])
 
+  const statusOnMouseHandler = () => {
+    setOnMouse(true)
+  }
+
+  const statusOffMouseHandler = () => {
+    setOnMouse(false)
+  }
+
+  console.log('friendDeleteArr >>>>>>>>',friendDeleteArr)
   return (
     <>
       <Header />
@@ -146,7 +163,11 @@ function Mypage() {
           <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
             <ImageWrap BgImg={preview} />
             <div>
-              <FileButton htmlFor="file"><img src={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`} alt="" /></FileButton>
+              {/* <FileButton htmlFor="file"><img src={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`} alt="" /></FileButton> */}
+              <FileButton htmlFor="file"
+                modify={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`}
+                modifyClick={`${process.env.PUBLIC_URL}/image/modifyClickBtn.webp`}
+              ></FileButton>
               <FileInput type="file" id="file" onChange={handleFileChange} />
             </div>
           </ProfileModifyContent>
@@ -164,16 +185,41 @@ function Mypage() {
           <TimerWrap>
             <div>
               <TopContentTitle>총 공부시간</TopContentTitle>
-              <TopContentTitleItem>{formatTime(data && data.data.data.totalTimer)}</TopContentTitleItem>
+              <TopContentTitleItem>{data && data.data.data.totalTimer}</TopContentTitleItem>
             </div>
 
             <div>
               <TopContentTitle>이번 주 공부 시간</TopContentTitle>
-              <TopContentTitleItem>{formatTime(data && data.data.data.totalTimerWeek)}</TopContentTitleItem>
+              <TopContentTitleItem>{data && data.data.data.totalTimerWeek}</TopContentTitleItem>
             </div>
 
             <div>
-              <TopContentTitle>Status</TopContentTitle>
+              <TopContentTitleWrap>
+                <TopContentTitle>Status</TopContentTitle>
+                <Status
+                  statusImg={`${process.env.PUBLIC_URL}/image/status.webp`}
+                  onMouseEnter={() => {
+                    statusOnMouseHandler()
+                  }}
+                  onMouseLeave={() => {
+                    statusOffMouseHandler()
+                  }}
+                ></Status>
+                {
+                  onMouse &&
+                  <MouseHoverBox>
+                    <p>102 : <span>회원가입 시 기본값</span></p>
+                    <p>200 : <span>처음 프로필 등록시 변경</span></p>
+                    <p>400 : <span>신고 1회</span></p>
+                    <p>401 : <span>신고 2회</span></p>
+                    <p>404 : <span>신고 3회</span></p>
+                    <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
+                    <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
+                    <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
+                    <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
+                  </MouseHoverBox>
+                }
+              </TopContentTitleWrap>
               <TopContentTitleItem>{data && data.data.data.member.memberStatusCode}</TopContentTitleItem>
             </div>
           </TimerWrap>
@@ -191,7 +237,19 @@ function Mypage() {
         <FriendListContainer>
           <DeleteBtnWrap>
             <p>친구 목록</p>
-            <button>삭제 하기</button>
+            {
+              !friendListDelete ? <FriendListDeleteBtn onClick={() => {
+                friendListDeleteHandler()
+              }}>삭제 하기</FriendListDeleteBtn> :
+                <FriendListCancleBtnWrap>
+                  <FriendListCancleBtn onClick={() => {
+                    friendListDeleteHandler()
+                  }}
+                    color={'cancle'}
+                  >취소</FriendListCancleBtn>
+                  <FriendListCancleBtn>삭제</FriendListCancleBtn>
+                </FriendListCancleBtnWrap>
+            }
           </DeleteBtnWrap>
           <ScrollWrap>
             <FriendListWrap>
@@ -199,9 +257,16 @@ function Mypage() {
               {friendList && friendList.map((friend, idx) => {
                 return (
                   <>
-                    <FriendList>
-                      <FriendListImage></FriendListImage>
-                      <FriendListName>{friend.nickname}</FriendListName>
+                    <FriendList onClick={() => {
+                      friendDeleteArr.push(friend.member.nickname)
+                      setFriendDeleteArr([...friendDeleteArr])
+                    }}>
+                      {
+                        friendListDelete &&
+                        <DeleteSelectedBtn></DeleteSelectedBtn>
+                      }
+                      <FriendListImage friendListImg={friend.member.profileImage}></FriendListImage>
+                      <FriendListName>{friend.member.nickname}</FriendListName>
                       {/* <button onClick={() => { onClickDeleteFriendButtonHandler(friend.nickname) }}>삭제</button> */}
                     </FriendList>
                   </>
@@ -221,7 +286,7 @@ function Mypage() {
                   <>
                     <FriendWrap>
                       <FriendLeftContent>
-                        <FriendProfile></FriendProfile>
+                        <FriendProfile friendRequestImg={friend.profileImage}></FriendProfile>
                         <p>{friend.nickname}</p>
                       </FriendLeftContent>
                       <ButtonWrap>
@@ -330,25 +395,28 @@ height: 155px;
 const FileButton = styled.label`
   display: inline-block;
   color: black;
-  /* background-color: #00F0FF; */
   cursor: pointer;
   width: 32.46px;
   height: 33.27px;
   box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   border-radius: 50%;
   position: absolute;
   right: 5px;
   bottom: 10px;
   transition: all 0.3s;
-  // 호버 시 쉐도우 처리 함.
-  box-shadow: none;
-  &:hover {
-    // 호버 시 쉐도우 처리 함. 이미지 필터 처리. 디자인 아직 안나와서 이걸로함.
-    filter: brightness(1.2) contrast(1.5);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  background-image: url(
+    ${(props) => {
+    return props.modify
+  }}
+  );
+  background-position: center;
+  border: 1px solid white;
+  &:hover{
+    background-image: url(
+      ${(props) => {
+    return props.modifyClick
+  }}
+    );
   }
 `;
 
@@ -368,14 +436,57 @@ const TimerWrap = styled.div`
   align-items: center;
   margin-left: 70px;
 `
+
+const TopContentTitleWrap = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+`
+
 const TopContentTitle = styled.p`
   font-size: 18px;
   color: #00F0FF;
 `
 
+const Status = styled.span`
+  width: 18px;
+  height: 18px;
+  background-image: url(
+      ${(props) => {
+    return props.statusImg
+  }}
+  );
+  background-repeat: no-repeat;
+`
+
 const TopContentTitleItem = styled.h1`
   font-size: 32px;
   color: white;
+`
+
+const MouseHoverBox = styled.div`
+  position: absolute;
+  right: -65px;
+  bottom: -235px;
+  width: 215px;
+  height: 229px;
+  background: #F9F9FA;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 20px;
+  p {
+    font-weight: 900;
+    font-size: 11px;
+    color: #464646;
+    margin-bottom: 7px;
+  }
+
+  span {
+    font-weight: 700;
+    font-size: 9px;
+    color: #464646;
+  }
 `
 
 const MyPageMiddleContentWrap = styled.div`
@@ -423,6 +534,7 @@ const FriendRequestWrap = styled.div`
     color: white;
     font-weight: 500;
     font-size: 21px;
+    margin-bottom: 10px;
   }
 `
 
@@ -447,7 +559,7 @@ const FriendProfile = styled.div`
   height: 50px;
   border-radius: 50%;
   background-image: ${(props) =>
-    `url(${props.BgImg})`
+    `url(${props.friendRequestImg})`
   };
   background-position:center;
   background-size:contain;
@@ -469,13 +581,14 @@ const AllowBtn = styled.button`
   border-radius: 14px;
   font-weight: 700;
   font-size: 12px;
+  transition: all 0.3s;
   color: ${(props) => {
     return props.color === 'allow' ? '#464646' : '#FFFFFF'
   }};
-  &:active{
+  &:hover{
     background-color: ${(props) => {
     return props.color === 'allow' ? '#00C5D1' : '#3E4957'
-    }};
+  }};
   }
 `
 
@@ -498,8 +611,9 @@ const DeleteBtnWrap = styled.div`
   align-items: center;
   padding-right: 40px;
   margin-bottom: 10px;
+`
 
-  button {
+export const FriendListDeleteBtn = styled.button`
     background-color: transparent;
     border: 1px solid white;
     color: white;
@@ -507,13 +621,32 @@ const DeleteBtnWrap = styled.div`
     font-size: 12px;
     border-radius: 26px;
     transition: all 0.3s;
-    &:hover{
-      background-color: #68707C;
-    }
 
-    &:active{
+    &:hover{
       background-color: #3E4957;
     }
+`
+
+export const FriendListCancleBtnWrap = styled.div`
+  display: flex;
+  gap: 10px;
+`
+
+export const FriendListCancleBtn = styled.button`
+  width: 43px;
+  height: 25px;
+  background-color: ${(props) => {
+    return props.color === 'cancle' ? '#626873' : '#00F0FF'
+  }};
+  color: ${(props) => {
+    return props.color === 'cancle' ? '#FFFFFF' : '#464646'
+  }};
+  border-radius: 26px;
+  border: none;
+  &:hover{
+    background-color: ${(props) => {
+    return props.color === 'cancle' ? '#3E4957' : '#00C5D1'
+  }};
   }
 `
 
@@ -561,9 +694,21 @@ const FriendList = styled.div`
   border-radius: 10px;
   margin-top: 10px;
   transition: all 0.3s;
+  position: relative;
   &:hover{
     background: #394254;
   }
+`
+
+const DeleteSelectedBtn = styled.button`
+  width: 14px;
+  height: 14px;
+  background-color: transparent;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  border: 1px solid white;
+  border-radius: 50%;
 `
 
 const FriendListImage = styled.div`
@@ -571,7 +716,7 @@ const FriendListImage = styled.div`
   height: 50px;
   border-radius: 50%;
   background-image: ${(props) =>
-    `url(${props.BgImg})`
+    `url(${props.friendListImg})`
   };
   background-position:center;
   background-size:contain;

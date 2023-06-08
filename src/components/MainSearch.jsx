@@ -185,7 +185,7 @@ function MainSearch(props) {
                     <div>
                         <img src={`${process.env.PUBLIC_URL}/image/zoomOut.svg`} alt="돋보기아이콘" width='20' height='20' />
                     </div>
-                    <SearchInput type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='원하시는 모각코 장소, 제목을 검색하세요.' />
+                    <SearchInput type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='원하시는 모각코 장소, 제목을 검색하세요.' autoComplete='do-not-autofill' />
                     <SearchResetBtn onClick={()=>{keywordReset()}}>X</SearchResetBtn>
                 </SearchBar>
             </Search>
