@@ -166,8 +166,7 @@ function SignUp() {
                 const data = response.data;
                 console.log(data);
                 if (data.message === "회원 가입 성공") {
-                    alert("회원가입 성공하였습니다.")
-                    navigate("/signin");
+                    navigate("/done");
                 } else {
                     alert("회원가입에 실패했습니다. 회원가입을 다시 진행해 주세요.")
                 }
@@ -277,7 +276,7 @@ function SignUp() {
                 </div>
                 <div>
                     <Label>비밀번호</Label>
-                    <PasswordWrapper>
+                    <div>
                         <Input
                             type="password"
                             value={password}
@@ -285,7 +284,7 @@ function SignUp() {
                             placeholder="비밀번호"
                         />
 
-                    </PasswordWrapper>
+                    </div>
                     <ErrorMessageContainer>
                       
                         {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
@@ -294,14 +293,14 @@ function SignUp() {
 
                 <div>
                     <Label>비밀번호 확인</Label>
-                    <PasswordWrapper>
+                    <div>
                         <Input
                             type="password"
                             value={confirmPassword}
                             onChange={confirmPasswordChangeHandler}
                             placeholder="비밀번호 재입력"
                         />
-                    </PasswordWrapper>
+                    </div>
                     <ErrorMessageContainer>
                         {confirmPasswordErrorMessage && <ErrorMessage>{confirmPasswordErrorMessage}</ErrorMessage>}
                     </ErrorMessageContainer>
@@ -331,6 +330,16 @@ function SignUp() {
                     </ErrorMessageContainer>
 
                 </div>
+
+
+                <SignupButton onClick={(e) => {
+                    e.preventDefault() //요청전 리로드 방지
+                    sendHandler(sendData)
+                }}
+                    disabled={nicknameChanged || emailChanged || !isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
+                >
+                    회원가입
+                </SignupButton>
                 <Wrapper>
                     <input
                         type="checkbox"
@@ -345,15 +354,6 @@ function SignUp() {
 
 
                 </Wrapper><br />
-
-                <SignupButton onClick={(e) => {
-                    e.preventDefault() //요청전 리로드 방지
-                    sendHandler(sendData)
-                }}
-                    disabled={nicknameChanged || emailChanged || !isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
-                >
-                    회원가입
-                </SignupButton>
             </Form>
         </>
     );
@@ -375,11 +375,12 @@ export const Form = styled.form`
     margin: 0 auto
 `;
 export const SigninIntro =styled.div`
-    color:white;
+    color:#FFFFFF;
     height: 42.96px;
     font-size: 36px;
     margin-bottom: 70px;
     margin-up:100px;
+    font-family: 'Pretendard';
 `;
 export const Label = styled.label`
     margin-bottom: 3rem;
@@ -392,7 +393,7 @@ export const Label = styled.label`
 export const ContainerWrapper=styled.div`
     display:flex;
     justify-content: space-between;
-    
+
 `
 export const BottomButton = styled.button`
     padding:0.5rem 1rem;
@@ -428,10 +429,8 @@ export const ButtonWrapper = styled.div`
     boder-radius:114px;
     overflow:hidden;
     margin-left:10px;
+    text-align: center;
 
-`;
-export const PasswordWrapper = styled(InputWrapper)`
-    
 `;
 
 
@@ -450,21 +449,24 @@ export const Input = styled.input`
 
 export const CheckButton = styled.button`
     padding:10px;
-    background: ${props => props.disabled ? 'transparent' : '#00F0FF'}; 
-    color: ${props => props.disabled ? 'white' : '#172435'};
-    border:  ${props => props.disabled ? '0.5px solid white' : '#00F0FF'};
+    background: ${props => props.disabled ? '#4A4F59' : '#00F0FF'}; 
+    color: ${props => props.disabled ? '#BEBEBE' : '#172435'};
+    border:  ${props => props.disabled ? '0.5px solid #4A4F59' : '#00F0FF'};
     cursor: pointer;
     flex-grow:0;
     height: 40px;
+    width:75px;
     display: flex;
     align-items: center;
     border-radius:114px;
-    
+    display :inline-block;
+
 `;
 
 const ErrorMessageContainer = styled.div`
     height: 20px;
-`;
+    margin: 5px 0px 30px 5px;
+`;  
 
 export const ErrorMessage = styled.div`
     color:#ff635d;
@@ -479,19 +481,15 @@ export const SignupButton = styled.button`
     padding: 9px 20px;
     margin-left: 9px;
     margin-bottom: 12px;
-    /* text-align: center; */
-    /* gap: 10px; */
-    // min-width: 72px;
     height: 40px;
-    border: 0.5px solid #FFFFFF;
+    border: 0.5px solid ${props => props.disabled ? '#4A4F59' : '#00F0FF'}; 
     border-radius: 28px;
     cursor: pointer;
-    background : transparent;
-    color :#FFFFFF;
+    background : #4A4F59;
+    color :#BEBEBE;
     overflow: hidden;
     font-family: 'Pretendard';
     font-style: normal;
-    // font-weight: 700;
     font-size: 17px;
     line-height: 24px;
     width:383px;
@@ -509,3 +507,24 @@ export const Wrapper = styled.div`
     align-items: center;
 `
 
+// width:383px;
+// padding: 9px 20px;
+// margin-left: 9px;
+// margin-bottom: 12px;
+// height: 40px;
+// border: 0.5px solid ${props => props.disabled ? '#4A4F59' : '#00F0FF'}; 
+// border-radius: 28px;
+// cursor: pointer;
+// background : 4A4F59;
+// color :#BEBEBE;
+// overflow: hidden;
+// font-family: 'Pretendard';
+// font-style: normal;
+// font-size: 16px;
+// line-height: 24px;
+// margin: auto;
+
+// &:not(:disabled){
+//     background: #00F0FF;
+//     color: #464646;
+// }
