@@ -40,7 +40,6 @@ function Room() {
   const isConnected = useRef('')
   const stompClient = useRef(null)
 
-
   const [btnSelect, setBtnSelect] = useState('public')
 
   // 네비게이트 선언
@@ -48,12 +47,13 @@ function Room() {
   // 리브세션 서버 요청
   const leaveSessionMutation = useMutation(leaveChatRoom, {
     onSuccess: (response) => {
+      console.log("나가기 성공")
       console.log("leaveSessionMutation", response)
-      if (session) {
-        session.disconnect()
-        navigate('/')
-      }
-
+      setIsLeaved(true)
+    },
+    onError: (error) => {
+      console.log("나가기 오류")
+      setIsLeaved(true)
     }
   })
 
@@ -118,7 +118,6 @@ function Room() {
 
   const [curMaxMembers, setCurMaxMembers] = useState(0)
 
-
   const maxMembersHandler = (e, isSelected, idx) => {
     const updateMaxMembersList = maxMembers.map((num, index) => {
       if (index === idx) {
@@ -145,6 +144,15 @@ function Room() {
     neighborhood: sessionInfo.neighborhood
   })
 
+  // const [state, setState] = useState({
+  //   mySessionId: roomData.sessionId,
+  //   myUserName: 'Participant' + Math.floor(Math.random() * 100),
+  //   session: undefined,
+  //   mainStreamManager: undefined,
+  //   publisher: undefined,
+  //   subscribers: [],
+  //   });
+
   const OV = useRef(new OpenVidu())
 
   const handleChangeRoomTitle = useCallback((e) => {
@@ -160,40 +168,72 @@ function Room() {
 
   // 세션 만들기
   // 세션은 영상 및 음성 통신에 대한 컨테이너 역할(Room)
-  const joinSession = useCallback(async () => {
-    const mySession = OV.current.initSession()
+  // const joinSession = useCallback(async () => {
+  //   // 내 세션 생성
+  //   const mySession = OV.current.initSession()
+  //   // 내 세션을 셋해둔다.
+  //   setSession(mySession)
+
+  //   mySession.on('streamCreated', (event) => {
+  //     console.log("subscribers 확인 처음!@@ subscribers ::: ", subscribers);
+  //     // 접속한 사람마다 subscriber를 만든다.
+  //     const subscriber = mySession.subscribe(event.stream, undefined)
+
+  //     const newSubscribers = subscribers;
+  //     newSubscribers.push(subscriber)
+  //     setSubscribers([...newSubscribers])
+
+  //     console.log("subscribers 확인 1 현재 접속시도자 subscriber ::: ", subscriber);
+  //     console.log("subscribers 확인 2 newSubscribers ::: ", newSubscribers);
+  //     console.log("subscribers 확인 3 subscribers ::: ", subscribers);
+  //   })
+
+  //   mySession.on('streamDestroyed', (event) => {
+  //     deleteSubscriber(event.stream.streamManager)
+  //   })
+
+  //   //세션 내에서 예외가 발생했을 때 콘솔에 경고메세지
+  //   mySession.on('exception', (exception) => {
+  //     console.warn(exception)
+  //   })
+
+  //   // setSession(mySession)
+  // }, [])
+
+  const joinSession = () => {
+    OV.current = new OpenVidu();
+    const mySession = OV.current.initSession();
+    console.log("subscribers 확인 처음!@@ subscribers ::: ", subscribers);
     mySession.on('streamCreated', (event) => {
-      const subscriber = mySession.subscribe(event.stream, undefined)
-      setSubscribers((subscribers) => [...subscribers, subscriber])
-    })
+    const subscriber = mySession.subscribe(event.stream, undefined);
+      setSubscribers((prevSubscribers)=>[...prevSubscribers, subscriber])
 
+      console.log("subscribers 확인 1 현재 접속시도자 subscriber ::: ", subscriber);
+      console.log("subscribers 확인 2 subscribers ::: ", subscribers);
+    });
+    
     mySession.on('streamDestroyed', (event) => {
-      deleteSubscriber(event.stream.streamManager)
-    })
-
-    //세션 내에서 예외가 발생했을 때 콘솔에 경고메세지
+    deleteSubscriber(event.stream.streamManager);
+    });
+    
     mySession.on('exception', (exception) => {
-      console.warn(exception)
-    })
+    console.warn(exception);
+    });
+    
+    setSession(mySession)
+    };
 
-    await setSession(mySession)
-  }, [])
 
   useEffect(() => {
-    console.log("useEffect 커텍트 하기 전 >> openViduSession : ", openViduSession)
-    console.log("useEffect 커텍트 하기 전 >> mySessionId :",     mySessionId)
-    if (openViduSession) {
-      console.log("방바로 입장 : ",     openViduSession)
+    if (data.isDirect) {
       connect(openViduSession)
-    }else{
-      console.log("방생성후 입장 :",     mySessionId)
+    } else {
       connect(mySessionId)
     }
   }, [openViduSession])
 
   // TEMP
   const onClickTempButton = () => {
-    console.log(">>>>>>>>>>>>>>>> 여기 오니 다이렉트야..? 2")
     if (sessionInfo) {
       if (sessionInfo.isDirect) {
         setData({
@@ -222,13 +262,17 @@ function Room() {
   // 값이 입력될때마다 입력된 state들을 세팅
   useEffect(() => {
     onClickTempButton()
-  }, [roomTitle, lang, isOpened, curMaxMembers])
+  }, [roomTitle, lang, isOpened, curMaxMembers, closedPassword, PasswordCheck])
 
   useEffect(() => {
     if (sessionInfo.isDirect) {
       joinSession()
     }
   }, [data])
+
+  useEffect(()=>{
+    console.log("subscribers>> 제발...왜 멍청이 처럼..구는데..  ",subscribers)
+  },[subscribers])
 
   // 목록에서 방으로 바로 접근 할경우 실행되는 useEffect
   useEffect(() => {
@@ -322,12 +366,21 @@ function Room() {
 
   useEffect(() => {
     // 세션이 있으면 그 세션에 publish해라 
+    if(sessionInfo){
+      if(sessionInfo.isDirect){
+        console.log("게스트", sessionInfo)
+      }
+    }else{
+      console.log("방장")
+    }
+    console.log("세션있으면 퍼블리시 하기, 세션 객체의 connect 메소드를 찾아보자.", session)
     if (session) {
       // 토큰받아오기
       getToken().then(async (response) => {
-        // console.log("화면왜안붙어!!!! >>>", response)
+        console.log("after getToken 001", response)
         try {
-          // await session.connect(response.data);
+          console.log("after getToken 002 ", response)
+          console.log("after getToken 003", response.data)
           // await session.connect(response.data, { clientData: getCookie('nickName')})
           await session.connect(response.data)
 
@@ -359,16 +412,23 @@ function Room() {
     }
   }, [session])
 
+  const [isLeaved, setIsLeaved] = useState(false)
 
   const leaveSession = useCallback(() => {
-
-
     // TODO 방 떠났다는 요청 서버에 보내기
-
     const leaveSessionMutationCall = () => {
-      console.log("session>>> ", session)
-      console.log("openViduSession>>> ", openViduSession)
-      leaveSessionMutation.mutate(openViduSession)
+      console.log("방나가기..... ", session)
+      if(sessionInfo.isDirect){
+        console.log("방나가기.....방장아님1 ", openViduSession)
+        console.log("방나가기.....방장아님2 ", mySessionId)
+        console.log("방나가기.....방장아님3 ", session)
+        leaveSessionMutation.mutate(openViduSession)
+      }else{
+        console.log("방나가기.....방장임1 ", openViduSession)
+        console.log("방나가기.....방장임2 ", mySessionId)
+        console.log("방나가기.....방장임3 ", session.options.sessionId)
+        leaveSessionMutation.mutate(session.options.sessionId)
+      }      
     }
 
     // Leave the session
@@ -376,14 +436,26 @@ function Room() {
       leaveSessionMutationCall()
     }
 
-    OV.current = new OpenVidu()
-    setSession(undefined)
-    setSubscribers([])
-    setMySessionId(null)
-    setMyUserName(null)
-    setMainStreamManager(undefined)
-    setPublisher(undefined)
   }, [session])
+
+  useEffect(() => {
+    if (isLeaved) {
+      if (session) {
+        // 오픈비듀 세션 끊는 로직
+        OV.current = new OpenVidu()
+        setSession(undefined)
+        setSubscribers([])
+        setMySessionId(null)
+        setMyUserName(null)
+        setMainStreamManager(undefined)
+        setPublisher(undefined)
+        // 디스커넥션 널
+        session.disconnect()
+        navigate('/')
+      }
+    }
+  }, [isLeaved])
+
 
   const deleteSubscriber = useCallback((streamManager) => {
     setSubscribers((prevSubscribers) => {
@@ -428,21 +500,64 @@ function Room() {
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko', data, {
       headers: { ACCESS_KEY: getCookie('token') },
     })
-    console.log("##### sessionID ??????????", response.data.data.sessionId)
+    console.log("##### sessionId", response.data.data.sessionId)
+    setMySessionId(response.data.data.sessionId)
     setOpenViduSession(response.data.data.sessionId)
     return response.data.data.sessionId // The sessionId
   };
 
   const createToken = async (sessionId) => {
     console.log("##### createToken", sessionId)
-    const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
-      headers: {
-        ACCESS_KEY: getCookie('token'),
-      },
-    })
-    console.log("##### createToken !!!!!!!!!!>>>>", response)
-    return response.data // The token
+    if(sessionInfo){
+      if(sessionInfo.isDirect){
+        console.log("토큰만들기 - 게스트")
+      }
+    }else{
+      console.log("토큰만들기 - 방장")
+    }
+    
+    setMySessionId(sessionId)
+    setOpenViduSession(sessionId)
+    
+    const setRequestBody = () => {
+      let payload = {}
+      if(!data.password && data.isOpened){
+        payload = payload
+      }else{
+        payload = {'password': data.password}
+      }
+      console.log("요청 bodyp", payload)
+      return payload
+    }
+    
+    let response 
+      if(data.isOpened){
+        console.log('############################### 공개방 입장 ##################################')
+        response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
+          headers: {
+            ACCESS_KEY: getCookie('token'),
+          },
+        })
+        return response.data // The token
+      }else{
+        console.log('############################## 비공개방 입장 ##################################')
+        response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
+          headers: {
+            ACCESS_KEY: getCookie('token'),
+          },
+        })
+        return response.data // The token
+      }    
   };
+
+
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////// 실시간 채팅 ////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
 
   const connect = (openViduSession) => {
     console.log('[INFO] chat connect')
@@ -508,7 +623,7 @@ function Room() {
 
 
   const subscribe = (openViduSession) => {
-    console.log("로그 잘 찍으세요 시제님!! subscribe", openViduSession)
+    console.log("subscribe", openViduSession)
     console.log("url", `/sub/chat/room/${openViduSession}`)
     stompClient.current.subscribe(
       `/sub/chat/room/${openViduSession}`,
@@ -592,7 +707,6 @@ function Room() {
     setCount(newCount + 1)
   };
 
-  console.log('count >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', count)
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -727,11 +841,11 @@ function Room() {
                       null
                     }
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
-                      <UserVideoComponent streamManager={publisher} audioEnabled={audioEnabled}/>
+                      <UserVideoComponent streamManager={publisher} audioEnabled={audioEnabled} />
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
                           <span>{e.id}</span>
-                          <UserVideoComponent streamManager={e} audioEnabled={audioEnabled}/>
+                          <UserVideoComponent streamManager={e} audioEnabled={audioEnabled} />
                         </div>
                       ))}
                     </PubilsherVideoWrap>
@@ -749,7 +863,7 @@ function Room() {
 
                 {mainStreamManager !== undefined ? (
                   <MainStreamWrap>
-                    <UserVideoComponent streamManager={mainStreamManager}/>
+                    <UserVideoComponent streamManager={mainStreamManager} />
                   </MainStreamWrap>
                 ) : null}
               </PubilshSession>
@@ -810,7 +924,7 @@ function Room() {
               </ChatInputWrap>
               <SendBtnWrap>
                 <SendBtn onClick={() => {
-                  textPublish(openViduSession?openViduSession:mySessionId)
+                  textPublish(openViduSession ? openViduSession : mySessionId)
                 }}
                   send={`${process.env.PUBLIC_URL}/image/sendMessage.webp`}
                 ></SendBtn>
