@@ -62,21 +62,25 @@ function Stopwatch(props) {
                 let ss = prevSendS
                 let mm = prevSendM
                 let hh = prevSendH
+                
                 if (prevSendS > 9) {
                     ss = prevSendS
                 } else {
                     ss = '0' + prevSendS
                 }
-                if (prevSendS > 9) {
+
+                if (prevSendM > 9) {
                     mm = prevSendM
                 } else {
                     mm = '0' + prevSendM
                 }
-                if (prevSendS > 9) {
+
+                if (prevSendH > 9) {
                     hh = prevSendH
                 } else {
                     hh = '0' + prevSendH
                 }
+
                 return hh + ":" + mm + ":" + ss
             }
             console.log("직전에 보낸 샌드값", settingPrevTimeString())
