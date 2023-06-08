@@ -142,60 +142,43 @@ const Form = styled.form`
     margin: 0 auto
 `;
 
-const SigninIntro =styled.div`
+export const SigninIntro =styled.div`
     color:white;
     height: 42.96px;
     font-size: 36px;
     margin-bottom: 70px;
     margin-up:100px;
 `;
-const Label = styled.label`
-    margin-bottom: 3rem;
-    margin-top: 3rem;
+export const Label = styled.label`
     color:white;
-    padding-bottom: 8px;
     font-size: 24px;
 `;
 export const InputWrapper = styled.div`
     display: flex;
     align-items: stretch;
-    // width: 300px;
-    border-radius:10px;
-    overflow: hidden;
-    box-shadow: 0 0 5px rgba(0,0,0,0,3);
     margin-bottom: 15px; 
+    margin-top:10px;
 `
-const Input = styled.input`
-    // padding: 0.5rem;
-    // border: 1px solid #ccc;
-    border-radius:1144px;
-    flex-glow: 1;
-    padding: 10px;
+export const Input = styled.input`
+    border-radius:114px;
+    padding: 20px;
     border: none;
-    outline: none;
-    width: 100%;
+    width: 384px;
     height: 40px;
     background: #394254;
     color: #FFFFFF;
 `;
 
-const Button = styled.button`
-    padding:0.5rem 1rem;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-`;
-
-const ErrorMessage = styled.div`
+export const ErrorMessage = styled.div`
     color: #FF635D;
-    margin-top: 0.5rem;
     font-size: 14px;
 
 `;
-const ErrorMessageContainer = styled.div`
+export const ErrorMessageContainer = styled.div`
     height: 24px;
+    margin:10px 0 40px 10px;
+    // margin:100px;
+    // padding:50px 0 100px 0;
 `; 
 export const LoginButton = styled.button`
     width:383px;
@@ -203,15 +186,15 @@ export const LoginButton = styled.button`
     margin-left: 9px;
     margin-bottom: 12px;
     height: 40px;
-    border: 0.5px solid ${props => props.disabled ? '#BEBEBE' : '#00F0FF'}; 
+    border: 0.5px solid ${props => props.disabled ? '#4A4F59' : '#00F0FF'}; 
     border-radius: 28px;
     cursor: pointer;
-    background : transparent;
-    color :#FFFFFF;
+    background : #4A4F59;
+    color :#BEBEBE;
     overflow: hidden;
     font-family: 'Pretendard';
     font-style: normal;
-    font-size: 17px;
+    font-size: 16px;
     line-height: 24px;
     margin: auto;
 
