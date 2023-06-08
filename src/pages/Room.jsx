@@ -223,17 +223,22 @@ function Room() {
     setSession(mySession)
     };
 
-
   useEffect(() => {
-    console.log("이게 두번되나..? 왜냐면 오픈비듀세션이 두번바쎠거..?", openViduSession)
+    console.log("*************** 방장일때, 방장이닐때 값 비교 1", openViduSession)
+    console.log("*************** 방장일때, 방장이닐때 값 비교 2", mySessionId)
+    console.log("*************** 방장이니?", data.isDirect)
     if (data.isDirect) {
       console.log("방장아닌놈 채팅 커넥트 호출")
+      console.log("방장아닌놈1", openViduSession)
+      console.log("방장아닌놈2", mySessionId)
       connect(openViduSession)
     } else {
       console.log("방장인놈 채팅 커넥트 호출")
+      console.log("방장1", openViduSession)
+      console.log("방장2", mySessionId)
       connect(mySessionId)
     }
-  }, [])
+  }, [openViduSession])
 
   // TEMP
   const onClickTempButton = () => {
@@ -676,8 +681,10 @@ function Room() {
     setIsLoading(false)
   };
 
-  const textPublish = (openViduSession) => {
-    console.log("openViduSession >>>>>>>>>>>>>>>>>>>>>>", openViduSession)
+  const textPublish = (param) => {
+    console.log("텍스트퍼블리셔, 세션어디서1 >>>>>>>>>>>>>>>>>>>>>>", openViduSession)
+    console.log("텍스트퍼블리셔, 세션어디서2 >>>>>>>>>>>>>>>>>>>>>>", param)
+    console.log("텍스트퍼블리셔, 세션어디서3 >>>>>>>>>>>>>>>>>>>>>>", mySessionId)
     console.log("textPublish Start")
     if (message !== "") {
       stompClient.current.publish({
@@ -941,7 +948,8 @@ function Room() {
               </ChatInputWrap>
               <SendBtnWrap>
                 <SendBtn onClick={() => {
-                  textPublish(openViduSession ? openViduSession : mySessionId)
+                  // textPublish(openViduSession ? openViduSession : mySessionId)
+                  textPublish(openViduSession)
                 }}
                   send={`${process.env.PUBLIC_URL}/image/sendMessage.webp`}
                 ></SendBtn>
