@@ -223,20 +223,29 @@ function Room() {
     setSession(mySession)
     };
 
+  const [isFisrstSubscribe, setIsFisrstSubscribe] = useState(false)
+  const [isGuest, setIsGuest] = useState(false)
   useEffect(() => {
+    console.log("*************** 이전에 구독을 성공한 적이 있는가?", isFisrstSubscribe)
     console.log("*************** 방장일때, 방장이닐때 값 비교 1", openViduSession)
     console.log("*************** 방장일때, 방장이닐때 값 비교 2", mySessionId)
-    console.log("*************** 방장이니?", data.isDirect)
-    if (data.isDirect) {
-      console.log("방장아닌놈 채팅 커넥트 호출")
-      console.log("방장아닌놈1", openViduSession)
-      console.log("방장아닌놈2", mySessionId)
-      connect(openViduSession)
-    } else {
-      console.log("방장인놈 채팅 커넥트 호출")
-      console.log("방장1", openViduSession)
-      console.log("방장2", mySessionId)
-      connect(mySessionId)
+
+    if(!isGuest || openViduSession){ // !false || undifind
+      console.log("게스트여서 커넥트됬니?", isGuest)
+      console.log("방장이여서 재시도 하니?", !openViduSession?'true':'false')
+      if(!isFisrstSubscribe){ // !false => true
+        console.log("*************** 1")
+        if(openViduSession){
+          console.log("*************** 2")
+          connect(openViduSession) // isFisrstSubscribe = false
+        }else{
+          // 방장 아닌사람은 3일때 커넥션 하고 다시 또 커넥션 시키지 않는다.
+          console.log("*************** 3")
+          connect(mySessionId)
+          setIsGuest(true)
+          setIsFisrstSubscribe(true)
+        }
+      }
     }
   }, [openViduSession])
 
@@ -574,10 +583,10 @@ function Room() {
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
 
-  const connect = (openViduSession) => {
-    console.log('[INFO] chat connect')
-    console.log('openViduSession >>>>>>>>>>>>>> ', openViduSession)
-
+  const connect = (params) => {
+    console.log("(매개) 실시간 채팅 커넥트 시도 ::::", params)
+    console.log("(전역) 실시간 채팅 커넥트 시도 ::::", openViduSession)
+    console.log("(전역) 실시간 채팅 커넥트 시도 ::::", mySessionId)
     // console.log('mySession >>>>>>>>>>>', sessionId)
     // SockJS같은 별도의 솔루션을 이용하고자 하면 over 메소드를, 그렇지 않다면 Client 메소드를 사용해주면 되는 듯.
     stompClient.current = new Client({
@@ -614,11 +623,12 @@ function Room() {
       },
 
       // 검증이 돼서 Room을 열어주는 서버랑 연결이 되면
-      onConnect: () => {
+      onConnect: (response) => {
+        console.log("실시간 채팅 커넥트 성공 ::::", response)
         console.log("Connected to the broker. Initiate subscribing.")
         isConnected.current = true
-        subscribe(openViduSession)
-        publish(openViduSession)
+        subscribe(params)
+        publish(params)
       },
 
       onStompError: (frame) => {
@@ -637,26 +647,32 @@ function Room() {
   }
 
 
-  const subscribe = (openViduSession) => {
-    console.log("subscribe", openViduSession)
-    console.log("url", `/sub/chat/room/${openViduSession}`)
-    stompClient.current.subscribe(
-      `/sub/chat/room/${openViduSession}`,
-      (data) => {
-        console.log(" 콘솔때무이라고?>>>>>", data)
-        console.log(" 구독됨", JSON.parse(data.body))
-        const response = JSON.parse(data.body)
-        if (response.type === 'TALK') {
-          chatMessages.push(response)
-          setChatMessages([...chatMessages])
+  const subscribe = (params) => {
+    console.log("(매개) 실시간 채팅 subscribe 시도 ::::", params)
+    console.log("(전역) 실시간 채팅 subscribe 시도 ::::", openViduSession)
+    console.log("(전역) 실시간 채팅 subscribe 시도 ::::", mySessionId)
+    console.log("url", `/sub/chat/room/${params}`)
+    if(params){
+      stompClient.current.subscribe(
+        `/sub/chat/room/${params}`,
+        (data) => {
+          console.log(" 구독됨", JSON.parse(data.body))
+          const response = JSON.parse(data.body)
+          if (response.type === 'TALK') {
+            chatMessages.push(response)
+            setChatMessages([...chatMessages])
+          }
         }
-      }
-    )
+      )
+      setIsFisrstSubscribe(true)
+    }else{
+      setIsFisrstSubscribe(false)
+    }
+
   }
 
   // chatMessages 어떻게 담기는지 찍을 꺼임 콘솔 찍기용이므로 추후 삭제
   useEffect(()=>{
-    console.log("chatMessages 어떻게 담기는지 찍을 꺼임")
     console.log("chatMessages", chatMessages)
   },[chatMessages])
 
@@ -681,17 +697,18 @@ function Room() {
     setIsLoading(false)
   };
 
-  const textPublish = (param) => {
+  const textPublish = (params) => {
     console.log("텍스트퍼블리셔, 세션어디서1 >>>>>>>>>>>>>>>>>>>>>>", openViduSession)
-    console.log("텍스트퍼블리셔, 세션어디서2 >>>>>>>>>>>>>>>>>>>>>>", param)
+    console.log("텍스트퍼블리셔, 세션어디서2 >>>>>>>>>>>>>>>>>>>>>>", params)
     console.log("텍스트퍼블리셔, 세션어디서3 >>>>>>>>>>>>>>>>>>>>>>", mySessionId)
     console.log("textPublish Start")
     if (message !== "") {
+      console.log("텍스트퍼블리셔, 보낼 메새지", message)
       stompClient.current.publish({
         destination: "/pub/chat/room",
         body: JSON.stringify({
           type: "TALK",
-          sessionId: openViduSession,
+          sessionId: params,
           nickname: sessionInfo.myUserName,
           message
         }),
@@ -948,8 +965,8 @@ function Room() {
               </ChatInputWrap>
               <SendBtnWrap>
                 <SendBtn onClick={() => {
-                  // textPublish(openViduSession ? openViduSession : mySessionId)
-                  textPublish(openViduSession)
+                  textPublish(openViduSession ? openViduSession : mySessionId)
+                  // textPublish(openViduSession)
                 }}
                   send={`${process.env.PUBLIC_URL}/image/sendMessage.webp`}
                 ></SendBtn>
