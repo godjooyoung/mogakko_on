@@ -9,6 +9,7 @@ import { __alarmSender, __alarmClean } from '../../redux/modules/alarm'
 function Header() {
     const [isLogin, setIsLogin] = useState(false)
     const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
+    const [profileImg, setProfileImg] = useState('')
     const navigate = useNavigate();
     const eventSourceRef = useRef(null);
 
@@ -86,17 +87,34 @@ function Header() {
                     })
                     return () => {
                         if (eventSourceRef.current && !isLogin) {
-                            sessionStorage.setItem('isSubscribed', false);
+                            sessionStorage.setItem('isSubscribed', false)
                             dispatcher(__alarmClean())
-                            eventSourceRef.current.close(); // 로그아웃 시 SSE 연결 종료
+                            eventSourceRef.current.close() // 로그아웃 시 SSE 연결 종료
                         }
                     };
                 }
             };
-            subcribeSSE();
+            subcribeSSE()
+            avataGenHandler()
         }
 
     }, [isLogin]);
+
+    // 아바타 생성 함수
+    const avataGenHandler = () => {
+        // TODO 기존 프로필이 있는 유저일경우 등록된 프로필을 보여준다.
+        const nickName =  getCookie('nickName');
+        const profilceImage =  getCookie('profileImage');
+        let avataGen
+        //const avataGen = `http://www.gravatar.com/avatar/${nickName}?d=identicon&s=400`
+        if(profilceImage === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU'){
+            avataGen = `https://source.boringavatars.com/beam/120/${nickName}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
+        }else{
+            avataGen = profilceImage
+            
+        }
+        return <><img src={avataGen} alt="프로필사진" /></>   
+    }
 
     // 알림 내용 컴포넌트 생성 함수
     const renderAlertComponent = () => {
@@ -141,6 +159,8 @@ function Header() {
         );
     };
 
+
+
     const onClickLogoHandler = () => {
         navigate('/')
     }
@@ -155,6 +175,7 @@ function Header() {
         const remove = async () => {
             await removeCookie('token')
             await removeCookie('nickName')
+            await removeCookie('profileImage')
             await sessionStorage.removeItem('isSubscribed')
             dispatcher(__alarmClean())
             if (eventSourceRef.current) {
@@ -200,7 +221,11 @@ function Header() {
 
                         <HeaderButton onClick={onClickMyPageHandler} marginRight={39}>
                             <ProfileImgDiv>
-                                <img src={`${process.env.PUBLIC_URL}/image/profileEmpty.svg`} alt="프로필사진" />
+                                {
+                                    // console.log("profileImg",profileImg)
+                                    //profileImg === '' ? <img src={`${process.env.PUBLIC_URL}/image/profileEmpty.svg`} alt="프로필사진" />:<img src='http://www.gravatar.com/avatar/테스트유저1?d=identicon&s=400' alt="프로필사진" />
+                                    avataGenHandler()
+                                }
                             </ProfileImgDiv>
                         </HeaderButton>
                     </>
@@ -234,6 +259,8 @@ export const ProfileImgDiv = styled.div`
     height: 44px;
     border-radius: 50%;
     overflow: hidden;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 1px #ffffff;
 `
 
 export const shakeAnimation = keyframes`

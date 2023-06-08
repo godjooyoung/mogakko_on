@@ -9,7 +9,8 @@ import Layout from "../components/common/Layout";
 import Room from "../pages/Room";
 import Mypage from "../pages/Mypage";
 import MemberPage from "../pages/MemberPage";
-import Test from '../pages/Test'
+import Test from '../pages/Test';
+import Done from "../pages/Done";
 
 const Router = () => {
   return (
@@ -24,6 +25,7 @@ const Router = () => {
             <Route path="/mypage" element={<Mypage />} />
             <Route path="/profile/:id" element={<MemberPage />} />
             <Route path="/timer" element={<Test />} />
+            <Route path="/done" element={<><Header /><Done/></>} />
           </Route>
         </Route>
       </Routes>
