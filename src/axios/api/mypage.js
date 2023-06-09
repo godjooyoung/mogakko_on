@@ -58,8 +58,9 @@ const reciveFriendRequest = async (target) => {
 
 // 친구 삭제
 const deleteFriend = async (targetFriend) => {
+  console.log("너랑 절교다!!", targetFriend)
   const target = {receiverNickname : targetFriend}
-  console.log("너랑 절교다!!", target)
+  
   try {
     const response = await jwtInstance.post('/friendship/requests/delete', target)
     return response
