@@ -42,8 +42,8 @@ function MainMap(props) {
                     navigator.geolocation.getCurrentPosition(
                         position => {
                             console.log("[INFO] 현재 접속된 위치로 조회위치를 변경합니다.")
-                            dispatcher(fetchUserLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude  }))
-                            dispatcher(__searchLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude  }))
+                            dispatcher(fetchUserLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude }))
+                            dispatcher(__searchLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude }))
                         },
                         error => {
                             console.log("[INFO] 현재 접속된 위치를 받아올 수 없습니다. 기본 조회위치로 지정합니다.")
@@ -55,105 +55,166 @@ function MainMap(props) {
             }
         }
         settingDefaultSearch()
+
+        // 로그인 axios 요청후 저장된 위치값을 가져오는 함수. 테스트 못해서 실행안함.
+        const _settingDefaultSearch = () => {
+            if (!isLogin) {
+                console.log("[INFO] 로그인을 하지 않은 사용자 입니다. 기본 조회위치로 지정합니다. (", isLogin, ")")
+            } else {
+                console.log("[INFO] 로그인한 사용자 입니다.(", isLogin, ")")
+
+                const login_latitude = getCookie("login_latitude")
+                const login_longitude = getCookie("login_longitude")
+                if (login_latitude && login_longitude) {
+                    console.log("[INFO] 현재 접속된 위치로 조회위치를 변경합니다.")
+                    dispatcher(fetchUserLocation({ latitude: login_latitude, longitude: login_longitude }))
+                    dispatcher(__searchLocation({ latitude: login_latitude, longitude: login_longitude }))
+                } else {
+                    console.log("[INFO] 현재 접속된 위치를 받아올 수 없습니다. 기본 조회위치로 지정합니다.")
+                }
+            }
+        }
+        //_settingDefaultSearch()
     }, [isLogin])
 
+
     const mapContainer = useRef(null)
-    
+
     // 지도 설정
-    useEffect(()=>{
+    useEffect(() => {
+        if(props.roomList){
         // 사용자 접속위치로 지도 최초 세팅
         const options = {
-            center : new kakao.maps.LatLng(searchInfo.searchLatitude, searchInfo.searchLongitude),
-            level : 4,
+            center: new kakao.maps.LatLng(searchInfo.searchLatitude, searchInfo.searchLongitude),
         }
         const map = new kakao.maps.Map(mapContainer.current, options)
         const bounds = new kakao.maps.LatLngBounds();
-        
+
+        const getPinImg = (lang) => {
+            let imageUrl
+            switch (lang) {
+                case "JAVA":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/defaultPinJava.webp`
+                    break;
+                case "JAVASCRIPT":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/defaultPinJs.webp`
+                    break;
+                case "PYTHON":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/defaultPinPy.webp`
+                    break;
+                case "C":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/defaultPinPy.webp`
+                    break;
+                case "C#":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/defaultPinCsharp.webp`
+                    break;
+                case "C++":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/defaultPinCpl.webp`
+                    break;
+                case "KOTLIN":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/defaultPinJs.webp`
+                    break;
+                default:
+                    imageUrl = `${process.env.PUBLIC_URL}/image/defaultPinEtc.webp`
+                    break;
+            }
+            const markerImageSize = new kakao.maps.Size(23, 35) // 마커 이미지의 크기
+            const markerImageOptions = { offset: new kakao.maps.Point(12, 35) }
+            const markerImage = new kakao.maps.MarkerImage(imageUrl, markerImageSize, markerImageOptions)
+            return markerImage
+        }
+
+        const getPinBigImg = (lang) => {
+            let imageUrl
+            switch (lang) {
+                case "JAVA":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/biggerPinJava.webp`
+                    break;
+                case "JAVASCRIPT":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/biggerPinJs.webp`
+                    break;
+                case "PYTHON":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/biggerPinPy.webp`
+                    break;
+                case "C":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/biggerPinPy.webp`
+                    break;
+                case "C#":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/biggerPinCsharp.webp`
+                    break;
+                case "C++":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/biggerPinCpl.webp`
+                    break;
+                case "KOTLIN":
+                    imageUrl = `${process.env.PUBLIC_URL}/image/biggerPinnJs.webp`
+                    break;
+                default:
+                    imageUrl = `${process.env.PUBLIC_URL}/image/biggerPinEtc.webp`
+                    break;
+            }
+            const markerImageSize = new kakao.maps.Size(27.6, 42.6) // 마커 이미지의 크기
+            const markerImageOptions = { offset: new kakao.maps.Point(13.5, 42.6) }
+            const markerImage = new kakao.maps.MarkerImage(imageUrl, markerImageSize, markerImageOptions)
+            return markerImage
+        }
+
+
         // 검색 목록 배열을 돌며 마커 생성해서 붙인다.
-        props.roomList&&props.roomList.forEach((room)=>{
-            const pointer = new kakao.maps.LatLng(room.lat, room.lon)
+        props.roomList && props.roomList.forEach((room) => {
+            const pointer = new kakao.maps.LatLng(room.mogakkoRoom.lat, room.mogakkoRoom.lon)
             bounds.extend(pointer)
+
             const marker = new kakao.maps.Marker({
-                image : markerImage, // 마커의 이미지
+                image: getPinImg(room.mogakkoRoom.language), // 마커의 이미지
                 map: map, // 마커를 표시할 지도 객체
-                position: new kakao.maps.LatLng(room.lat, room.lon), // 마커의 좌표
-                titile: room.title
+                position: new kakao.maps.LatLng(room.mogakkoRoom.lat, room.mogakkoRoom.lon), // 마커의 좌표
+                titile: room.mogakkoRoom.title
             })
 
-            const infowindow = new kakao.maps.InfoWindow({
-                content: room.title // 인포윈도우에 표시할 내용
+            // 마커에 클릭 이벤트를 등록한다 (우클릭 : rightclick)
+            kakao.maps.event.addListener(marker, 'click', function () {
+                console.log('마커를 클릭했습니다!');
             });
 
-            // 마커에 mouseover 이벤트를 등록하고 마우스 오버 시 인포윈도우를 표시합니다 
-            kakao.maps.event.addListener(marker, 'mouseover', function() {
-                infowindow.open(map, marker);
+            // 마커에 mouseover 이벤트를 등록하고 마우스 오버 시 
+            kakao.maps.event.addListener(marker, 'mouseover', function () {
+                console.log('마커에 mouseover 이벤트가 발생했습니다!');
+                marker.setImage(getPinBigImg(room.mogakkoRoom.language));
             });
 
-            // 마커에 mouseout 이벤트를 등록하고 마우스 아웃 시 인포윈도우를 닫습니다
-            kakao.maps.event.addListener(marker, 'mouseout', function() {
-                infowindow.close();
+            // 마커에 mouseout 이벤트를 등록하고 마우스 아웃 시 
+            kakao.maps.event.addListener(marker, 'mouseout', function () {
+                console.log('마커에 mouseover 이벤트가 발생했습니다!');
+                marker.setImage(getPinImg(room.mogakkoRoom.language));
             });
 
         })
 
-        // 마커들이 모두 보이는 위치로 지도를 옮김
+        //마커들이 모두 보이는 위치로 지도를 옮김
         // map.setBounds(bounds);
 
-        // kakao.maps.event.addListener(map, 'center_changed', function() {
-        //     console.log("현재 지도의 중심좌표 요청 이벤트")
-        //     // 디바운싱 - 마지막 호출만 적용 
-        //     if (timer) {
-        //         console.log('clear timer')
-        //         clearTimeout(timer)
-        //     }
-        //     const newTimer = setTimeout(async () => {
-        //         try {
-        //             await getMapCenterDebouncing()
-        //         } catch (e) {
-        //             console.error('error', e)
-        //         }
-        //     }, 2000)
-        //         setTimer(newTimer)
-
-        //     // 지도의 중심좌표를 얻어옵니다 
-        //     const getMapCenterDebouncing = () => {
-        //         dispatcher(fetchUserLocation({ latitude: map.getCenter().getLat(), longitude: map.getCenter().getLng()}))
-        //         dispatcher(__searchLocation({ latitude: map.getCenter().getLat(), longitude: map.getCenter().getLng() }))
-        //     }
-        // });
-
-        kakao.maps.event.addListener(map, 'dragend', function() {
-            console.log("[INFO] dragend")
+        // 드래그가 발생할 경우 지도의 중심 좌표를 다시 얻어와서 조회한다.
+        kakao.maps.event.addListener(map, 'dragend', function () {
             // const latlng = map.getCenter(); 
             // 지도의 중심좌표를 얻어옵니다 
-            const getCenterLatLng = async() => {
-                const latlng =  await map.getCenter(); 
-                setMapCenterDragend(latlng)   
+            const getCenterLatLng = async () => {
+                const latlng = await map.getCenter();
+                setMapCenterDragend(latlng)
             }
-            
+
             // 변경된 중심좌표를 전역상태로 반영
             const setMapCenterDragend = (latlng) => {
-                console.log("[INFO] getMapCenterDragend ", latlng.getLat(), latlng.getLng() )
-                dispatcher(fetchUserLocation({ latitude: latlng.getLat(), longitude: latlng.getLng()}))
+                console.log("[INFO] getMapCenterDragend ", latlng.getLat(), latlng.getLng())
+                dispatcher(fetchUserLocation({ latitude: latlng.getLat(), longitude: latlng.getLng() }))
                 dispatcher(__searchLocation({ latitude: latlng.getLat(), longitude: latlng.getLng() }))
             }
-            
+
             getCenterLatLng()
         });
 
+        }
+    }, [props.roomList])
 
-    },[searchInfo.searchLatitude])
-
-    
-    // 마커 TODO sjy 나중에 커스텀 이미지로 바꾸기
-    const markerImageUrl = 'https://t1.daumcdn.net/localimg/localimages/07/2012/img/marker_p.png', 
-        markerImageSize = new kakao.maps.Size(40, 42), // 마커 이미지의 크기
-        markerImageOptions = { 
-        offset : new kakao.maps.Point(20, 42)// 마커 좌표에 일치시킬 이미지 안의 좌표
-    };
-
-    // 마커 이미지를 생성한다
-    const markerImage = new kakao.maps.MarkerImage(markerImageUrl, markerImageSize, markerImageOptions)
     return (
         <MapContainer>
             <KaKaoMap id='map' ref={mapContainer}></KaKaoMap>
