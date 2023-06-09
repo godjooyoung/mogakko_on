@@ -19,6 +19,9 @@ const userSlice = createSlice({
         __userTown: (state, action) => {
             state.userTown = action.payload;
         },
+        __logoutResetUser: (state, action) => {
+            state = initialState
+        },
     }
 })
 
@@ -39,5 +42,5 @@ export const fetchUserLocation = (userLocation) => async (dispatch) => {
 };
 
 
-export const { __userLocation, __userTown } = userSlice.actions
+export const { __userLocation, __userTown, __logoutResetUser} = userSlice.actions
 export default userSlice.reducer

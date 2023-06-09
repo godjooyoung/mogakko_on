@@ -12,7 +12,8 @@ function Mypage() {
   const [friendReqList, setFriendReqList] = useState([]) // 친구 요청 목록
   const { isLoading, isError, data } = useQuery("getProfile", getProfile)
   const [friendListDelete, setFriendListDelete] = useState(false) // 친구 삭제 버튼 
-  const [onMouse, setOnMouse] = useState(false)
+  const [statusonMouse, setStatusOnMouse] = useState(false)
+  const [temponMouse, setTempOnMouse] = useState(false)
   const [friendDeleteArr, setFriendDeleteArr] = useState([])
   const [value, setValue] = useState(0)
   const [gitHub, setGitHub] = useState(false)
@@ -187,13 +188,22 @@ function Mypage() {
     }
   }, [preview])
 
-  // 물은표 버튼 hover시 나오는 정보창
+  // 물은표 버튼 hover시 나오는 정보창 (status)
   const statusOnMouseHandler = () => {
-    setOnMouse(true)
+    setStatusOnMouse(true)
   }
 
   const statusOffMouseHandler = () => {
-    setOnMouse(false)
+    setStatusOnMouse(false)
+  }
+
+  // 물은표 버튼 hover시 나오는 정보창 (온도)
+  const tempOnMouseHandler = () => {
+    setTempOnMouse(true)
+  }
+
+  const tempOffMouseHandler = () => {
+    setTempOnMouse(false)
   }
 
   return (
@@ -206,7 +216,9 @@ function Mypage() {
             <CloseBtn onClick={() => {
               setGitHub(!gitHub)
               githubInputValueReset()
-            }}>x</CloseBtn>
+            }}
+              closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
+            ></CloseBtn>
             <h1>깃허브 아이디</h1>
             <input type="text" placeholder='아이디' value={githubValue} onChange={onChangeGithubValue} />
             <GitHubBtn onClick={() => {
@@ -235,7 +247,27 @@ function Mypage() {
           <MyPageUserNameWrap>
             <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
             <Temperaturecontainer>
-              <p>코딩온도 <img src={`${process.env.PUBLIC_URL}/image/status.webp`}></img></p>
+              <TemperatureTitle>코딩온도
+                <img
+                  src={`${process.env.PUBLIC_URL}/image/status.webp`}
+                  onMouseEnter={() => {
+                    tempOnMouseHandler()
+                  }}
+                  onMouseLeave={() => {
+                    tempOffMouseHandler()
+                  }}
+                ></img>
+              </TemperatureTitle>
+              {
+                temponMouse &&
+                <TemperatureMouseHoverBox>
+                  <TemperatureMouseHoverBoxdesc>
+                    당신의 코딩온도는 몇도인가요?<br />
+                    공부 시간이 늘어날수록<br />
+                    코딩 온도도 올라가요! ( 10M <img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /> 0.01)
+                  </TemperatureMouseHoverBoxdesc>
+                </TemperatureMouseHoverBox>
+              }
               <TemperatureWrap>
                 <ProgressContainer>
                   <Progress style={{ width: `${value}%` }} />
@@ -268,8 +300,8 @@ function Mypage() {
                   }}
                 ></Status>
                 {
-                  onMouse &&
-                  <MouseHoverBox>
+                  statusonMouse &&
+                  <StatusMouseHoverBox>
                     <p>102 : <span>회원가입 시 기본값</span></p>
                     <p>200 : <span>처음 프로필 등록시 변경</span></p>
                     <p>400 : <span>신고 1회</span></p>
@@ -279,7 +311,7 @@ function Mypage() {
                     <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
                     <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
                     <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
-                  </MouseHoverBox>
+                  </StatusMouseHoverBox>
                 }
               </TopContentTitleWrap>
               <TopContentTitleItem>{data && data.data.data.member.memberStatusCode}</TopContentTitleItem>
@@ -460,14 +492,19 @@ const GitHubBtn = styled.button`
 `
 
 const CloseBtn = styled.button`
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   position: absolute;
   top: 10px;
   right: 15px;
   font-size: 25px;
   border: none;
   background-color: transparent;
+  background-image: ${(props) =>
+    `url(${props.closeBtn})`
+  };
+  background-position: center;
+  background-size:cover;
 `
 
 const MyPageTopContentWrap = styled.div`
@@ -503,17 +540,44 @@ const MyPageUserName = styled.p`
 `
 
 const Temperaturecontainer = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 10px;
+`
 
-  p {
+const TemperatureTitle = styled.p`
     font-size: 17px;
     color: #00F0FF;
-
     img {
+      margin-left: 5px;
       margin-bottom: 2px;
     }
+`
+
+const TemperatureMouseHoverBox = styled.div`
+  position: absolute;
+  top: 60px;
+  
+  width: 250px;
+  height: 80px;
+  background-color: #F9F9FA;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 8px;
+  text-align: center;
+  line-height: 22px;
+`
+
+const TemperatureMouseHoverBoxdesc = styled.p`
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
+  color: #464646;
+
+  img {
+    width: 9px;
   }
 `
 
@@ -551,7 +615,7 @@ width: 155px;
 height: 155px;
   border-radius: 50%;
   background-image: ${(props) =>
-    `url(${props.BgImg})`
+    `url('${props.BgImg}')`
   };
   background-position:center;
   background-size:contain;
@@ -633,7 +697,7 @@ const TopContentTitleItem = styled.h1`
   color: white;
 `
 
-const MouseHoverBox = styled.div`
+const StatusMouseHoverBox = styled.div`
   position: absolute;
   right: -65px;
   bottom: -235px;

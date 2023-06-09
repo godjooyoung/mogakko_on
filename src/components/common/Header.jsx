@@ -5,7 +5,8 @@ import { getCookie, removeCookie } from '../../cookie/Cookie';
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useDispatch, useSelector } from 'react-redux';
 import { __alarmSender, __alarmClean } from '../../redux/modules/alarm'
-
+import { __logoutResetUser } from '../../redux/modules/user'
+import { __logoutResetSearch } from '../../redux/modules/search'
 function Header() {
     const [isLogin, setIsLogin] = useState(false)
     const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
@@ -27,7 +28,7 @@ function Header() {
     })
 
     const dispatcher = useDispatch()
-    
+
     // 전역에 등록된 알람 내역 가져오기
     const alarmInfo = useSelector((state) => {
         return state.alarmInfo
@@ -97,23 +98,51 @@ function Header() {
             subcribeSSE()
             avataGenHandler()
         }
+        if(!isLogin){
+            dispatcher(__alarmClean())
+        }
 
     }, [isLogin]);
 
     // 아바타 생성 함수
-    const avataGenHandler = () => {
-        // TODO 기존 프로필이 있는 유저일경우 등록된 프로필을 보여준다.
-        const nickName =  getCookie('nickName');
-        const profilceImage =  getCookie('profileImage');
+    const avataGenHandler = (type, url, userNickName) => {
         let avataGen
-        //const avataGen = `http://www.gravatar.com/avatar/${nickName}?d=identicon&s=400`
-        if(profilceImage === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU'){
-            avataGen = `https://source.boringavatars.com/beam/120/${nickName}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
-        }else{
-            avataGen = profilceImage
-            
+        if (!type) {
+            // TODO 기존 프로필이 있는 유저일경우 등록된 프로필을 보여준다.
+            const nickName = getCookie('nickName');
+            const profilceImage = getCookie('profileImage');
+            //const avataGen = `http://www.gravatar.com/avatar/${nickName}?d=identicon&s=400`
+            if (profilceImage === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
+                avataGen = `https://source.boringavatars.com/beam/120/${nickName}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
+            } else {
+                avataGen = profilceImage
+            }
+        } else {
+            // 알람에 프로필 이미지의 경우
+            if (url === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
+                avataGen = `https://source.boringavatars.com/beam/120/${userNickName}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
+            } else {
+                avataGen = url
+            }
         }
-        return <><img src={avataGen} alt="프로필사진" /></>   
+        return <><img src={avataGen} alt="프로필사진" /></>
+    }
+
+    // 알람내용 생성 함수 
+    const alarmCotentHandler = (userNickName, content) => {
+        const pos = content.indexOf(userNickName)
+        let highLightName
+        let nonHighLightContnent
+        console.log("######## 알람내용 생성" ,userNickName, content)
+        console.log("######## 알람내용 생성1" ,pos)
+        if(pos!==-1){
+            highLightName = content.substr(pos, userNickName.length)
+            nonHighLightContnent = content.slice(-pos)
+            return <><span>{highLightName}</span>{nonHighLightContnent}</>
+        }else{
+            return <>{content}</>
+        }
+        
     }
 
     // 알림 내용 컴포넌트 생성 함수
@@ -125,25 +154,38 @@ function Header() {
             const alarmInfoTest2 = ['EventStream Created. [memberId=8]']
             const alarmInfoTest3 = ['EventStream Created. [memberId=8]', 'EventStream Created. [memberId=8]']
             const slicedArray = alarmInfo.slice(1);
-            if(slicedArray.length === 0){
+            const alarmInfoTest4 = [
+                '{ "id": 7, "senderNickname":"변희준3", "senderProfileUrl":"프로필유알엘", "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }',
+                '{ "id": 7, "senderNickname":"변희준3", "senderProfileUrl":"프로필유알엘", "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }',
+                '{ "id": 7, "senderNickname":"변희준3", "senderProfileUrl":"프로필유알엘", "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }'
+            ]
+            // slicedArray - alarmInfoTest4
+            if (slicedArray.length === 0) {
                 return (
                     <>
                         <NoneMessageImg src={`${process.env.PUBLIC_URL}/image/bell.webp`} alt="알람없을때아이콘" />
                         <NoneMessage>아직 온 알람이 없어요!</NoneMessage>
                     </>
                 )
-            }else{
+            } else {
                 return (
                     <>
                         {slicedArray && slicedArray.map((alarm) => {
                             return (
                                 <AlearmContent>
-                                    <AlearmContentMsg>
-                                        {JSON.parse(alarm).content}
-                                    </AlearmContentMsg>
-                                    <AlearmContentTime>
-                                        {JSON.parse(alarm).createdAt}
-                                    </AlearmContentTime>
+                                    <ProfileImgDivInAlarm>
+                                        {avataGenHandler('alearm', JSON.parse(alarm).senderProfileUrl, JSON.parse(alarm).senderNickname)}
+                                    </ProfileImgDivInAlarm>
+                                    <AlearmContentWrap onClick={onClickMyPageHandler}>
+                                        <AlearmContentMsg>
+                                            {alarmCotentHandler((JSON.parse(alarm).senderNickname), JSON.parse(alarm).content)}
+                                            {/* {JSON.parse(alarm).content} */}
+                                        </AlearmContentMsg>
+                                        <AlearmContentTime>
+                                            <span>{JSON.parse(alarm).createdAt}</span>
+                                        </AlearmContentTime>
+                                    </AlearmContentWrap>
+
                                 </AlearmContent>
                             )
                         })}
@@ -182,9 +224,25 @@ function Header() {
                 eventSourceRef.current.close(); // SSE 연결 종료
             }
         }
-        remove()
-        navigate('/')
+        // remove()
+
+        const logoutReset = async () => {
+            await dispatcher(__alarmClean())
+            await dispatcher(__logoutResetUser())
+            await dispatcher(__logoutResetSearch())
+            console.log("로그아웃!!!!")
+
+        }
+
+        const logout = async () => {
+            await remove()
+            await logoutReset()
+            navigate('/')
+        }
+
+        logout()
     }
+    
     const onClickMyPageHandler = () => {
         navigate('/mypage')
     }
@@ -196,16 +254,17 @@ function Header() {
         <CommonHeader>
             <ButtonWrap>
                 <HeaderLeftContent>
-                    <button onClick={onClickLogoHandler}>로고</button>
+                    <Logo src={`${process.env.PUBLIC_URL}/image/logo.webp`} onClick={onClickLogoHandler} />
+                    {/* <button onClick={onClickLogoHandler}>로고</button> */}
                 </HeaderLeftContent>
                 <HeaderRightContent>
                     {!isLogin ? <>
-                        <HeaderButton onClick={onClickSignInHandler} width={67} marginRight={18} >로그인</HeaderButton>
-                        <HeaderButton onClick={onClickSignUpHandler} width={115} border={true} marginRight={40} >회원가입</HeaderButton>
+                        <HeaderButton onClick={onClickSignInHandler} width={67} marginRight={18}><p>로그인</p></HeaderButton>
+                        <HeaderButton onClick={onClickSignUpHandler} width={115} border={true} marginRight={40}><p>회원가입</p></HeaderButton>
                     </> : <>
-                        <HeaderButton onClick={onClickLogOutHandler} width={67} marginRight={18} >로그아웃</HeaderButton>
+                        <HeaderButton onClick={onClickLogOutHandler} width={85} marginRight={10} ><p>로그아웃</p></HeaderButton>
                         <AlearmWrap>
-                            <HeaderButton onClick={() => { onClickAlearmHandler(isAlarmWindowOpen) }} marginRight={17}>
+                            <HeaderButton onClick={() => { onClickAlearmHandler(isAlarmWindowOpen) }} marginRight={17} width={40}>
                                 <AlearmImg src={`${process.env.PUBLIC_URL}/image/alearmBtn.svg`} alt="알람버튼" />
                             </HeaderButton>
                             {!isAlarmWindowOpen ? <></> :
@@ -219,15 +278,17 @@ function Header() {
                             }
                         </AlearmWrap>
 
-                        <HeaderButton onClick={onClickMyPageHandler} marginRight={39}>
-                            <ProfileImgDiv>
+                        {/* <HeaderButton onClick={onClickMyPageHandler} marginRight={39}> */}
+                        
+                            <ProfileImgDiv onClick={onClickMyPageHandler}>
                                 {
                                     // console.log("profileImg",profileImg)
                                     //profileImg === '' ? <img src={`${process.env.PUBLIC_URL}/image/profileEmpty.svg`} alt="프로필사진" />:<img src='http://www.gravatar.com/avatar/테스트유저1?d=identicon&s=400' alt="프로필사진" />
                                     avataGenHandler()
                                 }
                             </ProfileImgDiv>
-                        </HeaderButton>
+                        
+                        {/* </HeaderButton> */}
                     </>
                     }
                 </HeaderRightContent>
@@ -252,7 +313,8 @@ export const HeaderLeftContent = styled.div`
     
 `
 export const HeaderRightContent = styled.div`
-    
+    display: flex;
+    align-items: center;
 `
 export const ProfileImgDiv = styled.div`
     width: 44px;
@@ -261,6 +323,19 @@ export const ProfileImgDiv = styled.div`
     overflow: hidden;
     background-color: #ffffff;
     box-shadow: 0 0 0 1px #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+`
+export const ProfileImgDivInAlarm = styled.div`
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.25);
+    margin-right: 6px;
 `
 
 export const shakeAnimation = keyframes`
@@ -272,7 +347,7 @@ export const shakeAnimation = keyframes`
     100% { transform: translateX(0); }
 `
 
-export const HeaderButton = styled.button`
+export const HeaderButton = styled.div`
     border: 0;
     background-color: transparent;
     color: #FFFFFF;
@@ -284,12 +359,27 @@ export const HeaderButton = styled.button`
     border : ${(props) => {
         return props.border ? '1px solid #FFFFFF;' : '0';
     }};
-    border-radius : ${(props) => {
+    /* border-radius : ${(props) => {
         return props.border ? '52px;' : '0px';
-    }};
+    }}; */
+    border-radius : 53px;
     margin-right: ${(props) => {
         return props.marginRight ? props.marginRight + 'px' : 0;
     }};
+
+    &:hover {
+        transform: scale(1.03);
+        background: rgba(0, 0, 0, 0.4);
+    }
+    &:active {
+        background: rgba(0, 0, 0, 0.7);
+        transform: scale(1);
+    }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
 `
 export const AlearmImg = styled.img`
     position: relative;
@@ -333,6 +423,7 @@ export const AlearWrapContent = styled.div`
     width: 239px;
     height: 373.95px;
     background-color: #F9F9FA;
+    z-index: 1;
 `
 
 export const AlearTitle = styled.p`
@@ -355,7 +446,8 @@ export const AlearmContent = styled.div`
     box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.25);
     border-radius: 10px;
     margin : 10px 13px 10px 13px;
-    padding: 12px;
+    display: flex;
+    padding: 12px 8px 10px;
 `
 
 export const AlearmContentMsg = styled.p`
@@ -365,16 +457,33 @@ export const AlearmContentMsg = styled.p`
     font-size: 9px;
     line-height: 178%;
     color: #464646;
+    width: 139px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow : ellipsis;
+    span {
+        font-weight: 700;
+        color : #00CABE;
+    }
 `
-export const AlearmContentTime = styled.p`
+export const AlearmContentTime = styled.div`
     font-family: 'Noto Sans';
     font-style: normal;
     font-weight: 400;
     font-size: 7px;
-    line-height: 229%;
     text-align: right;
     color: #464646;
+    display: flex;
+    flex-direction: column;
 `
+export const AlearmContentWrap = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 5px;
+    cursor: pointer;
+`
+
 
 export const NoneMessageImg = styled.img`
     margin: 102px 93px 12px;
@@ -390,4 +499,7 @@ export const NoneMessage = styled.p`
     color: #BEBEBE;
 `
 
+export const Logo = styled.img`
+    cursor: pointer;
+`
 export default Header;

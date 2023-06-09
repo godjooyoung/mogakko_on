@@ -3,6 +3,7 @@ import { styled } from 'styled-components';
 import { useQuery, useQueryClient } from 'react-query';
 import { getBestMember } from '../axios/api/member'
 import { useNavigate } from 'react-router-dom';
+import { getCookie } from '../cookie/Cookie';
 
 function MainBest() {
     const navigate = useNavigate();
@@ -11,44 +12,7 @@ function MainBest() {
     const { isLoading, isError, data } = useQuery("getBestMember", getBestMember)
 
     // 하드코딩
-    const [bestMemberList, setBestMemberList] = useState(
-        [
-            {
-                "member":
-                {
-                    "createdAt": "2023-06-06T22:34:10.020628",
-                    "modifiedAt": "2023-06-07T22:06:51.769667",
-                    "id": 2,
-                    "email": "dsin1118@kakao.com",
-                    "nickname": "르탄이3",
-                    "role": "USER",
-                    "githubId": null,
-                    "socialType": null,
-                    "profileImage": "https://mogakkos3.s3.ap-northeast-2.amazonaws.com/bf676979-18ae-4b6d-a187-1cbcd4e96641_하루!.jpg",
-                    "socialUid": null,
-                    "memberStatusCode": "2514",
-                    "codingTem": 36.5
-                }, "totalTimer": "162H10M", "totalTimerWeek": "162H10M"
-            },
-            {
-                "member":
-                {
-                    "createdAt": "2023-06-06T22:34:15.340008",
-                    "modifiedAt": "2023-06-07T12:17:27.922704",
-                    "id": 3,
-                    "email": "test12@naver.com",
-                    "nickname": "짱주영",
-                    "role": "USER",
-                    "githubId": null,
-                    "socialType": null,
-                    "profileImage": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU",
-                    "socialUid": null,
-                    "memberStatusCode": "102",
-                    "codingTem": 36.5
-                }, "totalTimer": "162H10M", "totalTimerWeek": "162H10M"
-            },
-        ]
-    )
+    const [bestMemberList, setBestMemberList] = useState([])
 
     useEffect(() => {
         if (data) {
@@ -105,7 +69,11 @@ function MainBest() {
     
     //userProfileHandler
     const userProfileHandler = (id) => {
-        navigate('/profile/'+id)
+        if(getCookie('token')){
+            navigate('/profile/'+id)
+        }else{
+            alert('로그인후 이용가능한')
+        }   
     }
 
     return (
@@ -200,6 +168,7 @@ export const BestMemberCardGrid = styled.div`
     grid-template-rows: max-content;
     column-gap: 20px;
     row-gap: 36px;
+    width: 996px;
 `
 export const BestMemberButtonContainer = styled.div`
     height: 164px;

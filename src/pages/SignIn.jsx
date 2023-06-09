@@ -67,7 +67,7 @@ const SignIn = () => {
             setIsValidationPassword(false)
         } else {
             if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password)) {
-                setPasswordError('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.')
+                setPasswordError('대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.')
                 setIsValidationPassword(false)
             } else {
                 setPasswordError('')
@@ -109,9 +109,9 @@ const SignIn = () => {
                             onChange={emailChangeHandler}
                         />
                     </InputWrapper>
-                    <ErrorMessageContainer>
+                    <EmailErrorMessageContainer>
                         {emailError && <ErrorMessage>{emailError}</ErrorMessage>}
-                    </ErrorMessageContainer>
+                    </EmailErrorMessageContainer>
                 </div>
                 <div>
                     <Label>비밀번호</Label><br />
@@ -123,9 +123,9 @@ const SignIn = () => {
                             onChange={passwordChangeHandler}
                         />
                     </InputWrapper>
-                    <ErrorMessageContainer>
+                    <PasswordErrorMessageContainer>
                         {passwrodError && <ErrorMessage>{passwrodError}</ErrorMessage>}
-                    </ErrorMessageContainer>
+                    </PasswordErrorMessageContainer>
                 </div>
                 <LoginButton type="submit" disabled={!isValidationEmail || !isValidationPassword}>로그인</LoginButton>
                 {/* {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>} */}
@@ -153,13 +153,21 @@ const Form = styled.form`
 export const SigninIntro = styled.div`
     color:white;
     height: 42.96px;
-    font-size: 36px;
     margin-bottom: 70px;
     margin-up:100px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 43px;
 `;
 export const Label = styled.label`
     color:white;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
     font-size: 24px;
+    line-height: 29px;
 `;
 export const InputWrapper = styled.div`
     display: flex;
@@ -168,45 +176,71 @@ export const InputWrapper = styled.div`
     margin-top:10px;
 `
 export const Input = styled.input`
-    border-radius:114px;
-    padding: 20px;
-    border: none;
-    width: 384px;
+    flex-glow: 1;
+    padding: 10px;
+    border:none;
+    outline: none;
+    width: 100%;
     height: 40px;
     background: #394254;
     color: #FFFFFF;
+    border-radius:114px;
+    box-sizing: border-box;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
 `;
+
 
 export const ErrorMessage = styled.div`
     color: #FF635D;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
     font-size: 14px;
+    line-height: 17px;
 
 `;
-export const ErrorMessageContainer = styled.div`
+export const EmailErrorMessageContainer = styled.div`
     height: 24px;
-    margin:10px 0 40px 10px;
+    margin:10px 0 28px 10px;
+
+`;
+export const PasswordErrorMessageContainer = styled.div`
+    height: 24px;
+    margin:10px 0 81px 10px;
 
 `;
 export const LoginButton = styled.button`
-    width:383px;
+    width:384px;
     padding: 9px 20px;
-    margin-left: 9px;
-    margin-bottom: 12px;
+    margin: 53px 0 12px 9;
     height: 40px;
-    border: 0.5px solid ${props => props.disabled ? '#4A4F59' : '#00F0FF'}; 
-    border-radius: 28px;
+    border:none;
+    border-radius: 42px;
     cursor: pointer;
     background : #4A4F59;
     color :#BEBEBE;
     overflow: hidden;
+    margin: auto;
     font-family: 'Pretendard';
     font-style: normal;
+    font-weight: 700;
     font-size: 16px;
-    line-height: 24px;
-    margin: auto;
+    line-height: 16px;
+    text-align: center;
 
     &:not(:disabled){
         background: #00F0FF;
         color: #464646;
+    }
+    &:hover {
+        transform: scale(1.03);
+    }
+    &:active {
+        background-color: #00C5D1;
+        transform: scale(1);
     }
 `
