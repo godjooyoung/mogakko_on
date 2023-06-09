@@ -14,17 +14,20 @@ function Main() {
         })
     }
     return (
-        <div>
+        <MainWrap>
         <MainContaniner>
             <MainHeader/>
             <MainContent/>
             <MainBest/>
         </MainContaniner>
-        <Top onClick={goToTopHandler}>top</Top>
-        </div>
+        <Top onClick={goToTopHandler} url={`${process.env.PUBLIC_URL}/image/top.png`}></Top>
+        </MainWrap>
     );
 }
 
+export const MainWrap = styled.div`
+    position: relative;
+`
 export const Top = styled.div`
     width: 60px;
     height: 60px;
@@ -33,12 +36,20 @@ export const Top = styled.div`
     color : white;
     text-align: center;
     overflow: hidden;
-    position: fixed;
-	/* right: calc(100vw - 1240px); 
-	bottom: 432px; */
-    right: 40px;
-    bottom: 100px;
 	z-index: 9;
+    position: sticky;
+    bottom: 150px;
+    left: 100%;
+    background-image: ${(props) =>
+    `url('${props.url}')`
+    };
+    cursor: pointer;
+    &:hover {
+        transform: scale(1.03);
+    }
+    &:active {
+        transform: scale(1);
+    }
 `
 export const MainContaniner = styled.div`
     display: grid;
