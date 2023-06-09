@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { __alarmSender, __alarmClean } from '../../redux/modules/alarm'
 import { __logoutResetUser } from '../../redux/modules/user'
 import { __logoutResetSearch } from '../../redux/modules/search'
-function Header() {
+function Header(props) {
     const [isLogin, setIsLogin] = useState(false)
     const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
     const [profileImg, setProfileImg] = useState('')
@@ -251,9 +251,9 @@ function Header() {
     }
 
     return (
-        <CommonHeader>
+        <CommonHeader pos={props.pos}>
             <ButtonWrap>
-                <HeaderLeftContent>
+                <HeaderLeftContent pos={props.pos}>
                     <Logo src={`${process.env.PUBLIC_URL}/image/logo.webp`} onClick={onClickLogoHandler} />
                     {/* <button onClick={onClickLogoHandler}>로고</button> */}
                 </HeaderLeftContent>
@@ -302,6 +302,9 @@ export const CommonHeader = styled.header`
     color: #FFFFFF;
     width : 100%;
     height: 79px;
+    position: ${(props) => {
+        return props.pos ? 'absolute' : 'static';
+    }};
 `
 export const ButtonWrap = styled.div`
     display: flex;
@@ -310,7 +313,7 @@ export const ButtonWrap = styled.div`
     align-items : center;
 `
 export const HeaderLeftContent = styled.div`
-    
+    margin-left: 40px;
 `
 export const HeaderRightContent = styled.div`
     display: flex;
