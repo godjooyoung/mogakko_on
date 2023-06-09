@@ -85,121 +85,132 @@ function MemberPage() {
     setOnMouse(false)
   }
 
-    // 물은표 버튼 hover시 나오는 정보창 (온도)
-    const tempOnMouseHandler = () => {
-      setTempOnmouse(true)
-    }
-  
-    const tempOffMouseHandler = () => {
-      setTempOnmouse(false)
-    }
+  // 물은표 버튼 hover시 나오는 정보창 (온도)
+  const tempOnMouseHandler = () => {
+    setTempOnmouse(true)
+  }
+
+  const tempOffMouseHandler = () => {
+    setTempOnmouse(false)
+  }
   console.log('userGitHubIduserGitHubIduserGitHubIduserGitHubId', userGitHubId)
   return (
     <>
       <Header />
-      <MyPageTopContentWrap>
-        <ProfileModifyWrap>
-          <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
-            <ImageWrap BgImg={preview} />
-            <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
-            {
-              data && data.data.data.isFriend === false ? 
-              <button
-              onClick={() => (onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname))
-              }>친구요청</button> : null
-              }
-          </ProfileModifyContent>
-          <TimerWrap>
-            <div>
-              <TopContentTitle>총 순공시간</TopContentTitle>
-              <TopContentTitleItem>{data && data.data.data.totalTimer}</TopContentTitleItem>
-            </div>
-
-            <div>
-              <TopContentTitle>이번 주 순공 시간</TopContentTitle>
-              <TopContentTitleItem>{data && data.data.data.totalTimerWeek}</TopContentTitleItem>
-            </div>
-
-            <div>
-              <TopContentTitle>
-                Status
-                <img
-                  src={`${process.env.PUBLIC_URL}/image/status.webp`}
-                  onMouseEnter={() => {
-                    statusOnMouseHandler()
-                  }}
-                  onMouseLeave={() => {
-                    statusOffMouseHandler()
-                  }}
-                >
-                </img>
+      <FlexBox>
+        <div>
+          <MyPageTopContentWrap>
+            <ProfileModifyWrap>
+              <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
+                <ImageWrap BgImg={preview} />
+                <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
                 {
-                  onMouse &&
-                  <MouseHoverBox>
-                    <p>102 : <span>회원가입 시 기본값</span></p>
-                    <p>200 : <span>처음 프로필 등록시 변경</span></p>
-                    <p>400 : <span>신고 1회</span></p>
-                    <p>401 : <span>신고 2회</span></p>
-                    <p>404 : <span>신고 3회</span></p>
-                    <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
-                    <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
-                    <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
-                    <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
-                  </MouseHoverBox>
+                  data && data.data.data.isFriend === false ?
+                    <button
+                      onClick={() => (onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname))
+                      }>친구요청</button> : null
                 }
-              </TopContentTitle>
-              <TopContentTitleItem>{data && data.data.data.member.memberStatusCode}</TopContentTitleItem>
-            </div>
+              </ProfileModifyContent>
+              <TimerWrap>
+                <div>
+                  <TopContentTitle>총 순공시간</TopContentTitle>
+                  <TopContentTitleItem>{data && data.data.data.totalTimer}</TopContentTitleItem>
+                </div>
 
-            <Temperaturecontainer>
-              <TemperatureTitle>
-                코딩온도
-                <img
-                  src={`${process.env.PUBLIC_URL}/image/status.webp`}
-                  onMouseEnter={() => {
-                    tempOnMouseHandler()
-                  }}
-                  onMouseLeave={() => {
-                    tempOffMouseHandler()
-                  }}
-                ></img>
-              </TemperatureTitle>
-              {
-                tempOnmouse &&
-                <TemperatureMouseHoverBox>
-                  <TemperatureMouseHoverBoxdesc>
-                    당신의 코딩온도는 몇도인가요?<br />
-                    공부 시간이 늘어날수록<br />
-                    코딩 온도도 올라가요! ( 10M <img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /> 0.01)
-                  </TemperatureMouseHoverBoxdesc>
-                </TemperatureMouseHoverBox>
-              }
-              <TemperatureWrap>
-                <ProgressContainer>
-                  <Progress style={{ width: `${value}%` }} />
-                </ProgressContainer>
-                <span>{data && data.data.data.member.codingTem}%</span>
-              </TemperatureWrap>
-            </Temperaturecontainer>
-          </TimerWrap>
-        </ProfileModifyWrap>
-      </MyPageTopContentWrap>
+                <div>
+                  <TopContentTitle>이번 주 순공 시간</TopContentTitle>
+                  <TopContentTitleItem>{data && data.data.data.totalTimerWeek}</TopContentTitleItem>
+                </div>
 
-      <MyPageMiddleContentWrap>
-        <GithubTitle>깃허브 잔디</GithubTitle>
-        {
-          userGitHubId === null || userGitHubId === '' ?
-            <NullGithubBox>
-              <NullGithubBoxText>등록된 깃허브 잔디가 없습니다</NullGithubBoxText>
-            </NullGithubBox> :
-            <MyPageMiddleContent>
-              <GitHubImage src={`https://ghchart.rshah.org/394254/${userGitHubId}`} />
-            </MyPageMiddleContent>
-        }
-      </MyPageMiddleContentWrap>
+                <div>
+                  <TopContentTitle>
+                    Status
+                    <img
+                      src={`${process.env.PUBLIC_URL}/image/status.webp`}
+                      onMouseEnter={() => {
+                        statusOnMouseHandler()
+                      }}
+                      onMouseLeave={() => {
+                        statusOffMouseHandler()
+                      }}
+                    >
+                    </img>
+                    {
+                      onMouse &&
+                      <MouseHoverBox>
+                        <p>102 : <span>회원가입 시 기본값</span></p>
+                        <p>200 : <span>처음 프로필 등록시 변경</span></p>
+                        <p>400 : <span>신고 1회</span></p>
+                        <p>401 : <span>신고 2회</span></p>
+                        <p>404 : <span>신고 3회</span></p>
+                        <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
+                        <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
+                        <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
+                        <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
+                      </MouseHoverBox>
+                    }
+                  </TopContentTitle>
+                  <TopContentTitleItem>{data && data.data.data.member.memberStatusCode}</TopContentTitleItem>
+                </div>
+
+                <Temperaturecontainer>
+                  <TemperatureTitle>
+                    코딩온도
+                    <img
+                      src={`${process.env.PUBLIC_URL}/image/status.webp`}
+                      onMouseEnter={() => {
+                        tempOnMouseHandler()
+                      }}
+                      onMouseLeave={() => {
+                        tempOffMouseHandler()
+                      }}
+                    ></img>
+                  </TemperatureTitle>
+                  {
+                    tempOnmouse &&
+                    <TemperatureMouseHoverBox>
+                      <TemperatureMouseHoverBoxdesc>
+                        당신의 코딩온도는 몇도인가요?<br />
+                        공부 시간이 늘어날수록<br />
+                        코딩 온도도 올라가요! ( 10M <img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /> 0.01)
+                      </TemperatureMouseHoverBoxdesc>
+                    </TemperatureMouseHoverBox>
+                  }
+                  <TemperatureWrap>
+                    <ProgressContainer>
+                      <Progress style={{ width: `${value}%` }} />
+                    </ProgressContainer>
+                    <span>{data && data.data.data.member.codingTem}%</span>
+                  </TemperatureWrap>
+                </Temperaturecontainer>
+              </TimerWrap>
+            </ProfileModifyWrap>
+          </MyPageTopContentWrap>
+
+          <MyPageMiddleContentWrap>
+            <GithubTitle>깃허브 잔디</GithubTitle>
+            {
+              userGitHubId === null || userGitHubId === '' ?
+                <NullGithubBox>
+                  <NullGithubBoxText>등록된 깃허브 잔디가 없습니다</NullGithubBoxText>
+                </NullGithubBox> :
+                <MyPageMiddleContent>
+                  <GitHubImage src={`https://ghchart.rshah.org/394254/${userGitHubId}`} />
+                </MyPageMiddleContent>
+            }
+          </MyPageMiddleContentWrap>
+        </div>
+      </FlexBox>
     </>
   )
 }
+
+const FlexBox = styled.div`
+  display:flex;
+  justify-content: center;
+  align-items:center;
+  height: calc(100vh - 79px);
+`
 
 const MyPageTopContentWrap = styled.div`
   height: 100%;
