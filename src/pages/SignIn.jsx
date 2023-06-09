@@ -99,8 +99,10 @@ const SignIn = () => {
                 <SigninIntro>
                     로그인
                 </SigninIntro>
-                <div>
-                    <Label>이메일</Label><br />
+                <div style={{
+                    height: '125px'
+                }}>
+                    <Label>이메일</Label>
                     <InputWrapper>
                         <Input
                             type="email"
@@ -113,8 +115,10 @@ const SignIn = () => {
                         {emailError && <ErrorMessage>{emailError}</ErrorMessage>}
                     </EmailErrorMessageContainer>
                 </div>
-                <div>
-                    <Label>비밀번호</Label><br />
+                <div style={{
+                    height: '125px'
+                }}>
+                    <Label>비밀번호</Label>
                     <InputWrapper>
                         <Input
                             type="password"
@@ -129,7 +133,6 @@ const SignIn = () => {
                 </div>
                 <LoginButton type="submit" disabled={!isValidationEmail || !isValidationPassword}>로그인</LoginButton>
                 {/* {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>} */}
-
             </Form>
         </FormDiv>
     );
@@ -146,6 +149,7 @@ export const FormDiv = styled.div`
 const Form = styled.form`
     display: flex;
     flex-direction: column;
+    justify-content: center;
     max-width: 384px;
     margin: 0 auto
 `;
@@ -154,7 +158,6 @@ export const SigninIntro = styled.div`
     color:white;
     height: 42.96px;
     margin-bottom: 70px;
-    margin-up:100px;
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 700;
@@ -172,11 +175,9 @@ export const Label = styled.label`
 export const InputWrapper = styled.div`
     display: flex;
     align-items: stretch;
-    margin-bottom: 15px; 
     margin-top:10px;
 `
 export const Input = styled.input`
-    flex-glow: 1;
     padding: 10px 10px 10px 20px;
     border:none;
     outline: none;
@@ -201,12 +202,10 @@ export const ErrorMessage = styled.div`
     font-weight: 400;
     font-size: 14px;
     line-height: 17px;
-
 `;
 export const EmailErrorMessageContainer = styled.div`
     height: 24px;
     margin:10px 0 28px 10px;
-
 `;
 export const PasswordErrorMessageContainer = styled.div`
     height: 24px;
@@ -223,24 +222,25 @@ export const LoginButton = styled.button`
     cursor: pointer;
     background : #4A4F59;
     color :#BEBEBE;
-    overflow: hidden;
-    margin: auto;
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 700;
     font-size: 16px;
     line-height: 16px;
     text-align: center;
-
+    transition: all 0.3s;
     &:not(:disabled){
         background: #00F0FF;
         color: #464646;
     }
     &:hover {
+        background: #00F0FF;
         transform: scale(1.03);
+        color: #464646;
     }
     &:active {
         background-color: #00C5D1;
         transform: scale(1);
+        color: #464646;
     }
 `
