@@ -28,7 +28,8 @@ function Room() {
   const [currentVideoDevice, setCurrentVideoDevice] = useState(null)
   const [isScreenSharing, setIsScreenSharing] = useState(false)
   const [lang, setLang] = useState(sessionInfo.language)
-  const [isOpened, setIsOpened] = useState(sessionInfo.isOpened)   // isOpen 
+  // const [isOpened, setIsOpened] = useState(sessionInfo.isOpened)   // isOpen 
+  const [isOpened, setIsOpened] = useState(true)   // isOpen 
   const [openViduSession, setOpenViduSession] = useState(undefined)
 
   //비디오, 오디오 on/off 상태
@@ -42,6 +43,8 @@ function Room() {
 
   const [btnSelect, setBtnSelect] = useState('public')
 
+  //popup창
+  const [roomPopUp, setRoomPopUp] = useState(false)
   // 네비게이트 선언
   const navigate = useNavigate()
   // 리브세션 서버 요청
@@ -137,7 +140,8 @@ function Room() {
     title: sessionInfo.title,
     language: sessionInfo.language,
     maxMembers: sessionInfo.maxMembers,
-    isOpened: sessionInfo.isOpened,
+    // isOpened: sessionInfo.isOpened, 2차 스코프로 비밀방 하면 다시 ㄱㄱ
+    isOpened: true,
     password: sessionInfo.password,
     lon: sessionInfo.longitude,
     lat: sessionInfo.latitude,
@@ -205,23 +209,23 @@ function Room() {
     const mySession = OV.current.initSession();
     console.log("subscribers 확인 처음!@@ subscribers ::: ", subscribers);
     mySession.on('streamCreated', (event) => {
-    const subscriber = mySession.subscribe(event.stream, undefined);
-      setSubscribers((prevSubscribers)=>[...prevSubscribers, subscriber])
+      const subscriber = mySession.subscribe(event.stream, undefined);
+      setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber])
 
       console.log("subscribers 확인 1 현재 접속시도자 subscriber ::: ", subscriber);
       console.log("subscribers 확인 2 subscribers ::: ", subscribers);
     });
-    
+
     mySession.on('streamDestroyed', (event) => {
-    deleteSubscriber(event.stream.streamManager);
+      deleteSubscriber(event.stream.streamManager);
     });
-    
+
     mySession.on('exception', (exception) => {
-    console.warn(exception);
+      console.warn(exception);
     });
-    
+
     setSession(mySession)
-    };
+  };
 
   const [isFisrstSubscribe, setIsFisrstSubscribe] = useState(false)
   const [isGuest, setIsGuest] = useState(false)
@@ -230,15 +234,15 @@ function Room() {
     console.log("*************** 방장일때, 방장이닐때 값 비교 1", openViduSession)
     console.log("*************** 방장일때, 방장이닐때 값 비교 2", mySessionId)
 
-    if(!isGuest || openViduSession){ // !false || undifind
+    if (!isGuest || openViduSession) { // !false || undifind
       console.log("게스트여서 커넥트됬니?", isGuest)
-      console.log("방장이여서 재시도 하니?", !openViduSession?'true':'false')
-      if(!isFisrstSubscribe){ // !false => true
+      console.log("방장이여서 재시도 하니?", !openViduSession ? 'true' : 'false')
+      if (!isFisrstSubscribe) { // !false => true
         console.log("*************** 1")
-        if(openViduSession){
+        if (openViduSession) {
           console.log("*************** 2")
           connect(openViduSession) // isFisrstSubscribe = false
-        }else{
+        } else {
           // 방장 아닌사람은 3일때 커넥션 하고 다시 또 커넥션 시키지 않는다.
           console.log("*************** 3")
           connect(mySessionId)
@@ -258,6 +262,7 @@ function Room() {
             title: sessionInfo.title,
             language: sessionInfo.language,
             maxMembers: sessionInfo.maxMembers,
+            isOpened: true,
             isOpened: sessionInfo.isOpened,
             password: sessionInfo.password,
           }
@@ -287,9 +292,9 @@ function Room() {
     }
   }, [data])
 
-  useEffect(()=>{
-    console.log("subscribers>> 제발...왜 멍청이 처럼..구는데..  ",subscribers)
-  },[subscribers])
+  useEffect(() => {
+    console.log("subscribers>> 제발...왜 멍청이 처럼..구는데..  ", subscribers)
+  }, [subscribers])
 
   // 목록에서 방으로 바로 접근 할경우 실행되는 useEffect
   useEffect(() => {
@@ -383,11 +388,11 @@ function Room() {
 
   useEffect(() => {
     // 세션이 있으면 그 세션에 publish해라 
-    if(sessionInfo){
-      if(sessionInfo.isDirect){
+    if (sessionInfo) {
+      if (sessionInfo.isDirect) {
         console.log("게스트", sessionInfo)
       }
-    }else{
+    } else {
       console.log("방장")
     }
     console.log("세션있으면 퍼블리시 하기, 세션 객체의 connect 메소드를 찾아보자.", session)
@@ -435,17 +440,17 @@ function Room() {
     // TODO 방 떠났다는 요청 서버에 보내기
     const leaveSessionMutationCall = () => {
       console.log("방나가기..... ", session)
-      if(sessionInfo.isDirect){
+      if (sessionInfo.isDirect) {
         console.log("방나가기.....방장아님1 ", openViduSession)
         console.log("방나가기.....방장아님2 ", mySessionId)
         console.log("방나가기.....방장아님3 ", session)
         leaveSessionMutation.mutate(openViduSession)
-      }else{
+      } else {
         console.log("방나가기.....방장임1 ", openViduSession)
         console.log("방나가기.....방장임2 ", mySessionId)
         console.log("방나가기.....방장임3 ", session.options.sessionId)
         leaveSessionMutation.mutate(session.options.sessionId)
-      }      
+      }
     }
 
     // Leave the session
@@ -525,53 +530,53 @@ function Room() {
 
   const createToken = async (sessionId) => {
     console.log("##### createToken", sessionId)
-    if(sessionInfo){
-      if(sessionInfo.isDirect){
+    if (sessionInfo) {
+      if (sessionInfo.isDirect) {
         console.log("토큰만들기 - 게스트")
       }
-    }else{
+    } else {
       console.log("토큰만들기 - 방장")
     }
-    
-    if(sessionInfo){
-      if(sessionInfo.isDirect){
+
+    if (sessionInfo) {
+      if (sessionInfo.isDirect) {
         setMySessionId(sessionId)
         setOpenViduSession(sessionId)
       }
-    }else{
+    } else {
       setMySessionId(sessionId)
     }
 
-    
+
     const setRequestBody = () => {
       let payload = {}
-      if(!data.password && data.isOpened){
+      if (!data.password && data.isOpened) {
         payload = payload
-      }else{
-        payload = {'password': data.password}
+      } else {
+        payload = { 'password': data.password }
       }
       console.log("요청 bodyp", payload)
       return payload
     }
-    
-    let response 
-      if(data.isOpened){
-        console.log('############################### 공개방 입장 ##################################')
-        response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
-          headers: {
-            ACCESS_KEY: getCookie('token'),
-          },
-        })
-        return response.data // The token
-      }else{
-        console.log('############################## 비공개방 입장 ##################################')
-        response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
-          headers: {
-            ACCESS_KEY: getCookie('token'),
-          },
-        })
-        return response.data // The token
-      }    
+
+    let response
+    if (data.isOpened) {
+      console.log('############################### 공개방 입장 ##################################')
+      response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
+        headers: {
+          ACCESS_KEY: getCookie('token'),
+        },
+      })
+      return response.data // The token
+    } else {
+      console.log('############################## 비공개방 입장 ##################################')
+      response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
+        headers: {
+          ACCESS_KEY: getCookie('token'),
+        },
+      })
+      return response.data // The token
+    }
   };
 
 
@@ -652,7 +657,7 @@ function Room() {
     console.log("(전역) 실시간 채팅 subscribe 시도 ::::", openViduSession)
     console.log("(전역) 실시간 채팅 subscribe 시도 ::::", mySessionId)
     console.log("url", `/sub/chat/room/${params}`)
-    if(params){
+    if (params) {
       stompClient.current.subscribe(
         `/sub/chat/room/${params}`,
         (data) => {
@@ -665,16 +670,16 @@ function Room() {
         }
       )
       setIsFisrstSubscribe(true)
-    }else{
+    } else {
       setIsFisrstSubscribe(false)
     }
 
   }
 
   // chatMessages 어떻게 담기는지 찍을 꺼임 콘솔 찍기용이므로 추후 삭제
-  useEffect(()=>{
+  useEffect(() => {
     console.log("chatMessages", chatMessages)
-  },[chatMessages])
+  }, [chatMessages])
 
   const publish = async (openViduSession) => {
     if (!stompClient.current.connected) {
@@ -732,18 +737,32 @@ function Room() {
   //   );
   // }
 
+  // 스크롤이 항상 맨 아래로 가게하는 이벤트
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatMessages]);
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // 슬라이드 
   const [position, setPosition] = useState(0);
   const [count, setCount] = useState(0)
   const scrollLeft = () => {
     console.log("왼쪽으로 가기!!!!!")
-    setPosition((prevPosition) => prevPosition + 1045); // 왼쪽으로 100px 이동
+    setPosition((prevPosition) => prevPosition + 1045); // 왼쪽으로 1045px 이동
     const newCount = count
     setCount(newCount - 1)
   };
 
   const scrollRight = () => {
     console.log("오른쪽으로 가기!!!!!")
-    setPosition((prevPosition) => prevPosition - 1045); // 오른쪽으로 100px 이동
+    setPosition((prevPosition) => prevPosition - 1045); // 오른쪽으로 1045px 이동
     const newCount = count
     setCount(newCount + 1)
   };
@@ -802,7 +821,7 @@ function Room() {
                       }
                     </MaxMembersBtnWrap>
                   </MaxMembersWrap>
-                  <PublicWrap>
+                  {/* <PublicWrap>
                     <PublicTitle>공개 여부 : </PublicTitle>
                     <PublicBtnWrap>
                       <PublicBtn btnSelect={btnSelect}
@@ -844,7 +863,7 @@ function Room() {
                         />
                       </PasswordInputWrap>
                     </PasswordWrap>
-                  }
+                  } */}
                   <JoinBtnWrap>
                     <JoinBtn name="commit" type="submit" value="방 생성하기" />
                   </JoinBtnWrap>
@@ -858,6 +877,40 @@ function Room() {
       {/* 세션이 있으면  */}
       {session !== undefined ? (
         <div>
+          {
+            !roomPopUp &&
+            <Dark>
+              <PopUp>
+                <h1>모각코에 오신걸 환영합니다!</h1>
+                <h3>
+                  방에 들어가기에 앞서 <br />
+                  몇 가지 주의사항을 기억해주세요!
+                </h3>
+                <RoomPopUpImgBox>
+                  <img src={`${process.env.PUBLIC_URL}/image/RoomPopUpImg1.webp`} alt="주의 아이콘1" />
+                  <p>
+                    예티켓을 지켜주세요 <br />
+                    우리 모두 함께하는 사람입니다. 부적절한 언행을 <br />
+                    삼가해주세요.
+                  </p>
+                </RoomPopUpImgBox>
+
+                <RoomPopUpImgBox style={{
+                  marginRight: '7px',
+                }}>
+                  <img src={`${process.env.PUBLIC_URL}/image/RoomPopUpImg2.webp`} alt="주의 아이콘2" />
+                  <p>
+                    열심히 스터디에 참여해주세요<br />
+                    모두 코딩 공부를 하기 위해 모인 사람들입니다.<br />
+                    다른 업무는 지양해주세요.
+                  </p>
+                </RoomPopUpImgBox>
+                <ParticipationBtn onClick={() => {
+                  setRoomPopUp(!roomPopUp)
+                }}>참여하기</ParticipationBtn>
+              </PopUp>
+            </Dark>
+          }
           <RoomInHeader>
             <span>{roomTitle}</span>
             <div>
@@ -959,9 +1012,23 @@ function Room() {
                       </YourChatWrap>
                     )
                   )}
+                  <div ref={messagesEndRef} />
               </ChatContentWrap>
               <ChatInputWrap>
-                <ChatInput value={message} onChange={(e) => setMessage(e.target.value)} cols="30" rows="10"></ChatInput>
+                <ChatInput 
+                value={message} 
+                onChange={(e) => setMessage(e.target.value)} 
+                cols="30" 
+                rows="10"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    if (!e.shiftKey) {
+                      e.preventDefault();
+                      textPublish(openViduSession ? openViduSession : mySessionId);
+                    }
+                  }
+                }}
+                ></ChatInput>
               </ChatInputWrap>
               <SendBtnWrap>
                 <SendBtn onClick={() => {
@@ -978,6 +1045,90 @@ function Room() {
     </div>
   );
 }
+
+const Dark = styled.div`
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0,0.6);
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(3px);
+`
+
+const PopUp = styled.div`
+  position: relative;
+  width: 384px;
+  height: 424px;
+  background: #394254;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  h1 {
+    width: 100%;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    color: #00F0FF;
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 13px;
+    color: #00F0FF;
+    text-align: center;
+    line-height: 148.52%;
+    margin-bottom: 30px;
+  }
+`
+
+const RoomPopUpImgBox = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  gap: 11px;
+  margin-bottom: 20px;
+  img {
+    width: 28px;
+  }
+
+  p {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 172.02%;
+    color: #FFFFFF;
+  }
+`
+
+const ParticipationBtn = styled.button`
+  width: 164px;
+  height: 32px;
+  background: #00F0FF;
+  border-radius: 359px;
+  border: none;
+  transition: all 0.3s;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 15px;
+  color: #464646;
+  &:hover {
+    background: #00C5D1;
+  }
+`
 
 export const FlexCenter = styled.div`
   width: 1280px;
@@ -997,20 +1148,22 @@ export const RoomCreateWrap = styled.div`
   display: flex;
   flex-direction: column;
   width: 800px;
-  padding: 50px;
+  padding: 80px 50px 50px 50px;
   border-radius: 8px;
 `
 
 export const RoomCreateTitle = styled.div`
   font-size: 36px;
-  margin-bottom: 50px;
+  margin-bottom: 60px;
   color: white;
+  font-weight: 700;
+  font-family: 'Pretendard';
 `
 
 export const RoomNameWrap = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 60px;
 `
 
 export const RoomName = styled.label`
@@ -1035,9 +1188,9 @@ export const RoomNameInput = styled.input`
 `
 
 export const LanguageWrap = styled.div`
-  margin-bottom: 40px;
   display: flex;
   align-items: center;
+  margin-bottom: 60px;
 `
 
 export const LanguageTitle = styled.p`
@@ -1090,9 +1243,9 @@ export const LanguageBtn = styled.button`
 `
 
 export const MaxMembersWrap = styled.div`
-  margin-bottom: 40px;
   display: flex;
   align-items: center;
+  margin-bottom: 60px;
 `
 
 export const MaxMembersTitle = styled.p`
@@ -1521,7 +1674,7 @@ export const ChatContentWrap = styled.div`
 
 export const MyNickName = styled.p`
   font-size: 11px;
-  padding-right: 10px;
+  padding-right: 2px;
   color: white;
 `
 
@@ -1529,14 +1682,13 @@ const YourChatWrap = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: end;
+    align-items: flex-start;
     gap: 5px;
     margin-block: 15px;
 `;
 
 export const YourNickName = styled.p`
   font-size: 11px;
-  padding-left: 10px;
   color: white;
 `
 
@@ -1592,6 +1744,7 @@ export const ChatInput = styled.textarea`
     border: none;
     border-radius: 114px;
     font-family: 'Pretendard-Regular';
+    color: white;
 `;
 
 export const SendBtnWrap = styled.div`

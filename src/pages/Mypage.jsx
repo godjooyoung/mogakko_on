@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend } from '../axios/api/mypage'
-import styled from 'styled-components'
+import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost } from '../axios/api/mypage'
+import styled, { keyframes } from 'styled-components';
 import Header from "../components/common/Header";
+import useInput from '../hooks/useInput'
 
 function Mypage() {
 
@@ -13,6 +14,11 @@ function Mypage() {
   const [friendListDelete, setFriendListDelete] = useState(false) // 친구 삭제 버튼 
   const [onMouse, setOnMouse] = useState(false)
   const [friendDeleteArr, setFriendDeleteArr] = useState([])
+  const [value, setValue] = useState(0)
+  const [gitHub, setGitHub] = useState(false)
+  const [userGitHubId, setuserGitHubId] = useState('')
+  const [githubValue, onChangeGithubValue, githubInputValueReset] = useInput('')
+  // github 아이디 입력 
   useEffect(() => {
     if (data) {
       console.log("마이페이지 조회 결과", data)
@@ -27,6 +33,24 @@ function Mypage() {
     // 친구요청 목록 조회 뮤테이트 콜
     friendRequestListMutation.mutate()
   }, [data])
+
+  useEffect(() => {
+    setValue(data && data.data.data.member.codingTem);
+    const interval = setInterval(() => {
+      if (value < data) {
+        setValue((prevValue) => prevValue + 1);
+      }
+    }, 10);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [data]);
+
+
+  useEffect(() => {
+    setuserGitHubId(data && data.data.data.member.githubId)
+  }, [data]);
 
   const [fileAttach, setFileAttach] = useState('')
   const [preview, setPreview] = useState(data && data.data.data.member.profileImage)
@@ -44,7 +68,6 @@ function Mypage() {
       console.log(">>> getFriendList 성공2", response.data.data) // 친구목록
       console.log(">>> getFriendList 성공3", response.data.data[0])
       setFriendList(response.data.data)
-
     },
   })
   // 친구 요청 목록 조회
@@ -75,6 +98,13 @@ function Mypage() {
   const deleteFriendMutation = useMutation(deleteFriend, {
     onSuccess: (response) => {
       console.log(">>> deleteFriendMutation 성공", response)
+      queryClient.invalidateQueries(getProfile)
+    },
+  })
+
+  //githubId 등록
+  const githubMutation = useMutation(githubIdPost, {
+    onSuccess: (response) => {
       queryClient.invalidateQueries(getProfile)
     },
   })
@@ -124,6 +154,10 @@ function Mypage() {
     setIsFileModify(false)
   }
 
+  //githubID 보내는 Mutation 
+  const githubIdHandler = () => {
+    githubMutation.mutate(githubValue)
+  }
   useEffect(() => {
     if (isFileModify) {
       submitImgHandler()
@@ -146,6 +180,7 @@ function Mypage() {
     }
   }, [preview])
 
+  // 물은표 버튼 hover시 나오는 정보창
   const statusOnMouseHandler = () => {
     setOnMouse(true)
   }
@@ -154,10 +189,28 @@ function Mypage() {
     setOnMouse(false)
   }
 
-  console.log('friendDeleteArr >>>>>>>>',friendDeleteArr)
   return (
     <>
       <Header />
+      {
+        gitHub &&
+        <Dark>
+          <PopUp>
+            <CloseBtn onClick={() => {
+              setGitHub(!gitHub)
+              githubInputValueReset()
+            }}>x</CloseBtn>
+            <h1>깃허브 아이디</h1>
+            <input type="text" placeholder='아이디' value={githubValue} onChange={onChangeGithubValue}/>
+            <GitHubBtn onClick={() => {
+              setGitHub(!gitHub)
+              // setuserGitHubId(githubValue)
+              githubIdHandler()
+              githubInputValueReset()
+            }}>확인</GitHubBtn>
+          </PopUp>
+        </Dark>
+      }
       <MyPageTopContentWrap>
         <ProfileModifyWrap>
           <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
@@ -177,8 +230,11 @@ function Mypage() {
             <Temperaturecontainer>
               <p>코딩온도</p>
               <TemperatureWrap>
-                <progress value="50" min="0" max='100' />
-                <span>50%</span>
+                <ProgressContainer>
+                  <Progress style={{ width: `${value}%` }} />
+                </ProgressContainer>
+                {/* <progress value={data && data.data.data.member.codingTem} min="0" max='100' /> */}
+                <span>{data && data.data.data.member.codingTem}%</span>
               </TemperatureWrap>
             </Temperaturecontainer>
           </MyPageUserNameWrap>
@@ -228,9 +284,20 @@ function Mypage() {
 
       <MyPageMiddleContentWrap>
         <p>깃허브 잔디</p>
-        <MyPageMiddleContent>
-          <GitHubImage src="https://ghchart.rshah.org/394254/Shinheeje" />
-        </MyPageMiddleContent>
+        {
+          userGitHubId ?
+            <MyPageMiddleContent onClick={() => {
+              setGitHub(!gitHub)
+            }}>
+              <GitHubImage src={`https://ghchart.rshah.org/394254/${userGitHubId}`} />
+            </MyPageMiddleContent> :
+            <NoGithubIdWrap onClick={() => {
+              setGitHub(!gitHub)
+            }}>
+              <button></button>
+              <p>깃허브 잔디를 등록해보세요</p>
+            </NoGithubIdWrap>
+        }
       </MyPageMiddleContentWrap>
 
       <MyPageBottomContentWrap>
@@ -258,8 +325,7 @@ function Mypage() {
                 return (
                   <>
                     <FriendList onClick={() => {
-                      friendDeleteArr.push(friend.member.nickname)
-                      setFriendDeleteArr([...friendDeleteArr])
+
                     }}>
                       {
                         friendListDelete &&
@@ -277,7 +343,7 @@ function Mypage() {
         </FriendListContainer>
 
         <FriendRequestWrap>
-          <p>친구 요청</p>
+          <FriendRequestTitle>친구 요청</FriendRequestTitle>
           {/* for문 */}
           <ScrollWrap>
             {
@@ -287,7 +353,7 @@ function Mypage() {
                     <FriendWrap>
                       <FriendLeftContent>
                         <FriendProfile friendRequestImg={friend.profileImage}></FriendProfile>
-                        <p>{friend.nickname}</p>
+                        <FriendRequestNickname>{friend.nickname}</FriendRequestNickname>
                       </FriendLeftContent>
                       <ButtonWrap>
                         <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, true) }} color={'allow'}>수락</AllowBtn>
@@ -304,6 +370,83 @@ function Mypage() {
     </>
   )
 }
+
+const Dark = styled.div`
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0,0.6);
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(3px);
+`
+
+const PopUp = styled.div`
+  position: relative;
+  width: 332px;
+  height: 243px;
+  background: #394254;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  h1 {
+    width: 100%;
+    font-weight: 600;
+    font-size: 24px;
+    color: white;
+    text-align: start;
+    padding-left: 35px;
+    margin-bottom: 20px;
+  }
+
+  input {
+    width: 267px;
+    height: 30px; 
+    background: #626873;
+    border-radius: 114px;
+    border: none;
+    padding-left: 10px;
+    outline: none;
+    &::placeholder{
+      color: #BEBEBE;
+    }
+    margin-bottom: 30px;
+    color: #FFFFFF;
+    font-family: 'Pretendard-Regular';
+  }
+`
+
+const GitHubBtn = styled.button`
+  width: 164px;
+  height: 32px;
+  background: #00F0FF;
+  border-radius: 359px;
+  border: none;
+  transition: all 0.3s;
+  font-weight: 700;
+  font-size: 15px;
+  color: #464646;
+  &:hover {
+    background: #00C5D1;
+  }
+`
+
+const CloseBtn = styled.button`
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 25px;
+  border: none;
+  background-color: transparent;
+`
 
 const MyPageTopContentWrap = styled.div`
   height: 220px;
@@ -353,30 +496,29 @@ const TemperatureWrap = styled.div`
   align-items: center;
   gap: 5px;
 
-  progress {
-    appearance: none;
-    width: 100px;
-    height: 10px;
-    margin-top: 5px;
-    &::-webkit-progress-bar {
-    width: 100px;
-    height: 7px;
-    background:#f0f0f0;
-    border-radius: 33px;
-    box-shadow: inset 3px 3px 10px #ccc;
-    }
-
-    &::-webkit-progress-value {
-    border-radius:10px;
-    background: #00F0FF;
-    }
-  }
-
   span {
     font-size: 14px;
     color: #00F0FF;
   }
 `
+
+const ProgressContainer = styled.div`
+  width: 100px;
+  height: 8px;
+  margin-top: 2px;
+  background:#f0f0f0;
+  border-radius: 33px;
+  border: none;
+`;
+
+const Progress = styled.div`
+  height: 100%;
+  border-radius:10px;
+  background: #00F0FF;
+  transition: width 1s ease;
+  border: none;
+`;
+
 
 const ImageWrap = styled.div`
 width: 155px;
@@ -510,6 +652,36 @@ const MyPageMiddleContent = styled.div`
   padding: 15px;
   box-sizing: border-box;
   border-radius: 8px;
+  cursor: pointer;
+`
+
+const NoGithubIdWrap = styled.div`
+  width: 996px;
+  height: 186px;
+  background: #394254;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  button {
+    background-color: transparent;
+    padding: 20px;
+    border: 4.08333px solid #BEBEBE;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+
+  p {
+    font-family: 'Pretendard';
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 20px;
+    text-align: center;
+    color: #BEBEBE;
+    text-align: center;
+  }
 `
 
 const GitHubImage = styled.img`
@@ -530,12 +702,24 @@ const FriendRequestWrap = styled.div`
   padding: 10px;
   box-sizing: border-box;
   border-radius: 8px;
-  p{
-    color: white;
+`
+
+const FriendRequestTitle = styled.p`
+  font-weight: 500;
+  font-size: 21px;
+  color: white;
+  margin-bottom: 10px;
+`
+
+const FriendRequestNickname = styled.p`
     font-weight: 500;
-    font-size: 21px;
+    font-size: 14px;
+    width: 98px;
+    color: white;
     margin-bottom: 10px;
-  }
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 
 const FriendWrap = styled.div`
@@ -601,7 +785,12 @@ const FriendListContainer = styled.div`
   p{
     color: white;
     font-weight: 500;
-    font-size: 21px;
+    font-size: 14px;
+    width: 98px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `
 
@@ -611,6 +800,10 @@ const DeleteBtnWrap = styled.div`
   align-items: center;
   padding-right: 40px;
   margin-bottom: 10px;
+  p {
+    font-weight: 500;
+    font-size: 21px;
+  }
 `
 
 export const FriendListDeleteBtn = styled.button`
