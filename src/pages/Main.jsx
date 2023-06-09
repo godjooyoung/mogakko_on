@@ -3,6 +3,7 @@ import { styled } from 'styled-components';
 import MainHeader from '../components/MainHeader';
 import MainContent from '../components/MainContent';
 import MainBest from '../components/MainBest';
+import Header from '../components/common/Header';
 function Main() {
 
     // 수정 필요
@@ -14,8 +15,11 @@ function Main() {
         })
     }
     return (
+        
         <MainWrap>
+        
         <MainContaniner>
+            <Header pos={true} />
             <MainHeader/>
             <MainContent/>
             <MainBest/>
@@ -52,6 +56,7 @@ export const Top = styled.div`
     }
 `
 export const MainContaniner = styled.div`
+    position: relative;
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: max-content;
