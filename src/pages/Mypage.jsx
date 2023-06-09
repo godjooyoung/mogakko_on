@@ -242,7 +242,7 @@ function Mypage() {
   }
 
   const userProfileHandler = (id) => {
-      navigate('/profile/' + id)
+    navigate('/profile/' + id)
   }
 
   return (
@@ -362,13 +362,26 @@ function Mypage() {
           </MyPageTopContentWrap>
 
           <MyPageMiddleContentWrap>
-            <div><p>깃허브 잔디</p><img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /></div>
+            {/* <div><p>깃허브 잔디</p><img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /></div> */}
+            <GithubTitleWrap>
+              <p>깃허브 잔디</p>
+              {userGitHubId === null || userGitHubId === undefined || userGitHubId === ' '?
+                null :
+                <GithubModifyImg
+                  modify={`${process.env.PUBLIC_URL}/image/githubModify.webp`}
+                  modifyHo={`${process.env.PUBLIC_URL}/image/githubModifyHo.webp`}
+                  modifyClcik={`${process.env.PUBLIC_URL}/image/githubModifyClick.webp`}
+                  onClick={() => {
+                    setGitHub(!gitHub)
+                  }}
+                >
+                </GithubModifyImg> 
+              }
+            </GithubTitleWrap>
 
             {
               userGitHubId ?
-                <MyPageMiddleContent onClick={() => {
-                  setGitHub(!gitHub)
-                }}>
+                <MyPageMiddleContent>
                   <GitHubImage src={`https://ghchart.rshah.org/394254/${userGitHubId}`} />
                 </MyPageMiddleContent> :
                 <NoGithubIdWrap onClick={() => {
@@ -416,7 +429,7 @@ function Mypage() {
                           <>
                             <FriendList onClick={() => {
                               onClickDeleteFriendCheckHandler(friend.member.nickname, idx, friend.selected)
-                              userProfileHandler(friend.member.id)
+                              !friendListDelete && userProfileHandler(friend.member.id)
                             }}>
                               {
                                 friendListDelete &&
@@ -760,6 +773,7 @@ const StatusMouseHoverBox = styled.div`
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
   padding: 20px;
+  z-index: 3;
   p {
     font-weight: 900;
     font-size: 11px;
@@ -787,6 +801,45 @@ const MyPageMiddleContentWrap = styled.div`
     font-weight: 500;
     font-size: 21px;
     margin-bottom: 10px;
+  }
+`
+
+const GithubTitleWrap = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 7px;
+  box-sizing: border-box;
+  p {
+    width: 990px;
+  }
+`
+
+const GithubModifyImg = styled.div`
+  width: 33px;
+  height: 33px;
+  transition: all 0.3s;
+  cursor: pointer;
+  background-image: url(
+        ${(props) => {
+    return props.modify
+  }}
+  );
+  &:hover {
+      background-image: url(
+          ${(props) => {
+    return props.modifyHo
+  }}
+    );
+  }
+
+  &:active {
+    background-image: url(
+          ${(props) => {
+    return props.modifyClcik
+  }}
+    );
   }
 `
 
