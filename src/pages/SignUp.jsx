@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import Modal from '../components/SignupModal';
+import { BiChevronRight } from "react-icons/bi";
 axios.defaults.withCredentials = true;
 
 function SignUp() {
@@ -47,13 +47,16 @@ function SignUp() {
 
     const validateEmail = (email) => {
         // 이메일 유효성 검사를 수행합니다.
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/;
+
         return emailRegex.test(email);
     };
 
     const validatePassword = (password) => {
         // 비밀번호 유효성 검사를 수행합니다.
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+
         return passwordRegex.test(password);
     };
 
@@ -106,7 +109,6 @@ function SignUp() {
     const passwordChangeHandler = (e) => {
         const newPassword = e.target.value;
         setPassword(newPassword);
-        setPasswordErrorMessage('');
         setIsPasswordConfirmed(false);
 
     };
@@ -149,10 +151,10 @@ function SignUp() {
     const nicknameChangeHandler = (e) => {
         const newNickname = e.target.value;
         setNickname(newNickname);
-        if (newNickname.length<4) {
-            setNicknameErrorMessage('닉네임이 너무 짧습니다. 4자 이상이어야 합니다.');
+        if (newNickname.length < 4 || newNickname.length > 8) {
+            setNicknameErrorMessage('닉네임은 4~8자 사이여야 합니다.');
             setNicknameChanged(false);
-        }else{
+        } else {
             setNicknameErrorMessage('')
             setNicknameChanged(true);
 
@@ -209,6 +211,9 @@ function SignUp() {
         setIsAgreed(isAgreed);
     };
 
+    const termsContent=()=>{
+
+    }
 
     const termsButtonClickHandler = () => {
         openModal();
@@ -220,28 +225,11 @@ function SignUp() {
         setModalOpen(false);
     };
 
-    const termsContent = `
-    [회원 서비스 약관]
-    1. 약관 내용 1...
-    2. 약관 내용 2...
-    3. 약관 내용 3...
-    ...
-    
-    [위치 기반 정보 제공 동의]
-    1. 약관 내용 1...
-    2. 약관 내용 2...
-    3. 약관 내용 3...
-    ...
-
-    [만 14세 이상 동의]
-    1. 약관 내용 1...
-    2. 약관 내용 2...
-    3. 약관 내용 3...
-    ...
-    `;
 
     return (
         <>
+       
+        <FormDiv>
             <Form>
                 <SigninIntro>
                     회원가입
@@ -270,13 +258,13 @@ function SignUp() {
                     </ContainerWrapper>
 
                     <ErrorMessageContainer>
-                        {emailErrorMessage==='사용할 수 있는 이메일입니다.'? <SuccessMessage>{emailErrorMessage}</SuccessMessage>: 
-                        <ErrorMessage>{emailErrorMessage}</ErrorMessage>}        
+                        {emailErrorMessage === '사용할 수 있는 이메일입니다.' ? <SuccessMessage>{emailErrorMessage}</SuccessMessage> :
+                            <ErrorMessage>{emailErrorMessage}</ErrorMessage>}
                     </ErrorMessageContainer>
                 </div>
                 <div>
                     <Label>비밀번호</Label>
-                    <div>
+                    <InputWrapper>
                         <Input
                             type="password"
                             value={password}
@@ -284,23 +272,23 @@ function SignUp() {
                             placeholder="비밀번호"
                         />
 
-                    </div>
+                    </InputWrapper>
                     <ErrorMessageContainer>
-                      
+
                         {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
                     </ErrorMessageContainer>
                 </div>
 
                 <div>
                     <Label>비밀번호 확인</Label>
-                    <div>
+                    <InputWrapper>
                         <Input
                             type="password"
                             value={confirmPassword}
                             onChange={confirmPasswordChangeHandler}
                             placeholder="비밀번호 재입력"
                         />
-                    </div>
+                    </InputWrapper>
                     <ErrorMessageContainer>
                         {confirmPasswordErrorMessage && <ErrorMessage>{confirmPasswordErrorMessage}</ErrorMessage>}
                     </ErrorMessageContainer>
@@ -325,8 +313,8 @@ function SignUp() {
                         </ButtonWrapper>
                     </InputWrapper>
                     <ErrorMessageContainer>
-                        {nicknameErrorMessage==='사용할 수 있는 닉네임입니다.'?  <SuccessMessage>{nicknameErrorMessage}</SuccessMessage>:
-                        <ErrorMessage>{nicknameErrorMessage}</ErrorMessage>}
+                        {nicknameErrorMessage === '사용할 수 있는 닉네임입니다.' ? <SuccessMessage>{nicknameErrorMessage}</SuccessMessage> :
+                            <ErrorMessage>{nicknameErrorMessage}</ErrorMessage>}
                     </ErrorMessageContainer>
 
                 </div>
@@ -341,40 +329,43 @@ function SignUp() {
                     회원가입
                 </SignupButton>
                 <Wrapper>
-                    <input
-                        type="checkbox"
-                        checked={isAgreed}
-                        onChange={isAgreedChangeHandler}
-                    /><BottomButton onClick={termsButtonClickHandler}>회원 서비스(필수), 위치 기반 정보 제공 동의(필수), 만 14세 이상(필수)</BottomButton>
+                    
+                        <InputCheckbox
+                            type="checkbox"
+                            checked={isAgreed}
+                            onChange={isAgreedChangeHandler}
+                        /><Term>개인 위치 정보 제공에 동의합니다.</Term>
+               
+                    <BottomButton onClick={termsButtonClickHandler}>전체보기  <BiChevronRight /> </BottomButton>
                     <Modal open={modalOpen} close={closeModal}>
                         <h2>서비스 이용 약관</h2>
                         <pre>{termsContent}</pre>
                         <button onClick={closeModal}>닫기</button>
+
                     </Modal>
 
-
-                </Wrapper><br />
+                </Wrapper>
             </Form>
+        </FormDiv>
         </>
     );
 }
-//중복체크까지 잘하고 회원가입이 활성화된 상태에서 저 칸 중의 하나라도 바뀌면 회원가입이 비활성화되야 하는데...
-// 이메일 고치고 비밀번호 고치거나 닉네임 고쳐도 회원가입 활성화상태다. 
-// 중복체크 한 뒤 이메일이나 닉네임 수정하면->에러메세지가 "다시 중복체크가 필요합니다."
-// 비밀번호가 바뀌면 아래있는 비밀번호와 달라도 다르다는 메세지 안 나옴. 
-// 회원가입 disabled만드는 값들을 수정되는 순간 false가 되어야 하고.
-
 
 
 export default SignUp;
 
+export const FormDiv = styled.div`
+    display:flex;
+    align-items:center;
+    height: calc(100vh - 79px);
+`
 export const Form = styled.form`
     display: flex;
     flex-direction: column;
     max-width: 384px;
     margin: 0 auto
 `;
-export const SigninIntro =styled.div`
+export const SigninIntro = styled.div`
     color:#FFFFFF;
     height: 42.96px;
     font-size: 36px;
@@ -390,21 +381,11 @@ export const Label = styled.label`
     font-size: 24px;
 `;
 
-export const ContainerWrapper=styled.div`
+export const ContainerWrapper = styled.div`
     display:flex;
     justify-content: space-between;
 
 `
-export const BottomButton = styled.button`
-    padding:0.5rem 1rem;
-    background-color:transparent;    
-    color: white;
-    text-decoration: underline;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-align: left;
-`;
 
 
 export const InputWrapper = styled.div`
@@ -417,6 +398,7 @@ export const InputWrapper = styled.div`
     display:flex;
     flex-direction:row;
     justify-content: space-between;
+    margin-top:10px;
 
 `;
 
@@ -466,14 +448,14 @@ export const CheckButton = styled.button`
 const ErrorMessageContainer = styled.div`
     height: 20px;
     margin: 5px 0px 30px 5px;
-`;  
+`;
 
 export const ErrorMessage = styled.div`
     color:#ff635d;
     font-size: 5px;
 `;
 
-export const SuccessMessage=styled.div`
+export const SuccessMessage = styled.div`
     color: #00F0FF;
     font-size: 5px;
 `
@@ -505,26 +487,32 @@ export const SignupButton = styled.button`
 export const Wrapper = styled.div`
     display: flex;
     align-items: center;
+    margin-top:10px;
 `
+export const BottomButton = styled.button`
+    padding:0.5rem 1rem;
+    background-color:transparent;    
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: right;
+    font-size:14px;
+    text-decoration: underline;
 
-// width:383px;
-// padding: 9px 20px;
-// margin-left: 9px;
-// margin-bottom: 12px;
-// height: 40px;
-// border: 0.5px solid ${props => props.disabled ? '#4A4F59' : '#00F0FF'}; 
-// border-radius: 28px;
-// cursor: pointer;
-// background : 4A4F59;
-// color :#BEBEBE;
-// overflow: hidden;
-// font-family: 'Pretendard';
-// font-style: normal;
-// font-size: 16px;
-// line-height: 24px;
-// margin: auto;
-
-// &:not(:disabled){
-//     background: #00F0FF;
-//     color: #464646;
-// }
+`;
+export const InputCheckbox = styled.input`
+    width:18px;
+    height:18px;
+    accent-color:#00F0FF;
+`
+export const Term = styled.div`
+    padding:0.5rem 1rem;
+    background-color:transparent;    
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+    font-size:14px;     
+`
