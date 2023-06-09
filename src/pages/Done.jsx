@@ -5,30 +5,39 @@ import { useNavigate } from 'react-router-dom';
 
 function Done() {
     const navigate = useNavigate();
-    const SigninButtonHandler=()=>{
+    const SigninButtonHandler = () => {
         navigate('/signin')
     }
-  return (
-    <FormBox>
-        <ImageWrapper>
-        <img src={`${process.env.PUBLIC_URL}/image/회원가입 완료.webp`} alt="체크" width='102' height='102' />
+    return (
+        <FormDiv>
+            <FormBox>
+                <ImageWrapper>
+                    <img src={`${process.env.PUBLIC_URL}/image/signupDone.webp`} alt="체크" width='102' height='102' />
 
-            {/* <div style={{backgroundImage :'url('+signupdone+')'}}></div> */}
-        </ImageWrapper>
-        <Title>회원가입 완료</Title>
-        <Subtitle>회원가입이 완료되었습니다.<br/>
-        모각코하며 함께 성장할 친구를 만나보세요!</Subtitle>
-        <SigninButton onClick={SigninButtonHandler}>로그인하기</SigninButton>
-      
-    </FormBox>
-  )};
+                    {/* <div style={{backgroundImage :'url('+signupdone+')'}}></div> */}
+                </ImageWrapper>
+                <Title>회원가입 완료</Title>
+                <Subtitle>회원가입이 완료되었습니다.<br />
+                    모각코하며 함께 성장할 친구를 만나보세요!</Subtitle>
+                <SigninButton onClick={SigninButtonHandler}>로그인하기</SigninButton>
 
-  
+            </FormBox>
+        </FormDiv>
+    )
+};
+
+
 
 
 export default Done;
 
-export const FormBox =styled.div`
+export const FormDiv = styled.div`
+    display:flex;
+    align-items:center;
+    height: calc(100vh - 79px);
+`
+
+export const FormBox = styled.div`
     display: flex;  
     flex-direction: column;
     justify-content: center;
@@ -37,7 +46,7 @@ export const FormBox =styled.div`
     margin: 0 auto;  
 `
 
-export const ImageWrapper =styled.div`
+export const ImageWrapper = styled.div`
     display:flex;
     justify-content: center;
     align-items: center;

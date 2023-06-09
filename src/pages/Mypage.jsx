@@ -235,7 +235,7 @@ function Mypage() {
           <MyPageUserNameWrap>
             <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
             <Temperaturecontainer>
-              <p>코딩온도</p>
+              <p>코딩온도 <img src={`${process.env.PUBLIC_URL}/image/status.webp`}></img></p>
               <TemperatureWrap>
                 <ProgressContainer>
                   <Progress style={{ width: `${value}%` }} />
@@ -341,7 +341,6 @@ function Mypage() {
                     return (
                       <>
                         <FriendList onClick={() => {
-
                         }}>
                           {
                             friendListDelete &&
@@ -511,6 +510,10 @@ const Temperaturecontainer = styled.div`
   p {
     font-size: 17px;
     color: #00F0FF;
+
+    img {
+      margin-bottom: 2px;
+    }
   }
 `
 
@@ -529,9 +532,9 @@ const ProgressContainer = styled.div`
   width: 100px;
   height: 8px;
   margin-top: 2px;
-  background:#f0f0f0;
+  background:transparent;
   border-radius: 33px;
-  border: none;
+  border: 1px solid white;
 `;
 
 const Progress = styled.div`
@@ -678,7 +681,7 @@ const MyPageMiddleContent = styled.div`
 `
 
 const NoGithubIdWrap = styled.div`
-  width: 996px;
+  width: 1026px;
   height: 186px;
   background: #394254;
   border-radius: 10px;
@@ -728,7 +731,7 @@ const FriendRequestWrap = styled.div`
 
 const NullFriendRequestList = styled.div`
   width: 384px;
-  height: 280px;
+  height: 261px;
   background: #394254;
   border-radius: 10px;
   display: flex;
@@ -884,7 +887,7 @@ export const FriendListCancleBtn = styled.button`
 
 const ScrollWrap = styled.div`
   width: 100%;
-  height: 100%;
+  height: 261px;
   overflow-y: scroll;
   
   &::-webkit-scrollbar{
@@ -917,7 +920,7 @@ const FriendListWrap = styled.div`
 
 const NullFriendList = styled.div`
   width: 486px;
-  height: 280px;
+  height: 261px;
   background: #394254;
   border-radius: 10px;
   display: flex;
