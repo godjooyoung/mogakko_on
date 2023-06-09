@@ -99,6 +99,10 @@ function Mypage() {
   // 친구 삭제 버튼
   const friendListDeleteHandler = () => {
     setFriendListDelete(!friendListDelete)
+    const updateFriendList = friendList.map((friend, index) => {
+      return { ...friend, selected: false }
+    })
+    setFriendList(updateFriendList)
   }
 
 
@@ -127,21 +131,37 @@ function Mypage() {
   }
 
   // 친구 삭제 버튼 클릭 이벤트
-  const onClickDeleteFriendButtonHandler = (targetNickName) => {
-    console.log("삭제할 친구 닉네임", targetNickName)
-    deleteFriendMutation.mutate(targetNickName)
+  const onClickDeleteFriendButtonHandler = () => {
+    const deleteFriendList = friendList.filter((friend) => friend.selected)
+      .map((friend) => friend.member.nickname);
+    console.log("deleteFriendList>>>>>>>>>>>>", deleteFriendList)
+    deleteFriendMutation.mutate(deleteFriendList)
   }
 
-  // 00:00:00 to 00H00M
-  const formatTime = (timeString) => {
-    console.log("formatting 전 timeString > ", timeString)
-    const time = new Date(`2000-01-01T${timeString}`);
-    const hours = time.getHours();
-    const minutes = time.getMinutes();
-    const formattedHours = hours < 10 ? `0${hours}` : hours;
-    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-    return `${formattedHours}H${formattedMinutes}M`;
+  // 친구 삭제 여러건 선택
+  const onClickDeleteFriendCheckHandler = (targetNickName, idx, isSelected) => {
+    console.log(">>>>>>>>>>>>>>>>>>>>지금 선택한 친구 닉네임 및 인덱스", targetNickName, idx, isSelected)
+
+    const updateFriendList = friendList.map((friend, index) => {
+      if (index === idx) {
+        return { ...friend, selected: !isSelected }
+      } else {
+        return friend
+      }
+    })
+    setFriendList(updateFriendList)
   }
+
+  // // 00:00:00 to 00H00M
+  // const formatTime = (timeString) => {
+  //   console.log("formatting 전 timeString > ", timeString)
+  //   const time = new Date(`2000-01-01T${timeString}`);
+  //   const hours = time.getHours();
+  //   const minutes = time.getMinutes();
+  //   const formattedHours = hours < 10 ? `0${hours}` : hours;
+  //   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  //   return `${formattedHours}H${formattedMinutes}M`;
+  // }
 
   // 파일 수정
   const handleFileChange = (event) => {
@@ -172,6 +192,19 @@ function Mypage() {
     }
   }, [fileAttach])
 
+
+  // 아바타 생성 함수
+  const avataGenHandler = (url, userNickName) => {
+    let avataGen
+      const nickName = userNickName
+      const profilceImage = url
+      if (profilceImage === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
+        avataGen = `https://source.boringavatars.com/beam/120/${nickName}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
+      } else {
+        avataGen = profilceImage
+      }
+    return avataGen
+  }
 
   useEffect(() => {
     // 프로필 이미지가 기본 이미지일때는 랜덤 프로필 사진 보여줌. 등록했을 경우에는 등록된 이미지 파일 보여줌
@@ -321,7 +354,8 @@ function Mypage() {
       </MyPageTopContentWrap>
 
       <MyPageMiddleContentWrap>
-        <p>깃허브 잔디</p>
+        <div><p>깃허브 잔디</p><img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /></div>
+        
         {
           userGitHubId ?
             <MyPageMiddleContent onClick={() => {
@@ -332,7 +366,7 @@ function Mypage() {
             <NoGithubIdWrap onClick={() => {
               setGitHub(!gitHub)
             }}>
-              <button></button>
+              <div><img src={`${process.env.PUBLIC_URL}/image/addSquare.png`} alt="깃허브잔디등록버튼" /></div>
               <p>깃허브 잔디를 등록해보세요</p>
             </NoGithubIdWrap>
         }
@@ -355,7 +389,7 @@ function Mypage() {
                       }}
                         color={'cancle'}
                       >취소</FriendListCancleBtn>
-                      <FriendListCancleBtn>삭제</FriendListCancleBtn>
+                      <FriendListCancleBtn onClick={onClickDeleteFriendButtonHandler}>삭제</FriendListCancleBtn>
                     </FriendListCancleBtnWrap>
                 }
               </>
@@ -372,13 +406,12 @@ function Mypage() {
                   {friendList && friendList.map((friend, idx) => {
                     return (
                       <>
-                        <FriendList onClick={() => {
-                        }}>
+                        <FriendList onClick={() => (onClickDeleteFriendCheckHandler(friend.member.nickname, idx, friend.selected))}>
                           {
                             friendListDelete &&
-                            <DeleteSelectedBtn></DeleteSelectedBtn>
+                            <DeleteSelectedBtn selected={friend.selected}></DeleteSelectedBtn>
                           }
-                          <FriendListImage friendListImg={friend.member.profileImage}></FriendListImage>
+                          <FriendListImage friendListImg={avataGenHandler(friend.member.profileImage, friend.member.nickname)}></FriendListImage>
                           <FriendListName>{friend.member.nickname}</FriendListName>
                           {/* <button onClick={() => { onClickDeleteFriendButtonHandler(friend.nickname) }}>삭제</button> */}
                         </FriendList>
@@ -405,7 +438,7 @@ function Mypage() {
                     <>
                       <FriendWrap>
                         <FriendLeftContent>
-                          <FriendProfile friendRequestImg={friend.profileImage}></FriendProfile>
+                          <FriendProfile friendRequestImg={ avataGenHandler(friend.profileImage, friend.nickname) }></FriendProfile>
                           <FriendRequestNickname>{friend.nickname}</FriendRequestNickname>
                         </FriendLeftContent>
                         <ButtonWrap>
@@ -754,11 +787,8 @@ const NoGithubIdWrap = styled.div`
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  button {
-    background-color: transparent;
-    padding: 20px;
-    border: 4.08333px solid #BEBEBE;
-    border-radius: 10px;
+
+  img{
     margin-bottom: 20px;
   }
 
@@ -849,11 +879,13 @@ const FriendProfile = styled.div`
   height: 50px;
   border-radius: 50%;
   background-image: ${(props) =>
-    `url(${props.friendRequestImg})`
+    `url('${props.friendRequestImg}')`
   };
   background-position:center;
   background-size:contain;
   background-color : #D9D9D9;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 1px #ffffff;
 `
 
 const ButtonWrap = styled.div`
@@ -1026,6 +1058,9 @@ const DeleteSelectedBtn = styled.button`
   left: 5px;
   border: 1px solid white;
   border-radius: 50%;
+  background-color: ${(props) => {
+    return props.selected ? '#00C5D1' : 'transparent'
+  }};
 `
 
 const FriendListImage = styled.div`
@@ -1033,11 +1068,13 @@ const FriendListImage = styled.div`
   height: 50px;
   border-radius: 50%;
   background-image: ${(props) =>
-    `url(${props.friendListImg})`
+    `url('${props.friendListImg}')`
   };
   background-position:center;
   background-size:contain;
-  background-color : #D9D9D9;
+  /* background-color : #D9D9D9; */
+  background-color: #ffffff;
+  box-shadow: 0 0 0 1px rgb(255, 255, 255, 0.2);
 `
 
 const FriendListName = styled.p`
