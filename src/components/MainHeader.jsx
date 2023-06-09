@@ -83,7 +83,8 @@ function MainHeader() {
     }, [completedTitle, count, isCompleted]);
 
     return (
-        <MainHeaderWrap>
+        <>        
+        <MainHeaderWrap bg={`${process.env.PUBLIC_URL}/image/mainBg.webp`}>
             <MainTitleWrap>
                 <Content isCompleted={isCompleted}>
                     <FontSize>{landingTitle}</FontSize>
@@ -99,6 +100,9 @@ function MainHeader() {
                 <CreateRoomButton onClick={onClickRoomCreateHandler}>방 생성하기</CreateRoomButton>
             </MainButtonWrap>
         </MainHeaderWrap>
+        </>
+        
+        
     );
 }
 
@@ -122,6 +126,10 @@ const FontSizeS = styled.p`
     text-align: center;
     color: #FFFFFF;
 `
+export const MainHeardImg = styled.img`
+    width: 1280px;
+    height: 574px;
+`
 export const MainHeaderWrap = styled.div`
     width: 1280px;
     height: 574px;
@@ -132,6 +140,10 @@ export const MainHeaderWrap = styled.div`
     justify-content: center;
     flex-direction: column;
     align-items: center;
+    /* background-image: url(${(props) => {return props.bg}}); */
+    background-size: cover;
+    background-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 9.68%, rgba(18, 28, 42, 0.788136) 74.36%, #172435 89.14%), url(${(props) => {return props.bg}});    
+    background-position: center;
 `
 export const MainTitleWrap = styled.div`
     display : flex;

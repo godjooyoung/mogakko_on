@@ -18,6 +18,7 @@ const Router = () => {
       <Routes>
         <Route element={<BgContainer />}>
           <Route element={<Layout />}>
+          <Route path="/" element={<><Main /></>} />
             <Route path="/" element={<><Header /><Main /></>} />
             <Route path="/signin" element={<><Header /><SignIn /></>} />
             <Route path="/signup" element={<><Header /><SignUp /></>} />
