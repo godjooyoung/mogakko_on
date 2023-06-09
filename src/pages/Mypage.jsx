@@ -240,7 +240,6 @@ function Mypage() {
                 <ProgressContainer>
                   <Progress style={{ width: `${value}%` }} />
                 </ProgressContainer>
-                {/* <progress value={data && data.data.data.member.codingTem} min="0" max='100' /> */}
                 <span>{data && data.data.data.member.codingTem}%</span>
               </TemperatureWrap>
             </Temperaturecontainer>
@@ -493,8 +492,8 @@ const MyPageUserNameWrap = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  gap: 50px;
+  align-items: flex-start;
+  gap: 25px;
   color: white;
 `
 
@@ -676,7 +675,6 @@ const MyPageMiddleContent = styled.div`
   padding: 15px;
   box-sizing: border-box;
   border-radius: 8px;
-  cursor: pointer;
 `
 
 const NoGithubIdWrap = styled.div`
