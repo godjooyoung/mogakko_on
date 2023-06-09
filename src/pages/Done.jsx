@@ -62,19 +62,19 @@ export const Title = styled.div`
     text-align: center;
     color:white;
     text-align: center;
-    
+    font-style: normal;
 `
 
 export const Subtitle = styled.div`
-    font-family: Pretendard;
-    font-size: 24px;
-    font-weight: 400;
-    line-height: 40px;
     letter-spacing: 0em;
     text-align: center;
     color:white;
-    margin: 40px;
-
+    margin: 40px 0 40px 0;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 165.02%;
 
 `
 export const SigninButton = styled.button`
@@ -82,7 +82,7 @@ export const SigninButton = styled.button`
     margin-left: 9px;
     margin-bottom: 12px;
     height: 40px;
-    border: 0.5px solid #00F0FF;
+    border: none;
     border-radius: 42px;
     cursor: pointer;
     background : #00F0FF;
@@ -90,7 +90,8 @@ export const SigninButton = styled.button`
     overflow: hidden;
     font-family: 'Pretendard';
     font-size: 16px;
-    width:383px;
+    width:384px;
     margin: 30px;
+    
 
 `
