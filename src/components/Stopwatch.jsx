@@ -188,6 +188,7 @@ export const TimerButton = styled.div`
     };
     border-radius: 50%;
     &:hover {
+    transition: 0.3s;
     background-color: rgba(187,187,187,0.3);
     }
 `

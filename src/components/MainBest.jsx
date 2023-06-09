@@ -187,10 +187,13 @@ export const BestMemberCard = styled.div`
     height: 269px;
     background: #394254;
     border-radius: 20px;
+
     &:hover {
+        transition: 0.3s;
         transform: scale(1.03);
     }
     &:active {
+        transition: 0.1s;
         background: #222A3A;
         transform: scale(1);
     }

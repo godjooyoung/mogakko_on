@@ -536,9 +536,11 @@ export const RoomEnterButton = styled.button`
     font-size: 20px;
     line-height: 80%;
     &:hover {
+        transition: 0.3s;
         transform: scale(1.03);
     }
     &:active {
+        transition: 0.1s;
         background: #00C5D1;
         transform: scale(1);
     }
