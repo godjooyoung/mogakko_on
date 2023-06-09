@@ -312,24 +312,25 @@ function SignUp() {
                             </CheckButton>
                         </ButtonWrapper>
                     </InputWrapper>
-                    <ErrorMessageContainer>
+                    <NicknameErrorMessageContainer>
                         {nicknameErrorMessage === '사용할 수 있는 닉네임입니다.' ? <SuccessMessage>{nicknameErrorMessage}</SuccessMessage> :
                             <ErrorMessage>{nicknameErrorMessage}</ErrorMessage>}
-                    </ErrorMessageContainer>
+                    </NicknameErrorMessageContainer>
 
                 </div>
 
-
-             
                 <Wrapper>
                     
                         <InputCheckbox
                             type="checkbox"
                             checked={isAgreed}
                             onChange={isAgreedChangeHandler}
-                        /><Term>개인 위치 정보 제공에 동의합니다.</Term>
-               
-                    <BottomButton onClick={termsButtonClickHandler}>전체보기  <BiChevronRight /> </BottomButton>
+                            id="checkbox"
+                        /><InfoButton 
+                            htmlFor="checkbox"
+                            >개인 위치 정보 제공에 동의합니다.</InfoButton>
+
+                    <BottomButton onClick={termsButtonClickHandler}>{`전체보기 >`}</BottomButton>
                     <Modal open={modalOpen} close={closeModal}>
                         <h2>서비스 이용 약관</h2>
                         <pre>{termsContent}</pre>
@@ -428,7 +429,7 @@ export const ShortInput = styled.input`
     width: 268px;
     height: 40px;
     flex-glow: 1;
-    padding: 10px;
+    padding: 10px 10px 10px 20px;
     border:none;
     outline: none;
     background: #394254;
@@ -445,7 +446,7 @@ export const ShortInput = styled.input`
 
 export const Input = styled.input`
     flex-glow: 1;
-    padding: 10px;
+    padding: 10px 10px 10px 20px;
     border:none;
     outline: none;
     width: 100%;
@@ -485,9 +486,14 @@ export const CheckButton = styled.button`
 
 `;
 
-const ErrorMessageContainer = styled.div`
+export const ErrorMessageContainer = styled.div`
     height: 20px;
     margin: 5px 0px 30px 5px;
+`;
+
+export const NicknameErrorMessageContainer = styled.div`
+    height: 20px;
+    margin: 10px 0px 10px 5px;
 `;
 
 export const ErrorMessage = styled.div`
@@ -505,6 +511,7 @@ export const SuccessMessage = styled.div`
 `
 export const SignupButton = styled.button`
     padding: 9px 20px;
+    margin-top: 10px;
     margin-left: 9px;
     margin-bottom: 12px;
     height: 40px;
@@ -538,8 +545,20 @@ export const SignupButton = styled.button`
 export const Wrapper = styled.div`
     display: flex;
     align-items: center;
-    margin-top:10px;
+    margin-bottom:10px;
 `
+
+export const InfoButton = styled.label`
+    padding:0.5rem 1rem;
+    background-color:transparent;    
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: right;
+    font-size:14px;
+`;
+
 export const BottomButton = styled.button`
     padding:0.5rem 1rem;
     background-color:transparent;    
