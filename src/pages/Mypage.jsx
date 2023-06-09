@@ -551,7 +551,7 @@ width: 155px;
 height: 155px;
   border-radius: 50%;
   background-image: ${(props) =>
-    `url(${props.BgImg})`
+    `url('${props.BgImg}')`
   };
   background-position:center;
   background-size:contain;
