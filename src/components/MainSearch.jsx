@@ -168,12 +168,12 @@ function MainSearch(props) {
         dispatcher(__searchKeyword(keyword))
     },[keyword])
 
-    if (getLatLngQuery.isError) {
-        return <div>주소 to 좌표 변환중 에러발생</div>
-    }
-    if (getLatLngQuery.isLoading) {
-        return <div>주소 to 좌표 변환중</div>
-    }
+    // if (getLatLngQuery.isError) {
+    //     return <div>주소 to 좌표 변환중 에러발생</div>
+    // }
+    // if (getLatLngQuery.isLoading) {
+    //     return <div>주소 to 좌표 변환중</div>
+    // }
 
     return (
         <SearchContaniner>
