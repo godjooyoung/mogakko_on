@@ -86,7 +86,7 @@ const requestFriend = async (targetFriend) => {
 // 유저 프로필 조회
 const getUserProfile = async (memberId) => {
   try {
-    const response = await instance.get('/members/'+memberId)
+    const response = await jwtInstance.get('/members/'+memberId)
     console.log("getUserProfile response : ", response.data.message)
     console.log("getUserProfile response : ", response.data.data)
     if(response.data.message === '프로필 조회 성공'){
