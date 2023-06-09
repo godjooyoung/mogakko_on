@@ -181,9 +181,11 @@ export const CreateRoomButton = styled.button`
     color: #464646;
     border: none;
     &:hover {
+        transition: 0.3s;
         transform: scale(1.03);
     }
     &:active {
+        transition: 0.1s;
         background-color: #00C5D1;
         transform: scale(1);
     }

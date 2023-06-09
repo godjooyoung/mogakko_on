@@ -7,12 +7,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { __alarmSender, __alarmClean } from '../../redux/modules/alarm'
 import { __logoutResetUser } from '../../redux/modules/user'
 import { __logoutResetSearch } from '../../redux/modules/search'
+import { useLocation } from 'react-router-dom'
+
 function Header(props) {
     const [isLogin, setIsLogin] = useState(false)
     const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
     const [profileImg, setProfileImg] = useState('')
     const navigate = useNavigate();
     const eventSourceRef = useRef(null);
+    const location = useLocation();
+    const urlPathname = location.pathname;
+    const [isVisible, setIsVisible] = useState(true)
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -25,6 +30,9 @@ function Header(props) {
             }
         }
         checkLoginStatus()
+        if(urlPathname === '/signup' || urlPathname === '/signin'){
+            setIsVisible(false)
+        }
     })
 
     const dispatcher = useDispatch()
@@ -137,7 +145,8 @@ function Header(props) {
         console.log("######## 알람내용 생성1" ,pos)
         if(pos!==-1){
             highLightName = content.substr(pos, userNickName.length)
-            nonHighLightContnent = content.slice(-pos)
+            nonHighLightContnent = content.substr((pos+userNickName.length))
+            console.log("######## nonHighLightContnent " ,nonHighLightContnent)
             return <><span>{highLightName}</span>{nonHighLightContnent}</>
         }else{
             return <>{content}</>
@@ -215,10 +224,10 @@ function Header(props) {
     const onClickLogOutHandler = () => {
         // 로그아웃 처리 쿠키 삭제
         const remove = async () => {
-            await removeCookie('token')
-            await removeCookie('nickName')
-            await removeCookie('profileImage')
-            await sessionStorage.removeItem('isSubscribed')
+            removeCookie('token')
+            removeCookie('nickName')
+            removeCookie('profileImage')
+            sessionStorage.removeItem('isSubscribed')
             dispatcher(__alarmClean())
             if (eventSourceRef.current) {
                 eventSourceRef.current.close(); // SSE 연결 종료
@@ -227,9 +236,7 @@ function Header(props) {
         // remove()
 
         const logoutReset = async () => {
-            await dispatcher(__alarmClean())
-            await dispatcher(__logoutResetUser())
-            await dispatcher(__logoutResetSearch())
+            dispatcher(__alarmClean())
             console.log("로그아웃!!!!")
 
         }
@@ -250,6 +257,7 @@ function Header(props) {
         setIsAlarmWindowOpen(!isOpend)
     }
 
+
     return (
         <CommonHeader pos={props.pos}>
             <ButtonWrap>
@@ -259,8 +267,11 @@ function Header(props) {
                 </HeaderLeftContent>
                 <HeaderRightContent>
                     {!isLogin ? <>
-                        <HeaderButton onClick={onClickSignInHandler} width={67} marginRight={18}><p>로그인</p></HeaderButton>
-                        <HeaderButton onClick={onClickSignUpHandler} width={115} border={true} marginRight={40}><p>회원가입</p></HeaderButton>
+                        {isVisible?<>
+                            <HeaderButton onClick={onClickSignInHandler} width={67} marginRight={18}><p>로그인</p></HeaderButton>
+                            <HeaderButton onClick={onClickSignUpHandler} width={115} border={true} marginRight={40}><p>회원가입</p></HeaderButton>
+                        </>:<></>
+                        }
                     </> : <>
                         <HeaderButton onClick={onClickLogOutHandler} width={85} marginRight={10} ><p>로그아웃</p></HeaderButton>
                         <AlearmWrap>
@@ -318,6 +329,7 @@ export const HeaderLeftContent = styled.div`
 export const HeaderRightContent = styled.div`
     display: flex;
     align-items: center;
+    margin-right: 40px;
 `
 export const ProfileImgDiv = styled.div`
     width: 44px;
@@ -355,7 +367,6 @@ export const HeaderButton = styled.div`
     background-color: transparent;
     color: #FFFFFF;
     height: 40px;
-
     width : ${(props) => {
         return props.width + 'px';
     }};
@@ -371,17 +382,18 @@ export const HeaderButton = styled.div`
     }};
 
     &:hover {
-        transform: scale(1.03);
+        transition: 0.3s;
         background: rgba(0, 0, 0, 0.4);
     }
     &:active {
+        transition: 0.2s;
         background: rgba(0, 0, 0, 0.7);
-        transform: scale(1);
     }
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 
 `
 export const AlearmImg = styled.img`
@@ -409,8 +421,10 @@ export const AlearHeader = styled.div`
     background-color: #F9F9FA;
     transform: rotate(-45deg); 
     border-top-right-radius: 6px;
-    top: 50px;
-    left: -5px;
+    /* top: 50px;
+    left: -5px; */
+    top: 52px;
+    left: 1px;
     
 `
 

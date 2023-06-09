@@ -248,6 +248,7 @@ const ProfileModifyContent = styled.form`
     margin-top: 28px;
     transition: all 0.3s;
     &:hover {
+      transition: 0.2s;
       background: #00C5D1;
     }
   }
