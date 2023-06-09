@@ -151,7 +151,7 @@ const Form = styled.form`
     flex-direction: column;
     justify-content: center;
     max-width: 384px;
-    margin: 0 auto
+    margin: 0 auto;
 `;
 
 export const SigninIntro = styled.div`
@@ -229,6 +229,7 @@ export const LoginButton = styled.button`
     line-height: 16px;
     text-align: center;
     transition: all 0.3s;
+    margin-top: 20px;
     &:not(:disabled){
         background: #00F0FF;
         color: #464646;
