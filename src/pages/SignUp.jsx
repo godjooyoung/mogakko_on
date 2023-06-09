@@ -239,7 +239,7 @@ function SignUp() {
                     <Label>이메일</Label>
                     <ContainerWrapper>
                         <InputWrapper>
-                            <Input
+                            <ShortInput
                                 type="email"
                                 value={email}
                                 onChange={emailChangeHandler}
@@ -297,7 +297,7 @@ function SignUp() {
                 <div>
                     <Label>닉네임</Label>
                     <InputWrapper>
-                        <Input
+                        <ShortInput
                             type="text"
                             value={nickname}
                             onChange={nicknameChangeHandler}
@@ -320,14 +320,7 @@ function SignUp() {
                 </div>
 
 
-                <SignupButton onClick={(e) => {
-                    e.preventDefault() //요청전 리로드 방지
-                    sendHandler(sendData)
-                }}
-                    disabled={nicknameChanged || emailChanged || !isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
-                >
-                    회원가입
-                </SignupButton>
+             
                 <Wrapper>
                     
                         <InputCheckbox
@@ -345,6 +338,14 @@ function SignUp() {
                     </Modal>
 
                 </Wrapper>
+                <SignupButton onClick={(e) => {
+                    e.preventDefault() //요청전 리로드 방지
+                    sendHandler(sendData)
+                }}
+                    disabled={nicknameChanged || emailChanged || !isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
+                >
+                    회원가입
+                </SignupButton>
             </Form>
         </FormDiv>
         </>
@@ -368,17 +369,24 @@ export const Form = styled.form`
 export const SigninIntro = styled.div`
     color:#FFFFFF;
     height: 42.96px;
-    font-size: 36px;
     margin-bottom: 70px;
     margin-up:100px;
     font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 43px;
 `;
 export const Label = styled.label`
     margin-bottom: 3rem;
     margin-top: 3rem;
     color:white;
     padding-bottom: 8px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
     font-size: 24px;
+    line-height: 29px;
 `;
 
 export const ContainerWrapper = styled.div`
@@ -416,10 +424,29 @@ export const ButtonWrapper = styled.div`
 `;
 
 
+export const ShortInput = styled.input`
+    width: 268px;
+    height: 40px;
+    flex-glow: 1;
+    padding: 10px;
+    border:none;
+    outline: none;
+    background: #394254;
+    color: #FFFFFF;
+    border-radius:114px;
+    box-sizing: border-box;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+`;
+
+
 export const Input = styled.input`
     flex-glow: 1;
     padding: 10px;
-    border: solid 0.5px #394254;
+    border:none;
     outline: none;
     width: 100%;
     height: 40px;
@@ -427,21 +454,34 @@ export const Input = styled.input`
     color: #FFFFFF;
     border-radius:114px;
     box-sizing: border-box;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
 `;
+
+
+
 
 export const CheckButton = styled.button`
     padding:10px;
     background: ${props => props.disabled ? '#4A4F59' : '#00F0FF'}; 
     color: ${props => props.disabled ? '#BEBEBE' : '#172435'};
-    border:  ${props => props.disabled ? '0.5px solid #4A4F59' : '#00F0FF'};
+    border: none;
     cursor: pointer;
     flex-grow:0;
     height: 40px;
-    width:75px;
+    width:102px;
     display: flex;
     align-items: center;
     border-radius:114px;
     display :inline-block;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
 
 `;
 
@@ -452,7 +492,11 @@ const ErrorMessageContainer = styled.div`
 
 export const ErrorMessage = styled.div`
     color:#ff635d;
-    font-size: 5px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 17px;
 `;
 
 export const SuccessMessage = styled.div`
@@ -464,8 +508,8 @@ export const SignupButton = styled.button`
     margin-left: 9px;
     margin-bottom: 12px;
     height: 40px;
-    border: 0.5px solid ${props => props.disabled ? '#4A4F59' : '#00F0FF'}; 
-    border-radius: 28px;
+    border:none;
+    border-radius:42px;;
     cursor: pointer;
     background : #4A4F59;
     color :#BEBEBE;
@@ -480,6 +524,13 @@ export const SignupButton = styled.button`
     &:not(:disabled){
         background: #00F0FF;
         color: #464646;
+    }
+    &:hover {
+        transform: scale(1.03);
+    }
+    &:active {
+        background-color: #00C5D1;
+        transform: scale(1);
     }
 `
 
