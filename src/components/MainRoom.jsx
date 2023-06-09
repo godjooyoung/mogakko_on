@@ -535,6 +535,13 @@ export const RoomEnterButton = styled.button`
     font-weight: 700;
     font-size: 20px;
     line-height: 80%;
+    &:hover {
+        transform: scale(1.03);
+    }
+    &:active {
+        background: #00C5D1;
+        transform: scale(1);
+    }
 `
 
 export const RoomEnterPasswordWrap = styled.div`

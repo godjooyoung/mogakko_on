@@ -177,7 +177,7 @@ export const InputWrapper = styled.div`
 `
 export const Input = styled.input`
     flex-glow: 1;
-    padding: 10px;
+    padding: 10px 10px 10px 20px;
     border:none;
     outline: none;
     width: 100%;
