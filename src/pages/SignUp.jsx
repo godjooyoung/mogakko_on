@@ -371,7 +371,7 @@ export const Form = styled.form`
     display: flex;
     flex-direction: column;
     max-width: 384px;
-    margin: 0 auto
+    margin: 0 auto;
 `;
 export const SigninIntro = styled.div`
     color:#FFFFFF;
@@ -516,6 +516,7 @@ export const SignupButton = styled.button`
     width:383px;
     margin: auto;
     font-weight: 700;
+    transition: all 0.3s;
     &:not(:disabled){
         background: #00F0FF;
         color: #464646;
@@ -526,6 +527,11 @@ export const SignupButton = styled.button`
     &:active {
         background-color: #00C5D1;
         transform: scale(1);
+        color: #464646;
+        font-family: 'Pretendard';
+        font-style: normal;
+        font-size: 17px;
+        font-weight: 700;
     }
 `
 
