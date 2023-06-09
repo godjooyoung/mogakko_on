@@ -88,6 +88,7 @@ function MainMap(props) {
             center: new kakao.maps.LatLng(searchInfo.searchLatitude, searchInfo.searchLongitude),
         }
         const map = new kakao.maps.Map(mapContainer.current, options)
+        map.setZoomable(false)
         const bounds = new kakao.maps.LatLngBounds();
 
         const getPinImg = (lang) => {
@@ -213,7 +214,7 @@ function MainMap(props) {
         });
 
         }
-    }, [props.roomList])
+    }, [searchInfo])
 
     return (
         <MapContainer>

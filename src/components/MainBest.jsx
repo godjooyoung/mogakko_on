@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { styled } from 'styled-components';
 import { useQuery, useQueryClient } from 'react-query';
 import { getBestMember } from '../axios/api/member'
+import { useNavigate } from 'react-router-dom';
 
 function MainBest() {
+    const navigate = useNavigate();
+
     //BestMember 조회
     const { isLoading, isError, data } = useQuery("getBestMember", getBestMember)
 
@@ -47,11 +50,64 @@ function MainBest() {
         ]
     )
 
-    useEffect(()=>{
-        if(data){
+    useEffect(() => {
+        if (data) {
             setBestMemberList(data)
         }
-    },[data])
+    }, [data])
+
+    // useEffect(() => {
+    //     setValue(data && data.data.data.member.codingTem);
+    //     const interval = setInterval(() => {
+    //         if (value < data) {
+    //         setValue((prevValue) => prevValue + 1);
+    //     }
+    // }, 10); ms
+    
+    // return () => {
+    //     clearInterval(interval);
+    // };
+    // }, [data]);
+
+    // 아바타 생성 함수
+    const avataGenHandler = (nickName, profileImageUrl) => {
+        let avataGen
+        if(profileImageUrl === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU'){
+            avataGen = `https://source.boringavatars.com/beam/120/${nickName}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
+        }else{
+            avataGen = profileImageUrl
+            
+        }
+        return <><img src={avataGen} alt="프로필사진" /></>   
+    }
+
+    // 순공시간 퍼센트 함수
+    const totalStudyTmCalHandler = (time) => {
+        console.log("------------------>",time) // 00H00M
+        let hh = time.slice(0, -1).split('H')[0]
+        let mm = time.slice(0, -1).split('H')[1]
+        console.log("::시간", hh)
+        console.log("::분 ", mm)
+        console.log("::형변환 시간", Number(hh))
+        console.log("::형변환 분 ", Number(mm))
+        let totTime = Number(hh)*60
+        totTime = Number(totTime)+Number(mm)
+
+        console.log("::순공 분으로 계산한거 ", Number(totTime))
+        console.log("::퍼센트계산 ", ((Number(totTime)/420)*100))
+        
+        if(((Number(totTime)/420)*100) > 100){
+            return 100
+        }else{
+            return (Number(totTime)/420)*100
+        }
+    }
+    
+    //userProfileHandler
+    const userProfileHandler = (id) => {
+        navigate('/profile/'+id)
+    }
+
     return (
         <BestMemberWrap>
             <BestMemberCardContainer>
@@ -61,38 +117,47 @@ function MainBest() {
                 <BestMemberCardWarp>
                     <BestMemberCardGrid>
                         {
-                            bestMemberList&&bestMemberList.map((bestMember)=>{
+                            bestMemberList && bestMemberList.map((bestMember) => {
                                 return (
-                                    <BestMemberCard>
-                                    <BestMemberProfileImage>프사영역</BestMemberProfileImage>
-                                    <BestMemberName>이름영역박네글자</BestMemberName>
-                                    <BestMemberCardContentContainer>
-                                        <BestMemberCardContent>
-                                            <BestMemberCardContentTitle>코딩 온도</BestMemberCardContentTitle>
-                                            <BestMemberCardContentDetials>
-                                                <span><img src={`${process.env.PUBLIC_URL}/image/mannerTemp.webp`}/></span><span>내용1 상세</span><span>36.5</span>
-                                            </BestMemberCardContentDetials>
-                                        </BestMemberCardContent>
-                                        {/* 15px 간격 */}
-                                        <BestMemberCardContent>
-                                            <BestMemberCardContentTitle>이번주 총 공부 시간</BestMemberCardContentTitle>
-                                            <BestMemberCardContentDetials>
-                                                <span><img src={`${process.env.PUBLIC_URL}/image/timer.webp`}/></span><div>내용1 상세</div><span>12H 00M</span>
-                                            </BestMemberCardContentDetials>
-                                        </BestMemberCardContent>
-                                    </BestMemberCardContentContainer>
-                                </BestMemberCard>
+                                    <BestMemberCard onClick={()=>{userProfileHandler(bestMember.member.id)}}>
+                                        <BestMemberProfileImage>
+                                            {avataGenHandler(bestMember.member.nickname, bestMember.member.profileImage)}
+                                            {/* <img src={bestMember.member.profileImage}></img> */}
+                                        </BestMemberProfileImage>
+                                        <BestMemberName>{bestMember.member.nickname}</BestMemberName>
+                                        <BestMemberCardContentContainer>
+                                            <BestMemberCardContent>
+                                                <BestMemberCardContentTitle>코딩 온도</BestMemberCardContentTitle>
+                                                <BestMemberCardContentDetials>
+                                                    <span><img src={`${process.env.PUBLIC_URL}/image/mannerTemp.webp`} /></span>
+                                                    <ProgressContainer>
+                                                        <Progress style={{ width: `${bestMember.member.codingTem}%` }} />
+                                                    </ProgressContainer>
+                                                    <span>{bestMember.member.codingTem}</span>
+                                                </BestMemberCardContentDetials>
+                                            </BestMemberCardContent>
+                                            {/* 15px 간격 */}
+                                            <BestMemberCardContent>
+                                                <BestMemberCardContentTitle>이번주 총 공부 시간</BestMemberCardContentTitle>
+                                                <BestMemberCardContentDetials>
+                                                    <span><img src={`${process.env.PUBLIC_URL}/image/timer.webp`} /></span>
+                                                    <ProgressContainer>
+                                                        <Progress style={{ width: `${totalStudyTmCalHandler(bestMember.totalTimerWeek)}%` }} />
+                                                    </ProgressContainer>
+                                                    <span>{bestMember.totalTimerWeek}</span>
+                                                </BestMemberCardContentDetials>
+                                            </BestMemberCardContent>
+                                        </BestMemberCardContentContainer>
+                                    </BestMemberCard>
                                 )
                             })
                         }
-
-
                     </BestMemberCardGrid>
-                    
+
                 </BestMemberCardWarp>
-                <BestMemberButtonContainer><button>더보기 버튼</button></BestMemberButtonContainer>
+                <BestMemberButtonContainer><button style={{'visibility':'hidden'}}>더보기 버튼</button></BestMemberButtonContainer>
             </BestMemberCardContainer>
-            
+
         </BestMemberWrap>
     );
 }
@@ -153,6 +218,14 @@ export const BestMemberCard = styled.div`
     height: 269px;
     background: #394254;
     border-radius: 20px;
+    &:hover {
+        transform: scale(1.03);
+    }
+    &:active {
+        background: #222A3A;
+        transform: scale(1);
+    }
+    cursor: pointer;
 `
 
 export const BestMemberProfileImage = styled.div`
@@ -206,4 +279,20 @@ export const BestMemberCardContentDetials = styled.div`
     color: #FFFFFF;
     column-gap: 5px;
     align-items: center;
+`
+const ProgressContainer = styled.div`
+    background: transparent;
+    border-radius: 62px;
+    border: none;
+    width: 119px;
+    height: 4px;
+    border: 0.5px solid #FFFFFF;
+`
+
+const Progress = styled.div`
+    height: 100%;
+    border-radius: 62px;
+    background: #00F0FF;
+    transition: width 1s ease;
+    border: none;
 `

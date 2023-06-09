@@ -282,7 +282,7 @@ export const EmptyRoom = styled.div`
     background: #394254;
     border-radius: 20px;
     position: relative;
-    margin-bottom: 120px;
+    margin-bottom: 90px;
 `
 export const EmptyImgDiv = styled.div`
     width: 104px;
@@ -310,7 +310,7 @@ export const NonEmptyRoom = styled.div`
     width: 996px;
     height: 440px;
     position: relative;
-    margin-bottom: 120px;
+    margin-bottom: 90px;
     display: flex;
     justify-content: space-between;
 `
