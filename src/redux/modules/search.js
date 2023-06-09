@@ -22,9 +22,12 @@ const searchSlice = createSlice({
         __searchLanguage: (state, action) => {
             state.searchLanguage = action.payload;
         },
+        __logoutResetSearch: (state, action) => {
+            state = initialState
+        },
     }
 })
 
 
-export const { __searchLocation, __searchKeyword, __searchLanguage } = searchSlice.actions
+export const { __searchLocation, __searchKeyword, __searchLanguage, __logoutResetSearch } = searchSlice.actions
 export default searchSlice.reducer
