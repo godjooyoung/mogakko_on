@@ -2,12 +2,14 @@ import React from 'react';
 import { styled } from 'styled-components';
 import MainHeader from '../components/MainHeader';
 import MainContent from '../components/MainContent';
+import MainBest from '../components/MainBest';
 function Main() {
 
     return (
         <MainContaniner>
             <MainHeader/>
             <MainContent/>
+            <MainBest/>
         </MainContaniner>
     );
 }
