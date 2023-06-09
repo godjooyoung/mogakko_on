@@ -69,14 +69,21 @@ function Mypage() {
       console.log(">>> getFriendList 성공3", response.data.data[0])
       setFriendList(response.data.data)
     },
+    onError: (error) => {
+      console.log('setFriendList>>>>>>>>error>>>>>>>>>>', error)
+      setFriendList([])
+    }
   })
   // 친구 요청 목록 조회
   const friendRequestListMutation = useMutation(getFriendRequestList, {
     onSuccess: (response) => {
       console.log(">>> getFriendRequestList 성공1", response)
       console.log(">>> getFriendRequestList 성공2", response.data.data)
-      setFriendReqList(response.data.data)
-
+      if (response.data.data === null) {
+        setFriendReqList([])
+      } else {
+        setFriendReqList(response.data.data)
+      }
     },
   })
 
@@ -201,7 +208,7 @@ function Mypage() {
               githubInputValueReset()
             }}>x</CloseBtn>
             <h1>깃허브 아이디</h1>
-            <input type="text" placeholder='아이디' value={githubValue} onChange={onChangeGithubValue}/>
+            <input type="text" placeholder='아이디' value={githubValue} onChange={onChangeGithubValue} />
             <GitHubBtn onClick={() => {
               setGitHub(!gitHub)
               // setuserGitHubId(githubValue)
@@ -304,69 +311,86 @@ function Mypage() {
         <FriendListContainer>
           <DeleteBtnWrap>
             <p>친구 목록</p>
-            {
-              !friendListDelete ? <FriendListDeleteBtn onClick={() => {
-                friendListDeleteHandler()
-              }}>삭제 하기</FriendListDeleteBtn> :
-                <FriendListCancleBtnWrap>
-                  <FriendListCancleBtn onClick={() => {
+            {friendList.length === 0 ?
+              null :
+              <>
+                {
+                  !friendListDelete ? <FriendListDeleteBtn onClick={() => {
                     friendListDeleteHandler()
-                  }}
-                    color={'cancle'}
-                  >취소</FriendListCancleBtn>
-                  <FriendListCancleBtn>삭제</FriendListCancleBtn>
-                </FriendListCancleBtnWrap>
+                  }}>삭제 하기</FriendListDeleteBtn> :
+                    <FriendListCancleBtnWrap>
+                      <FriendListCancleBtn onClick={() => {
+                        friendListDeleteHandler()
+                      }}
+                        color={'cancle'}
+                      >취소</FriendListCancleBtn>
+                      <FriendListCancleBtn>삭제</FriendListCancleBtn>
+                    </FriendListCancleBtnWrap>
+                }
+              </>
             }
           </DeleteBtnWrap>
-          <ScrollWrap>
-            <FriendListWrap>
-              {/* for문 */}
-              {friendList && friendList.map((friend, idx) => {
-                return (
-                  <>
-                    <FriendList onClick={() => {
 
-                    }}>
-                      {
-                        friendListDelete &&
-                        <DeleteSelectedBtn></DeleteSelectedBtn>
-                      }
-                      <FriendListImage friendListImg={friend.member.profileImage}></FriendListImage>
-                      <FriendListName>{friend.member.nickname}</FriendListName>
-                      {/* <button onClick={() => { onClickDeleteFriendButtonHandler(friend.nickname) }}>삭제</button> */}
-                    </FriendList>
-                  </>
-                )
-              })}
-            </FriendListWrap>
-          </ScrollWrap>
+          {
+            friendList.length === 0 ?
+              <NullFriendList>
+                <h1>추가한 친구가 없습니다</h1>
+              </NullFriendList> :
+              <ScrollWrap>
+                <FriendListWrap>
+                  {friendList && friendList.map((friend, idx) => {
+                    return (
+                      <>
+                        <FriendList onClick={() => {
+
+                        }}>
+                          {
+                            friendListDelete &&
+                            <DeleteSelectedBtn></DeleteSelectedBtn>
+                          }
+                          <FriendListImage friendListImg={friend.member.profileImage}></FriendListImage>
+                          <FriendListName>{friend.member.nickname}</FriendListName>
+                          {/* <button onClick={() => { onClickDeleteFriendButtonHandler(friend.nickname) }}>삭제</button> */}
+                        </FriendList>
+                      </>
+                    )
+                  })}
+                </FriendListWrap>
+              </ScrollWrap>
+          }
         </FriendListContainer>
 
         <FriendRequestWrap>
           <FriendRequestTitle>친구 요청</FriendRequestTitle>
           {/* for문 */}
-          <ScrollWrap>
-            {
-              friendReqList && friendReqList.map((friend, idx) => {
-                return (
-                  <>
-                    <FriendWrap>
-                      <FriendLeftContent>
-                        <FriendProfile friendRequestImg={friend.profileImage}></FriendProfile>
-                        <FriendRequestNickname>{friend.nickname}</FriendRequestNickname>
-                      </FriendLeftContent>
-                      <ButtonWrap>
-                        <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, true) }} color={'allow'}>수락</AllowBtn>
-                        <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, false) }}>거절</AllowBtn>
-                      </ButtonWrap>
-                    </FriendWrap>
-                  </>
-                )
-              })
-            }
-          </ScrollWrap>
+
+          {
+            friendReqList.length === 0 ?
+              <NullFriendRequestList>
+                <h1>아직 친구 요청이 없습니다</h1>
+              </NullFriendRequestList> :
+              <ScrollWrap>
+                {friendReqList && friendReqList.map((friend, idx) => {
+                  return (
+                    <>
+                      <FriendWrap>
+                        <FriendLeftContent>
+                          <FriendProfile friendRequestImg={friend.profileImage}></FriendProfile>
+                          <FriendRequestNickname>{friend.nickname}</FriendRequestNickname>
+                        </FriendLeftContent>
+                        <ButtonWrap>
+                          <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, true) }} color={'allow'}>수락</AllowBtn>
+                          <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, false) }}>거절</AllowBtn>
+                        </ButtonWrap>
+                      </FriendWrap>
+                    </>
+                  )
+                })
+                }
+              </ScrollWrap>
+          }
         </FriendRequestWrap>
-      </MyPageBottomContentWrap>
+      </MyPageBottomContentWrap >
     </>
   )
 }
@@ -704,6 +728,23 @@ const FriendRequestWrap = styled.div`
   border-radius: 8px;
 `
 
+const NullFriendRequestList = styled.div`
+  width: 384px;
+  height: 280px;
+  background: #394254;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  h1 {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 17px;
+    color: #BEBEBE;
+  }
+`
+
 const FriendRequestTitle = styled.p`
   font-weight: 500;
   font-size: 21px;
@@ -874,6 +915,24 @@ const FriendListWrap = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+`
+
+const NullFriendList = styled.div`
+  width: 486px;
+  height: 280px;
+  background: #394254;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  h1 {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 17px;
+    color: #BEBEBE;
+  }
 `
 
 const FriendList = styled.div`
