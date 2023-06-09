@@ -167,6 +167,14 @@ export const CreateRoomButton = styled.button`
     line-height: 16px;
     text-align: center;
     color: #464646;
+    border: none;
+    &:hover {
+        transform: scale(1.03);
+    }
+    &:active {
+        background-color: #00C5D1;
+        transform: scale(1);
+    }
 `
 
 const typingCursor1 = keyframes`

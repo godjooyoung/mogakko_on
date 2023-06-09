@@ -97,4 +97,15 @@ const getUserProfile = async (memberId) => {
   }
 }
 
-export { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, getUserProfile, requestFriend }
+// githubID 등록
+const githubIdPost = async (id) => {
+  try {
+    const response = await jwtInstance.post('/members/github', {'githubId':id})
+    return response
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+
+export { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, getUserProfile, requestFriend, githubIdPost }

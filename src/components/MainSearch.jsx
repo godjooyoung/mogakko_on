@@ -27,7 +27,6 @@ function MainSearch(props) {
     // 인기동네 목록
     const [townList, setTownList] = useState([
         {count: 14, neighborhood: '서울특별시 강서구 염창동', isSelected:false},
-        {count: 13, neighborhood: '서울특별시 강서구 가양동', isSelected:false},
         {count: 12, neighborhood: '서울특별시 영등포구 문래동', isSelected:false},
         {count: 11, neighborhood: '서울특별시 관악구 신림동', isSelected:false},
         {count: 11, neighborhood: '서울특별시 강남구 역삼동', isSelected:false}
@@ -41,7 +40,6 @@ function MainSearch(props) {
         if(!data || data.length === 0){
             setTownList([
                 {count: 14, neighborhood: '서울특별시 강서구 염창동', isSelected:false},
-                {count: 13, neighborhood: '서울특별시 강서구 가양동', isSelected:false},
                 {count: 12, neighborhood: '서울특별시 영등포구 문래동', isSelected:false},
                 {count: 11, neighborhood: '서울특별시 관악구 신림동', isSelected:false},
                 {count: 11, neighborhood: '서울특별시 강남구 역삼동', isSelected:false},
@@ -185,7 +183,7 @@ function MainSearch(props) {
                     <div>
                         <img src={`${process.env.PUBLIC_URL}/image/zoomOut.svg`} alt="돋보기아이콘" width='20' height='20' />
                     </div>
-                    <SearchInput type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='원하시는 모각코 장소, 제목을 검색하세요.' autocomplete='off' />
+                    <SearchInput type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='원하시는 모각코 장소, 제목을 검색하세요.' autoComplete='do-not-autofill' />
                     <SearchResetBtn onClick={()=>{keywordReset()}}>X</SearchResetBtn>
                 </SearchBar>
             </Search>

@@ -70,9 +70,26 @@ const getLangIcon = (lang) => {
     return imgUrl
 }
 
+let showingDetialsIdx = 0;
+
+// 선택된 카드 색깔 지정 함수
+const checkSelcetdCard = (type, idx) => {
+    if(showingDetialsIdx === idx){
+        if(type == 'color'){
+            return '#00F0FF'
+        }else{
+            return '1px solid #00F0FF'
+        }
+    }else{
+        if(type == 'color'){            
+            return '#FFFFFF'
+        }else{
+            return 'none'
+        }
+    }
+}
 
 function MainRoom(props) {
-
     // 기본 좌표값 (전역)
     const searchInfo = useSelector((state) => {
         //console.log("searchInfo", state.searchInfo)
@@ -82,8 +99,6 @@ function MainRoom(props) {
     const userInfo = useSelector((state) => {
         return state.userInfo
     })
-
-
 
     const navigate = useNavigate()
 
@@ -95,12 +110,34 @@ function MainRoom(props) {
         setIsLogin(getCookie('token') ? true : false)
     })
 
+    // 비밀번호방 입장 시 인풋
     const [roomEnterPw, onChangeRoomEnterPw, roomEnterPwReset] = useInput('')
+
+    // isSelected가 포함된 검색 목록
+    const [searchRooms, setSearchRooms] = useState(props.roomList)
+    // 검색 목록을 받으면 isSelected 포함시키기
+    useEffect(() => {
+        const setRoomList = () => {
+            const updateRoomList = props.roomList&&props.roomList.map((room, index) => {
+                    return { ...room, isSelected: false }   
+            });
+            setSearchRooms(updateRoomList)
+        }
+        setRoomList()
+    }, [props.roomList])
+
+    const roomOpenCheck = (isOpendRoom) => {
+        console.log("isOpendRoom",isOpendRoom)
+        return isOpendRoom
+    }
 
     // 방참여하기
     const onClickJoinRoomHandler = (details) => {
+        console.log("방값!!", details)
+        debugger
+
         if (isLogin) {
-            if(details.opened){
+            if (details.opened) {
                 console.log("공개방 입장")
                 const state = {
                     mySessionId: details.sessionId,
@@ -116,9 +153,9 @@ function MainRoom(props) {
                     neighborhood: details.neighborhood,
                 };
                 navigate('/room', { state: state })
-            }else{
+            } else {
                 console.log("비공개방 입장", roomEnterPw)
-                if(roomEnterPw.length !== 0){
+                if (roomEnterPw.length !== 0) {
                     const state = {
                         mySessionId: details.sessionId,
                         myUserName: getCookie('nickName'),
@@ -133,24 +170,22 @@ function MainRoom(props) {
                         neighborhood: details.neighborhood,
                     };
                     navigate('/room', { state: state })
-                }else{
+                } else {
                     alert('비밀번호를 입력하세요.')
                 }
             }
-            
-            
+
+
         } else {
             alert('로그인 이후 사용 가능합니다.')
         }
     }
 
     // 방 상세보기
-    const onClickRoomDetailsHandler = (details) => {
-        console.log("방값->", details)
+    const onClickRoomDetailsHandler = (details, idx) => {
+        showingDetialsIdx = idx
         setRoomDetails(details)
     }
-
-    
 
     return (
         <RoomContainer>
@@ -174,18 +209,18 @@ function MainRoom(props) {
                 <>
                     <NonEmptyRoom>
                         <RoomList>
-                            {props.roomList && props.roomList.map((room, idx) => {
+                            {props.roomList && searchRooms.map((room, idx) => {
                                 return (
-                                    <RoomCard onClick={() => { onClickRoomDetailsHandler(room) }} language={room.language}>
+                                    <RoomCard onClick={() => { onClickRoomDetailsHandler(room, idx) }} language={room.mogakkoRoom.language} searchIdx={idx}>
                                         <CardTop>
-                                            <CardTitle>{room.opened?<></>:<RoomLockCardImg src={`${process.env.PUBLIC_URL}/image/lockRoomS.webp`} width='18' height='18'/>}<span>{room.title}</span></CardTitle>
+                                            <CardTitle searchIdx={idx}>{room.mogakkoRoom.opened ? <></> : <RoomLockCardImg src={`${process.env.PUBLIC_URL}/image/lockRoomS.webp`} width='18' height='18' />}<span>{room.mogakkoRoom.title}</span></CardTitle>
                                         </CardTop>
                                         <CardBottom>
                                             <LanguageWrap>
-                                                <LanguageIconDiv language={room.language}>
+                                                <LanguageIconDiv language={room.mogakkoRoom.language}>
                                                 </LanguageIconDiv>
                                                 <LanguageDesc>
-                                                    {room.language}
+                                                    {room.mogakkoRoom.language}
                                                 </LanguageDesc>
                                             </LanguageWrap>
                                             <RoomEnterMemberWrap>
@@ -193,30 +228,33 @@ function MainRoom(props) {
                                                     <img src={`${process.env.PUBLIC_URL}/image/peopleAlt.svg`} alt="사람아이콘" />
                                                 </div>
                                                 <RoomEnterMamberNum>
-                                                    {room.cntMembers}/{room.maxMembers}
+                                                    {room.mogakkoRoom.cntMembers}/{room.mogakkoRoom.maxMembers}
                                                 </RoomEnterMamberNum>
                                             </RoomEnterMemberWrap>
                                         </CardBottom>
                                     </RoomCard>
                                 )
                             })}
+
                         </RoomList>
                         <RoomDetails>
                             <RoomDetailsTop>
-                                <RoomDetailsTitle>{roomDetails && roomDetails.title}</RoomDetailsTitle>
+                                <RoomDetailsTitle>{roomDetails?roomDetails && roomDetails.mogakkoRoom.title:props.roomList && props.roomList[0]?.mogakkoRoom.title}</RoomDetailsTitle>
                             </RoomDetailsTop>
                             <RoomDetailsBottom>
                                 <RoomDetailsDesc>
-                                    <RoomDetilasDescP>지역 : {roomDetails && roomDetails.neighborhood}</RoomDetilasDescP>
-                                    <RoomDetilasDescP>모각코시간 : {roomDetails && roomDetails.createdAt}</RoomDetilasDescP>
-                                    <RoomDetilasDescP>정원 : {roomDetails && roomDetails.cntMembers}/{roomDetails && roomDetails.maxMembers}</RoomDetilasDescP>
-                                    <RoomDetilasDescP>언어 : <LanguageIconSpan language={roomDetails && roomDetails.language}></LanguageIconSpan><span>{roomDetails && roomDetails.language}</span></RoomDetilasDescP>
+                                    <RoomDetilasDescP>지역 : {roomDetails?roomDetails && roomDetails.mogakkoRoom.neighborhood:props.roomList&&props.roomList[0]?.mogakkoRoom.neighborhood}</RoomDetilasDescP>
+                                    <RoomDetilasDescP>모각코시간 : {roomDetails?roomDetails && roomDetails.elapsedTime:props.roomList&&props.roomList[0]?.elapsedTime}</RoomDetilasDescP>
+                                    <RoomDetilasDescP>정원 : {roomDetails?roomDetails && roomDetails.mogakkoRoom.cntMembers:props.roomList&&props.roomList[0].mogakkoRoom.cntMembers}/{roomDetails?roomDetails && roomDetails.mogakkoRoom.maxMembers:props.roomList&&props.roomList[0].mogakkoRoom.maxMembers}</RoomDetilasDescP>
+                                    <RoomDetilasDescP>언어 : <LanguageIconSpan language={roomDetails?roomDetails && roomDetails.mogakkoRoom.language:props.roomList&&props.roomList[0].mogakkoRoom.language}></LanguageIconSpan><span>{roomDetails?roomDetails && roomDetails.mogakkoRoom.language:props.roomList&&props.roomList[0].mogakkoRoom.language}</span></RoomDetilasDescP>
                                 </RoomDetailsDesc>
                                 <RoomDetailsEnter>
-                                    {roomDetails&&roomDetails.opened?<div></div>:<RoomEnterPasswordWrap>
+                                    {roomOpenCheck(roomDetails?roomDetails&&roomDetails.mogakkoRoom.opened:props.roomList&&props.roomList[0].mogakkoRoom.opened)?<div></div>:<RoomEnterPasswordWrap>
                                         <RoomEnterPassword type='password' placeholder='비밀번호 입력' autocomplete='off' value={roomEnterPw} onChange={onChangeRoomEnterPw}></RoomEnterPassword>
-                                        </RoomEnterPasswordWrap>}
-                                    <RoomEnterButton onClick={() => { onClickJoinRoomHandler(roomDetails) }}>{roomDetails&&roomDetails.opened?<></>:<LockRoomImg src={`${process.env.PUBLIC_URL}/image/lockRoom.webp`} ></LockRoomImg>}참여하기<img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="방입장 화살표" width='16' height='16' /></RoomEnterButton>
+                                    </RoomEnterPasswordWrap>}
+                                    
+                                    
+                                    <RoomEnterButton onClick={() => { onClickJoinRoomHandler(roomDetails?roomDetails.mogakkoRoom:props.roomList&&props.roomList[0].mogakkoRoom) }}>{roomDetails?roomDetails && roomDetails.mogakkoRoom.opened:props.roomList&&props.roomList[0].mogakkoRoom.opened ? <></> : <LockRoomImg src={`${process.env.PUBLIC_URL}/image/lockRoom.webp`} ></LockRoomImg>}참여하기<img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="방입장 화살표" width='16' height='16' /></RoomEnterButton>
                                 </RoomDetailsEnter>
                             </RoomDetailsBottom>
                         </RoomDetails>
@@ -244,7 +282,7 @@ export const EmptyRoom = styled.div`
     background: #394254;
     border-radius: 20px;
     position: relative;
-    margin-bottom: 133px;
+    margin-bottom: 90px;
 `
 export const EmptyImgDiv = styled.div`
     width: 104px;
@@ -272,7 +310,7 @@ export const NonEmptyRoom = styled.div`
     width: 996px;
     height: 440px;
     position: relative;
-    margin-bottom: 133px;
+    margin-bottom: 90px;
     display: flex;
     justify-content: space-between;
 `
@@ -332,6 +370,7 @@ export const RoomCard = styled.div`
     background-image : url(
         ${(props) => { return getBgImg(props.language) }}
     );
+    border : ${(props) => { return checkSelcetdCard('border' ,props.searchIdx) }};
 `
 export const RoomCardBgImg = styled.img`
     position: relative;
@@ -361,6 +400,7 @@ export const CardTitle = styled.div`
     font-size: 18px;
     line-height: 28px;
     color: #FFFFFF;
+    color : ${(props) => { return checkSelcetdCard('color', props.searchIdx) }};
 `
 
 export const CardBottom = styled.div`

@@ -28,7 +28,8 @@ function Room() {
   const [currentVideoDevice, setCurrentVideoDevice] = useState(null)
   const [isScreenSharing, setIsScreenSharing] = useState(false)
   const [lang, setLang] = useState(sessionInfo.language)
-  const [isOpened, setIsOpened] = useState(sessionInfo.isOpened)   // isOpen 
+  // const [isOpened, setIsOpened] = useState(sessionInfo.isOpened)   // isOpen 
+  const [isOpened, setIsOpened] = useState(true)   // isOpen 
   const [openViduSession, setOpenViduSession] = useState(undefined)
 
   //비디오, 오디오 on/off 상태
@@ -40,20 +41,22 @@ function Room() {
   const isConnected = useRef('')
   const stompClient = useRef(null)
 
-
   const [btnSelect, setBtnSelect] = useState('public')
 
+  //popup창
+  const [roomPopUp, setRoomPopUp] = useState(false)
   // 네비게이트 선언
   const navigate = useNavigate()
   // 리브세션 서버 요청
   const leaveSessionMutation = useMutation(leaveChatRoom, {
     onSuccess: (response) => {
+      console.log("나가기 성공")
       console.log("leaveSessionMutation", response)
-      if (session) {
-        session.disconnect()
-        navigate('/')
-      }
-
+      setIsLeaved(true)
+    },
+    onError: (error) => {
+      console.log("나가기 오류")
+      setIsLeaved(true)
     }
   })
 
@@ -118,7 +121,6 @@ function Room() {
 
   const [curMaxMembers, setCurMaxMembers] = useState(0)
 
-
   const maxMembersHandler = (e, isSelected, idx) => {
     const updateMaxMembersList = maxMembers.map((num, index) => {
       if (index === idx) {
@@ -138,12 +140,22 @@ function Room() {
     title: sessionInfo.title,
     language: sessionInfo.language,
     maxMembers: sessionInfo.maxMembers,
-    isOpened: sessionInfo.isOpened,
+    // isOpened: sessionInfo.isOpened, 2차 스코프로 비밀방 하면 다시 ㄱㄱ
+    isOpened: true,
     password: sessionInfo.password,
     lon: sessionInfo.longitude,
     lat: sessionInfo.latitude,
     neighborhood: sessionInfo.neighborhood
   })
+
+  // const [state, setState] = useState({
+  //   mySessionId: roomData.sessionId,
+  //   myUserName: 'Participant' + Math.floor(Math.random() * 100),
+  //   session: undefined,
+  //   mainStreamManager: undefined,
+  //   publisher: undefined,
+  //   subscribers: [],
+  //   });
 
   const OV = useRef(new OpenVidu())
 
@@ -160,40 +172,89 @@ function Room() {
 
   // 세션 만들기
   // 세션은 영상 및 음성 통신에 대한 컨테이너 역할(Room)
-  const joinSession = useCallback(async () => {
-    const mySession = OV.current.initSession()
+  // const joinSession = useCallback(async () => {
+  //   // 내 세션 생성
+  //   const mySession = OV.current.initSession()
+  //   // 내 세션을 셋해둔다.
+  //   setSession(mySession)
+
+  //   mySession.on('streamCreated', (event) => {
+  //     console.log("subscribers 확인 처음!@@ subscribers ::: ", subscribers);
+  //     // 접속한 사람마다 subscriber를 만든다.
+  //     const subscriber = mySession.subscribe(event.stream, undefined)
+
+  //     const newSubscribers = subscribers;
+  //     newSubscribers.push(subscriber)
+  //     setSubscribers([...newSubscribers])
+
+  //     console.log("subscribers 확인 1 현재 접속시도자 subscriber ::: ", subscriber);
+  //     console.log("subscribers 확인 2 newSubscribers ::: ", newSubscribers);
+  //     console.log("subscribers 확인 3 subscribers ::: ", subscribers);
+  //   })
+
+  //   mySession.on('streamDestroyed', (event) => {
+  //     deleteSubscriber(event.stream.streamManager)
+  //   })
+
+  //   //세션 내에서 예외가 발생했을 때 콘솔에 경고메세지
+  //   mySession.on('exception', (exception) => {
+  //     console.warn(exception)
+  //   })
+
+  //   // setSession(mySession)
+  // }, [])
+
+  const joinSession = () => {
+    OV.current = new OpenVidu();
+    const mySession = OV.current.initSession();
+    console.log("subscribers 확인 처음!@@ subscribers ::: ", subscribers);
     mySession.on('streamCreated', (event) => {
-      const subscriber = mySession.subscribe(event.stream, undefined)
-      setSubscribers((subscribers) => [...subscribers, subscriber])
-    })
+      const subscriber = mySession.subscribe(event.stream, undefined);
+      setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber])
+
+      console.log("subscribers 확인 1 현재 접속시도자 subscriber ::: ", subscriber);
+      console.log("subscribers 확인 2 subscribers ::: ", subscribers);
+    });
 
     mySession.on('streamDestroyed', (event) => {
-      deleteSubscriber(event.stream.streamManager)
-    })
+      deleteSubscriber(event.stream.streamManager);
+    });
 
-    //세션 내에서 예외가 발생했을 때 콘솔에 경고메세지
     mySession.on('exception', (exception) => {
-      console.warn(exception)
-    })
+      console.warn(exception);
+    });
 
-    await setSession(mySession)
-  }, [])
+    setSession(mySession)
+  };
 
+  const [isFisrstSubscribe, setIsFisrstSubscribe] = useState(false)
+  const [isGuest, setIsGuest] = useState(false)
   useEffect(() => {
-    console.log("useEffect 커텍트 하기 전 >> openViduSession : ", openViduSession)
-    console.log("useEffect 커텍트 하기 전 >> mySessionId :",     mySessionId)
-    if (openViduSession) {
-      console.log("방바로 입장 : ",     openViduSession)
-      connect(openViduSession)
-    }else{
-      console.log("방생성후 입장 :",     mySessionId)
-      connect(mySessionId)
+    console.log("*************** 이전에 구독을 성공한 적이 있는가?", isFisrstSubscribe)
+    console.log("*************** 방장일때, 방장이닐때 값 비교 1", openViduSession)
+    console.log("*************** 방장일때, 방장이닐때 값 비교 2", mySessionId)
+
+    if (!isGuest || openViduSession) { // !false || undifind
+      console.log("게스트여서 커넥트됬니?", isGuest)
+      console.log("방장이여서 재시도 하니?", !openViduSession ? 'true' : 'false')
+      if (!isFisrstSubscribe) { // !false => true
+        console.log("*************** 1")
+        if (openViduSession) {
+          console.log("*************** 2")
+          connect(openViduSession) // isFisrstSubscribe = false
+        } else {
+          // 방장 아닌사람은 3일때 커넥션 하고 다시 또 커넥션 시키지 않는다.
+          console.log("*************** 3")
+          connect(mySessionId)
+          setIsGuest(true)
+          setIsFisrstSubscribe(true)
+        }
+      }
     }
   }, [openViduSession])
 
   // TEMP
   const onClickTempButton = () => {
-    console.log(">>>>>>>>>>>>>>>> 여기 오니 다이렉트야..? 2")
     if (sessionInfo) {
       if (sessionInfo.isDirect) {
         setData({
@@ -201,6 +262,7 @@ function Room() {
             title: sessionInfo.title,
             language: sessionInfo.language,
             maxMembers: sessionInfo.maxMembers,
+            isOpened: true,
             isOpened: sessionInfo.isOpened,
             password: sessionInfo.password,
           }
@@ -222,13 +284,17 @@ function Room() {
   // 값이 입력될때마다 입력된 state들을 세팅
   useEffect(() => {
     onClickTempButton()
-  }, [roomTitle, lang, isOpened, curMaxMembers])
+  }, [roomTitle, lang, isOpened, curMaxMembers, closedPassword, PasswordCheck])
 
   useEffect(() => {
     if (sessionInfo.isDirect) {
       joinSession()
     }
   }, [data])
+
+  useEffect(() => {
+    console.log("subscribers>> 제발...왜 멍청이 처럼..구는데..  ", subscribers)
+  }, [subscribers])
 
   // 목록에서 방으로 바로 접근 할경우 실행되는 useEffect
   useEffect(() => {
@@ -322,12 +388,21 @@ function Room() {
 
   useEffect(() => {
     // 세션이 있으면 그 세션에 publish해라 
+    if (sessionInfo) {
+      if (sessionInfo.isDirect) {
+        console.log("게스트", sessionInfo)
+      }
+    } else {
+      console.log("방장")
+    }
+    console.log("세션있으면 퍼블리시 하기, 세션 객체의 connect 메소드를 찾아보자.", session)
     if (session) {
       // 토큰받아오기
       getToken().then(async (response) => {
-        // console.log("화면왜안붙어!!!! >>>", response)
+        console.log("after getToken 001", response)
         try {
-          // await session.connect(response.data);
+          console.log("after getToken 002 ", response)
+          console.log("after getToken 003", response.data)
           // await session.connect(response.data, { clientData: getCookie('nickName')})
           await session.connect(response.data)
 
@@ -359,16 +434,23 @@ function Room() {
     }
   }, [session])
 
+  const [isLeaved, setIsLeaved] = useState(false)
 
   const leaveSession = useCallback(() => {
-
-
     // TODO 방 떠났다는 요청 서버에 보내기
-
     const leaveSessionMutationCall = () => {
-      console.log("session>>> ", session)
-      console.log("openViduSession>>> ", openViduSession)
-      leaveSessionMutation.mutate(openViduSession)
+      console.log("방나가기..... ", session)
+      if (sessionInfo.isDirect) {
+        console.log("방나가기.....방장아님1 ", openViduSession)
+        console.log("방나가기.....방장아님2 ", mySessionId)
+        console.log("방나가기.....방장아님3 ", session)
+        leaveSessionMutation.mutate(openViduSession)
+      } else {
+        console.log("방나가기.....방장임1 ", openViduSession)
+        console.log("방나가기.....방장임2 ", mySessionId)
+        console.log("방나가기.....방장임3 ", session.options.sessionId)
+        leaveSessionMutation.mutate(session.options.sessionId)
+      }
     }
 
     // Leave the session
@@ -376,14 +458,26 @@ function Room() {
       leaveSessionMutationCall()
     }
 
-    OV.current = new OpenVidu()
-    setSession(undefined)
-    setSubscribers([])
-    setMySessionId(null)
-    setMyUserName(null)
-    setMainStreamManager(undefined)
-    setPublisher(undefined)
   }, [session])
+
+  useEffect(() => {
+    if (isLeaved) {
+      if (session) {
+        // 오픈비듀 세션 끊는 로직
+        OV.current = new OpenVidu()
+        setSession(undefined)
+        setSubscribers([])
+        setMySessionId(null)
+        setMyUserName(null)
+        setMainStreamManager(undefined)
+        setPublisher(undefined)
+        // 디스커넥션 널
+        session.disconnect()
+        navigate('/')
+      }
+    }
+  }, [isLeaved])
+
 
   const deleteSubscriber = useCallback((streamManager) => {
     setSubscribers((prevSubscribers) => {
@@ -428,26 +522,76 @@ function Room() {
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko', data, {
       headers: { ACCESS_KEY: getCookie('token') },
     })
-    console.log("##### sessionID ??????????", response.data.data.sessionId)
+    console.log("##### sessionId", response.data.data.sessionId)
+    setMySessionId(response.data.data.sessionId)
     setOpenViduSession(response.data.data.sessionId)
     return response.data.data.sessionId // The sessionId
   };
 
   const createToken = async (sessionId) => {
     console.log("##### createToken", sessionId)
-    const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
-      headers: {
-        ACCESS_KEY: getCookie('token'),
-      },
-    })
-    console.log("##### createToken !!!!!!!!!!>>>>", response)
-    return response.data // The token
+    if (sessionInfo) {
+      if (sessionInfo.isDirect) {
+        console.log("토큰만들기 - 게스트")
+      }
+    } else {
+      console.log("토큰만들기 - 방장")
+    }
+
+    if (sessionInfo) {
+      if (sessionInfo.isDirect) {
+        setMySessionId(sessionId)
+        setOpenViduSession(sessionId)
+      }
+    } else {
+      setMySessionId(sessionId)
+    }
+
+
+    const setRequestBody = () => {
+      let payload = {}
+      if (!data.password && data.isOpened) {
+        payload = payload
+      } else {
+        payload = { 'password': data.password }
+      }
+      console.log("요청 bodyp", payload)
+      return payload
+    }
+
+    let response
+    if (data.isOpened) {
+      console.log('############################### 공개방 입장 ##################################')
+      response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
+        headers: {
+          ACCESS_KEY: getCookie('token'),
+        },
+      })
+      return response.data // The token
+    } else {
+      console.log('############################## 비공개방 입장 ##################################')
+      response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
+        headers: {
+          ACCESS_KEY: getCookie('token'),
+        },
+      })
+      return response.data // The token
+    }
   };
 
-  const connect = (openViduSession) => {
-    console.log('[INFO] chat connect')
-    console.log('openViduSession >>>>>>>>>>>>>> ', openViduSession)
 
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////// 실시간 채팅 ////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+
+  const connect = (params) => {
+    console.log("(매개) 실시간 채팅 커넥트 시도 ::::", params)
+    console.log("(전역) 실시간 채팅 커넥트 시도 ::::", openViduSession)
+    console.log("(전역) 실시간 채팅 커넥트 시도 ::::", mySessionId)
     // console.log('mySession >>>>>>>>>>>', sessionId)
     // SockJS같은 별도의 솔루션을 이용하고자 하면 over 메소드를, 그렇지 않다면 Client 메소드를 사용해주면 되는 듯.
     stompClient.current = new Client({
@@ -484,11 +628,12 @@ function Room() {
       },
 
       // 검증이 돼서 Room을 열어주는 서버랑 연결이 되면
-      onConnect: () => {
+      onConnect: (response) => {
+        console.log("실시간 채팅 커넥트 성공 ::::", response)
         console.log("Connected to the broker. Initiate subscribing.")
         isConnected.current = true
-        subscribe(openViduSession)
-        publish(openViduSession)
+        subscribe(params)
+        publish(params)
       },
 
       onStompError: (frame) => {
@@ -507,21 +652,34 @@ function Room() {
   }
 
 
-  const subscribe = (openViduSession) => {
-    console.log("로그 잘 찍으세요 시제님!! subscribe", openViduSession)
-    console.log("url", `/sub/chat/room/${openViduSession}`)
-    stompClient.current.subscribe(
-      `/sub/chat/room/${openViduSession}`,
-      (data) => {
-        console.log(" 구독됨", JSON.parse(data.body))
-        const response = JSON.parse(data.body)
-        if (response.type === 'TALK') {
-          chatMessages.push(response)
-          setChatMessages([...chatMessages])
+  const subscribe = (params) => {
+    console.log("(매개) 실시간 채팅 subscribe 시도 ::::", params)
+    console.log("(전역) 실시간 채팅 subscribe 시도 ::::", openViduSession)
+    console.log("(전역) 실시간 채팅 subscribe 시도 ::::", mySessionId)
+    console.log("url", `/sub/chat/room/${params}`)
+    if (params) {
+      stompClient.current.subscribe(
+        `/sub/chat/room/${params}`,
+        (data) => {
+          console.log(" 구독됨", JSON.parse(data.body))
+          const response = JSON.parse(data.body)
+          if (response.type === 'TALK') {
+            chatMessages.push(response)
+            setChatMessages([...chatMessages])
+          }
         }
-      }
-    )
+      )
+      setIsFisrstSubscribe(true)
+    } else {
+      setIsFisrstSubscribe(false)
+    }
+
   }
+
+  // chatMessages 어떻게 담기는지 찍을 꺼임 콘솔 찍기용이므로 추후 삭제
+  useEffect(() => {
+    console.log("chatMessages", chatMessages)
+  }, [chatMessages])
 
   const publish = async (openViduSession) => {
     if (!stompClient.current.connected) {
@@ -544,15 +702,18 @@ function Room() {
     setIsLoading(false)
   };
 
-  const textPublish = (openViduSession) => {
-    console.log("openViduSession >>>>>>>>>>>>>>>>>>>>>>", openViduSession)
+  const textPublish = (params) => {
+    console.log("텍스트퍼블리셔, 세션어디서1 >>>>>>>>>>>>>>>>>>>>>>", openViduSession)
+    console.log("텍스트퍼블리셔, 세션어디서2 >>>>>>>>>>>>>>>>>>>>>>", params)
+    console.log("텍스트퍼블리셔, 세션어디서3 >>>>>>>>>>>>>>>>>>>>>>", mySessionId)
     console.log("textPublish Start")
     if (message !== "") {
+      console.log("텍스트퍼블리셔, 보낼 메새지", message)
       stompClient.current.publish({
         destination: "/pub/chat/room",
         body: JSON.stringify({
           type: "TALK",
-          sessionId: openViduSession,
+          sessionId: params,
           nickname: sessionInfo.myUserName,
           message
         }),
@@ -576,23 +737,36 @@ function Room() {
   //   );
   // }
 
+  // 스크롤이 항상 맨 아래로 가게하는 이벤트
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatMessages]);
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // 슬라이드 
   const [position, setPosition] = useState(0);
   const [count, setCount] = useState(0)
   const scrollLeft = () => {
     console.log("왼쪽으로 가기!!!!!")
-    setPosition((prevPosition) => prevPosition + 1045); // 왼쪽으로 100px 이동
+    setPosition((prevPosition) => prevPosition + 1045); // 왼쪽으로 1045px 이동
     const newCount = count
     setCount(newCount - 1)
   };
 
   const scrollRight = () => {
     console.log("오른쪽으로 가기!!!!!")
-    setPosition((prevPosition) => prevPosition - 1045); // 오른쪽으로 100px 이동
+    setPosition((prevPosition) => prevPosition - 1045); // 오른쪽으로 1045px 이동
     const newCount = count
     setCount(newCount + 1)
   };
 
-  console.log('count >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', count)
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -647,7 +821,7 @@ function Room() {
                       }
                     </MaxMembersBtnWrap>
                   </MaxMembersWrap>
-                  <PublicWrap>
+                  {/* <PublicWrap>
                     <PublicTitle>공개 여부 : </PublicTitle>
                     <PublicBtnWrap>
                       <PublicBtn btnSelect={btnSelect}
@@ -689,7 +863,7 @@ function Room() {
                         />
                       </PasswordInputWrap>
                     </PasswordWrap>
-                  }
+                  } */}
                   <JoinBtnWrap>
                     <JoinBtn name="commit" type="submit" value="방 생성하기" />
                   </JoinBtnWrap>
@@ -703,6 +877,40 @@ function Room() {
       {/* 세션이 있으면  */}
       {session !== undefined ? (
         <div>
+          {
+            !roomPopUp &&
+            <Dark>
+              <PopUp>
+                <h1>모각코에 오신걸 환영합니다!</h1>
+                <h3>
+                  방에 들어가기에 앞서 <br />
+                  몇 가지 주의사항을 기억해주세요!
+                </h3>
+                <RoomPopUpImgBox>
+                  <img src={`${process.env.PUBLIC_URL}/image/RoomPopUpImg1.webp`} alt="주의 아이콘1" />
+                  <p>
+                    예티켓을 지켜주세요 <br />
+                    우리 모두 함께하는 사람입니다. 부적절한 언행을 <br />
+                    삼가해주세요.
+                  </p>
+                </RoomPopUpImgBox>
+
+                <RoomPopUpImgBox style={{
+                  marginRight: '7px',
+                }}>
+                  <img src={`${process.env.PUBLIC_URL}/image/RoomPopUpImg2.webp`} alt="주의 아이콘2" />
+                  <p>
+                    열심히 스터디에 참여해주세요<br />
+                    모두 코딩 공부를 하기 위해 모인 사람들입니다.<br />
+                    다른 업무는 지양해주세요.
+                  </p>
+                </RoomPopUpImgBox>
+                <ParticipationBtn onClick={() => {
+                  setRoomPopUp(!roomPopUp)
+                }}>참여하기</ParticipationBtn>
+              </PopUp>
+            </Dark>
+          }
           <RoomInHeader>
             <span>{roomTitle}</span>
             <div>
@@ -727,11 +935,11 @@ function Room() {
                       null
                     }
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
-                      <UserVideoComponent streamManager={publisher} audioEnabled={audioEnabled}/>
+                      <UserVideoComponent streamManager={publisher} audioEnabled={audioEnabled} />
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
                           <span>{e.id}</span>
-                          <UserVideoComponent streamManager={e} audioEnabled={audioEnabled}/>
+                          <UserVideoComponent streamManager={e} audioEnabled={audioEnabled} />
                         </div>
                       ))}
                     </PubilsherVideoWrap>
@@ -749,7 +957,7 @@ function Room() {
 
                 {mainStreamManager !== undefined ? (
                   <MainStreamWrap>
-                    <UserVideoComponent streamManager={mainStreamManager}/>
+                    <UserVideoComponent streamManager={mainStreamManager} />
                   </MainStreamWrap>
                 ) : null}
               </PubilshSession>
@@ -804,13 +1012,28 @@ function Room() {
                       </YourChatWrap>
                     )
                   )}
+                  <div ref={messagesEndRef} />
               </ChatContentWrap>
               <ChatInputWrap>
-                <ChatInput value={message} onChange={(e) => setMessage(e.target.value)} cols="30" rows="10"></ChatInput>
+                <ChatInput 
+                value={message} 
+                onChange={(e) => setMessage(e.target.value)} 
+                cols="30" 
+                rows="10"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    if (!e.shiftKey) {
+                      e.preventDefault();
+                      textPublish(openViduSession ? openViduSession : mySessionId);
+                    }
+                  }
+                }}
+                ></ChatInput>
               </ChatInputWrap>
               <SendBtnWrap>
                 <SendBtn onClick={() => {
-                  textPublish(openViduSession?openViduSession:mySessionId)
+                  textPublish(openViduSession ? openViduSession : mySessionId)
+                  // textPublish(openViduSession)
                 }}
                   send={`${process.env.PUBLIC_URL}/image/sendMessage.webp`}
                 ></SendBtn>
@@ -822,6 +1045,90 @@ function Room() {
     </div>
   );
 }
+
+const Dark = styled.div`
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0,0.6);
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(3px);
+`
+
+const PopUp = styled.div`
+  position: relative;
+  width: 384px;
+  height: 424px;
+  background: #394254;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  h1 {
+    width: 100%;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    color: #00F0FF;
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 13px;
+    color: #00F0FF;
+    text-align: center;
+    line-height: 148.52%;
+    margin-bottom: 30px;
+  }
+`
+
+const RoomPopUpImgBox = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  gap: 11px;
+  margin-bottom: 20px;
+  img {
+    width: 28px;
+  }
+
+  p {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 172.02%;
+    color: #FFFFFF;
+  }
+`
+
+const ParticipationBtn = styled.button`
+  width: 164px;
+  height: 32px;
+  background: #00F0FF;
+  border-radius: 359px;
+  border: none;
+  transition: all 0.3s;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 15px;
+  color: #464646;
+  &:hover {
+    background: #00C5D1;
+  }
+`
 
 export const FlexCenter = styled.div`
   width: 1280px;
@@ -841,20 +1148,22 @@ export const RoomCreateWrap = styled.div`
   display: flex;
   flex-direction: column;
   width: 800px;
-  padding: 50px;
+  padding: 80px 50px 50px 50px;
   border-radius: 8px;
 `
 
 export const RoomCreateTitle = styled.div`
   font-size: 36px;
-  margin-bottom: 50px;
+  margin-bottom: 60px;
   color: white;
+  font-weight: 700;
+  font-family: 'Pretendard';
 `
 
 export const RoomNameWrap = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 60px;
 `
 
 export const RoomName = styled.label`
@@ -879,9 +1188,9 @@ export const RoomNameInput = styled.input`
 `
 
 export const LanguageWrap = styled.div`
-  margin-bottom: 40px;
   display: flex;
   align-items: center;
+  margin-bottom: 60px;
 `
 
 export const LanguageTitle = styled.p`
@@ -934,9 +1243,9 @@ export const LanguageBtn = styled.button`
 `
 
 export const MaxMembersWrap = styled.div`
-  margin-bottom: 40px;
   display: flex;
   align-items: center;
+  margin-bottom: 60px;
 `
 
 export const MaxMembersTitle = styled.p`
@@ -1365,7 +1674,7 @@ export const ChatContentWrap = styled.div`
 
 export const MyNickName = styled.p`
   font-size: 11px;
-  padding-right: 10px;
+  padding-right: 2px;
   color: white;
 `
 
@@ -1373,14 +1682,13 @@ const YourChatWrap = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: end;
+    align-items: flex-start;
     gap: 5px;
     margin-block: 15px;
 `;
 
 export const YourNickName = styled.p`
   font-size: 11px;
-  padding-left: 10px;
   color: white;
 `
 
@@ -1436,6 +1744,7 @@ export const ChatInput = styled.textarea`
     border: none;
     border-radius: 114px;
     font-family: 'Pretendard-Regular';
+    color: white;
 `;
 
 export const SendBtnWrap = styled.div`
