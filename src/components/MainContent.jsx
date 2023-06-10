@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux'
 import { useMutation } from 'react-query'
 import { getRoomList } from '../axios/api/room'
 
-function MainContent() {
+function MainContent(props) {
 
 
     // 전역
@@ -61,7 +61,7 @@ function MainContent() {
         <MainContentWrap>
             <MainSearch />
             <MainMap roomList={roomList} />
-            <MainRoom roomList={roomList} />
+            <MainRoom roomList={roomList}  openHander={()=>{props.openHander()}}/>
         </MainContentWrap>
     );
 }

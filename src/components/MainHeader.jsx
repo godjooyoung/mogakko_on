@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { getCookie } from '../cookie/Cookie';
 import useInterval from '../hooks/useInterval';
 
-function MainHeader() {
+function MainHeader(props) {
 
     // 기본 좌표값 (전역)
     const userInfo = useSelector((state) => {
@@ -40,7 +40,8 @@ function MainHeader() {
             };
             navigate('/room', { state: state })
         } else {
-            alert('로그인 이후 사용 가능합니다.')
+            props.openHander()
+            //alert('로그인 이후 사용 가능합니다.')
         }
     }
 
