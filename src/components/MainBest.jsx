@@ -4,10 +4,15 @@ import { useQuery, useQueryClient } from 'react-query';
 import { getBestMember } from '../axios/api/member'
 import { useNavigate } from 'react-router-dom';
 import { getCookie } from '../cookie/Cookie';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
-function MainBest() {
+function MainBest(props) {
     const navigate = useNavigate();
 
+    useEffect(() => {
+        AOS.init();
+    })
     //BestMember 조회
     const { isLoading, isError, data } = useQuery("getBestMember", getBestMember)
 
@@ -27,7 +32,7 @@ function MainBest() {
     //         setValue((prevValue) => prevValue + 1);
     //     }
     // }, 10); ms
-    
+
     // return () => {
     //     clearInterval(interval);
     // };
@@ -36,58 +41,58 @@ function MainBest() {
     // 아바타 생성 함수
     const avataGenHandler = (nickName, profileImageUrl) => {
         let avataGen
-        if(profileImageUrl === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU'){
+        if (profileImageUrl === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
             avataGen = `https://source.boringavatars.com/beam/120/${nickName}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
-        }else{
+        } else {
             avataGen = profileImageUrl
-            
+
         }
-        return <><img src={avataGen} alt="프로필사진" /></>   
+        return <><img src={avataGen} alt="프로필사진" /></>
     }
 
     // 순공시간 퍼센트 함수
     const totalStudyTmCalHandler = (time) => {
-        console.log("------------------>",time) // 00H00M
+        console.log("------------------>", time) // 00H00M
         let hh = time.slice(0, -1).split('H')[0]
         let mm = time.slice(0, -1).split('H')[1]
         console.log("::시간", hh)
         console.log("::분 ", mm)
         console.log("::형변환 시간", Number(hh))
         console.log("::형변환 분 ", Number(mm))
-        let totTime = Number(hh)*60
-        totTime = Number(totTime)+Number(mm)
+        let totTime = Number(hh) * 60
+        totTime = Number(totTime) + Number(mm)
 
         console.log("::순공 분으로 계산한거 ", Number(totTime))
-        console.log("::퍼센트계산 ", ((Number(totTime)/420)*100))
-        
-        if(((Number(totTime)/420)*100) > 100){
+        console.log("::퍼센트계산 ", ((Number(totTime) / 420) * 100))
+
+        if (((Number(totTime) / 420) * 100) > 100) {
             return 100
-        }else{
-            return (Number(totTime)/420)*100
+        } else {
+            return (Number(totTime) / 420) * 100
         }
     }
-    
+
     //userProfileHandler
     const userProfileHandler = (id) => {
-        if(getCookie('token')){
-            navigate('/profile/'+id)
-        }else{
-            alert('로그인후 이용가능한')
-        }   
+        if (getCookie('token')) {
+            navigate('/profile/' + id)
+        } else {
+            props.openHander()
+        }
     }
 
     return (
         <BestMemberWrap>
             <BestMemberCardContainer>
                 <TitleWrap>
-                    <BestTitle>오늘의 ON:S</BestTitle>
+                    <BestTitle data-aos="fade-up">오늘의 ON:S</BestTitle>
                 </TitleWrap>
                 <BestMemberCardWarp>
                     <BestMemberCardGrid>
                         {
                             bestMemberList && bestMemberList.map((bestMember) => {
                                 return (
-                                    <BestMemberCard onClick={()=>{userProfileHandler(bestMember.member.id)}}>
+                                    <BestMemberCard onClick={() => { userProfileHandler(bestMember.member.id) }} data-aos="fade-up" data-aos-duration="900">
                                         <BestMemberProfileImage>
                                             {avataGenHandler(bestMember.member.nickname, bestMember.member.profileImage)}
                                             {/* <img src={bestMember.member.profileImage}></img> */}
@@ -123,7 +128,7 @@ function MainBest() {
                     </BestMemberCardGrid>
 
                 </BestMemberCardWarp>
-                <BestMemberButtonContainer><button style={{'visibility':'hidden'}}>더보기 버튼</button></BestMemberButtonContainer>
+                <BestMemberButtonContainer><button style={{ 'visibility': 'hidden' }}>더보기 버튼</button></BestMemberButtonContainer>
             </BestMemberCardContainer>
 
         </BestMemberWrap>
