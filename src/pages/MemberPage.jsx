@@ -93,7 +93,19 @@ function MemberPage() {
   const tempOffMouseHandler = () => {
     setTempOnmouse(false)
   }
-  console.log('userGitHubIduserGitHubIduserGitHubIduserGitHubId', userGitHubId)
+
+  // 아바타 프로필 호출 함수
+  const avataGenHandler = (nickName, profileImageUrl) => {
+    let avataGen
+    if(profileImageUrl === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU'){
+        avataGen = `https://source.boringavatars.com/beam/120/${nickName}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
+    }else{
+        avataGen = profileImageUrl
+        
+    }
+    return avataGen  
+}
+
   return (
     <>
       <Header />
@@ -102,7 +114,9 @@ function MemberPage() {
           <MyPageTopContentWrap>
             <ProfileModifyWrap>
               <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
-                <ImageWrap BgImg={preview} />
+                {/* <ImageWrap BgImg={preview} /> */}
+                <ImageWrap BgImg={avataGenHandler(data.data.data.member.nickname, preview)}>
+                </ImageWrap>
                 <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
                 {
                   data && data.data.data.isFriend === false ?
@@ -248,6 +262,7 @@ const ProfileModifyContent = styled.form`
     margin-top: 28px;
     transition: all 0.3s;
     &:hover {
+      transition: 0.2s;
       background: #00C5D1;
     }
   }
@@ -275,6 +290,7 @@ const ImageWrap = styled.div`
   background-size:contain;
   background-color : white;
   margin-bottom: 28px;
+  border: 0.5px solid white
 `
 
 const TimerWrap = styled.div`

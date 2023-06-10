@@ -49,9 +49,11 @@ export const Top = styled.div`
     };
     cursor: pointer;
     &:hover {
+        transition: 0.3s;
         transform: scale(1.03);
     }
     &:active {
+        transition: 0.2s;
         transform: scale(1);
     }
 `
