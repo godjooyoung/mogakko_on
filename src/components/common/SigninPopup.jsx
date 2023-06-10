@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 
-function SigninPopup() {
+function SigninPopup(props) {
   const navigate = useNavigate()
   
   return (
@@ -10,7 +10,7 @@ function SigninPopup() {
       <Dark>
         <PopUp>
           <CloseBtn onClick={() => {
-
+            props.closeHander()
           }}
             closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
           ></CloseBtn>
@@ -18,11 +18,13 @@ function SigninPopup() {
           <h1>로그인이 필요한 서비스입니다</h1>
           <SignInBtnWrap>
             <SignBtn onClick={() => {
+              props.closeHander()
               navigate('/signin')
             }}
               color='color'
             >로그인</SignBtn>
             <SignBtn onClick={() => {
+              props.closeHander()
               navigate('/signup')
             }}
             >회원가입</SignBtn>

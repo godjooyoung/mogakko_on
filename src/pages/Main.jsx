@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { styled } from 'styled-components';
 import MainHeader from '../components/MainHeader';
 import MainContent from '../components/MainContent';
 import MainBest from '../components/MainBest';
 import Header from '../components/common/Header';
-function Main() {
+import SigninPopup from '../components/common/SigninPopup';
 
-    // 수정 필요
+function Main() {
+    
+    const [isOpen, setIsOpen] = useState(false)
+    const popupOpenHander = () => {
+        setIsOpen(true)
+    }
+    const popupCloseHander = () => {
+        setIsOpen(false)
+    }
+
     const goToTopHandler = () => {
         console.log("위로 고고")
         window.scroll({
@@ -15,17 +24,24 @@ function Main() {
         })
     }
     return (
-        
+        <>
+        {isOpen?
+        <>
+            {/* 팝업 */}
+            <SigninPopup closeHander={popupCloseHander}/>
+        </>:<></>
+    
+        }
         <MainWrap>
-        
         <MainContaniner>
             <Header pos={true} />
-            <MainHeader/>
-            <MainContent/>
-            <MainBest/>
+            <MainHeader openHander={popupOpenHander}/>
+            <MainContent openHander={popupOpenHander}/>
+            <MainBest openHander={popupOpenHander}/>
         </MainContaniner>
         <Top onClick={goToTopHandler} url={`${process.env.PUBLIC_URL}/image/top.png`}></Top>
         </MainWrap>
+        </>
     );
 }
 
@@ -40,7 +56,7 @@ export const Top = styled.div`
     color : white;
     text-align: center;
     overflow: hidden;
-	z-index: 9;
+	z-index: 1;
     position: sticky;
     bottom: 150px;
     left: 100%;
