@@ -269,7 +269,7 @@ function Header(props) {
                     {!isLogin ? <>
                         {isVisible?<>
                             <HeaderButton onClick={onClickSignInHandler} width={67} marginRight={18}><p>로그인</p></HeaderButton>
-                            <HeaderButton onClick={onClickSignUpHandler} width={115} border={true} marginRight={40}><p>회원가입</p></HeaderButton>
+                            <HeaderButton onClick={onClickSignUpHandler} width={115} border={true} marginRight={0}><p>회원가입</p></HeaderButton>
                         </>:<></>
                         }
                     </> : <>
