@@ -1,39 +1,38 @@
-import React from 'react'
+import React from 'react';
 import styled from 'styled-components'
-import { useNavigate } from 'react-router-dom'
 
-function SigninPopup(props) {
-  const navigate = useNavigate()
-  
-  return (
-    <>
-      <Dark>
-        <PopUp>
-          <CloseBtn onClick={() => {
-            props.closeHander()
-          }}
-            closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
-          ></CloseBtn>
-          <img src={`${process.env.PUBLIC_URL}/image/loginPopUp.webp`} alt="로그인 팝업 아이콘" />
-          <h1>로그인이 필요한 서비스입니다</h1>
-          <SignInBtnWrap>
-            <SignBtn onClick={() => {
-              props.closeHander()
-              navigate('/signin')
-            }}
-              color='color'
-            >로그인</SignBtn>
-            <SignBtn onClick={() => {
-              props.closeHander()
-              navigate('/signup')
-            }}
-            >회원가입</SignBtn>
-          </SignInBtnWrap>
-        </PopUp>
-      </Dark>
-    </>
-  )
+function CommonPopup(props) {
+
+    return (
+        <>
+            <Dark>
+                <PopUp>
+                    <CloseBtn onClick={() => {
+                        props.closeHander()
+                    }}
+                        closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
+                    ></CloseBtn>
+                    <img src={`${process.env.PUBLIC_URL}/image/loginPopUp.webp`} alt="로그인 팝업 아이콘" />
+                    <h1>로그인이 필요한 서비스입니다</h1>
+                    <SignInBtnWrap>
+                        <SignBtn onClick={() => {
+                            props.closeHander()
+                            navigate('/signin')
+                        }}
+                            color='color'
+                        >로그인</SignBtn>
+                        <SignBtn onClick={() => {
+                            props.closeHander()
+                            navigate('/signup')
+                        }}
+                        >회원가입</SignBtn>
+                    </SignInBtnWrap>
+                </PopUp>
+            </Dark>
+        </>
+    );
 }
+
 
 export const Dark = styled.div`
     width: 100vw;
@@ -81,8 +80,8 @@ export const SignBtn = styled.button`
     width: 109px;
     height: 38px;
     background: ${(props) => {
-    return props.color === 'color' ? '#00F0FF' : '#E2E2E2'
-  }};
+        return props.color === 'color' ? '#00F0FF' : '#E2E2E2'
+    }};
     border-radius: 359px;
     border: none;
     transition: all 0.3s;
@@ -92,8 +91,8 @@ export const SignBtn = styled.button`
     transition: all 0.3s;
     &:hover {
             background: ${(props) => {
-    return props.color === 'color' ? '#00C5D1' : '#C7C7C7'
-  }};
+        return props.color === 'color' ? '#00C5D1' : '#C7C7C7'
+    }};
     }
 `
 
@@ -107,10 +106,10 @@ export const CloseBtn = styled.button`
     border: none;
     background-color: transparent;
     background-image: ${(props) =>
-    `url(${props.closeBtn})`
-  };
+        `url(${props.closeBtn})`
+    };
     background-position: center;
     background-size:cover;
 `
 
-export default SigninPopup
+export default CommonPopup;

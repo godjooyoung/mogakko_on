@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom'
 import { login } from '../axios/api/login'
 import { useMutation } from 'react-query'
 import { getCookie } from '../cookie/Cookie'
-
+import { useDispatch } from 'react-redux';
+import { __userProfile} from '../redux/modules/user'
 const SignIn = () => {
 
     const navigate = useNavigate()
+    const dispatcher = useDispatch()
 
     // 내부 상태
     const [email, setEmail] = useState('')
@@ -17,10 +19,13 @@ const SignIn = () => {
     // const [loginError, setLoginError] = useState('') 사용 안되고 있어서 주석 처리 했습니다. - sjy
     const [isValidationEmail, setIsValidationEmail] = useState(false)
     const [isValidationPassword, setIsValidationPassword] = useState(false)
-
+    
     const signInMutation = useMutation(login, {
-        onSuccess: () => {
-            if (getCookie("token") ? true : false) navigate('/')
+        onSuccess: (response) => {
+            if (getCookie("token") ? true : false){
+                dispatcher(__userProfile(response.data.data.profileImage))
+                navigate('/')
+            }
         },
         onError: (error) => {
             alert(error)

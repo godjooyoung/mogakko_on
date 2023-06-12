@@ -55,26 +55,6 @@ function MainMap(props) {
             }
         }
         settingDefaultSearch()
-
-        // 로그인 axios 요청후 저장된 위치값을 가져오는 함수. 테스트 못해서 실행안함.
-        const _settingDefaultSearch = () => {
-            if (!isLogin) {
-                console.log("[INFO] 로그인을 하지 않은 사용자 입니다. 기본 조회위치로 지정합니다. (", isLogin, ")")
-            } else {
-                console.log("[INFO] 로그인한 사용자 입니다.(", isLogin, ")")
-
-                const login_latitude = getCookie("login_latitude")
-                const login_longitude = getCookie("login_longitude")
-                if (login_latitude && login_longitude) {
-                    console.log("[INFO] 현재 접속된 위치로 조회위치를 변경합니다.")
-                    dispatcher(fetchUserLocation({ latitude: login_latitude, longitude: login_longitude }))
-                    dispatcher(__searchLocation({ latitude: login_latitude, longitude: login_longitude }))
-                } else {
-                    console.log("[INFO] 현재 접속된 위치를 받아올 수 없습니다. 기본 조회위치로 지정합니다.")
-                }
-            }
-        }
-        //_settingDefaultSearch()
     }, [isLogin])
 
 

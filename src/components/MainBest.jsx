@@ -47,7 +47,7 @@ function MainBest(props) {
             avataGen = profileImageUrl
 
         }
-        return <><img src={avataGen} alt="프로필사진" /></>
+        return <><img src={avataGen} alt="프로필사진" width='80px' height='80px'/></>
     }
 
     // 순공시간 퍼센트 함수
@@ -212,6 +212,7 @@ export const BestMemberProfileImage = styled.div`
     overflow: hidden;
     box-shadow: 0 0 0 1px #ffffff;
     margin: 26px auto 12px;
+    background-color: white;
 `
 
 export const BestMemberName = styled.p`

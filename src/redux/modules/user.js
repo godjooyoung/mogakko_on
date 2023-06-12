@@ -6,6 +6,7 @@ const initialState = {
     userLatitude: 37.5561332,
     userLongitude: 126.8656449,
     userTown: '서울특별시 강서구 염창동',
+    userProfile : '',
 }
 const userSlice = createSlice({
     name: 'userInfo',
@@ -18,6 +19,9 @@ const userSlice = createSlice({
         },
         __userTown: (state, action) => {
             state.userTown = action.payload;
+        },
+        __userProfile : (state, action) => {
+            state.userProfile = action.payload;
         },
         __logoutResetUser: (state, action) => {
             state = initialState
@@ -37,10 +41,10 @@ export const fetchUserLocation = (userLocation) => async (dispatch) => {
         dispatch(__userTown(response.documents[0].address_name));
     } catch (error) {
         // 에러 처리
-        console.log('API 요청 에러:', error);
+        console.log('카카오 요청 에러:', error);
     }
 };
 
 
-export const { __userLocation, __userTown, __logoutResetUser} = userSlice.actions
+export const { __userLocation, __userTown, __logoutResetUser, __userProfile} = userSlice.actions
 export default userSlice.reducer
