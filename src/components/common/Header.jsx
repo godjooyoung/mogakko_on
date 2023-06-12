@@ -238,7 +238,7 @@ function Header(props) {
         const remove = async () => {
             removeCookie('token')
             removeCookie('nickName')
-            removeCookie('profileImage')
+            removeCookie('userProfile')
             sessionStorage.removeItem('isSubscribed')
             dispatcher(__alarmClean())
             if (eventSourceRef.current) {
