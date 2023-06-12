@@ -9,7 +9,6 @@ import { getRoomList } from '../axios/api/room'
 
 function MainContent(props) {
 
-
     // 전역
     const searchInfo = useSelector((state) => {
         //console.log("searchInfo", state.searchInfo)

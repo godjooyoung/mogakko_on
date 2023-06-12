@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { styled } from 'styled-components';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 import { getBestMember } from '../axios/api/member'
 import { useNavigate } from 'react-router-dom';
 import { getCookie } from '../cookie/Cookie';

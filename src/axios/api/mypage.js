@@ -1,5 +1,4 @@
-import { jwtInstance } from "../apiConfig";
-import instance from "../apiConfig";
+import { jwtInstance } from "../apiConfig"
 
 // 프로필 조회
 const getProfile = async () => {

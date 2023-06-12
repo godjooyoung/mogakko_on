@@ -3,7 +3,7 @@ import { styled } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserLocation } from '../redux/modules/user'
 import { __searchLocation, __searchLanguage, __searchKeyword } from '../redux/modules/search';
-import { getCookie, removeCookie } from '../cookie/Cookie';
+import { getCookie } from '../cookie/Cookie';
 // 카카오 지도 api
 const { kakao } = window;
 
@@ -15,10 +15,7 @@ function MainMap(props) {
 
     // 전역
     const dispatcher = useDispatch()
-    const userInfo = useSelector((state) => {
-        // 전역값 바뀌면 콘솔로그 찍어보기
-        return state.userInfo
-    })
+
     const searchInfo = useSelector((state) => {
         // 전역값 바뀌면 콘솔로그 찍어보기
         return state.searchInfo
