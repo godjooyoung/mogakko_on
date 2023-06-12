@@ -4,10 +4,8 @@ import styled, { keyframes, css } from 'styled-components';
 import { __userLocation } from '../redux/modules/search';
 import { useNavigate } from 'react-router-dom';
 import { getCookie } from '../cookie/Cookie';
-import useInterval from '../hooks/useInterval';
 
 function MainHeader(props) {
-
     // 기본 좌표값 (전역)
     const userInfo = useSelector((state) => {
         return state.userInfo

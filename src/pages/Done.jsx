@@ -26,9 +26,6 @@ function Done() {
     )
 };
 
-
-
-
 export default Done;
 
 export const FormDiv = styled.div`
