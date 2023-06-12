@@ -9,6 +9,7 @@ const login = async (loginUserInfo) => {
       const token = response.headers["access_key"]
       setCookie("token", token)
       setCookie("nickName", response.data.data.nickname)
+      setCookie("userProfile", response.data.data.profileImage)
       return Promise.resolve(response)
     }
   } catch (error) {

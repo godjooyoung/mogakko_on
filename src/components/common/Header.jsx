@@ -5,19 +5,24 @@ import { getCookie, removeCookie } from '../../cookie/Cookie';
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useDispatch, useSelector } from 'react-redux';
 import { __alarmSender, __alarmClean } from '../../redux/modules/alarm'
-import { __logoutResetUser,  __userProfile} from '../../redux/modules/user'
+import { __logoutResetUser} from '../../redux/modules/user'
 import { __logoutResetSearch } from '../../redux/modules/search'
 import { useLocation } from 'react-router-dom'
 
 function Header(props) {
-    const [isLogin, setIsLogin] = useState(false)
-    const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
-    const [profileImg, setProfileImg] = useState('')
+    // hooks
     const navigate = useNavigate();
     const eventSourceRef = useRef(null);
     const location = useLocation();
-    const urlPathname = location.pathname;
+    const dispatcher = useDispatch()
+
+    // state
+    const [isLogin, setIsLogin] = useState(false)
+    const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
     const [isVisible, setIsVisible] = useState(true)
+    const [isNewNotification, setIsNewNotification] = useState(false)
+
+    const urlPathname = location.pathname;
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -34,8 +39,13 @@ function Header(props) {
             setIsVisible(false)
         }
     })
-
-    const dispatcher = useDispatch()
+    
+    // 알람 신규로 올때마다 상태값 바뀌는지 콘솔 찍기 테스트용
+    useEffect(()=>{
+        if(isNewNotification){
+            console.log("TEST 신규 알림이 발생했습니다.")
+        }
+    },[isNewNotification])
 
     // 전역에 등록된 사용자 프로필 이미지 가져오기
     const userProfile = useSelector((state) => {
@@ -83,7 +93,6 @@ function Header(props) {
 
                     eventSourceRef.current.addEventListener('open', (event) => {
                         console.log("[INFO] SSE connection opened", event)
-                        // 연결이 열렸을 때 실행할 코드 작성
                         sessionStorage.setItem('isSubscribed', true);
                     })
 
@@ -91,10 +100,16 @@ function Header(props) {
                         console.log("[INFO] SSE message event", event)
                         const data = event.data
                         console.log("[INFO] SSE message data ", data)
+                        // if(data.indexOf('EventStream Created') === -1){
+                        //     setIsNewNotification(true)
+                        // }else{
+                        //     setIsNewNotification(false)
+                        // }
                         dispatcher(__alarmSender(data))
                     })
                     return () => {
                         if (eventSourceRef.current && !isLogin) {
+                            console.log("[INFO] SSE Close :::::::::::: ")
                             sessionStorage.setItem('isSubscribed', false)
                             dispatcher(__alarmClean())
                             eventSourceRef.current.close() // 로그아웃 시 SSE 연결 종료
@@ -115,8 +130,7 @@ function Header(props) {
     const avataGenHandler = (type, url, userNickName) => {
         let avataGen
         if (!type) {
-            console.log("프로필 전역에 있는거 가져오기 전역>>>>>>>헤더", userProfile)
-            avataGen = userProfile
+            avataGen = getCookie('userProfile')
         } else {
             // 알람에 프로필 이미지의 경우
             if (url === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
@@ -439,6 +453,7 @@ export const AlearWrapContent = styled.div`
     height: 373.95px;
     background-color: #F9F9FA;
     z-index: 1;
+    overflow: scroll;
 `
 
 export const AlearTitle = styled.p`

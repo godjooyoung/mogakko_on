@@ -3,27 +3,24 @@ import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 import { login } from '../axios/api/login'
 import { useMutation } from 'react-query'
-import { getCookie } from '../cookie/Cookie'
-import { useDispatch } from 'react-redux';
-import { __userProfile} from '../redux/modules/user'
+import { getCookie, setCookie } from '../cookie/Cookie'
 const SignIn = () => {
 
+    // hooks
     const navigate = useNavigate()
-    const dispatcher = useDispatch()
 
     // 내부 상태
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [emailError, setEmailError] = useState('')
     const [passwrodError, setPasswordError] = useState('')
-    // const [loginError, setLoginError] = useState('') 사용 안되고 있어서 주석 처리 했습니다. - sjy
+
     const [isValidationEmail, setIsValidationEmail] = useState(false)
     const [isValidationPassword, setIsValidationPassword] = useState(false)
     
     const signInMutation = useMutation(login, {
         onSuccess: (response) => {
             if (getCookie("token") ? true : false){
-                dispatcher(__userProfile(response.data.data.profileImage))
                 navigate('/')
             }
         },

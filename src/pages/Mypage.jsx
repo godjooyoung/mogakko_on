@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import Header from "../components/common/Header";
 import useInput from '../hooks/useInput'
 import { useDispatch } from 'react-redux';
-import { __userProfile} from '../redux/modules/user'
 import { useNavigate } from 'react-router-dom';
+import { setCookie } from '../cookie/Cookie';
 
 function Mypage() {
 
@@ -25,17 +25,18 @@ function Mypage() {
   
   // custom hooks
   const [githubValue, onChangeGithubValue, githubInputValueReset] = useInput('')
+
   // hooks
   const navigate = useNavigate()
-  const dispatcher = useDispatch()
+
 
   // github 아이디 입력 
   useEffect(() => {
     if (data) {
       console.log("마이페이지 조회 결과", data)
-      console.log("마이페이지 재조회 결과 디스패처로 전역에 세팅하기", data.data.data.member.profileImage)
-      dispatcher(__userProfile(data.data.data.member.profileImage))
-      
+      console.log("마이페이지 재조회 결과 쿠키에 세팅하기", data.data.data.member.profileImage)
+      setCookie('userProfile', data.data.data.member.profileImage)
+
       console.log("마이페이지 조회 결과-nickname", data.data.data.member.nickname)
       setPreview(data.data.data.member.profileImage)
     }
