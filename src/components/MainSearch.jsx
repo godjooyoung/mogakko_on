@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { styled } from 'styled-components';
-import { useQuery, useQueryClient } from 'react-query';
+import React, { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { styled } from 'styled-components'
+import { useQuery, useQueryClient } from 'react-query'
 import { getLatLng } from '../axios/api/kakao'
 import { getHotTowns } from '../axios/api/location'
 import { fetchUserLocation } from '../redux/modules/user'
-import { __searchLocation, __searchLanguage, __searchKeyword } from '../redux/modules/search';
-import useInput from '../hooks/useInput';
+import { __searchLocation, __searchLanguage, __searchKeyword } from '../redux/modules/search'
+import useInput from '../hooks/useInput'
+
 // 메인화면 검색창 영역
 function MainSearch(props) {
 

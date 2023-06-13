@@ -5,19 +5,24 @@ import { getCookie, removeCookie } from '../../cookie/Cookie';
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useDispatch, useSelector } from 'react-redux';
 import { __alarmSender, __alarmClean } from '../../redux/modules/alarm'
-import { __logoutResetUser } from '../../redux/modules/user'
+import { __logoutResetUser} from '../../redux/modules/user'
 import { __logoutResetSearch } from '../../redux/modules/search'
 import { useLocation } from 'react-router-dom'
 
 function Header(props) {
-    const [isLogin, setIsLogin] = useState(false)
-    const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
-    const [profileImg, setProfileImg] = useState('')
+    // hooks
     const navigate = useNavigate();
     const eventSourceRef = useRef(null);
     const location = useLocation();
-    const urlPathname = location.pathname;
+    const dispatcher = useDispatch()
+
+    // state
+    const [isLogin, setIsLogin] = useState(false)
+    const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
     const [isVisible, setIsVisible] = useState(true)
+    const [isNewNotification, setIsNewNotification] = useState(false)
+
+    const urlPathname = location.pathname;
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -34,8 +39,18 @@ function Header(props) {
             setIsVisible(false)
         }
     })
+    
+    // 알람 신규로 올때마다 상태값 바뀌는지 콘솔 찍기 테스트용
+    useEffect(()=>{
+        if(isNewNotification){
+            console.log("TEST 신규 알림이 발생했습니다.")
+        }
+    },[isNewNotification])
 
-    const dispatcher = useDispatch()
+    // 전역에 등록된 사용자 프로필 이미지 가져오기
+    const userProfile = useSelector((state) => {
+        return state.userInfo.userProfile
+    })
 
     // 전역에 등록된 알람 내역 가져오기
     const alarmInfo = useSelector((state) => {
@@ -78,7 +93,6 @@ function Header(props) {
 
                     eventSourceRef.current.addEventListener('open', (event) => {
                         console.log("[INFO] SSE connection opened", event)
-                        // 연결이 열렸을 때 실행할 코드 작성
                         sessionStorage.setItem('isSubscribed', true);
                     })
 
@@ -86,16 +100,16 @@ function Header(props) {
                         console.log("[INFO] SSE message event", event)
                         const data = event.data
                         console.log("[INFO] SSE message data ", data)
+                        // if(data.indexOf('EventStream Created') === -1){
+                        //     setIsNewNotification(true)
+                        // }else{
+                        //     setIsNewNotification(false)
+                        // }
                         dispatcher(__alarmSender(data))
-                        // 메세지 응답 처리
-                        // TODO 화면에 붙여주기
-                        //EventStream Created. [memberId=1]
-                        //{"id":7,"content":"변희준3님이 친구요청을 보냈습니다.","url":"/friend/request/determine","isRead":false,"senderId":3,"receiverId":2,"createdAt":"2023-06-03 18:41:21"}
-                        //{"id":11,"content":"변희준5님이 친구요청을 보냈습니다.","url":"/friend/request/determine","isRead":false,"senderId":7,"receiverId":1,"createdAt":"2023-06-04 08:02:17"}
-                        //setAlarmData(data);
                     })
                     return () => {
                         if (eventSourceRef.current && !isLogin) {
+                            console.log("[INFO] SSE Close :::::::::::: ")
                             sessionStorage.setItem('isSubscribed', false)
                             dispatcher(__alarmClean())
                             eventSourceRef.current.close() // 로그아웃 시 SSE 연결 종료
@@ -116,15 +130,7 @@ function Header(props) {
     const avataGenHandler = (type, url, userNickName) => {
         let avataGen
         if (!type) {
-            // TODO 기존 프로필이 있는 유저일경우 등록된 프로필을 보여준다.
-            const nickName = getCookie('nickName');
-            const profilceImage = getCookie('profileImage');
-            //const avataGen = `http://www.gravatar.com/avatar/${nickName}?d=identicon&s=400`
-            if (profilceImage === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
-                avataGen = `https://source.boringavatars.com/beam/120/${nickName}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
-            } else {
-                avataGen = profilceImage
-            }
+            avataGen = getCookie('userProfile')
         } else {
             // 알람에 프로필 이미지의 경우
             if (url === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
@@ -133,7 +139,7 @@ function Header(props) {
                 avataGen = url
             }
         }
-        return <><img src={avataGen} alt="프로필사진" /></>
+        return <><img src={avataGen} alt='프로필사진' width='44px' height='44px' /></>
     }
 
     // 알람내용 생성 함수 
@@ -141,11 +147,10 @@ function Header(props) {
         const pos = content.indexOf(userNickName)
         let highLightName
         let nonHighLightContnent
-        console.log("######## 알람내용 생성" ,userNickName, content)
-        console.log("######## 알람내용 생성1" ,pos)
         if(pos!==-1){
             highLightName = content.substr(pos, userNickName.length)
             nonHighLightContnent = content.substr((pos+userNickName.length))
+            console.log("######## highLightContnent " ,highLightName)
             console.log("######## nonHighLightContnent " ,nonHighLightContnent)
             return <><span>{highLightName}</span>{nonHighLightContnent}</>
         }else{
@@ -157,19 +162,25 @@ function Header(props) {
     // 알림 내용 컴포넌트 생성 함수
     const renderAlertComponent = () => {
         if (alarmInfo) {
-            console.log("alarmInfo..", alarmInfo)
-            console.log("alarmInfo[0]", alarmInfo?.[0])
-            const alarmInfoTest1 = ['EventStream Created. [memberId=8]', '{ "id": 7, "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }']
-            const alarmInfoTest2 = ['EventStream Created. [memberId=8]']
-            const alarmInfoTest3 = ['EventStream Created. [memberId=8]', 'EventStream Created. [memberId=8]']
-            const slicedArray = alarmInfo.slice(1);
-            const alarmInfoTest4 = [
-                '{ "id": 7, "senderNickname":"변희준3", "senderProfileUrl":"프로필유알엘", "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }',
-                '{ "id": 7, "senderNickname":"변희준3", "senderProfileUrl":"프로필유알엘", "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }',
-                '{ "id": 7, "senderNickname":"변희준3", "senderProfileUrl":"프로필유알엘", "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }'
-            ]
-            // slicedArray - alarmInfoTest4
-            if (slicedArray.length === 0) {
+            // 전역 스토어에 저장되어있는 알람 내역
+            console.log("[global] alarmInfo > ", alarmInfo)
+            
+            // 알람 테스트를 위한 목 데이터
+            // const alarmInfoTest4 = [
+            //     'EventStream Created. [memberId=8]',
+            //     'EventStream Created. [memberId=8]',
+            //     '{ "id": 7, "senderNickname":"변희준3", "senderProfileUrl":"프로필유알엘", "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }',
+            //     '{ "id": 7, "senderNickname":"변희준3", "senderProfileUrl":"프로필유알엘", "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }',
+            //     '{ "id": 7, "senderNickname":"변희준3", "senderProfileUrl":"프로필유알엘", "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }'
+            // ]
+
+            // EventStream Created 포함하고 있지 않은 알람만 표현해준다.
+            const filterAlarm = alarmInfo.filter((alarm)=>{
+                return alarm.indexOf('EventStream Created') === -1
+            })
+
+            // filterAlarm
+            if (filterAlarm.length === 0) {
                 return (
                     <>
                         <NoneMessageImg src={`${process.env.PUBLIC_URL}/image/bell.webp`} alt="알람없을때아이콘" />
@@ -179,11 +190,12 @@ function Header(props) {
             } else {
                 return (
                     <>
-                        {slicedArray && slicedArray.map((alarm) => {
+                        {filterAlarm && filterAlarm.map((alarm) => {
                             return (
                                 <AlearmContent>
                                     <ProfileImgDivInAlarm>
-                                        {avataGenHandler('alearm', JSON.parse(alarm).senderProfileUrl, JSON.parse(alarm).senderNickname)}
+                                        <img src={JSON.parse(alarm).senderProfileUrl} alt="프로필사진"  width='44px' height='44px'/>
+                                        {/* {avataGenHandler('alearm', JSON.parse(alarm).senderProfileUrl, JSON.parse(alarm).senderNickname)} */}
                                     </ProfileImgDivInAlarm>
                                     <AlearmContentWrap onClick={onClickMyPageHandler}>
                                         <AlearmContentMsg>
@@ -226,7 +238,7 @@ function Header(props) {
         const remove = async () => {
             removeCookie('token')
             removeCookie('nickName')
-            removeCookie('profileImage')
+            removeCookie('userProfile')
             sessionStorage.removeItem('isSubscribed')
             dispatcher(__alarmClean())
             if (eventSourceRef.current) {
@@ -441,6 +453,7 @@ export const AlearWrapContent = styled.div`
     height: 373.95px;
     background-color: #F9F9FA;
     z-index: 1;
+    overflow: scroll;
 `
 
 export const AlearTitle = styled.p`
