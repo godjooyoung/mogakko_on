@@ -7,6 +7,7 @@ import useInput from '../hooks/useInput'
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setCookie } from '../cookie/Cookie';
+// import ChartLan from '../components/ChartLan';
 
 function Mypage() {
 
@@ -335,7 +336,7 @@ function Mypage() {
 
                 <div>
                   <TopContentTitle>이번 주 공부 시간</TopContentTitle>
-                  <TopContentTitleItem>{data && data.data.data.totalTimerWeek}</TopContentTitleItem>
+                  <TopContentTitleItem>{data && data.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
                 </div>
 
                 <div>
@@ -392,7 +393,7 @@ function Mypage() {
             {
               userGitHubId ?
                 <MyPageMiddleContent>
-                  <GitHubImage src={`https://ghchart.rshah.org/394254/${userGitHubId}`} />
+                  <GitHubImage src={`https://ghchart.rshah.org/232B3D/${userGitHubId}`} />
                 </MyPageMiddleContent> :
                 <NoGithubIdWrap onClick={() => {
                   setGitHub(!gitHub)
@@ -487,6 +488,8 @@ function Mypage() {
                   </ScrollWrap>
               }
             </FriendRequestWrap>
+            {/* 차트 */}
+            {/* <ChartLan/> */}
           </MyPageBottomContentWrap >
         </div>
       </FlexBox>
@@ -519,7 +522,7 @@ const PopUp = styled.div`
   position: relative;
   width: 332px;
   height: 243px;
-  background: #394254;
+  background: var(--bg-li);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -555,7 +558,7 @@ const PopUp = styled.div`
 const GitHubBtn = styled.button`
   width: 164px;
   height: 32px;
-  background: #00F0FF;
+  background: var(--po-de);
   border-radius: 359px;
   border: none;
   transition: all 0.3s;
@@ -624,7 +627,7 @@ const Temperaturecontainer = styled.div`
 
 const TemperatureTitle = styled.p`
     font-size: 17px;
-    color: #00F0FF;
+    color: var(--po-de);
     font-weight: 900;
     img {
       margin-left: 5px;
@@ -665,7 +668,7 @@ const TemperatureWrap = styled.div`
 
   span {
     font-size: 14px;
-    color: #00F0FF;
+    color: var(--po-de);
   }
 `
 
@@ -681,7 +684,7 @@ const ProgressContainer = styled.div`
 const Progress = styled.div`
   height: 100%;
   border-radius:10px;
-  background: #00F0FF;
+  background: var(--po-de);
   transition: width 1s ease;
   border: none;
 `;
@@ -755,7 +758,7 @@ const TopContentTitleWrap = styled.div`
 
 const TopContentTitle = styled.p`
   font-size: 18px;
-  color: #00F0FF;
+  color: var(--po-de);
 `
 
 const Status = styled.span`
@@ -864,7 +867,7 @@ const MyPageMiddleContent = styled.div`
 const NoGithubIdWrap = styled.div`
   width: 1026px;
   height: 186px;
-  background: #394254;
+  background: var(--bg-li);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -910,7 +913,7 @@ const FriendRequestWrap = styled.div`
 const NullFriendRequestList = styled.div`
   width: 384px;
   height: 261px;
-  background: #394254;
+  background: var(--bg-li);
   border-radius: 10px;
   display: flex;
   justify-content: center;
@@ -980,7 +983,7 @@ const ButtonWrap = styled.div`
 const AllowBtn = styled.button`
   width: 70px;
   background-color: ${(props) => {
-    return props.color === 'allow' ? '#00F0FF' : '#626873'
+    return props.color === 'allow' ? 'var(--po-de)' : '#626873'
   }};
   border: none;
   padding: 8px;
@@ -1051,7 +1054,7 @@ export const FriendListCancleBtn = styled.button`
   width: 43px;
   height: 25px;
   background-color: ${(props) => {
-    return props.color === 'cancle' ? '#626873' : '#00F0FF'
+    return props.color === 'cancle' ? '#626873' : 'var(--po-de)'
   }};
   color: ${(props) => {
     return props.color === 'cancle' ? '#FFFFFF' : '#464646'
@@ -1101,7 +1104,7 @@ const FriendListWrap = styled.div`
 const NullFriendList = styled.div`
   width: 486px;
   height: 261px;
-  background: #394254;
+  background: var(--bg-li);
   border-radius: 10px;
   display: flex;
   justify-content: center;
@@ -1129,7 +1132,7 @@ const FriendList = styled.div`
   transition: all 0.3s;
   position: relative;
   &:hover{
-    background: #394254;
+    background: var(--bg-li);
   }
 `
 

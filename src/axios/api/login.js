@@ -7,7 +7,10 @@ const login = async (loginUserInfo) => {
     if (response.status === 200 && response.data.message === '로그인 성공') {
       // 토큰 받기
       const token = response.headers["access_key"]
+      // const refreshToken = response.headers["refresh_key"]
       setCookie("token", token)
+      // setCookie("refreshToken", refreshToken)
+
       setCookie("nickName", response.data.data.nickname)
       setCookie("userProfile", response.data.data.profileImage)
       return Promise.resolve(response)

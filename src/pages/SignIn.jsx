@@ -4,12 +4,32 @@ import { useNavigate } from 'react-router-dom'
 import { login } from '../axios/api/login'
 import { useMutation } from 'react-query'
 import { getCookie, setCookie } from '../cookie/Cookie'
+import CommonPopup from '../components/common/CommonPopup'
 const SignIn = () => {
 
     // hooks
     const navigate = useNavigate()
 
     // 내부 상태
+    const [isOpen, setIsOpen] = useState(false)
+    const [popMsg, setPopMsg] = useState('')
+    // 팝업 오픈 함수
+    const popupOpenHander = (msg) => {
+        setPopMsg((prevPopMsg)=>msg)
+        setIsOpen(()=>true)
+    }
+    // 팝업 클로즈 함수
+    const popupCloseHander = () => {
+        setIsOpen(false)
+        // 상태 초기화
+        setEmail('')
+        setPassword('')
+        setEmailError('')
+        setPasswordError('')
+        setIsValidationEmail(false)
+        setIsValidationPassword(false)
+    }
+
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [emailError, setEmailError] = useState('')
@@ -25,7 +45,8 @@ const SignIn = () => {
             }
         },
         onError: (error) => {
-            alert(error)
+            popupOpenHander(error)
+            //alert(error)
         }
     })
 
@@ -96,6 +117,13 @@ const SignIn = () => {
     };
 
     return (
+        <>
+        {
+            isOpen?
+            <CommonPopup msg={popMsg}  closeHander={popupCloseHander} isBtns={false} priMsg={'확인'} priHander={popupCloseHander}/>
+            :<></>
+        }
+        
         <FormDiv>
             <Form onSubmit={submitHandler}>
                 <SigninIntro>
@@ -137,6 +165,7 @@ const SignIn = () => {
                 {/* {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>} */}
             </Form>
         </FormDiv>
+        </>
     );
 };
 
@@ -185,7 +214,7 @@ export const Input = styled.input`
     outline: none;
     width: 100%;
     height: 40px;
-    background: #394254;
+    background: var(--bg-li);
     color: #FFFFFF;
     border-radius:114px;
     box-sizing: border-box;
@@ -233,11 +262,11 @@ export const LoginButton = styled.button`
     transition: all 0.3s;
     margin-top: 20px;
     &:not(:disabled){
-        background: #00F0FF;
+        background: var(--po-de);
         color: #464646;
     }
     &:hover {
-        background: #00F0FF;
+        background: var(--po-de);
         transform: scale(1.03);
         color: #464646;
     }

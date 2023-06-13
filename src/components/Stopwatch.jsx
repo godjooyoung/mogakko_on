@@ -176,7 +176,7 @@ export const Timer = styled.div`
     font-size: 24px;
     line-height: 29px;
     vertical-align: middle;
-    color: #00F0FF;
+    color: var(--po-de);
     }
 `
 export const TimerButton = styled.div`

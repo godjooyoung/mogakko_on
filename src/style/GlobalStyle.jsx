@@ -26,18 +26,14 @@ const GlobalStyle = createGlobalStyle`
     src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
     font-weight: 400;
     font-style: normal;
-}
+    }
+    // --bg-de #172435
+    // --bg-li #394254
     :root {
-    --h-l-f-om-o: 4px;
-    --go-h-jh-l: 8px;
-    --g-fi-y-r-e: 1px solid rgba(0,0,0,0.08);
-    --itr-yy-z: cubic-bezier(0.2,0,0,1);
-    --bgxgx: #000000;
-    --f-k-smk-x: #222222;
-    --fo-jk-r-s: #717171;
-    --e-ls-qkw: 'Circular',-apple-system,'BlinkMacSystemFont','Roboto','Helvetica Neue',sans-serif;
-    --g-lm-u-p: normal;
-    --mq-yk-l: 0.04em;
+    --bg-de : #010D25;
+    --bg-li : #232B3D;
+    --po-de : #00F0FF;
+    --bg-de-rgba : rgb(1, 13, 37);
     }
 `;
 

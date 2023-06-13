@@ -132,7 +132,7 @@ export const MainHeardImg = styled.img`
 export const MainHeaderWrap = styled.div`
     width: 1280px;
     height: 574px;
-    background: #172435;
+    background: var(--bg-de);
     grid-column-start: 1;
     grid-column-end: 3;
     display : flex;
@@ -141,7 +141,7 @@ export const MainHeaderWrap = styled.div`
     align-items: center;
     /* background-image: url(${(props) => {return props.bg}}); */
     background-size: cover;
-    background-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 9.68%, rgba(18, 28, 42, 0.788136) 74.36%, #172435 89.14%), url(${(props) => {return props.bg}});    
+    background-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 9.68%, rgba(18, 28, 42, 0.788136) 74.36%, var(--bg-de) 89.14%), url(${(props) => {return props.bg}});    
     background-position: center;
 `
 export const MainTitleWrap = styled.div`
@@ -169,7 +169,7 @@ export const MainButtonWrap = styled.div`
 export const CreateRoomButton = styled.button`
     width: 223px;
     height: 62px;
-    background: #00F0FF;
+    background: var(--po-de);
     font-family: 'Pretendard-Regular';
     border-radius: 52px;
     font-style: normal;
