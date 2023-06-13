@@ -56,15 +56,15 @@ function MemberPage() {
 
   const [preview, setPreview] = useState(data && data.data.data.member.profileImage)
 
-  // 00:00:00 to 00H00M
-  const formatTime = (timeString) => {
-    const time = new Date(`2000-01-01T${timeString}`);
-    const hours = time.getHours();
-    const minutes = time.getMinutes();
-    const formattedHours = hours < 10 ? `0${hours}` : hours;
-    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-    return `${formattedHours}H${formattedMinutes}M`;
-  }
+  // // 00:00:00 to 00H00M
+  // const formatTime = (timeString) => {
+  //   const time = new Date(`2000-01-01T${timeString}`);
+  //   const hours = time.getHours();
+  //   const minutes = time.getMinutes();
+  //   const formattedHours = hours < 10 ? `0${hours}` : hours;
+  //   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  //   return `${formattedHours}H${formattedMinutes}M`;
+  // }
 
   // 친구요청 
   const onClickRqFriendshipBtnHandler = (target) => {
@@ -119,7 +119,7 @@ function MemberPage() {
                 </ImageWrap>
                 <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
                 {
-                  data && data.data.data.isFriend === false ?
+                  data && data.data.data.friend === false ?
                     <button
                       onClick={() => (onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname))
                       }>친구요청</button> : null
@@ -133,7 +133,7 @@ function MemberPage() {
 
                 <div>
                   <TopContentTitle>이번 주 순공 시간</TopContentTitle>
-                  <TopContentTitleItem>{data && data.data.data.totalTimerWeek}</TopContentTitleItem>
+                  <TopContentTitleItem>{data && data.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
                 </div>
 
                 <div>
@@ -254,7 +254,7 @@ const ProfileModifyContent = styled.form`
     font-style: normal;
     font-weight: 700;
     font-size: 15px;
-    background: #00F0FF;
+    background: var(--po-de);
     border-radius: 24.7692px;
     color: #464646;
     border: none;
@@ -290,7 +290,7 @@ const ImageWrap = styled.div`
   background-size:contain;
   background-color : white;
   margin-bottom: 28px;
-  border: 0.5px solid white
+  border: 0.5px solid white;
 `
 
 const TimerWrap = styled.div`
@@ -300,13 +300,13 @@ const TimerWrap = styled.div`
   justify-content: space-around;
   align-items: center;
   margin-bottom: 35px;
-  background: #394254;
+  background: var(--bg-li);
   border-radius: 10px;
 `
 const TopContentTitle = styled.p`
   position: relative;
   font-size: 18px;
-  color: #00F0FF;
+  color: var(--po-de);
   font-family: 'Pretendard';
   font-style: normal;
   font-weight: 400;
@@ -360,7 +360,7 @@ const Temperaturecontainer = styled.div`
 
 const TemperatureTitle = styled.p`
     font-size: 17px;
-    color: #00F0FF;
+    color: var(--po-de);
 
     img {
       margin-bottom: 5px;
@@ -400,7 +400,7 @@ const TemperatureWrap = styled.div`
 
   span {
     font-size: 14px;
-    color: #00F0FF;
+    color: var(--po-de);
   }
 `
 
@@ -418,7 +418,7 @@ const ProgressContainer = styled.div`
 const Progress = styled.div`
   height: 100%;
   border-radius:10px;
-  background: #00F0FF;
+  background: var(--po-de);
   transition: width 1s ease;
   border: none;
 `;
@@ -444,7 +444,7 @@ const GithubTitle = styled.p`
 const NullGithubBox = styled.div`
   width: 996px;
   height: 160px;
-  background: #394254;
+  background: var(--bg-li);
   border-radius: 10px;
   margin-top: 10px;
   display: flex;

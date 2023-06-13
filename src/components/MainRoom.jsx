@@ -76,9 +76,9 @@ let showingDetialsIdx = 0;
 const checkSelcetdCard = (type, idx) => {
     if(showingDetialsIdx === idx){
         if(type == 'color'){
-            return '#00F0FF'
+            return 'var(--po-de)'
         }else{
-            return '1px solid #00F0FF'
+            return '1px solid var(--po-de);'
         }
     }else{
         if(type == 'color'){            
@@ -276,7 +276,7 @@ export const RoomContainer = styled.div`
 export const EmptyRoom = styled.div`
     width: 996px;
     height: 440px;
-    background: #394254;
+    background: var(--bg-li);
     border-radius: 20px;
     position: relative;
     margin-bottom: 90px;
@@ -522,7 +522,7 @@ export const RoomEnterButton = styled.button`
     align-items: center;
     text-align: center;
     color: #464646;
-    background: #00F0FF;
+    background: var(--po-de);
     border-radius: 52px;
     width: 152px;
     height: 48px;

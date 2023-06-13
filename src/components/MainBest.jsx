@@ -38,13 +38,8 @@ function MainBest(props) {
 
     // 순공시간 퍼센트 함수
     const totalStudyTmCalHandler = (time) => {
-        console.log("------------------>", time) // 00H00M
         let hh = time.slice(0, -1).split('H')[0]
         let mm = time.slice(0, -1).split('H')[1]
-        console.log("::시간", hh)
-        console.log("::분 ", mm)
-        console.log("::형변환 시간", Number(hh))
-        console.log("::형변환 분 ", Number(mm))
         let totTime = Number(hh) * 60
         totTime = Number(totTime) + Number(mm)
 
@@ -176,7 +171,7 @@ export const BestMemberCard = styled.div`
     align-items: center;
     width: 234px;
     height: 269px;
-    background: #394254;
+    background: var(--bg-li);
     border-radius: 20px;
 
     &:hover {
@@ -256,7 +251,7 @@ const ProgressContainer = styled.div`
 const Progress = styled.div`
     height: 100%;
     border-radius: 62px;
-    background: #00F0FF;
+    background: var(--po-de);
     transition: width 1s ease;
     border: none;
 `

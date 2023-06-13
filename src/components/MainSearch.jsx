@@ -225,7 +225,8 @@ export const SearchLanguageBtnWrap = styled.div`
 `
 export const SearchLanguageBtn = styled.button`
     padding: 9px 20px;
-    margin-left: 9px;
+    /* margin-left: 9px; */
+    margin-right: 9px;
     margin-bottom: 12px;
     /* text-align: center; */
     /* gap: 10px; */
@@ -235,7 +236,7 @@ export const SearchLanguageBtn = styled.button`
     border-radius: 28px;
     cursor: pointer;
     background : ${(props)=>{
-        return props.isSelected?'#00F0FF':'transparent'
+        return props.isSelected?'var(--po-de)':'transparent'
     }};
     color : ${(props)=>{
         return props.isSelected?'#464646':'#FFFFFF'
@@ -250,7 +251,8 @@ export const SearchLanguageBtn = styled.button`
 
 export const SearchTownBtn = styled.button`
     padding: 9px 20px;
-    margin-left: 9px;
+    /* margin-left: 9px; */
+    margin-right: 9px;
     margin-bottom: 12px;
     /* text-align: center; */
     /* gap: 10px; */
@@ -260,7 +262,7 @@ export const SearchTownBtn = styled.button`
     border-radius: 28px;
     cursor: pointer;
     background : ${(props)=>{
-        return props.isSelected?'#00F0FF':'transparent'
+        return props.isSelected?'var(--po-de)':'transparent'
     }};
     color : ${(props)=>{
         return props.isSelected?'#464646':'#FFFFFF'
@@ -298,7 +300,7 @@ export const SearcFilterTitle = styled.h2`
 export const SearchBar = styled.div`
     width: 470px;
     height: 40px;
-    background: #394254;
+    background: var(--bg-li);
     border-radius: 114px;
     display: flex;
     flex-direction: row;
