@@ -1725,6 +1725,7 @@ const YourChat = styled.pre`
     line-height: 20px;
     padding: 5px 10px;
     word-wrap: break-word;
+    white-space: pre-wrap;
 `;
 
 const MyChatWrap = styled.div`
@@ -1745,6 +1746,7 @@ const MyChat = styled.pre`
     line-height: 20px;
     padding: 5px 10px;
     word-wrap: break-word;
+    white-space: pre-wrap;
 `;
 
 export const ChatInputWrap = styled.div`
