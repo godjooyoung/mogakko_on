@@ -3,8 +3,7 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import Modal from '../components/SignupModal';
-import { BiChevronRight } from "react-icons/bi";
+import TermsModal from '../components/common/TermsModal.jsx';
 axios.defaults.withCredentials = true;
 
 function SignUp() {
@@ -151,8 +150,8 @@ function SignUp() {
     const nicknameChangeHandler = (e) => {
         const newNickname = e.target.value;
         setNickname(newNickname);
-        if (newNickname.length < 4 || newNickname.length > 8) {
-            setNicknameErrorMessage('닉네임은 4~8자 사이여야 합니다.');
+        if (newNickname.length < 2 || newNickname.length > 8) {
+            setNicknameErrorMessage('닉네임은 2~8자 사이여야 합니다.');
             setNicknameChanged(false);
         } else {
             setNicknameErrorMessage('')
@@ -211,9 +210,9 @@ function SignUp() {
         setIsAgreed(isAgreed);
     };
 
-    const termsContent = () => {
+    // const termsContent = () => {
 
-    }
+    // }
 
     const termsButtonClickHandler = () => {
         openModal();
@@ -336,7 +335,9 @@ function SignUp() {
                         <InfoButton htmlFor="checkbox">
                             개인 위치 정보 제공에 동의합니다.
                         </InfoButton>
-
+                        <span onClick={()=>setModalOpen(true)}>전문보기</span>
+                        {/* {!modalOpen?<></>:<><TermsModal/></>} */}
+                        {modalOpen && <TermsModal onClose={()=>setModalOpen(false)}/>}
                         {/* <BottomButton onClick={termsButtonClickHandler}>{`전체보기`}</BottomButton>
                         <Modal open={modalOpen} close={closeModal}>
                             <h2>서비스 이용 약관</h2>
@@ -496,7 +497,7 @@ export const ErrorMessage = styled.div`
 
 export const SuccessMessage = styled.div`
     color: #00F0FF;
-    font-size: 5px;
+    font-size: 14px;
 `
 export const SignupButton = styled.button`
     padding: 9px 20px;

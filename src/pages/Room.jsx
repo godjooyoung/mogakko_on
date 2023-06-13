@@ -293,9 +293,13 @@ function Room() {
   }, [data])
 
   useEffect(() => {
-    console.log("subscribers>> 제발...왜 멍청이 처럼..구는데..  ", subscribers)
-  }, [subscribers])
-
+    console.log("old subscribers ............................................. ", subscribers)
+    console.log("publisher............................................. ", publisher)
+    const updateSubscribers = [...subscribers]
+    setSubscribers(updateSubscribers)
+    // setSubscribers(updateSubscribers)
+  }, [publisher])
+  
   // 목록에서 방으로 바로 접근 할경우 실행되는 useEffect
   useEffect(() => {
     if (sessionInfo) {
@@ -345,8 +349,8 @@ function Room() {
   }, [currentVideoDevice, session])
 
   const startScreenSharing = useCallback(async (originPublish) => {
+    console.log("여기까지 오니? 0")
     try {
-
       // 화면 공유용 퍼블리셔 초기화
       const screenSharingPublisher = OV.current.initPublisher(undefined, {
         videoSource: 'screen',
@@ -358,18 +362,24 @@ function Room() {
         frameRate: 30,
         insertMode: 'APPEND',
       })
+      ///setNumber(number => number + 1);
 
-      // 퍼블리셔를 세션에 게시
-      session.publish(screenSharingPublisher)
-
-      // 기존 퍼블리시 제거
       session.unpublish(originPublish)
-      setMainStreamManager(screenSharingPublisher)
+      session.publish(screenSharingPublisher)
+      // 배치 
+      setPublisher((prevPublisher)=>screenSharingPublisher)
+      setMainStreamManager((prevMainStreamManager)=>screenSharingPublisher)
+      setIsScreenSharing((prevScreenSharing)=>true)
 
-      // 상태 업데이트
-      setPublisher(screenSharingPublisher)
 
-      setIsScreenSharing(true)
+      // setPublisher(screenSharingPublisher, ()=>{
+      //   console.log("여기까지 오니? 1")
+      //   setMainStreamManager(screenSharingPublisher, ()=>{
+      //     console.log("여기까지 오니? 2")
+      //     setIsScreenSharing(true)
+      //   })
+      // })
+
     } catch (error) {
       console.log('Error starting screen sharing:', error.message)
     }
@@ -548,35 +558,43 @@ function Room() {
     }
 
 
-    const setRequestBody = () => {
-      let payload = {}
-      if (!data.password && data.isOpened) {
-        payload = payload
-      } else {
-        payload = { 'password': data.password }
-      }
-      console.log("요청 bodyp", payload)
-      return payload
-    }
+    // const setRequestBody = () => {
+    //   let payload = {}
+    //   if (!data.password && data.isOpened) {
+    //     payload = payload
+    //   } else {
+    //     payload = { 'password': data.password }
+    //   }
+    //   console.log("요청 bodyp", payload)
+    //   return payload
+    // }
 
-    let response
-    if (data.isOpened) {
-      console.log('############################### 공개방 입장 ##################################')
-      response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
-        headers: {
-          ACCESS_KEY: getCookie('token'),
-        },
-      })
-      return response.data // The token
-    } else {
-      console.log('############################## 비공개방 입장 ##################################')
-      response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
-        headers: {
-          ACCESS_KEY: getCookie('token'),
-        },
-      })
-      return response.data // The token
-    }
+    // let response
+    // if (data.isOpened) {
+    //   console.log('############################### 공개방 입장 ##################################')
+    //   response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
+    //     headers: {
+    //       ACCESS_KEY: getCookie('token'),
+    //     },
+    //   })
+    //   return response.data // The token
+    // } else {
+    //   console.log('############################## 비공개방 입장 ##################################')
+    //   response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
+    //     headers: {
+    //       ACCESS_KEY: getCookie('token'),
+    //     },
+    //   })
+      // return response.data // The token
+    // }
+    const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
+      headers: {
+        ACCESS_KEY: getCookie('token'),
+      },
+    })
+    return response.data // The token
+
+
   };
 
 
@@ -936,12 +954,14 @@ function Room() {
                     }
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
                       <UserVideoComponent streamManager={publisher} audioEnabled={audioEnabled} />
+
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
                           <span>{e.id}</span>
                           <UserVideoComponent streamManager={e} audioEnabled={audioEnabled} />
                         </div>
                       ))}
+                      
                     </PubilsherVideoWrap>
                     {count === 0 && data.maxMembers >= 5 ?
                       <SlideRightBtn onClick={() => {
@@ -955,11 +975,15 @@ function Room() {
                 ) : null}
 
 
+                  {/* <MainStreamWrap>
+                    <UserVideoComponent streamManager={mainStreamManager} />
+                  </MainStreamWrap> */}
                 {mainStreamManager !== undefined ? (
                   <MainStreamWrap>
                     <UserVideoComponent streamManager={mainStreamManager} />
                   </MainStreamWrap>
                 ) : null}
+
               </PubilshSession>
 
               <VideoBtnWrap>
@@ -1012,22 +1036,22 @@ function Room() {
                       </YourChatWrap>
                     )
                   )}
-                  <div ref={messagesEndRef} />
+                <div ref={messagesEndRef} />
               </ChatContentWrap>
               <ChatInputWrap>
-                <ChatInput 
-                value={message} 
-                onChange={(e) => setMessage(e.target.value)} 
-                cols="30" 
-                rows="10"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    if (!e.shiftKey) {
-                      e.preventDefault();
-                      textPublish(openViduSession ? openViduSession : mySessionId);
+                <ChatInput
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  cols="30"
+                  rows="10"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      if (!e.shiftKey) {
+                        e.preventDefault();
+                        textPublish(openViduSession ? openViduSession : mySessionId);
+                      }
                     }
-                  }
-                }}
+                  }}
                 ></ChatInput>
               </ChatInputWrap>
               <SendBtnWrap>
@@ -1667,9 +1691,6 @@ export const ChatContentWrap = styled.div`
         display: none;
     }
     position: relative;
-
-    /* display: flex;
-    flex-direction: column-reverse; */
 `;
 
 export const MyNickName = styled.p`
@@ -1692,7 +1713,7 @@ export const YourNickName = styled.p`
   color: white;
 `
 
-const YourChat = styled.p`
+const YourChat = styled.pre`
     max-width: 180px;
     background-color: #616670;
     border-radius: 8px;
@@ -1701,6 +1722,10 @@ const YourChat = styled.p`
     line-height: 20px;
     padding: 5px 10px;
     word-wrap: break-word;
+    white-space: pre-wrap;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
 `;
 
 const MyChatWrap = styled.div`
@@ -1712,7 +1737,7 @@ const MyChatWrap = styled.div`
     margin-block: 15px;
 `;
 
-const MyChat = styled.p`
+const MyChat = styled.pre`
     max-width: 180px;
     background-color: #E2E2E2;
     border-radius: 8px;
@@ -1721,6 +1746,10 @@ const MyChat = styled.p`
     line-height: 20px;
     padding: 5px 10px;
     word-wrap: break-word;
+    white-space: pre-wrap;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
 `;
 
 export const ChatInputWrap = styled.div`

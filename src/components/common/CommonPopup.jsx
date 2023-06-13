@@ -1,6 +1,16 @@
 import React from 'react';
 import styled from 'styled-components'
 
+// 공통 커스텀 팝업
+
+// msg : 화면에 표시되는 메세지
+// isBtns : boolean
+// priMsg  'primery 버튼 내용'
+// secMsg  'second 버튼 내용'
+// priHander : 'primery 버튼 클릭시 동작하는 함수'
+// secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
+// closeHander : 닫기 함수
+
 function CommonPopup(props) {
 
     return (
@@ -12,21 +22,15 @@ function CommonPopup(props) {
                     }}
                         closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
                     ></CloseBtn>
-                    <img src={`${process.env.PUBLIC_URL}/image/loginPopUp.webp`} alt="로그인 팝업 아이콘" />
-                    <h1>로그인이 필요한 서비스입니다</h1>
-                    <SignInBtnWrap>
-                        <SignBtn onClick={() => {
-                            props.closeHander()
-                            navigate('/signin')
-                        }}
-                            color='color'
-                        >로그인</SignBtn>
-                        <SignBtn onClick={() => {
-                            props.closeHander()
-                            navigate('/signup')
-                        }}
-                        >회원가입</SignBtn>
-                    </SignInBtnWrap>
+                    <h1>{props.msg}</h1>
+                    <BtnWrap>
+                        {props.isBtns?<>
+                            <Btn color='color' onClick={()=>{props.priHander()}}>{props.priMsg}</Btn>
+                            <Btn onClick={()=>{props.secHandler()}}>{props.secMsg}</Btn>
+                        </>:<>
+                            <Btn color='color' onClick={()=>{props.priHander()}}>{props.priMsg}</Btn>
+                        </>}
+                    </BtnWrap>
                 </PopUp>
             </Dark>
         </>
@@ -51,7 +55,7 @@ export const Dark = styled.div`
 export const PopUp = styled.div`
     position: relative;
     width: 332px;
-    height: 266px;
+    height: 198px;
     background: #394254;
     border-radius: 20px;
     display: flex;
@@ -70,13 +74,13 @@ export const PopUp = styled.div`
     }
 `
 
-export const SignInBtnWrap = styled.div`
+export const BtnWrap = styled.div`
     display: flex;
     justify-content: space-between;
     gap: 20px;
 `
 
-export const SignBtn = styled.button`
+export const Btn = styled.button`
     width: 109px;
     height: 38px;
     background: ${(props) => {
