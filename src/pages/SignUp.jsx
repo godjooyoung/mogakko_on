@@ -3,8 +3,7 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import Modal from '../components/SignupModal';
-import { BiChevronRight } from "react-icons/bi";
+import TermsModal from '../components/common/TermsModal.jsx';
 axios.defaults.withCredentials = true;
 
 function SignUp() {
@@ -118,7 +117,7 @@ function SignUp() {
                 setPasswordErrorMessage('')
                 setIsPasswordValid(false);
             } else {
-                setPasswordErrorMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.')
+                setPasswordErrorMessage('대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.')
                 setIsPasswordValid(false);
             };
         } else {
@@ -151,8 +150,8 @@ function SignUp() {
     const nicknameChangeHandler = (e) => {
         const newNickname = e.target.value;
         setNickname(newNickname);
-        if (newNickname.length < 4 || newNickname.length > 8) {
-            setNicknameErrorMessage('닉네임은 4~8자 사이여야 합니다.');
+        if (newNickname.length < 2 || newNickname.length > 8) {
+            setNicknameErrorMessage('닉네임은 2~8자 사이여야 합니다.');
             setNicknameChanged(false);
         } else {
             setNicknameErrorMessage('')
@@ -211,9 +210,9 @@ function SignUp() {
         setIsAgreed(isAgreed);
     };
 
-    const termsContent=()=>{
+    // const termsContent = () => {
 
-    }
+    // }
 
     const termsButtonClickHandler = () => {
         openModal();
@@ -228,127 +227,134 @@ function SignUp() {
 
     return (
         <>
-       
-        <FormDiv>
-            <Form>
-                <SigninIntro>
-                    회원가입
-                </SigninIntro>
-                {/* <Form onSubmit={submitHandler}> */}
-                <div>
-                    <Label>이메일</Label>
-                    <ContainerWrapper>
+
+            <FormDiv>
+                <Form>
+                    <SigninIntro>
+                        회원가입
+                    </SigninIntro>
+                    {/* <Form onSubmit={submitHandler}> */}
+                    <div style={{
+                        height: '125px'
+                    }}>
+                        <Label>이메일</Label>
+                        <ContainerWrapper>
+                            <InputWrapper>
+                                <ShortInput
+                                    type="email"
+                                    value={email}
+                                    onChange={emailChangeHandler}
+                                    placeholder="이메일"
+                                    required
+                                />
+                                <ButtonWrapper>
+                                    <CheckButton type="button" disabled={!emailChanged} onClick={(e) => {
+                                        e.preventDefault() //요청전 리로드 방지
+                                        checkEmailExistence(email)
+                                    }}>
+                                        중복확인
+                                    </CheckButton>
+                                </ButtonWrapper>
+                            </InputWrapper>
+                        </ContainerWrapper>
+
+                        <ErrorMessageContainer>
+                            {emailErrorMessage === '사용할 수 있는 이메일입니다.' ? <SuccessMessage>{emailErrorMessage}</SuccessMessage> :
+                                <ErrorMessage>{emailErrorMessage}</ErrorMessage>}
+                        </ErrorMessageContainer>
+                    </div>
+                    <div style={{
+                        height: '125px'
+                    }}>
+                        <Label>비밀번호</Label>
+                        <InputWrapper>
+                            <Input
+                                type="password"
+                                value={password}
+                                onChange={passwordChangeHandler}
+                                placeholder="비밀번호"
+                            />
+
+                        </InputWrapper>
+                        <ErrorMessageContainer>
+
+                            {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
+                        </ErrorMessageContainer>
+                    </div>
+
+                    <div style={{
+                        height: '125px'
+                    }}>
+                        <Label>비밀번호 확인</Label>
+                        <InputWrapper>
+                            <Input
+                                type="password"
+                                value={confirmPassword}
+                                onChange={confirmPasswordChangeHandler}
+                                placeholder="비밀번호 재입력"
+                            />
+                        </InputWrapper>
+                        <ErrorMessageContainer>
+                            {confirmPasswordErrorMessage && <ErrorMessage>{confirmPasswordErrorMessage}</ErrorMessage>}
+                        </ErrorMessageContainer>
+
+                    </div>
+                    <div>
+                        <Label>닉네임</Label>
                         <InputWrapper>
                             <ShortInput
-                                type="email"
-                                value={email}
-                                onChange={emailChangeHandler}
-                                placeholder="이메일"
-                                required
+                                type="text"
+                                value={nickname}
+                                onChange={nicknameChangeHandler}
+                                placeholder="닉네임"
                             />
                             <ButtonWrapper>
-                                <CheckButton type="button" disabled={!emailChanged} onClick={(e) => {
+                                <CheckButton type="button" disabled={!nicknameChanged} onClick={(e) => {
                                     e.preventDefault() //요청전 리로드 방지
-                                    checkEmailExistence(email)
+                                    checkNicknameExistence(nickname)
                                 }}>
                                     중복확인
                                 </CheckButton>
                             </ButtonWrapper>
                         </InputWrapper>
-                    </ContainerWrapper>
+                        <NicknameErrorMessageContainer>
+                            {nicknameErrorMessage === '사용할 수 있는 닉네임입니다.' ? <SuccessMessage>{nicknameErrorMessage}</SuccessMessage> :
+                                <ErrorMessage>{nicknameErrorMessage}</ErrorMessage>}
+                        </NicknameErrorMessageContainer>
 
-                    <ErrorMessageContainer>
-                        {emailErrorMessage === '사용할 수 있는 이메일입니다.' ? <SuccessMessage>{emailErrorMessage}</SuccessMessage> :
-                            <ErrorMessage>{emailErrorMessage}</ErrorMessage>}
-                    </ErrorMessageContainer>
-                </div>
-                <div>
-                    <Label>비밀번호</Label>
-                    <InputWrapper>
-                        <Input
-                            type="password"
-                            value={password}
-                            onChange={passwordChangeHandler}
-                            placeholder="비밀번호"
-                        />
+                    </div>
 
-                    </InputWrapper>
-                    <ErrorMessageContainer>
+                    <Wrapper>
 
-                        {passwordErrorMessage && <ErrorMessage>{passwordErrorMessage}</ErrorMessage>}
-                    </ErrorMessageContainer>
-                </div>
-
-                <div>
-                    <Label>비밀번호 확인</Label>
-                    <InputWrapper>
-                        <Input
-                            type="password"
-                            value={confirmPassword}
-                            onChange={confirmPasswordChangeHandler}
-                            placeholder="비밀번호 재입력"
-                        />
-                    </InputWrapper>
-                    <ErrorMessageContainer>
-                        {confirmPasswordErrorMessage && <ErrorMessage>{confirmPasswordErrorMessage}</ErrorMessage>}
-                    </ErrorMessageContainer>
-
-                </div>
-                <div>
-                    <Label>닉네임</Label>
-                    <InputWrapper>
-                        <ShortInput
-                            type="text"
-                            value={nickname}
-                            onChange={nicknameChangeHandler}
-                            placeholder="닉네임"
-                        />
-                        <ButtonWrapper>
-                            <CheckButton type="button" disabled={!nicknameChanged} onClick={(e) => {
-                                e.preventDefault() //요청전 리로드 방지
-                                checkNicknameExistence(nickname)
-                            }}>
-                                중복확인
-                            </CheckButton>
-                        </ButtonWrapper>
-                    </InputWrapper>
-                    <NicknameErrorMessageContainer>
-                        {nicknameErrorMessage === '사용할 수 있는 닉네임입니다.' ? <SuccessMessage>{nicknameErrorMessage}</SuccessMessage> :
-                            <ErrorMessage>{nicknameErrorMessage}</ErrorMessage>}
-                    </NicknameErrorMessageContainer>
-
-                </div>
-
-                <Wrapper>
-                    
                         <InputCheckbox
                             type="checkbox"
                             checked={isAgreed}
                             onChange={isAgreedChangeHandler}
                             id="checkbox"
-                        /><InfoButton 
-                            htmlFor="checkbox"
-                            >개인 위치 정보 제공에 동의합니다.</InfoButton>
+                        />
+                        <InfoButton htmlFor="checkbox">
+                            개인 위치 정보 제공에 동의합니다.
+                        </InfoButton>
+                        <span onClick={()=>setModalOpen(true)}>전문보기</span>
+                        {!modalOpen?<></>:<><TermsModal/></>}
+                        {/* <BottomButton onClick={termsButtonClickHandler}>{`전체보기`}</BottomButton>
+                        <Modal open={modalOpen} close={closeModal}>
+                            <h2>서비스 이용 약관</h2>
+                            <pre>{termsContent}</pre>
+                            <button onClick={closeModal}>닫기</button>
+                        </Modal> */}
 
-                    <BottomButton onClick={termsButtonClickHandler}>{`전체보기 >`}</BottomButton>
-                    <Modal open={modalOpen} close={closeModal}>
-                        <h2>서비스 이용 약관</h2>
-                        <pre>{termsContent}</pre>
-                        <button onClick={closeModal}>닫기</button>
-
-                    </Modal>
-
-                </Wrapper>
-                <SignupButton onClick={(e) => {
-                    e.preventDefault() //요청전 리로드 방지
-                    sendHandler(sendData)
-                }}
-                    disabled={nicknameChanged || emailChanged || !isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
-                >
-                    회원가입
-                </SignupButton>
-            </Form>
-        </FormDiv>
+                    </Wrapper>
+                    <SignupButton onClick={(e) => {
+                        e.preventDefault() //요청전 리로드 방지
+                        sendHandler(sendData)
+                    }}
+                        disabled={nicknameChanged || emailChanged || !isEmailValid || !isPasswordValid || !isPasswordConfirmed || !isNicknameAvailable || !isAgreed}
+                    >
+                        회원가입
+                    </SignupButton>
+                </Form>
+            </FormDiv>
         </>
     );
 }
@@ -365,18 +371,16 @@ export const Form = styled.form`
     display: flex;
     flex-direction: column;
     max-width: 384px;
-    margin: 0 auto
+    margin: 0 auto;
 `;
 export const SigninIntro = styled.div`
     color:#FFFFFF;
     height: 42.96px;
-    margin-bottom: 70px;
-    margin-up:100px;
+    margin-bottom: 40px;
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 700;
     font-size: 36px;
-    line-height: 43px;
 `;
 export const Label = styled.label`
     margin-bottom: 3rem;
@@ -387,7 +391,6 @@ export const Label = styled.label`
     font-style: normal;
     font-weight: 400;
     font-size: 24px;
-    line-height: 29px;
 `;
 
 export const ContainerWrapper = styled.div`
@@ -398,37 +401,27 @@ export const ContainerWrapper = styled.div`
 
 
 export const InputWrapper = styled.div`
-    // display: flex;
-    // align-items: stretch;
     width: 384px;
-    overflow: hidden;
-    box-shadow: 0 0 5px rgba(0,0,0,0,3);
-    margin-bottom: 15px; 
+    margin-bottom: 5px; 
     display:flex;
-    flex-direction:row;
     justify-content: space-between;
     margin-top:10px;
-
 `;
 
 export const ButtonWrapper = styled.div`
-    overflow:hidden;
     height: 40px;
     width: 102px;
     display: plex;
     flex-direction: row;
-    boder-radius:114px;
     overflow:hidden;
     margin-left:10px;
     text-align: center;
-
 `;
 
 
 export const ShortInput = styled.input`
     width: 268px;
     height: 40px;
-    flex-glow: 1;
     padding: 10px 10px 10px 20px;
     border:none;
     outline: none;
@@ -440,12 +433,10 @@ export const ShortInput = styled.input`
     font-style: normal;
     font-weight: 400;
     font-size: 16px;
-    line-height: 24px;
 `;
 
 
 export const Input = styled.input`
-    flex-glow: 1;
     padding: 10px 10px 10px 20px;
     border:none;
     outline: none;
@@ -459,7 +450,7 @@ export const Input = styled.input`
     font-style: normal;
     font-weight: 400;
     font-size: 16px;
-    line-height: 24px;
+    margin-bottom: 5px; 
 `;
 
 
@@ -468,7 +459,7 @@ export const Input = styled.input`
 export const CheckButton = styled.button`
     padding:10px;
     background: ${props => props.disabled ? '#4A4F59' : '#00F0FF'}; 
-    color: ${props => props.disabled ? '#BEBEBE' : '#172435'};
+    color: ${props => props.disabled ? '#BEBEBE' : '#464646'};
     border: none;
     cursor: pointer;
     flex-grow:0;
@@ -480,10 +471,9 @@ export const CheckButton = styled.button`
     display :inline-block;
     font-family: 'Pretendard';
     font-style: normal;
-    font-weight: 500;
+    font-weight: 700;
     font-size: 16px;
-    line-height: 24px;
-
+    transition: all 0.3s;
 `;
 
 export const ErrorMessageContainer = styled.div`
@@ -502,12 +492,11 @@ export const ErrorMessage = styled.div`
     font-style: normal;
     font-weight: 400;
     font-size: 14px;
-    line-height: 17px;
 `;
 
 export const SuccessMessage = styled.div`
     color: #00F0FF;
-    font-size: 5px;
+    font-size: 14px;
 `
 export const SignupButton = styled.button`
     padding: 9px 20px;
@@ -524,10 +513,10 @@ export const SignupButton = styled.button`
     font-family: 'Pretendard';
     font-style: normal;
     font-size: 17px;
-    line-height: 24px;
     width:383px;
     margin: auto;
-
+    font-weight: 700;
+    transition: all 0.3s;
     &:not(:disabled){
         background: #00F0FF;
         color: #464646;
@@ -538,12 +527,18 @@ export const SignupButton = styled.button`
     &:active {
         background-color: #00C5D1;
         transform: scale(1);
+        color: #464646;
+        font-family: 'Pretendard';
+        font-style: normal;
+        font-size: 17px;
+        font-weight: 700;
     }
 `
 
 
 export const Wrapper = styled.div`
     display: flex;
+    justify-content: center;
     align-items: center;
     margin-bottom:10px;
 `
@@ -560,7 +555,6 @@ export const InfoButton = styled.label`
 `;
 
 export const BottomButton = styled.button`
-    padding:0.5rem 1rem;
     background-color:transparent;    
     color: white;
     border: none;
@@ -568,8 +562,10 @@ export const BottomButton = styled.button`
     cursor: pointer;
     text-align: right;
     font-size:14px;
-    text-decoration: underline;
-
+    height: 28px;
+    border-bottom: 1px solid white;
+    border-radius: 0;
+    text-align: center;
 `;
 export const InputCheckbox = styled.input`
     width:18px;

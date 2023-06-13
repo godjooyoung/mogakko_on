@@ -1,31 +1,44 @@
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost } from '../axios/api/mypage'
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import Header from "../components/common/Header";
 import useInput from '../hooks/useInput'
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { setCookie } from '../cookie/Cookie';
 
 function Mypage() {
 
+  // query
   const queryClient = useQueryClient()
+  const { isLoading, isError, data } = useQuery("getProfile", getProfile)
+
   const [friendList, setFriendList] = useState([]) // 친구목록
   const [friendReqList, setFriendReqList] = useState([]) // 친구 요청 목록
-  const { isLoading, isError, data } = useQuery("getProfile", getProfile)
   const [friendListDelete, setFriendListDelete] = useState(false) // 친구 삭제 버튼 
-  const [onMouse, setOnMouse] = useState(false)
-  const [friendDeleteArr, setFriendDeleteArr] = useState([])
+  const [statusonMouse, setStatusOnMouse] = useState(false)
+  const [temponMouse, setTempOnMouse] = useState(false)
   const [value, setValue] = useState(0)
   const [gitHub, setGitHub] = useState(false)
   const [userGitHubId, setuserGitHubId] = useState('')
+  
+  // custom hooks
   const [githubValue, onChangeGithubValue, githubInputValueReset] = useInput('')
+
+  // hooks
+  const navigate = useNavigate()
+
+
   // github 아이디 입력 
   useEffect(() => {
     if (data) {
       console.log("마이페이지 조회 결과", data)
-      console.log("마이페이지 조회 결과-profileImage", data.data.data.member.profileImage)
+      console.log("마이페이지 재조회 결과 쿠키에 세팅하기", data.data.data.member.profileImage)
+      setCookie('userProfile', data.data.data.member.profileImage)
+
       console.log("마이페이지 조회 결과-nickname", data.data.data.member.nickname)
       setPreview(data.data.data.member.profileImage)
-
     }
     // 친구목록 조회 뮤테이트 콜
     friendListMutation.mutate()
@@ -55,30 +68,32 @@ function Mypage() {
   const [fileAttach, setFileAttach] = useState('')
   const [preview, setPreview] = useState(data && data.data.data.member.profileImage)
   const [isFileModify, setIsFileModify] = useState(false)
+  
   const filemutation = useMutation(addProfile, {
     onSuccess: (response) => {
-      console.log("addProfile 성공", response)
+      console.log("프로필 사진 수정 성공", response)
+      queryClient.invalidateQueries(getProfile)
     },
   })
 
   // 친구 목록 조회
   const friendListMutation = useMutation(getFriendList, {
     onSuccess: (response) => {
-      console.log(">>> getFriendList 성공1", response)
-      console.log(">>> getFriendList 성공2", response.data.data) // 친구목록
-      console.log(">>> getFriendList 성공3", response.data.data[0])
+      console.log("친구목록 조회 1", response)
+      console.log("친구목록 조회 2", response.data.data) // 친구목록
+      console.log("친구목록 조회 3", response.data.data[0])
       setFriendList(response.data.data)
     },
     onError: (error) => {
-      console.log('setFriendList>>>>>>>>error>>>>>>>>>>', error)
+      console.log('친구목록 조회 에러', error)
       setFriendList([])
     }
   })
   // 친구 요청 목록 조회
   const friendRequestListMutation = useMutation(getFriendRequestList, {
     onSuccess: (response) => {
-      console.log(">>> getFriendRequestList 성공1", response)
-      console.log(">>> getFriendRequestList 성공2", response.data.data)
+      console.log("친구요청목록 조회 1", response)
+      console.log("친구요청목록 조회 2", response.data.data)
       if (response.data.data === null) {
         setFriendReqList([])
       } else {
@@ -90,7 +105,7 @@ function Mypage() {
   // 친구 수락/거절
   const reciveFriendMutation = useMutation(reciveFriendRequest, {
     onSuccess: (response) => {
-      console.log(">>> reciveFriendRequest 성공", response)
+      console.log("친구 신청 수락/거절", response)
       queryClient.invalidateQueries(getProfile)
     },
   })
@@ -98,13 +113,17 @@ function Mypage() {
   // 친구 삭제 버튼
   const friendListDeleteHandler = () => {
     setFriendListDelete(!friendListDelete)
+    const updateFriendList = friendList.map((friend, index) => {
+      return { ...friend, selected: false }
+    })
+    setFriendList(updateFriendList)
   }
 
 
   // 친구 삭제
   const deleteFriendMutation = useMutation(deleteFriend, {
     onSuccess: (response) => {
-      console.log(">>> deleteFriendMutation 성공", response)
+      console.log("친구 삭제 성공", response)
       queryClient.invalidateQueries(getProfile)
     },
   })
@@ -126,21 +145,37 @@ function Mypage() {
   }
 
   // 친구 삭제 버튼 클릭 이벤트
-  const onClickDeleteFriendButtonHandler = (targetNickName) => {
-    console.log("삭제할 친구 닉네임", targetNickName)
-    deleteFriendMutation.mutate(targetNickName)
+  const onClickDeleteFriendButtonHandler = () => {
+    const deleteFriendList = friendList.filter((friend) => friend.selected)
+      .map((friend) => friend.member.nickname);
+    console.log("deleteFriendList>>>>>>>>>>>>", deleteFriendList)
+    deleteFriendMutation.mutate(deleteFriendList)
   }
 
-  // 00:00:00 to 00H00M
-  const formatTime = (timeString) => {
-    console.log("formatting 전 timeString > ", timeString)
-    const time = new Date(`2000-01-01T${timeString}`);
-    const hours = time.getHours();
-    const minutes = time.getMinutes();
-    const formattedHours = hours < 10 ? `0${hours}` : hours;
-    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-    return `${formattedHours}H${formattedMinutes}M`;
+  // 친구 삭제 여러건 선택
+  const onClickDeleteFriendCheckHandler = (targetNickName, idx, isSelected) => {
+    console.log(">>>>>>>>>>>>>>>>>>>>지금 선택한 친구 닉네임 및 인덱스", targetNickName, idx, isSelected)
+
+    const updateFriendList = friendList.map((friend, index) => {
+      if (index === idx) {
+        return { ...friend, selected: !isSelected }
+      } else {
+        return friend
+      }
+    })
+    setFriendList(updateFriendList)
   }
+
+  // // 00:00:00 to 00H00M
+  // const formatTime = (timeString) => {
+  //   console.log("formatting 전 timeString > ", timeString)
+  //   const time = new Date(`2000-01-01T${timeString}`);
+  //   const hours = time.getHours();
+  //   const minutes = time.getMinutes();
+  //   const formattedHours = hours < 10 ? `0${hours}` : hours;
+  //   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  //   return `${formattedHours}H${formattedMinutes}M`;
+  // }
 
   // 파일 수정
   const handleFileChange = (event) => {
@@ -172,13 +207,24 @@ function Mypage() {
   }, [fileAttach])
 
 
+  // 아바타 생성 함수
+  const avataGenHandler = (url, userNickName) => {
+    let avataGen
+    const nickName = userNickName
+    const profilceImage = url
+    if (profilceImage === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
+      avataGen = `https://source.boringavatars.com/beam/120/${nickName}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
+    } else {
+      avataGen = profilceImage
+    }
+    return avataGen
+  }
+
   useEffect(() => {
     // 프로필 이미지가 기본 이미지일때는 랜덤 프로필 사진 보여줌. 등록했을 경우에는 등록된 이미지 파일 보여줌
     if (preview) {
       if (preview === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
         console.log("기본 프로필 입니다. 랜덤프로필 작업 필요")
-        // const avataGen = `https://avatars.dicebear.com/api/identicon/${data.data.data.member.nickname}.svg`
-        // const avataGen = `http://www.gravatar.com/avatar/${data.data.data.member.nickname}?d=identicon&s=400`
         const avataGen = `https://source.boringavatars.com/beam/120/${data.data.data.member.nickname}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
         setPreview(avataGen)
       } else {
@@ -187,13 +233,26 @@ function Mypage() {
     }
   }, [preview])
 
-  // 물은표 버튼 hover시 나오는 정보창
+  // 물은표 버튼 hover시 나오는 정보창 (status)
   const statusOnMouseHandler = () => {
-    setOnMouse(true)
+    setStatusOnMouse(true)
   }
 
   const statusOffMouseHandler = () => {
-    setOnMouse(false)
+    setStatusOnMouse(false)
+  }
+
+  // 물은표 버튼 hover시 나오는 정보창 (온도)
+  const tempOnMouseHandler = () => {
+    setTempOnMouse(true)
+  }
+
+  const tempOffMouseHandler = () => {
+    setTempOnMouse(false)
+  }
+
+  const userProfileHandler = (id) => {
+    navigate('/profile/' + id)
   }
 
   return (
@@ -206,7 +265,9 @@ function Mypage() {
             <CloseBtn onClick={() => {
               setGitHub(!gitHub)
               githubInputValueReset()
-            }}>x</CloseBtn>
+            }}
+              closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
+            ></CloseBtn>
             <h1>깃허브 아이디</h1>
             <input type="text" placeholder='아이디' value={githubValue} onChange={onChangeGithubValue} />
             <GitHubBtn onClick={() => {
@@ -218,180 +279,227 @@ function Mypage() {
           </PopUp>
         </Dark>
       }
-      <MyPageTopContentWrap>
-        <ProfileModifyWrap>
-          <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
-            <ImageWrap BgImg={preview} />
-            <div>
-              {/* <FileButton htmlFor="file"><img src={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`} alt="" /></FileButton> */}
-              <FileButton htmlFor="file"
-                modify={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`}
-                modifyClick={`${process.env.PUBLIC_URL}/image/modifyClickBtn.webp`}
-              ></FileButton>
-              <FileInput type="file" id="file" onChange={handleFileChange} />
-            </div>
-          </ProfileModifyContent>
-          {/* <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName> */}
-          <MyPageUserNameWrap>
-            <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
-            <Temperaturecontainer>
-              <p>코딩온도 <img src={`${process.env.PUBLIC_URL}/image/status.webp`}></img></p>
-              <TemperatureWrap>
-                <ProgressContainer>
-                  <Progress style={{ width: `${value}%` }} />
-                </ProgressContainer>
-                <span>{data && data.data.data.member.codingTem}%</span>
-              </TemperatureWrap>
-            </Temperaturecontainer>
-          </MyPageUserNameWrap>
-          <TimerWrap>
-            <div>
-              <TopContentTitle>총 공부시간</TopContentTitle>
-              <TopContentTitleItem>{data && data.data.data.totalTimer}</TopContentTitleItem>
-            </div>
-
-            <div>
-              <TopContentTitle>이번 주 공부 시간</TopContentTitle>
-              <TopContentTitleItem>{data && data.data.data.totalTimerWeek}</TopContentTitleItem>
-            </div>
-
-            <div>
-              <TopContentTitleWrap>
-                <TopContentTitle>Status</TopContentTitle>
-                <Status
-                  statusImg={`${process.env.PUBLIC_URL}/image/status.webp`}
-                  onMouseEnter={() => {
-                    statusOnMouseHandler()
-                  }}
-                  onMouseLeave={() => {
-                    statusOffMouseHandler()
-                  }}
-                ></Status>
-                {
-                  onMouse &&
-                  <MouseHoverBox>
-                    <p>102 : <span>회원가입 시 기본값</span></p>
-                    <p>200 : <span>처음 프로필 등록시 변경</span></p>
-                    <p>400 : <span>신고 1회</span></p>
-                    <p>401 : <span>신고 2회</span></p>
-                    <p>404 : <span>신고 3회</span></p>
-                    <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
-                    <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
-                    <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
-                    <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
-                  </MouseHoverBox>
-                }
-              </TopContentTitleWrap>
-              <TopContentTitleItem>{data && data.data.data.member.memberStatusCode}</TopContentTitleItem>
-            </div>
-          </TimerWrap>
-        </ProfileModifyWrap>
-      </MyPageTopContentWrap>
-
-      <MyPageMiddleContentWrap>
-        <p>깃허브 잔디</p>
-        {
-          userGitHubId ?
-            <MyPageMiddleContent onClick={() => {
-              setGitHub(!gitHub)
-            }}>
-              <GitHubImage src={`https://ghchart.rshah.org/394254/${userGitHubId}`} />
-            </MyPageMiddleContent> :
-            <NoGithubIdWrap onClick={() => {
-              setGitHub(!gitHub)
-            }}>
-              <button></button>
-              <p>깃허브 잔디를 등록해보세요</p>
-            </NoGithubIdWrap>
-        }
-      </MyPageMiddleContentWrap>
-
-      <MyPageBottomContentWrap>
-        <FriendListContainer>
-          <DeleteBtnWrap>
-            <p>친구 목록</p>
-            {friendList.length === 0 ?
-              null :
-              <>
-                {
-                  !friendListDelete ? <FriendListDeleteBtn onClick={() => {
-                    friendListDeleteHandler()
-                  }}>삭제 하기</FriendListDeleteBtn> :
-                    <FriendListCancleBtnWrap>
-                      <FriendListCancleBtn onClick={() => {
-                        friendListDeleteHandler()
+      <FlexBox>
+        <div>
+          <MyPageTopContentWrap>
+            <ProfileModifyWrap>
+              <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
+                <ImageWrap BgImg={preview} width='155px' height='155px'/>
+                <div>
+                  {/* <FileButton htmlFor="file"><img src={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`} alt="" /></FileButton> */}
+                  <FileButton htmlFor="file"
+                    modify={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`}
+                    modifyClick={`${process.env.PUBLIC_URL}/image/modifyClickBtn.webp`}
+                  ></FileButton>
+                  <FileInput type="file" id="file" onChange={handleFileChange} />
+                </div>
+              </ProfileModifyContent>
+              {/* <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName> */}
+              <MyPageUserNameWrap>
+                <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
+                <Temperaturecontainer>
+                  <TemperatureTitle>On°
+                    <img
+                      src={`${process.env.PUBLIC_URL}/image/status.webp`}
+                      onMouseEnter={() => {
+                        tempOnMouseHandler()
                       }}
-                        color={'cancle'}
-                      >취소</FriendListCancleBtn>
-                      <FriendListCancleBtn>삭제</FriendListCancleBtn>
-                    </FriendListCancleBtnWrap>
-                }
-              </>
+                      onMouseLeave={() => {
+                        tempOffMouseHandler()
+                      }}
+                    ></img>
+                  </TemperatureTitle>
+                  {
+                    temponMouse &&
+                    <TemperatureMouseHoverBox>
+                      <TemperatureMouseHoverBoxdesc>
+                        당신의 코딩온도는 몇도인가요?<br />
+                        공부 시간이 늘어날수록<br />
+                        코딩 온도도 올라가요! ( 10M <img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /> 0.01)
+                      </TemperatureMouseHoverBoxdesc>
+                    </TemperatureMouseHoverBox>
+                  }
+                  <TemperatureWrap>
+                    <ProgressContainer>
+                      <Progress style={{ width: `${value}%` }} />
+                    </ProgressContainer>
+                    <span>{data && data.data.data.member.codingTem}°</span>
+                  </TemperatureWrap>
+                </Temperaturecontainer>
+              </MyPageUserNameWrap>
+              <TimerWrap>
+                <div>
+                  <TopContentTitle>총 공부시간</TopContentTitle>
+                  <TopContentTitleItem>{data && data.data.data.totalTimer}</TopContentTitleItem>
+                </div>
+
+                <div>
+                  <TopContentTitle>이번 주 공부 시간</TopContentTitle>
+                  <TopContentTitleItem>{data && data.data.data.totalTimerWeek}</TopContentTitleItem>
+                </div>
+
+                <div>
+                  <TopContentTitleWrap>
+                    <TopContentTitle>STATUS</TopContentTitle>
+                    <Status
+                      statusImg={`${process.env.PUBLIC_URL}/image/status.webp`}
+                      onMouseEnter={() => {
+                        statusOnMouseHandler()
+                      }}
+                      onMouseLeave={() => {
+                        statusOffMouseHandler()
+                      }}
+                    ></Status>
+                    {
+                      statusonMouse &&
+                      <StatusMouseHoverBox>
+                        <p>102 : <span>회원가입 시 기본값</span></p>
+                        <p>200 : <span>처음 프로필 등록시 변경</span></p>
+                        <p>400 : <span>신고 1회</span></p>
+                        <p>401 : <span>신고 2회</span></p>
+                        <p>404 : <span>신고 3회</span></p>
+                        <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
+                        <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
+                        <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
+                        <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
+                      </StatusMouseHoverBox>
+                    }
+                  </TopContentTitleWrap>
+                  <TopContentTitleItem>{data && data.data.data.member.memberStatusCode}</TopContentTitleItem>
+                </div>
+              </TimerWrap>
+            </ProfileModifyWrap>
+          </MyPageTopContentWrap>
+
+          <MyPageMiddleContentWrap>
+            {/* <div><p>깃허브 잔디</p><img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /></div> */}
+            <GithubTitleWrap>
+              <p>깃허브 잔디</p>
+              {userGitHubId === null || userGitHubId === undefined || userGitHubId === ' '?
+                null :
+                <GithubModifyImg
+                  modify={`${process.env.PUBLIC_URL}/image/githubModify.webp`}
+                  modifyHo={`${process.env.PUBLIC_URL}/image/githubModifyHo.webp`}
+                  modifyClcik={`${process.env.PUBLIC_URL}/image/githubModifyClick.webp`}
+                  onClick={() => {
+                    setGitHub(!gitHub)
+                  }}
+                >
+                </GithubModifyImg> 
+              }
+            </GithubTitleWrap>
+
+            {
+              userGitHubId ?
+                <MyPageMiddleContent>
+                  <GitHubImage src={`https://ghchart.rshah.org/394254/${userGitHubId}`} />
+                </MyPageMiddleContent> :
+                <NoGithubIdWrap onClick={() => {
+                  setGitHub(!gitHub)
+                }}>
+                  <div><img src={`${process.env.PUBLIC_URL}/image/addSquare.png`} alt="깃허브잔디등록버튼" /></div>
+                  <p>깃허브 잔디를 등록해보세요</p>
+                </NoGithubIdWrap>
             }
-          </DeleteBtnWrap>
+          </MyPageMiddleContentWrap>
 
-          {
-            friendList.length === 0 ?
-              <NullFriendList>
-                <h1>추가한 친구가 없습니다</h1>
-              </NullFriendList> :
-              <ScrollWrap>
-                <FriendListWrap>
-                  {friendList && friendList.map((friend, idx) => {
-                    return (
-                      <>
-                        <FriendList onClick={() => {
-                        }}>
-                          {
-                            friendListDelete &&
-                            <DeleteSelectedBtn></DeleteSelectedBtn>
-                          }
-                          <FriendListImage friendListImg={friend.member.profileImage}></FriendListImage>
-                          <FriendListName>{friend.member.nickname}</FriendListName>
-                          {/* <button onClick={() => { onClickDeleteFriendButtonHandler(friend.nickname) }}>삭제</button> */}
-                        </FriendList>
-                      </>
-                    )
-                  })}
-                </FriendListWrap>
-              </ScrollWrap>
-          }
-        </FriendListContainer>
-
-        <FriendRequestWrap>
-          <FriendRequestTitle>친구 요청</FriendRequestTitle>
-          {/* for문 */}
-
-          {
-            friendReqList.length === 0 ?
-              <NullFriendRequestList>
-                <h1>아직 친구 요청이 없습니다</h1>
-              </NullFriendRequestList> :
-              <ScrollWrap>
-                {friendReqList && friendReqList.map((friend, idx) => {
-                  return (
-                    <>
-                      <FriendWrap>
-                        <FriendLeftContent>
-                          <FriendProfile friendRequestImg={friend.profileImage}></FriendProfile>
-                          <FriendRequestNickname>{friend.nickname}</FriendRequestNickname>
-                        </FriendLeftContent>
-                        <ButtonWrap>
-                          <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, true) }} color={'allow'}>수락</AllowBtn>
-                          <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, false) }}>거절</AllowBtn>
-                        </ButtonWrap>
-                      </FriendWrap>
-                    </>
-                  )
-                })
+          <MyPageBottomContentWrap>
+            <FriendListContainer>
+              <DeleteBtnWrap>
+                <p>친구 목록</p>
+                {friendList.length === 0 ?
+                  null :
+                  <>
+                    {
+                      !friendListDelete ? <FriendListDeleteBtn onClick={() => {
+                        friendListDeleteHandler()
+                      }}>삭제 하기</FriendListDeleteBtn> :
+                        <FriendListCancleBtnWrap>
+                          <FriendListCancleBtn onClick={() => {
+                            friendListDeleteHandler()
+                          }}
+                            color={'cancle'}
+                          >취소</FriendListCancleBtn>
+                          <FriendListCancleBtn onClick={onClickDeleteFriendButtonHandler}>삭제</FriendListCancleBtn>
+                        </FriendListCancleBtnWrap>
+                    }
+                  </>
                 }
-              </ScrollWrap>
-          }
-        </FriendRequestWrap>
-      </MyPageBottomContentWrap >
+              </DeleteBtnWrap>
+
+              {
+                friendList.length === 0 ?
+                  <NullFriendList>
+                    <h1>추가한 친구가 없습니다</h1>
+                  </NullFriendList> :
+                  <ScrollWrap>
+                    <FriendListWrap>
+                      {friendList && friendList.map((friend, idx) => {
+                        return (
+                          <>
+                            <FriendList onClick={() => {
+                              onClickDeleteFriendCheckHandler(friend.member.nickname, idx, friend.selected)
+                              !friendListDelete && userProfileHandler(friend.member.id)
+                            }}>
+                              {
+                                friendListDelete &&
+                                <DeleteSelectedBtn selected={friend.selected}></DeleteSelectedBtn>
+                              }
+                              <FriendListImage friendListImg={avataGenHandler(friend.member.profileImage, friend.member.nickname)}></FriendListImage>
+                              <FriendListName>{friend.member.nickname}</FriendListName>
+                              {/* <button onClick={() => { onClickDeleteFriendButtonHandler(friend.nickname) }}>삭제</button> */}
+                            </FriendList>
+                          </>
+                        )
+                      })}
+                    </FriendListWrap>
+                  </ScrollWrap>
+              }
+            </FriendListContainer>
+
+            <FriendRequestWrap>
+              <FriendRequestTitle>친구 요청</FriendRequestTitle>
+              {/* for문 */}
+
+              {
+                friendReqList.length === 0 ?
+                  <NullFriendRequestList>
+                    <h1>아직 친구 요청이 없습니다</h1>
+                  </NullFriendRequestList> :
+                  <ScrollWrap>
+                    {friendReqList && friendReqList.map((friend, idx) => {
+                      return (
+                        <>
+                          <FriendWrap>
+                            <FriendLeftContent>
+                              <FriendProfile friendRequestImg={avataGenHandler(friend.profileImage, friend.nickname)}></FriendProfile>
+                              <FriendRequestNickname>{friend.nickname}</FriendRequestNickname>
+                            </FriendLeftContent>
+                            <ButtonWrap>
+                              <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, true) }} color={'allow'}>수락</AllowBtn>
+                              <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, false) }}>거절</AllowBtn>
+                            </ButtonWrap>
+                          </FriendWrap>
+                        </>
+                      )
+                    })
+                    }
+                  </ScrollWrap>
+              }
+            </FriendRequestWrap>
+          </MyPageBottomContentWrap >
+        </div>
+      </FlexBox>
     </>
   )
 }
+
+const FlexBox = styled.div`
+  display:flex;
+  justify-content: center;
+  align-items:center;
+  height: calc(100vh - 79px);
+`
 
 const Dark = styled.div`
   width: 100vw;
@@ -460,14 +568,19 @@ const GitHubBtn = styled.button`
 `
 
 const CloseBtn = styled.button`
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   position: absolute;
   top: 10px;
   right: 15px;
   font-size: 25px;
   border: none;
   background-color: transparent;
+  background-image: ${(props) =>
+    `url(${props.closeBtn})`
+  };
+  background-position: center;
+  background-size:cover;
 `
 
 const MyPageTopContentWrap = styled.div`
@@ -503,17 +616,45 @@ const MyPageUserName = styled.p`
 `
 
 const Temperaturecontainer = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 10px;
+`
 
-  p {
+const TemperatureTitle = styled.p`
     font-size: 17px;
     color: #00F0FF;
-
+    font-weight: 900;
     img {
+      margin-left: 5px;
       margin-bottom: 2px;
     }
+`
+
+const TemperatureMouseHoverBox = styled.div`
+  position: absolute;
+  top: 60px;
+  
+  width: 250px;
+  height: 80px;
+  background-color: #F9F9FA;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 8px;
+  text-align: center;
+  line-height: 22px;
+`
+
+const TemperatureMouseHoverBoxdesc = styled.p`
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
+  color: #464646;
+
+  img {
+    width: 9px;
   }
 `
 
@@ -551,7 +692,7 @@ width: 155px;
 height: 155px;
   border-radius: 50%;
   background-image: ${(props) =>
-    `url(${props.BgImg})`
+    `url('${props.BgImg}')`
   };
   background-position:center;
   background-size:contain;
@@ -633,7 +774,7 @@ const TopContentTitleItem = styled.h1`
   color: white;
 `
 
-const MouseHoverBox = styled.div`
+const StatusMouseHoverBox = styled.div`
   position: absolute;
   right: -65px;
   bottom: -235px;
@@ -643,6 +784,7 @@ const MouseHoverBox = styled.div`
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
   padding: 20px;
+  z-index: 3;
   p {
     font-weight: 900;
     font-size: 11px;
@@ -673,6 +815,45 @@ const MyPageMiddleContentWrap = styled.div`
   }
 `
 
+const GithubTitleWrap = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 7px;
+  box-sizing: border-box;
+  p {
+    width: 990px;
+  }
+`
+
+const GithubModifyImg = styled.div`
+  width: 33px;
+  height: 33px;
+  transition: all 0.3s;
+  cursor: pointer;
+  background-image: url(
+        ${(props) => {
+    return props.modify
+  }}
+  );
+  &:hover {
+      background-image: url(
+          ${(props) => {
+    return props.modifyHo
+  }}
+    );
+  }
+
+  &:active {
+    background-image: url(
+          ${(props) => {
+    return props.modifyClcik
+  }}
+    );
+  }
+`
+
 const MyPageMiddleContent = styled.div`
   background-color: white;
   padding: 15px;
@@ -690,11 +871,8 @@ const NoGithubIdWrap = styled.div`
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  button {
-    background-color: transparent;
-    padding: 20px;
-    border: 4.08333px solid #BEBEBE;
-    border-radius: 10px;
+
+  img{
     margin-bottom: 20px;
   }
 
@@ -785,11 +963,13 @@ const FriendProfile = styled.div`
   height: 50px;
   border-radius: 50%;
   background-image: ${(props) =>
-    `url(${props.friendRequestImg})`
+    `url('${props.friendRequestImg}')`
   };
   background-position:center;
   background-size:contain;
   background-color : #D9D9D9;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 1px #ffffff;
 `
 
 const ButtonWrap = styled.div`
@@ -962,6 +1142,9 @@ const DeleteSelectedBtn = styled.button`
   left: 5px;
   border: 1px solid white;
   border-radius: 50%;
+  background-color: ${(props) => {
+    return props.selected ? '#00C5D1' : 'transparent'
+  }};
 `
 
 const FriendListImage = styled.div`
@@ -969,11 +1152,13 @@ const FriendListImage = styled.div`
   height: 50px;
   border-radius: 50%;
   background-image: ${(props) =>
-    `url(${props.friendListImg})`
+    `url('${props.friendListImg}')`
   };
   background-position:center;
   background-size:contain;
-  background-color : #D9D9D9;
+  /* background-color : #D9D9D9; */
+  background-color: #ffffff;
+  box-shadow: 0 0 0 1px rgb(255, 255, 255, 0.2);
 `
 
 const FriendListName = styled.p`

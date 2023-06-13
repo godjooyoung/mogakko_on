@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { styled } from 'styled-components';
-import { useQuery, useQueryClient } from 'react-query';
+import React, { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { styled } from 'styled-components'
+import { useQuery, useQueryClient } from 'react-query'
 import { getLatLng } from '../axios/api/kakao'
 import { getHotTowns } from '../axios/api/location'
 import { fetchUserLocation } from '../redux/modules/user'
-import { __searchLocation, __searchLanguage, __searchKeyword } from '../redux/modules/search';
-import useInput from '../hooks/useInput';
+import { __searchLocation, __searchLanguage, __searchKeyword } from '../redux/modules/search'
+import useInput from '../hooks/useInput'
+
 // 메인화면 검색창 영역
 function MainSearch(props) {
 
@@ -184,7 +185,8 @@ function MainSearch(props) {
                         <img src={`${process.env.PUBLIC_URL}/image/zoomOut.svg`} alt="돋보기아이콘" width='20' height='20' />
                     </div>
                     <SearchInput type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='원하시는 모각코 장소, 제목을 검색하세요.' autoComplete='do-not-autofill' />
-                    <SearchResetBtn onClick={()=>{keywordReset()}}>X</SearchResetBtn>
+                    <SearchResetBtn closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`} onClick={()=>{keywordReset()}}></SearchResetBtn>
+                    
                 </SearchBar>
             </Search>
             
@@ -312,11 +314,20 @@ export const SearchInput = styled.input`
     height: 23px;
     border:none;
     color: #FFFFFF;
+    outline: none;
 `
 export const SearchResetBtn = styled.button`
-    background: none;
+    width: 20px;
+    height: 20px;
     border: none;
     color: #FFFFFF;
+    background-image: ${(props) =>
+    `url(${props.closeBtn})`
+    };
+
+    background-color: transparent;
+    background-position: center;
+    background-size:cover;
 `
 
 export const Search = styled.div`

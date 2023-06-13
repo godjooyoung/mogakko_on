@@ -26,9 +26,6 @@ function Done() {
     )
 };
 
-
-
-
 export default Done;
 
 export const FormDiv = styled.div`
@@ -92,6 +89,8 @@ export const SigninButton = styled.button`
     font-size: 16px;
     width:384px;
     margin: 30px;
+    font-style: normal;
+    font-weight: 700;
     
 
 `

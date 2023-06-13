@@ -134,8 +134,6 @@ function MainRoom(props) {
     // 방참여하기
     const onClickJoinRoomHandler = (details) => {
         console.log("방값!!", details)
-        debugger
-
         if (isLogin) {
             if (details.opened) {
                 console.log("공개방 입장")
@@ -174,10 +172,9 @@ function MainRoom(props) {
                     alert('비밀번호를 입력하세요.')
                 }
             }
-
-
         } else {
-            alert('로그인 이후 사용 가능합니다.')
+            //alert('로그인 이후 사용 가능합니다.')
+            props.openHander()
         }
     }
 
@@ -536,9 +533,11 @@ export const RoomEnterButton = styled.button`
     font-size: 20px;
     line-height: 80%;
     &:hover {
+        transition: 0.3s;
         transform: scale(1.03);
     }
     &:active {
+        transition: 0.1s;
         background: #00C5D1;
         transform: scale(1);
     }

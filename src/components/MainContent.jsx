@@ -7,8 +7,7 @@ import { useSelector } from 'react-redux'
 import { useMutation } from 'react-query'
 import { getRoomList } from '../axios/api/room'
 
-function MainContent() {
-
+function MainContent(props) {
 
     // 전역
     const searchInfo = useSelector((state) => {
@@ -23,8 +22,8 @@ function MainContent() {
     // TODO 조회요청 서버에 보내서 결과 프롭스로 내려주기
     const roomListMutation = useMutation(getRoomList, {
         onSuccess: (response) => {
-            // console.log("메인 컨텐트 검색 결과 ", response)
-            // console.log("메인 컨텐트 검색 결과 배열 ", response.data)
+            console.log("메인 컨텐트 검색 결과 ", response)
+            console.log("메인 컨텐트 검색 결과 배열 ", response.data)
             if (response.message === '근처에 모각코가 없습니다.') {
                 setRoomList([])
             } else {
@@ -61,7 +60,7 @@ function MainContent() {
         <MainContentWrap>
             <MainSearch />
             <MainMap roomList={roomList} />
-            <MainRoom roomList={roomList} />
+            <MainRoom roomList={roomList}  openHander={()=>{props.openHander()}}/>
         </MainContentWrap>
     );
 }

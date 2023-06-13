@@ -1,11 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { styled } from 'styled-components';
 import MainHeader from '../components/MainHeader';
 import MainContent from '../components/MainContent';
 import MainBest from '../components/MainBest';
-function Main() {
+import Header from '../components/common/Header';
+import SigninPopup from '../components/common/SigninPopup';
 
-    // 수정 필요
+function Main() {
+    
+    const [isOpen, setIsOpen] = useState(false)
+    const popupOpenHander = () => {
+        setIsOpen(true)
+    }
+    const popupCloseHander = () => {
+        setIsOpen(false)
+    }
+
     const goToTopHandler = () => {
         console.log("위로 고고")
         window.scroll({
@@ -14,17 +24,30 @@ function Main() {
         })
     }
     return (
-        <div>
+        <>
+        {isOpen?
+        <>
+            {/* 팝업 */}
+            <SigninPopup closeHander={popupCloseHander}/>
+        </>:<></>
+    
+        }
+        <MainWrap>
         <MainContaniner>
-            <MainHeader/>
-            <MainContent/>
-            <MainBest/>
+            <Header pos={true} />
+            <MainHeader openHander={popupOpenHander}/>
+            <MainContent openHander={popupOpenHander}/>
+            <MainBest openHander={popupOpenHander}/>
         </MainContaniner>
-        <Top onClick={goToTopHandler}>top</Top>
-        </div>
+        <Top onClick={goToTopHandler} url={`${process.env.PUBLIC_URL}/image/top.png`}></Top>
+        </MainWrap>
+        </>
     );
 }
 
+export const MainWrap = styled.div`
+    position: relative;
+`
 export const Top = styled.div`
     width: 60px;
     height: 60px;
@@ -33,14 +56,25 @@ export const Top = styled.div`
     color : white;
     text-align: center;
     overflow: hidden;
-    position: fixed;
-	/* right: calc(100vw - 1240px); 
-	bottom: 432px; */
-    right: 40px;
-    bottom: 100px;
-	z-index: 9;
+	z-index: 1;
+    position: sticky;
+    bottom: 150px;
+    left: 100%;
+    background-image: ${(props) =>
+    `url('${props.url}')`
+    };
+    cursor: pointer;
+    &:hover {
+        transition: 0.3s;
+        transform: scale(1.03);
+    }
+    &:active {
+        transition: 0.2s;
+        transform: scale(1);
+    }
 `
 export const MainContaniner = styled.div`
+    position: relative;
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: max-content;

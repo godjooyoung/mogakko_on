@@ -4,10 +4,8 @@ import styled, { keyframes, css } from 'styled-components';
 import { __userLocation } from '../redux/modules/search';
 import { useNavigate } from 'react-router-dom';
 import { getCookie } from '../cookie/Cookie';
-import useInterval from '../hooks/useInterval';
 
-function MainHeader() {
-
+function MainHeader(props) {
     // 기본 좌표값 (전역)
     const userInfo = useSelector((state) => {
         return state.userInfo
@@ -40,12 +38,13 @@ function MainHeader() {
             };
             navigate('/room', { state: state })
         } else {
-            alert('로그인 이후 사용 가능합니다.')
+            props.openHander()
+            //alert('로그인 이후 사용 가능합니다.')
         }
     }
 
     const completedTitle = useMemo(() => {
-        return `모각코를 위한 서비스 플랫폼`;
+        return `온라인 Coding Mate를 찾아봐요`;
     }, []);
 
     const [landingTitle, setLandingTitle] = useState("\u00a0");
@@ -83,7 +82,8 @@ function MainHeader() {
     }, [completedTitle, count, isCompleted]);
 
     return (
-        <MainHeaderWrap>
+        <>        
+        <MainHeaderWrap bg={`${process.env.PUBLIC_URL}/image/mainBg.webp`}>
             <MainTitleWrap>
                 <Content isCompleted={isCompleted}>
                     <FontSize>{landingTitle}</FontSize>
@@ -99,6 +99,9 @@ function MainHeader() {
                 <CreateRoomButton onClick={onClickRoomCreateHandler}>방 생성하기</CreateRoomButton>
             </MainButtonWrap>
         </MainHeaderWrap>
+        </>
+        
+        
     );
 }
 
@@ -122,6 +125,10 @@ const FontSizeS = styled.p`
     text-align: center;
     color: #FFFFFF;
 `
+export const MainHeardImg = styled.img`
+    width: 1280px;
+    height: 574px;
+`
 export const MainHeaderWrap = styled.div`
     width: 1280px;
     height: 574px;
@@ -132,6 +139,10 @@ export const MainHeaderWrap = styled.div`
     justify-content: center;
     flex-direction: column;
     align-items: center;
+    /* background-image: url(${(props) => {return props.bg}}); */
+    background-size: cover;
+    background-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 9.68%, rgba(18, 28, 42, 0.788136) 74.36%, #172435 89.14%), url(${(props) => {return props.bg}});    
+    background-position: center;
 `
 export const MainTitleWrap = styled.div`
     display : flex;
@@ -169,9 +180,11 @@ export const CreateRoomButton = styled.button`
     color: #464646;
     border: none;
     &:hover {
+        transition: 0.3s;
         transform: scale(1.03);
     }
     &:active {
+        transition: 0.1s;
         background-color: #00C5D1;
         transform: scale(1);
     }

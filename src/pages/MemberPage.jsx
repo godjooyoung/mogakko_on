@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { useMutation, useQuery } from 'react-query'
 import { getUserProfile, requestFriend } from '../axios/api/mypage'
 import styled from 'styled-components'
 import Header from "../components/common/Header";
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function MemberPage() {
 
@@ -11,8 +12,10 @@ function MemberPage() {
   const { isLoading, isError, data } = useQuery("getUserProfile", () => getUserProfile(id))
   const [value, setValue] = useState(0)
   const [onMouse, setOnMouse] = useState(false)
-  const [gitHub, setGitHub] = useState(false)
-  const [userGitHubId, setuserGitHubId] = useState('')
+  const [tempOnmouse, setTempOnmouse] = useState(false)
+  const navigate = useNavigate();
+
+  // 온도 프로그레스 애니메이션
   useEffect(() => {
     setValue(data && data.data.data.member.codingTem);
     const interval = setInterval(() => {
@@ -25,17 +28,18 @@ function MemberPage() {
       clearInterval(interval);
     };
   }, [data]);
-  useEffect(() => {
-    setuserGitHubId(data && data.data.data.member.githubId)
-  }, [data]);
+
   // 친구 요청 보내기
   const friendRequetMutation = useMutation(requestFriend, {
     onSuccess: (response) => {
       console.log(">>> 친구 요청 보내기 성공", response)
       console.log(">>> 친구 요청 보내기 성공", response.data.data)
+      navigate('/')
     },
   })
-  console.log('datadatadatadatadatadatadata', data)
+
+  const [userGitHubId, setuserGitHubId] = useState(null)
+
   useEffect(() => {
     if (isLoading) {
       console.log("조회결과 loading")
@@ -46,6 +50,7 @@ function MemberPage() {
     if (data) {
       console.log("조회결과 data", data)
       setPreview(data.data.data.member.profileImage)
+      setuserGitHubId(data && data.data.data.member.githubId)
     }
   }, [data])
 
@@ -79,83 +84,147 @@ function MemberPage() {
   const statusOffMouseHandler = () => {
     setOnMouse(false)
   }
-  console.log('userGitHubIduserGitHubIduserGitHubIduserGitHubId',userGitHubId)
+
+  // 물은표 버튼 hover시 나오는 정보창 (온도)
+  const tempOnMouseHandler = () => {
+    setTempOnmouse(true)
+  }
+
+  const tempOffMouseHandler = () => {
+    setTempOnmouse(false)
+  }
+
+  // 아바타 프로필 호출 함수
+  const avataGenHandler = (nickName, profileImageUrl) => {
+    let avataGen
+    if(profileImageUrl === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU'){
+        avataGen = `https://source.boringavatars.com/beam/120/${nickName}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
+    }else{
+        avataGen = profileImageUrl
+        
+    }
+    return avataGen  
+}
+
   return (
     <>
       <Header />
-      <MyPageTopContentWrap>
-        <ProfileModifyWrap>
-          <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
-            <ImageWrap BgImg={preview} />
-            <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
-            <button onClick={() => (onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname))}>친구요청</button>
-          </ProfileModifyContent>
-          <TimerWrap>
-            <div>
-              <TopContentTitle>총 순공시간</TopContentTitle>
-              <TopContentTitleItem>{data && data.data.data.totalTimer}</TopContentTitleItem>
-            </div>
-
-            <div>
-              <TopContentTitle>이번 주 순공 시간</TopContentTitle>
-              <TopContentTitleItem>{data && data.data.data.totalTimerWeek}</TopContentTitleItem>
-            </div>
-
-            <div>
-              <TopContentTitle>
-                Status
-                <img
-                  src={`${process.env.PUBLIC_URL}/image/status.webp`}
-                  onMouseEnter={() => {
-                    statusOnMouseHandler()
-                  }}
-                  onMouseLeave={() => {
-                    statusOffMouseHandler()
-                  }}
-                >
-                </img>
+      <FlexBox>
+        <div>
+          <MyPageTopContentWrap>
+            <ProfileModifyWrap>
+              <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
+                {/* <ImageWrap BgImg={preview} /> */}
+                <ImageWrap BgImg={avataGenHandler(data.data.data.member.nickname, preview)}>
+                </ImageWrap>
+                <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
                 {
-                  onMouse &&
-                  <MouseHoverBox>
-                    <p>102 : <span>회원가입 시 기본값</span></p>
-                    <p>200 : <span>처음 프로필 등록시 변경</span></p>
-                    <p>400 : <span>신고 1회</span></p>
-                    <p>401 : <span>신고 2회</span></p>
-                    <p>404 : <span>신고 3회</span></p>
-                    <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
-                    <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
-                    <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
-                    <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
-                  </MouseHoverBox>
+                  data && data.data.data.isFriend === false ?
+                    <button
+                      onClick={() => (onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname))
+                      }>친구요청</button> : null
                 }
-              </TopContentTitle>
-              <TopContentTitleItem>{data && data.data.data.member.memberStatusCode}</TopContentTitleItem>
-            </div>
+              </ProfileModifyContent>
+              <TimerWrap>
+                <div>
+                  <TopContentTitle>총 순공시간</TopContentTitle>
+                  <TopContentTitleItem>{data && data.data.data.totalTimer}</TopContentTitleItem>
+                </div>
 
-            <Temperaturecontainer>
-              <p>
-                코딩온도
-              </p>
-              <TemperatureWrap>
-                <ProgressContainer>
-                  <Progress style={{ width: `${value}%` }} />
-                </ProgressContainer>
-                <span>{data && data.data.data.member.codingTem}%</span>
-              </TemperatureWrap>
-            </Temperaturecontainer>
-          </TimerWrap>
-        </ProfileModifyWrap>
-      </MyPageTopContentWrap>
+                <div>
+                  <TopContentTitle>이번 주 순공 시간</TopContentTitle>
+                  <TopContentTitleItem>{data && data.data.data.totalTimerWeek}</TopContentTitleItem>
+                </div>
 
-      <MyPageMiddleContentWrap>
-        <p>깃허브 잔디</p>
-        <MyPageMiddleContent>
-          <GitHubImage src={`https://ghchart.rshah.org/394254/${userGitHubId}`} />
-        </MyPageMiddleContent>
-      </MyPageMiddleContentWrap>
+                <div>
+                  <TopContentTitle>
+                    Status
+                    <img
+                      src={`${process.env.PUBLIC_URL}/image/status.webp`}
+                      onMouseEnter={() => {
+                        statusOnMouseHandler()
+                      }}
+                      onMouseLeave={() => {
+                        statusOffMouseHandler()
+                      }}
+                    >
+                    </img>
+                    {
+                      onMouse &&
+                      <MouseHoverBox>
+                        <p>102 : <span>회원가입 시 기본값</span></p>
+                        <p>200 : <span>처음 프로필 등록시 변경</span></p>
+                        <p>400 : <span>신고 1회</span></p>
+                        <p>401 : <span>신고 2회</span></p>
+                        <p>404 : <span>신고 3회</span></p>
+                        <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
+                        <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
+                        <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
+                        <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
+                      </MouseHoverBox>
+                    }
+                  </TopContentTitle>
+                  <TopContentTitleItem>{data && data.data.data.member.memberStatusCode}</TopContentTitleItem>
+                </div>
+
+                <Temperaturecontainer>
+                  <TemperatureTitle>
+                    코딩온도
+                    <img
+                      src={`${process.env.PUBLIC_URL}/image/status.webp`}
+                      onMouseEnter={() => {
+                        tempOnMouseHandler()
+                      }}
+                      onMouseLeave={() => {
+                        tempOffMouseHandler()
+                      }}
+                    ></img>
+                  </TemperatureTitle>
+                  {
+                    tempOnmouse &&
+                    <TemperatureMouseHoverBox>
+                      <TemperatureMouseHoverBoxdesc>
+                        당신의 코딩온도는 몇도인가요?<br />
+                        공부 시간이 늘어날수록<br />
+                        코딩 온도도 올라가요! ( 10M <img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /> 0.01)
+                      </TemperatureMouseHoverBoxdesc>
+                    </TemperatureMouseHoverBox>
+                  }
+                  <TemperatureWrap>
+                    <ProgressContainer>
+                      <Progress style={{ width: `${value}%` }} />
+                    </ProgressContainer>
+                    <span>{data && data.data.data.member.codingTem}%</span>
+                  </TemperatureWrap>
+                </Temperaturecontainer>
+              </TimerWrap>
+            </ProfileModifyWrap>
+          </MyPageTopContentWrap>
+
+          <MyPageMiddleContentWrap>
+            <GithubTitle>깃허브 잔디</GithubTitle>
+            {
+              userGitHubId === null || userGitHubId === '' ?
+                <NullGithubBox>
+                  <NullGithubBoxText>등록된 깃허브 잔디가 없습니다</NullGithubBoxText>
+                </NullGithubBox> :
+                <MyPageMiddleContent>
+                  <GitHubImage src={`https://ghchart.rshah.org/394254/${userGitHubId}`} />
+                </MyPageMiddleContent>
+            }
+          </MyPageMiddleContentWrap>
+        </div>
+      </FlexBox>
     </>
   )
 }
+
+const FlexBox = styled.div`
+  display:flex;
+  justify-content: center;
+  align-items:center;
+  height: calc(100vh - 79px);
+`
 
 const MyPageTopContentWrap = styled.div`
   height: 100%;
@@ -193,6 +262,7 @@ const ProfileModifyContent = styled.form`
     margin-top: 28px;
     transition: all 0.3s;
     &:hover {
+      transition: 0.2s;
       background: #00C5D1;
     }
   }
@@ -220,6 +290,7 @@ const ImageWrap = styled.div`
   background-size:contain;
   background-color : white;
   margin-bottom: 28px;
+  border: 0.5px solid white
 `
 
 const TimerWrap = styled.div`
@@ -242,7 +313,7 @@ const TopContentTitle = styled.p`
   font-size: 17px;
 
   img {
-      margin-left: 7px;
+      margin-left: 5px;
   }
 `
 
@@ -256,6 +327,7 @@ const TopContentTitleItem = styled.h1`
 
 const MouseHoverBox = styled.div`
   position: absolute;
+  z-index: 3;
   right: -170px;
   bottom: -235px;
   width: 215px;
@@ -279,20 +351,47 @@ const MouseHoverBox = styled.div`
 `
 
 const Temperaturecontainer = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 16px;
+`
 
-  p {
+const TemperatureTitle = styled.p`
     font-size: 17px;
     color: #00F0FF;
 
     img {
-      margin-bottom: 2px;
+      margin-bottom: 5px;
+      margin-left: 5px;
     }
+`
+const TemperatureMouseHoverBox = styled.div`
+  position: absolute;
+  top: 70px;
+  width: 250px;
+  height: 80px;
+  background-color: #F9F9FA;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 8px;
+  text-align: center;
+  line-height: 22px;
+`
+
+const TemperatureMouseHoverBoxdesc = styled.p`
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
+  color: #464646;
+
+  img {
+    width: 9px;
   }
 `
+
 
 const TemperatureWrap = styled.div`
   display: flex;
@@ -304,6 +403,8 @@ const TemperatureWrap = styled.div`
     color: #00F0FF;
   }
 `
+
+
 
 const ProgressContainer = styled.div`
   width: 100px;
@@ -329,15 +430,34 @@ const MyPageMiddleContentWrap = styled.div`
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
+`
 
-  p {
+const GithubTitle = styled.p`
     width: 996px;
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 500;
     font-size: 23px;
     color: #FFFFFF;
-  }
+`
+
+const NullGithubBox = styled.div`
+  width: 996px;
+  height: 160px;
+  background: #394254;
+  border-radius: 10px;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
+const NullGithubBoxText = styled.p`
+  color: #BEBEBE;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 17px;
 `
 
 const MyPageMiddleContent = styled.div`
