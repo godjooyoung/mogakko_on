@@ -288,7 +288,7 @@ function Mypage() {
               <MyPageUserNameWrap>
                 <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
                 <Temperaturecontainer>
-                  <TemperatureTitle>코딩온도
+                  <TemperatureTitle>On°
                     <img
                       src={`${process.env.PUBLIC_URL}/image/status.webp`}
                       onMouseEnter={() => {
@@ -313,7 +313,7 @@ function Mypage() {
                     <ProgressContainer>
                       <Progress style={{ width: `${value}%` }} />
                     </ProgressContainer>
-                    <span>{data && data.data.data.member.codingTem}%</span>
+                    <span>{data && data.data.data.member.codingTem}°</span>
                   </TemperatureWrap>
                 </Temperaturecontainer>
               </MyPageUserNameWrap>
@@ -330,7 +330,7 @@ function Mypage() {
 
                 <div>
                   <TopContentTitleWrap>
-                    <TopContentTitle>Status</TopContentTitle>
+                    <TopContentTitle>STATUS</TopContentTitle>
                     <Status
                       statusImg={`${process.env.PUBLIC_URL}/image/status.webp`}
                       onMouseEnter={() => {
@@ -615,6 +615,7 @@ const Temperaturecontainer = styled.div`
 const TemperatureTitle = styled.p`
     font-size: 17px;
     color: #00F0FF;
+    font-weight: 900;
     img {
       margin-left: 5px;
       margin-bottom: 2px;
