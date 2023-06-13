@@ -336,7 +336,8 @@ function SignUp() {
                             개인 위치 정보 제공에 동의합니다.
                         </InfoButton>
                         <span onClick={()=>setModalOpen(true)}>전문보기</span>
-                        {!modalOpen?<></>:<><TermsModal/></>}
+                        {/* {!modalOpen?<></>:<><TermsModal/></>} */}
+                        {modalOpen && <TermsModal onClose={()=>setModalOpen(false)}/>}
                         {/* <BottomButton onClick={termsButtonClickHandler}>{`전체보기`}</BottomButton>
                         <Modal open={modalOpen} close={closeModal}>
                             <h2>서비스 이용 약관</h2>

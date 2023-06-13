@@ -9,7 +9,7 @@ function TermsModal(props) {
 <Dark>
   <PopUp>
     <CloseBtn onClick={() => {
-      props.closeHander()
+      props.onClose()
     }}
       closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
     ></CloseBtn>
@@ -65,4 +65,17 @@ justify-content: space-between;
 gap: 20px;
 `
 export const CloseBtn = styled.button`
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 25px;
+    border: none;
+    background-color: transparent;
+    background-image: ${(props) =>
+    `url(${props.closeBtn})`
+  };
+    background-position: center;
+    background-size:cover;
 `
