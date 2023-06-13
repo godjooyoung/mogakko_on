@@ -2,7 +2,7 @@ import React from 'react';
 import OpenViduVideoComponent from './OpenViduVideo';
 import { styled } from 'styled-components'
 function UserVideoComponent({ streamManager, audioEnabled }) {
-
+    console.log("streamManager>>>>>>>>>>>>>>>>>>>>>>>>", streamManager)
     // stream 속성의 connection.data 값을 파싱, 그 안에서 clientData 속성의 값을 반환 
     // 이 함수를 호출하면 현재 사용자의 닉네임을 가져옴.
     const getNicknameTag = () => {
@@ -17,7 +17,7 @@ function UserVideoComponent({ streamManager, audioEnabled }) {
             {streamManager !== undefined ? (
                 <VideoComponentWrap className="streamcomponent">
                     <OpenViduVideoComponent streamManager={streamManager} />
-                    <UserNickName>{getNicknameTag()} { !audioEnabled ? <img src={`${process.env.PUBLIC_URL}/image/userMicOff.webp`} alt="마이크 음소거 아이콘" /> : null}</UserNickName>
+                    {/* <UserNickName>{getNicknameTag()} { !audioEnabled ? <img src={`${process.env.PUBLIC_URL}/image/userMicOff.webp`} alt="마이크 음소거 아이콘" /> : null}</UserNickName> */}
                 </VideoComponentWrap>
             ) : null}
         </div>
