@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
-function TermsModal({ onClose }) {
+function TermsModal(props) {
     return (
 
 <>
@@ -63,4 +63,6 @@ export const SignInBtnWrap = styled.div`
 display: flex;
 justify-content: space-between;
 gap: 20px;
+`
+export const CloseBtn = styled.button`
 `

@@ -3,7 +3,7 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import TermsModal from '../components/common/TermsModal';
+import TermsModal from '../components/common/TermsModal.jsx';
 axios.defaults.withCredentials = true;
 
 function SignUp() {
@@ -210,9 +210,9 @@ function SignUp() {
         setIsAgreed(isAgreed);
     };
 
-    const termsContent = () => {
+    // const termsContent = () => {
 
-    }
+    // }
 
     const termsButtonClickHandler = () => {
         openModal();
@@ -335,7 +335,8 @@ function SignUp() {
                         <InfoButton htmlFor="checkbox">
                             개인 위치 정보 제공에 동의합니다.
                         </InfoButton>
-
+                        <span onClick={()=>setModalOpen(true)}>전문보기</span>
+                        {!modalOpen?<></>:<><TermsModal/></>}
                         {/* <BottomButton onClick={termsButtonClickHandler}>{`전체보기`}</BottomButton>
                         <Modal open={modalOpen} close={closeModal}>
                             <h2>서비스 이용 약관</h2>
