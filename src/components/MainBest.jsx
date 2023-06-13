@@ -16,7 +16,6 @@ function MainBest(props) {
     //BestMember 조회
     const { isLoading, isError, data } = useQuery("getBestMember", getBestMember)
 
-    // 하드코딩
     const [bestMemberList, setBestMemberList] = useState([])
 
     useEffect(() => {
@@ -24,19 +23,6 @@ function MainBest(props) {
             setBestMemberList(data)
         }
     }, [data])
-
-    // useEffect(() => {
-    //     setValue(data && data.data.data.member.codingTem);
-    //     const interval = setInterval(() => {
-    //         if (value < data) {
-    //         setValue((prevValue) => prevValue + 1);
-    //     }
-    // }, 10); ms
-
-    // return () => {
-    //     clearInterval(interval);
-    // };
-    // }, [data]);
 
     // 아바타 생성 함수
     const avataGenHandler = (nickName, profileImageUrl) => {
@@ -115,7 +101,7 @@ function MainBest(props) {
                                                 <BestMemberCardContentDetials>
                                                     <span><img src={`${process.env.PUBLIC_URL}/image/timer.webp`} /></span>
                                                     <ProgressContainer>
-                                                        <Progress style={{ width: `${totalStudyTmCalHandler(bestMember.totalTimerWeek)}%` }} />
+                                                        <Progress style={{ width: `${totalStudyTmCalHandler(bestMember.totalTimer.weekTotal)}%` }} />
                                                     </ProgressContainer>
                                                     <span>{bestMember.totalTimerWeek}</span>
                                                 </BestMemberCardContentDetials>
