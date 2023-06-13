@@ -1691,9 +1691,6 @@ export const ChatContentWrap = styled.div`
         display: none;
     }
     position: relative;
-
-    /* display: flex;
-    flex-direction: column-reverse; */
 `;
 
 export const MyNickName = styled.p`
@@ -1726,6 +1723,9 @@ const YourChat = styled.pre`
     padding: 5px 10px;
     word-wrap: break-word;
     white-space: pre-wrap;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
 `;
 
 const MyChatWrap = styled.div`
@@ -1747,6 +1747,9 @@ const MyChat = styled.pre`
     padding: 5px 10px;
     word-wrap: break-word;
     white-space: pre-wrap;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
 `;
 
 export const ChatInputWrap = styled.div`
