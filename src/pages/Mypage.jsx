@@ -1,34 +1,44 @@
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost } from '../axios/api/mypage'
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import Header from "../components/common/Header";
 import useInput from '../hooks/useInput'
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { setCookie } from '../cookie/Cookie';
 
 function Mypage() {
 
+  // query
   const queryClient = useQueryClient()
+  const { isLoading, isError, data } = useQuery("getProfile", getProfile)
+
   const [friendList, setFriendList] = useState([]) // 친구목록
   const [friendReqList, setFriendReqList] = useState([]) // 친구 요청 목록
-  const { isLoading, isError, data } = useQuery("getProfile", getProfile)
   const [friendListDelete, setFriendListDelete] = useState(false) // 친구 삭제 버튼 
   const [statusonMouse, setStatusOnMouse] = useState(false)
   const [temponMouse, setTempOnMouse] = useState(false)
-  const [friendDeleteArr, setFriendDeleteArr] = useState([])
   const [value, setValue] = useState(0)
   const [gitHub, setGitHub] = useState(false)
   const [userGitHubId, setuserGitHubId] = useState('')
+  
+  // custom hooks
   const [githubValue, onChangeGithubValue, githubInputValueReset] = useInput('')
+
+  // hooks
   const navigate = useNavigate()
+
+
   // github 아이디 입력 
   useEffect(() => {
     if (data) {
       console.log("마이페이지 조회 결과", data)
-      console.log("마이페이지 조회 결과-profileImage", data.data.data.member.profileImage)
+      console.log("마이페이지 재조회 결과 쿠키에 세팅하기", data.data.data.member.profileImage)
+      setCookie('userProfile', data.data.data.member.profileImage)
+
       console.log("마이페이지 조회 결과-nickname", data.data.data.member.nickname)
       setPreview(data.data.data.member.profileImage)
-
     }
     // 친구목록 조회 뮤테이트 콜
     friendListMutation.mutate()
@@ -58,30 +68,32 @@ function Mypage() {
   const [fileAttach, setFileAttach] = useState('')
   const [preview, setPreview] = useState(data && data.data.data.member.profileImage)
   const [isFileModify, setIsFileModify] = useState(false)
+  
   const filemutation = useMutation(addProfile, {
     onSuccess: (response) => {
-      console.log("addProfile 성공", response)
+      console.log("프로필 사진 수정 성공", response)
+      queryClient.invalidateQueries(getProfile)
     },
   })
 
   // 친구 목록 조회
   const friendListMutation = useMutation(getFriendList, {
     onSuccess: (response) => {
-      console.log(">>> getFriendList 성공1", response)
-      console.log(">>> getFriendList 성공2", response.data.data) // 친구목록
-      console.log(">>> getFriendList 성공3", response.data.data[0])
+      console.log("친구목록 조회 1", response)
+      console.log("친구목록 조회 2", response.data.data) // 친구목록
+      console.log("친구목록 조회 3", response.data.data[0])
       setFriendList(response.data.data)
     },
     onError: (error) => {
-      console.log('setFriendList>>>>>>>>error>>>>>>>>>>', error)
+      console.log('친구목록 조회 에러', error)
       setFriendList([])
     }
   })
   // 친구 요청 목록 조회
   const friendRequestListMutation = useMutation(getFriendRequestList, {
     onSuccess: (response) => {
-      console.log(">>> getFriendRequestList 성공1", response)
-      console.log(">>> getFriendRequestList 성공2", response.data.data)
+      console.log("친구요청목록 조회 1", response)
+      console.log("친구요청목록 조회 2", response.data.data)
       if (response.data.data === null) {
         setFriendReqList([])
       } else {
@@ -93,7 +105,7 @@ function Mypage() {
   // 친구 수락/거절
   const reciveFriendMutation = useMutation(reciveFriendRequest, {
     onSuccess: (response) => {
-      console.log(">>> reciveFriendRequest 성공", response)
+      console.log("친구 신청 수락/거절", response)
       queryClient.invalidateQueries(getProfile)
     },
   })
@@ -111,7 +123,7 @@ function Mypage() {
   // 친구 삭제
   const deleteFriendMutation = useMutation(deleteFriend, {
     onSuccess: (response) => {
-      console.log(">>> deleteFriendMutation 성공", response)
+      console.log("친구 삭제 성공", response)
       queryClient.invalidateQueries(getProfile)
     },
   })
@@ -213,8 +225,6 @@ function Mypage() {
     if (preview) {
       if (preview === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
         console.log("기본 프로필 입니다. 랜덤프로필 작업 필요")
-        // const avataGen = `https://avatars.dicebear.com/api/identicon/${data.data.data.member.nickname}.svg`
-        // const avataGen = `http://www.gravatar.com/avatar/${data.data.data.member.nickname}?d=identicon&s=400`
         const avataGen = `https://source.boringavatars.com/beam/120/${data.data.data.member.nickname}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
         setPreview(avataGen)
       } else {
@@ -274,7 +284,7 @@ function Mypage() {
           <MyPageTopContentWrap>
             <ProfileModifyWrap>
               <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
-                <ImageWrap BgImg={preview} />
+                <ImageWrap BgImg={preview} width='155px' height='155px'/>
                 <div>
                   {/* <FileButton htmlFor="file"><img src={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`} alt="" /></FileButton> */}
                   <FileButton htmlFor="file"
@@ -288,7 +298,7 @@ function Mypage() {
               <MyPageUserNameWrap>
                 <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
                 <Temperaturecontainer>
-                  <TemperatureTitle>코딩온도
+                  <TemperatureTitle>On°
                     <img
                       src={`${process.env.PUBLIC_URL}/image/status.webp`}
                       onMouseEnter={() => {
@@ -313,7 +323,7 @@ function Mypage() {
                     <ProgressContainer>
                       <Progress style={{ width: `${value}%` }} />
                     </ProgressContainer>
-                    <span>{data && data.data.data.member.codingTem}%</span>
+                    <span>{data && data.data.data.member.codingTem}°</span>
                   </TemperatureWrap>
                 </Temperaturecontainer>
               </MyPageUserNameWrap>
@@ -330,7 +340,7 @@ function Mypage() {
 
                 <div>
                   <TopContentTitleWrap>
-                    <TopContentTitle>Status</TopContentTitle>
+                    <TopContentTitle>STATUS</TopContentTitle>
                     <Status
                       statusImg={`${process.env.PUBLIC_URL}/image/status.webp`}
                       onMouseEnter={() => {
@@ -615,6 +625,7 @@ const Temperaturecontainer = styled.div`
 const TemperatureTitle = styled.p`
     font-size: 17px;
     color: #00F0FF;
+    font-weight: 900;
     img {
       margin-left: 5px;
       margin-bottom: 2px;

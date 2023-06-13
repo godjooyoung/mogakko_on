@@ -31,24 +31,3 @@ export const getRoomList = async (searchInfo) => {
         console.log(error)
     }
 }
-
-// // 단건 조회
-// export const getPost = async (id) => {
-//     const response = await api.get(`/posts/`+id)
-//     return response.data
-// }
-
-// // 등록
-// export const addPost = async (inputValue) => {
-//     await api.post(`/posts/`, inputValue)
-// }
-
-// // 삭제
-// export const deletePost = async (id) => {
-//     await api.delete(`/posts/`+id)
-// }
-
-// // 수정
-// export const updatePost = async (target) => {
-//     await api.patch(`/posts/`+target.id, target.modifyedPost)
-// }

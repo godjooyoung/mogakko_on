@@ -37,7 +37,7 @@ export const fetchUserLocation = (userLocation) => async (dispatch) => {
         dispatch(__userTown(response.documents[0].address_name));
     } catch (error) {
         // 에러 처리
-        console.log('API 요청 에러:', error);
+        console.log('카카오 요청 에러:', error);
     }
 };
 

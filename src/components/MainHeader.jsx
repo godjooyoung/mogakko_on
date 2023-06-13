@@ -4,10 +4,8 @@ import styled, { keyframes, css } from 'styled-components';
 import { __userLocation } from '../redux/modules/search';
 import { useNavigate } from 'react-router-dom';
 import { getCookie } from '../cookie/Cookie';
-import useInterval from '../hooks/useInterval';
 
 function MainHeader(props) {
-
     // 기본 좌표값 (전역)
     const userInfo = useSelector((state) => {
         return state.userInfo
@@ -46,7 +44,7 @@ function MainHeader(props) {
     }
 
     const completedTitle = useMemo(() => {
-        return `모각코를 위한 서비스 플랫폼`;
+        return `온라인 Coding Mate를 찾아봐요`;
     }, []);
 
     const [landingTitle, setLandingTitle] = useState("\u00a0");
