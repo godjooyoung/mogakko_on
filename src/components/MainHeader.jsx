@@ -44,7 +44,7 @@ function MainHeader(props) {
     }
 
     const completedTitle = useMemo(() => {
-        return `모각코를 위한 서비스 플랫폼`;
+        return `온라인 Coding Mate를 찾아봐요`;
     }, []);
 
     const [landingTitle, setLandingTitle] = useState("\u00a0");
