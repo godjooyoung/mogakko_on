@@ -7,7 +7,7 @@ import Header from "../components/common/Header";
 import useInput from '../hooks/useInput'
 import { useNavigate } from 'react-router-dom';
 import { setCookie } from '../cookie/Cookie';
-// import ChartLan from '../components/ChartLan';
+import ChartTimes from '../components/ChartTimes';
 
 // // 00:00:00 to 00H00M
 // const formatTime = (timeString) => {
@@ -490,7 +490,7 @@ function Mypage() {
               }
             </FriendRequestWrap>
             {/* 차트 */}
-            {/* <ChartLan/> */}
+            <ChartTimes/>
           </MyPageBottomContentWrap >
         </div>
       </FlexBox>

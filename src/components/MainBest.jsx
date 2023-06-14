@@ -191,9 +191,9 @@ export const BestMemberProfileImage = styled.div`
     height: 80px;
     border-radius: 50%;
     overflow: hidden;
-    box-shadow: 0 0 0 1px #ffffff;
+    /* box-shadow: 0 0 0 1px #ffffff; */
     margin: 26px auto 12px;
-    background-color: white;
+    /* background-color: white; */
 `
 
 export const BestMemberName = styled.p`
