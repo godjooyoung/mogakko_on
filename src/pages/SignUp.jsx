@@ -76,7 +76,7 @@ function SignUp() {
 
         }
     };
-    
+
     //이메일 중복검사
     const checkEmailExistence = (email) => {
         axios.get(process.env.REACT_APP_SERVER_URL + `/members/signup/checkEmail?email=${email}`, { withCredentials: true })
@@ -207,7 +207,7 @@ function SignUp() {
         setIsAgreed(isAgreed);
     };
 
-    const modalAgree =()=>{     
+    const modalAgree = () => {
         setIsAgreed(true);
         closeModalHandler();
     };
@@ -335,10 +335,8 @@ function SignUp() {
                                 onClose={closeModalHandler}
                                 onAgree={modalAgree}
                             />
-                            }
-                     
-                        {modalOpen && <TermsModal onClose={() => setModalOpen(false)} />}
-                 
+                        }
+
                     </Wrapper>
                     <SignupButton onClick={(e) => {
                         e.preventDefault() //요청전 리로드 방지
