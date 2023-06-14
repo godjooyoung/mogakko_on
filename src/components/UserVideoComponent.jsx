@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import OpenViduVideoComponent from './OpenViduVideo';
 import { styled } from 'styled-components'
-function UserVideoComponent({ streamManager, audioEnabled }) {
+function UserVideoComponent({ streamManager }) {
+    const [userAudio, setUserAudio] = useState(streamManager.stream.audioActive);
     console.log("streamManager>>>>>>>>>>>>>>>>>>>>>>>>", streamManager)
     // stream 속성의 connection.data 값을 파싱, 그 안에서 clientData 속성의 값을 반환 
     // 이 함수를 호출하면 현재 사용자의 닉네임을 가져옴.
@@ -11,13 +12,19 @@ function UserVideoComponent({ streamManager, audioEnabled }) {
         //const nickName = getCookie('nickName')
         return nickName
     }
+    // const userAudio = streamManager.stream.audioActive
+    // const userVideo = streamManager.stream.videoActive
+
+    useEffect(() => {
+        setUserAudio(streamManager.stream.audioActive);
+    }, [streamManager.stream.audioActive]);
 
     return (
         <div>
             {streamManager !== undefined ? (
                 <VideoComponentWrap className="streamcomponent">
                     <OpenViduVideoComponent streamManager={streamManager} />
-                    {/* <UserNickName>{getNicknameTag()} { !audioEnabled ? <img src={`${process.env.PUBLIC_URL}/image/userMicOff.webp`} alt="마이크 음소거 아이콘" /> : null}</UserNickName> */}
+                    <UserNickName>{getNicknameTag()} {!userAudio && <img src={`${process.env.PUBLIC_URL}/image/userMicOff.webp`} alt="마이크 음소거 아이콘" />}</UserNickName>
                 </VideoComponentWrap>
             ) : null}
         </div>
