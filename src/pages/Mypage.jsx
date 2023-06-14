@@ -1,104 +1,158 @@
+
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost } from '../axios/api/mypage'
 import styled from 'styled-components';
 import Header from "../components/common/Header";
 import useInput from '../hooks/useInput'
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setCookie } from '../cookie/Cookie';
+// import ChartLan from '../components/ChartLan';
+
+// // 00:00:00 to 00H00M
+// const formatTime = (timeString) => {
+//   console.log("formatting 전 timeString > ", timeString)
+//   const time = new Date(`2000-01-01T${timeString}`);
+//   const hours = time.getHours();
+//   const minutes = time.getMinutes();
+//   const formattedHours = hours < 10 ? `0${hours}` : hours;
+//   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+//   return `${formattedHours}H${formattedMinutes}M`;
+// }
 
 function Mypage() {
 
+  const getFriendListIsSuccessHandler = () => {
+    console.log('친구목록 조회 성공', friendListData)
+  }
+  const getFriendListIsErrorHandler = () => {
+    console.log('친구목록 조회 실패', friendListData)
+    setFriendList([])
+  }
+
+
   // query
   const queryClient = useQueryClient()
-  const { isLoading, isError, data } = useQuery("getProfile", getProfile)
+  const { isLoading: isProfileLoading, isError: isProfileError, data: profileData} = useQuery("getProfile", getProfile)
+  const { isLoading: isFriendListLoading, isError: isFriendListError, data: friendListData} = useQuery("getFriendList", getFriendList, {
+      refetchOnMount: false,
+      onSuccess : getFriendListIsSuccessHandler ,
+      onError: getFriendListIsErrorHandler,
+      retry : false
+  })
+  const { isLoading: isFriendRequestListLoading, isError: isFriendRequestListError, data: friendRequestListData} = useQuery("getFriendRequestList", getFriendRequestList)
 
   const [friendList, setFriendList] = useState([]) // 친구목록
-  const [friendReqList, setFriendReqList] = useState([]) // 친구 요청 목록
-  const [friendListDelete, setFriendListDelete] = useState(false) // 친구 삭제 버튼 
+  const [friendListDelete, setFriendListDelete] = useState(false) // 친구 삭제 버튼 활성화 여부
   const [statusonMouse, setStatusOnMouse] = useState(false)
   const [temponMouse, setTempOnMouse] = useState(false)
   const [value, setValue] = useState(0)
   const [gitHub, setGitHub] = useState(false)
   const [userGitHubId, setuserGitHubId] = useState('')
   
+  // 프로필 이미지 수정 관련 내부 스테이트
+  const [fileAttach, setFileAttach] = useState('')
+  const [preview, setPreview] = useState(profileData && profileData.data.data.member.profileImage)
+  const [isFileModify, setIsFileModify] = useState(false)
+
   // custom hooks
   const [githubValue, onChangeGithubValue, githubInputValueReset] = useInput('')
 
   // hooks
   const navigate = useNavigate()
 
-
-  // github 아이디 입력 
   useEffect(() => {
-    if (data) {
-      console.log("마이페이지 조회 결과", data)
-      console.log("마이페이지 재조회 결과 쿠키에 세팅하기", data.data.data.member.profileImage)
-      setCookie('userProfile', data.data.data.member.profileImage)
-
-      console.log("마이페이지 조회 결과-nickname", data.data.data.member.nickname)
-      setPreview(data.data.data.member.profileImage)
+    if (profileData) {
+      console.log("마이페이지 조회 결과", profileData)
+      console.log("마이페이지 조회 결과-profileImage", profileData.data.data.member.profileImage)
+      console.log("마이페이지 조회 결과-nickname", profileData.data.data.member.nickname)
+      
+      setCookie('userProfile', profileData.data.data.member.profileImage)
+      setPreview(profileData.data.data.member.profileImage)
+      setuserGitHubId(profileData.data.data.member.githubId)
     }
-    // 친구목록 조회 뮤테이트 콜
-    friendListMutation.mutate()
-
-    // 친구요청 목록 조회 뮤테이트 콜
-    friendRequestListMutation.mutate()
-  }, [data])
-
+  }, [profileData])
+  
+  // 친구목록 조회 useEffect
+  useEffect(()=>{
+    if(friendListData){
+      console.log("친구목록 조회 1", friendListData)
+      console.log("친구목록 조회 2", friendListData.data.data)
+      if(friendListData.data.data){
+        setFriendList(friendListData.data.data)
+      }else{
+        setFriendList([])
+      }
+    }
+  },[friendListData])
+    
+  // 친구요청 목록 조회 useEffect
+  useEffect(()=>{
+    if(friendRequestListData){ 
+      console.log("친구요청목록 조회 1", friendRequestListData)
+      console.log("친구요청목록 조회 2", friendRequestListData.data.data)
+    }
+  },[friendRequestListData])
+  
+  // 코딩온도 애니메이션 useEffect
   useEffect(() => {
-    setValue(data && data.data.data.member.codingTem);
+    setValue(profileData && profileData.data.data.member.codingTem)
     const interval = setInterval(() => {
-      if (value < data) {
-        setValue((prevValue) => prevValue + 1);
+      if (value < profileData) {
+        setValue((prevValue) => prevValue + 1)
       }
     }, 10);
 
     return () => {
       clearInterval(interval);
-    };
-  }, [data]);
+    }
+  }, [profileData])
 
-
+  // 프로필 수정 useEffect
   useEffect(() => {
-    setuserGitHubId(data && data.data.data.member.githubId)
-  }, [data]);
+    if (isFileModify) {
+      submitImgHandler()
+    }
+  }, [fileAttach])
 
-  const [fileAttach, setFileAttach] = useState('')
-  const [preview, setPreview] = useState(data && data.data.data.member.profileImage)
-  const [isFileModify, setIsFileModify] = useState(false)
-  
-  const filemutation = useMutation(addProfile, {
+  // 프로필 썸네일 useEffect
+  useEffect(() => {
+    // 프로필 이미지가 기본 이미지일때는 랜덤 프로필 사진 보여줌. 등록했을 경우에는 등록된 이미지 파일 보여줌
+    if (preview) {
+      if (preview === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
+        console.log("기본 프로필 입니다. 랜덤프로필 작업 필요")
+        const avataGen = `https://source.boringavatars.com/beam/120/${profileData.data.data.member.nickname}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
+        setPreview(avataGen)
+      } else {
+        console.log("유저가 프로필을 등록한 사용자입니다.", preview)
+      }
+    }
+  }, [preview])
+
+  // 친구 삭제 뮤테이션
+  const deleteFriendMutation = useMutation(deleteFriend, {
     onSuccess: (response) => {
-      console.log("프로필 사진 수정 성공", response)
+      console.log("친구 삭제 성공", response)
+      queryClient.invalidateQueries(getProfile)
+      queryClient.invalidateQueries(getFriendList)
+      queryClient.invalidateQueries(getFriendRequestList)
+    },
+  })
+
+  // githubId 등록 뮤테이션
+  const githubMutation = useMutation(githubIdPost, {
+    onSuccess: (response) => {
       queryClient.invalidateQueries(getProfile)
     },
   })
 
-  // 친구 목록 조회
-  const friendListMutation = useMutation(getFriendList, {
+  // 프로필 사진 수정 뮤테이션
+  const filemutation = useMutation(addProfile, {
     onSuccess: (response) => {
-      console.log("친구목록 조회 1", response)
-      console.log("친구목록 조회 2", response.data.data) // 친구목록
-      console.log("친구목록 조회 3", response.data.data[0])
-      setFriendList(response.data.data)
-    },
-    onError: (error) => {
-      console.log('친구목록 조회 에러', error)
-      setFriendList([])
-    }
-  })
-  // 친구 요청 목록 조회
-  const friendRequestListMutation = useMutation(getFriendRequestList, {
-    onSuccess: (response) => {
-      console.log("친구요청목록 조회 1", response)
-      console.log("친구요청목록 조회 2", response.data.data)
-      if (response.data.data === null) {
-        setFriendReqList([])
-      } else {
-        setFriendReqList(response.data.data)
-      }
+      console.log("프로필 사진 수정 성공", response)
+      queryClient.invalidateQueries(getProfile)
+      queryClient.invalidateQueries(getFriendList)
+      queryClient.invalidateQueries(getFriendRequestList)
     },
   })
 
@@ -107,10 +161,12 @@ function Mypage() {
     onSuccess: (response) => {
       console.log("친구 신청 수락/거절", response)
       queryClient.invalidateQueries(getProfile)
+      queryClient.invalidateQueries(getFriendList)
+      queryClient.invalidateQueries(getFriendRequestList)
     },
   })
 
-  // 친구 삭제 버튼
+  // 친구 삭제 버튼 핸들러
   const friendListDeleteHandler = () => {
     setFriendListDelete(!friendListDelete)
     const updateFriendList = friendList.map((friend, index) => {
@@ -119,43 +175,19 @@ function Mypage() {
     setFriendList(updateFriendList)
   }
 
-
-  // 친구 삭제
-  const deleteFriendMutation = useMutation(deleteFriend, {
-    onSuccess: (response) => {
-      console.log("친구 삭제 성공", response)
-      queryClient.invalidateQueries(getProfile)
-    },
-  })
-
-  //githubId 등록
-  const githubMutation = useMutation(githubIdPost, {
-    onSuccess: (response) => {
-      queryClient.invalidateQueries(getProfile)
-    },
-  })
-
-  // 친구 요청 수락/취소 버튼 클릭 이벤트
+  // 친구 요청 수락/취소 버튼 클릭 핸들러
   const onClickRequestFriendButtonHandler = (targetNickName, isAccept) => {
     console.log("친구 요청을 해준 닉네임", targetNickName)
     console.log("(친구요청?) 수락 거부", isAccept)
-    //{"requestSenderNickname": String,"determineRequest": boolean}
     const target = { requestSenderNickname: targetNickName, determineRequest: isAccept }
     reciveFriendMutation.mutate(target)
   }
 
-  // 친구 삭제 버튼 클릭 이벤트
-  const onClickDeleteFriendButtonHandler = () => {
-    const deleteFriendList = friendList.filter((friend) => friend.selected)
-      .map((friend) => friend.member.nickname);
-    console.log("deleteFriendList>>>>>>>>>>>>", deleteFriendList)
-    deleteFriendMutation.mutate(deleteFriendList)
-  }
-
-  // 친구 삭제 여러건 선택
+  // 친구 삭제 여러건 선택 핸들러
   const onClickDeleteFriendCheckHandler = (targetNickName, idx, isSelected) => {
-    console.log(">>>>>>>>>>>>>>>>>>>>지금 선택한 친구 닉네임 및 인덱스", targetNickName, idx, isSelected)
-
+    console.log("삭제하기 위해 선택한 친구 닉네임", targetNickName)
+    console.log("삭제하기 위해 선택한 친구 인덱스", idx)
+    console.log("삭제하기 위해 선택한 친구 선택여부", isSelected)
     const updateFriendList = friendList.map((friend, index) => {
       if (index === idx) {
         return { ...friend, selected: !isSelected }
@@ -166,18 +198,14 @@ function Mypage() {
     setFriendList(updateFriendList)
   }
 
-  // // 00:00:00 to 00H00M
-  // const formatTime = (timeString) => {
-  //   console.log("formatting 전 timeString > ", timeString)
-  //   const time = new Date(`2000-01-01T${timeString}`);
-  //   const hours = time.getHours();
-  //   const minutes = time.getMinutes();
-  //   const formattedHours = hours < 10 ? `0${hours}` : hours;
-  //   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-  //   return `${formattedHours}H${formattedMinutes}M`;
-  // }
+  // 친구 삭제 버튼 클릭 핸들러
+  const onClickDeleteFriendButtonHandler = () => {
+    const deleteFriendList = friendList.filter((friend) => friend.selected).map((friend) => friend.member.nickname)
+    console.log("삭제할 친구 목록", deleteFriendList)
+    deleteFriendMutation.mutate(deleteFriendList)
+  }
 
-  // 파일 수정
+  // 파일 수정 핸들러
   const handleFileChange = (event) => {
     console.log("프로필 이미지 수정 핸들러 실행")
     setFileAttach(event.target.files[0])
@@ -185,29 +213,22 @@ function Mypage() {
     setPreview(objectUrl)
     setIsFileModify(true)
   }
-
-  // onchange 랑 onClick이랑 동시에 동작하면 왜 온클릭이 무시될까요? 일단 바꿈 
-  // 프로필 이미지 저장
+  
+  // 프로필 이미지 저장 핸들러 - onchange 랑 onClick이랑 동시에 동작하면 왜 온클릭이 무시될까요? 일단 바꿈 
   const submitImgHandler = () => {
-    console.log("프로필 이미지 전송 핸들러 실행")
-    const newFile = new FormData();
-    newFile.append("imageFile", fileAttach)
-    filemutation.mutate(newFile)
-    setIsFileModify(false)
+      console.log("프로필 이미지 전송 핸들러 실행")
+      const newFile = new FormData();
+      newFile.append("imageFile", fileAttach)
+      filemutation.mutate(newFile)
+      setIsFileModify(false)
   }
-
-  //githubID 보내는 Mutation 
+    
+  //githubID 저장 핸들러
   const githubIdHandler = () => {
     githubMutation.mutate(githubValue)
   }
-  useEffect(() => {
-    if (isFileModify) {
-      submitImgHandler()
-    }
-  }, [fileAttach])
 
-
-  // 아바타 생성 함수
+  // 아바타 생성 핸들러
   const avataGenHandler = (url, userNickName) => {
     let avataGen
     const nickName = userNickName
@@ -220,41 +241,27 @@ function Mypage() {
     return avataGen
   }
 
-  useEffect(() => {
-    // 프로필 이미지가 기본 이미지일때는 랜덤 프로필 사진 보여줌. 등록했을 경우에는 등록된 이미지 파일 보여줌
-    if (preview) {
-      if (preview === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
-        console.log("기본 프로필 입니다. 랜덤프로필 작업 필요")
-        const avataGen = `https://source.boringavatars.com/beam/120/${data.data.data.member.nickname}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
-        setPreview(avataGen)
-      } else {
-        console.log("유저가 프로필을 등록한 사용자입니다. 현재 프로필 이미지는  => ", preview)
-      }
-    }
-  }, [preview])
-
-  // 물은표 버튼 hover시 나오는 정보창 (status)
+  // 물음표 버튼 hover시 나오는 정보창 (status) 핸들러
   const statusOnMouseHandler = () => {
     setStatusOnMouse(true)
   }
-
   const statusOffMouseHandler = () => {
     setStatusOnMouse(false)
   }
 
-  // 물은표 버튼 hover시 나오는 정보창 (온도)
+  // 물음표 버튼 hover시 나오는 정보창 (온도) 핸들러
   const tempOnMouseHandler = () => {
     setTempOnMouse(true)
   }
-
   const tempOffMouseHandler = () => {
     setTempOnMouse(false)
   }
 
+  // 다른 유저 프로필 클릭 핸들러
   const userProfileHandler = (id) => {
     navigate('/profile/' + id)
   }
-
+                    
   return (
     <>
       <Header />
@@ -286,7 +293,6 @@ function Mypage() {
               <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
                 <ImageWrap BgImg={preview} width='155px' height='155px'/>
                 <div>
-                  {/* <FileButton htmlFor="file"><img src={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`} alt="" /></FileButton> */}
                   <FileButton htmlFor="file"
                     modify={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`}
                     modifyClick={`${process.env.PUBLIC_URL}/image/modifyClickBtn.webp`}
@@ -294,9 +300,8 @@ function Mypage() {
                   <FileInput type="file" id="file" onChange={handleFileChange} />
                 </div>
               </ProfileModifyContent>
-              {/* <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName> */}
               <MyPageUserNameWrap>
-                <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
+                <MyPageUserName>{profileData && profileData.data.data.member.nickname}</MyPageUserName>
                 <Temperaturecontainer>
                   <TemperatureTitle>On°
                     <img
@@ -323,19 +328,19 @@ function Mypage() {
                     <ProgressContainer>
                       <Progress style={{ width: `${value}%` }} />
                     </ProgressContainer>
-                    <span>{data && data.data.data.member.codingTem}°</span>
+                    <span>{profileData && profileData.data.data.member.codingTem}°</span>
                   </TemperatureWrap>
                 </Temperaturecontainer>
               </MyPageUserNameWrap>
               <TimerWrap>
                 <div>
                   <TopContentTitle>총 공부시간</TopContentTitle>
-                  <TopContentTitleItem>{data && data.data.data.totalTimer}</TopContentTitleItem>
+                  <TopContentTitleItem>{profileData && profileData.data.data.totalTimer}</TopContentTitleItem>
                 </div>
 
                 <div>
                   <TopContentTitle>이번 주 공부 시간</TopContentTitle>
-                  <TopContentTitleItem>{data && data.data.data.totalTimerWeek}</TopContentTitleItem>
+                  <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
                 </div>
 
                 <div>
@@ -365,7 +370,7 @@ function Mypage() {
                       </StatusMouseHoverBox>
                     }
                   </TopContentTitleWrap>
-                  <TopContentTitleItem>{data && data.data.data.member.memberStatusCode}</TopContentTitleItem>
+                  <TopContentTitleItem>{profileData && profileData.data.data.member.memberStatusCode}</TopContentTitleItem>
                 </div>
               </TimerWrap>
             </ProfileModifyWrap>
@@ -392,7 +397,7 @@ function Mypage() {
             {
               userGitHubId ?
                 <MyPageMiddleContent>
-                  <GitHubImage src={`https://ghchart.rshah.org/394254/${userGitHubId}`} />
+                  <GitHubImage src={`https://ghchart.rshah.org/232B3D/${userGitHubId}`} />
                 </MyPageMiddleContent> :
                 <NoGithubIdWrap onClick={() => {
                   setGitHub(!gitHub)
@@ -447,7 +452,6 @@ function Mypage() {
                               }
                               <FriendListImage friendListImg={avataGenHandler(friend.member.profileImage, friend.member.nickname)}></FriendListImage>
                               <FriendListName>{friend.member.nickname}</FriendListName>
-                              {/* <button onClick={() => { onClickDeleteFriendButtonHandler(friend.nickname) }}>삭제</button> */}
                             </FriendList>
                           </>
                         )
@@ -459,15 +463,13 @@ function Mypage() {
 
             <FriendRequestWrap>
               <FriendRequestTitle>친구 요청</FriendRequestTitle>
-              {/* for문 */}
-
               {
-                friendReqList.length === 0 ?
+                friendRequestListData&&!friendRequestListData.data.data?
                   <NullFriendRequestList>
-                    <h1>아직 친구 요청이 없습니다</h1>
+                    <h1>아직 친구 요청이 없습니다.</h1>
                   </NullFriendRequestList> :
                   <ScrollWrap>
-                    {friendReqList && friendReqList.map((friend, idx) => {
+                    {friendRequestListData && friendRequestListData.data.data.map((friend, idx) => {
                       return (
                         <>
                           <FriendWrap>
@@ -487,6 +489,8 @@ function Mypage() {
                   </ScrollWrap>
               }
             </FriendRequestWrap>
+            {/* 차트 */}
+            {/* <ChartLan/> */}
           </MyPageBottomContentWrap >
         </div>
       </FlexBox>
@@ -519,7 +523,7 @@ const PopUp = styled.div`
   position: relative;
   width: 332px;
   height: 243px;
-  background: #394254;
+  background: var(--bg-li);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -555,7 +559,7 @@ const PopUp = styled.div`
 const GitHubBtn = styled.button`
   width: 164px;
   height: 32px;
-  background: #00F0FF;
+  background: var(--po-de);
   border-radius: 359px;
   border: none;
   transition: all 0.3s;
@@ -624,7 +628,7 @@ const Temperaturecontainer = styled.div`
 
 const TemperatureTitle = styled.p`
     font-size: 17px;
-    color: #00F0FF;
+    color: var(--po-de);
     font-weight: 900;
     img {
       margin-left: 5px;
@@ -665,7 +669,7 @@ const TemperatureWrap = styled.div`
 
   span {
     font-size: 14px;
-    color: #00F0FF;
+    color: var(--po-de);
   }
 `
 
@@ -681,7 +685,7 @@ const ProgressContainer = styled.div`
 const Progress = styled.div`
   height: 100%;
   border-radius:10px;
-  background: #00F0FF;
+  background: var(--po-de);
   transition: width 1s ease;
   border: none;
 `;
@@ -755,7 +759,7 @@ const TopContentTitleWrap = styled.div`
 
 const TopContentTitle = styled.p`
   font-size: 18px;
-  color: #00F0FF;
+  color: var(--po-de);
 `
 
 const Status = styled.span`
@@ -864,7 +868,7 @@ const MyPageMiddleContent = styled.div`
 const NoGithubIdWrap = styled.div`
   width: 1026px;
   height: 186px;
-  background: #394254;
+  background: var(--bg-li);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -910,7 +914,7 @@ const FriendRequestWrap = styled.div`
 const NullFriendRequestList = styled.div`
   width: 384px;
   height: 261px;
-  background: #394254;
+  background: var(--bg-li);
   border-radius: 10px;
   display: flex;
   justify-content: center;
@@ -980,7 +984,7 @@ const ButtonWrap = styled.div`
 const AllowBtn = styled.button`
   width: 70px;
   background-color: ${(props) => {
-    return props.color === 'allow' ? '#00F0FF' : '#626873'
+    return props.color === 'allow' ? 'var(--po-de)' : '#626873'
   }};
   border: none;
   padding: 8px;
@@ -1051,7 +1055,7 @@ export const FriendListCancleBtn = styled.button`
   width: 43px;
   height: 25px;
   background-color: ${(props) => {
-    return props.color === 'cancle' ? '#626873' : '#00F0FF'
+    return props.color === 'cancle' ? '#626873' : 'var(--po-de)'
   }};
   color: ${(props) => {
     return props.color === 'cancle' ? '#FFFFFF' : '#464646'
@@ -1101,7 +1105,7 @@ const FriendListWrap = styled.div`
 const NullFriendList = styled.div`
   width: 486px;
   height: 261px;
-  background: #394254;
+  background: var(--bg-li);
   border-radius: 10px;
   display: flex;
   justify-content: center;
@@ -1129,7 +1133,7 @@ const FriendList = styled.div`
   transition: all 0.3s;
   position: relative;
   &:hover{
-    background: #394254;
+    background: var(--bg-li);
   }
 `
 
