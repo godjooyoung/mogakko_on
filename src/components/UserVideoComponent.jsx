@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import OpenViduVideoComponent from './OpenViduVideo';
 import { styled } from 'styled-components'
-function UserVideoComponent({ streamManager }) {
-    const [userAudio, setUserAudio] = useState(streamManager.stream.audioActive);
-    console.log("streamManager>>>>>>>>>>>>>>>>>>>>>>>>", streamManager)
+// function UserVideoComponent({ streamManager, audioChange }) {
+function UserVideoComponent(props) {
+    const [userAudio, setUserAudio] = useState(props.streamManager.stream.audioActive);
+    // const [userAudio, setUserAudio] = useState(props.streamManager.video.muted);
+    console.log("userViedoCompnent >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.", props.streamManager.stream)
     // stream 속성의 connection.data 값을 파싱, 그 안에서 clientData 속성의 값을 반환 
     // 이 함수를 호출하면 현재 사용자의 닉네임을 가져옴.
     const getNicknameTag = () => {
         // Gets the nickName of the user
-        const nickName = streamManager.stream.connection.data
+        const nickName = props.streamManager.stream.connection.data
         //const nickName = getCookie('nickName')
         return nickName
     }
@@ -16,15 +18,19 @@ function UserVideoComponent({ streamManager }) {
     // const userVideo = streamManager.stream.videoActive
 
     useEffect(() => {
-        setUserAudio(streamManager.stream.audioActive);
-    }, [streamManager.stream.audioActive]);
-
+        setUserAudio(props.streamManager.stream.audioActive);
+    }, [props.streamManager.stream.audioActive]);
+    // useEffect(() => {
+    //     setUserAudio(props.streamManager.video.muted);
+    // }, [props.streamManager.video.muted]);
     return (
         <div>
-            {streamManager !== undefined ? (
+            {props.streamManager !== undefined ? (
                 <VideoComponentWrap className="streamcomponent">
-                    <OpenViduVideoComponent streamManager={streamManager} />
-                    <UserNickName>{getNicknameTag()} {!userAudio && <img src={`${process.env.PUBLIC_URL}/image/userMicOff.webp`} alt="마이크 음소거 아이콘" />}</UserNickName>
+                    <OpenViduVideoComponent streamManager={props.streamManager} />
+                    <UserNickName>
+                        {getNicknameTag()} {!userAudio && <img src={`${process.env.PUBLIC_URL}/image/userMicOff.webp`} alt="마이크 음소거 아이콘" />}
+                    </UserNickName>
                 </VideoComponentWrap>
             ) : null}
         </div>
