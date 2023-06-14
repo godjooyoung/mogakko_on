@@ -1,16 +1,16 @@
 import React from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-
+import styled from 'styled-components';
 const options = {
     responsive: true,
     plugins: {
         legend: {
-            position: 'top',
+            display : false,
         },
         title: {
             display: true,
-            text: 'Chart.js Bar Chart',
+            text: `Week's Study Time`,
         },
     },
 };
@@ -20,7 +20,6 @@ const labels = ['월', '화', '수', '목', '금', '토', '일'];
 const data = {
     labels: labels,
     datasets: [{
-        label: 'My First Dataset',
         data: [65, 59, 80, 81, 56, 55, 40],
         backgroundColor: [
             'rgba(255, 99, 132, 0.2)',
@@ -48,10 +47,18 @@ const data = {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 function ChartTimes(props) {
     return (
-        <div>
+        <ChartWrap>
             <Bar options={options} data={data} />
-        </div>
+        </ChartWrap>
     );
 }
+
+const ChartWrap = styled.div`
+    width: 365px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
 
 export default ChartTimes;

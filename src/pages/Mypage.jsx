@@ -8,7 +8,9 @@ import useInput from '../hooks/useInput'
 import { useNavigate } from 'react-router-dom';
 import { setCookie } from '../cookie/Cookie';
 import ChartLan from '../components/ChartLan';
-
+import ChartTimes from '../components/ChartTimes';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 // // 00:00:00 to 00H00M
 // const formatTime = (timeString) => {
@@ -20,8 +22,12 @@ import ChartLan from '../components/ChartLan';
 //   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
 //   return `${formattedHours}H${formattedMinutes}M`;
 // }
-
 function Mypage() {
+
+  // AOS init설정
+  useEffect(() => {
+    AOS.init();
+  })
 
   const getFriendListIsSuccessHandler = () => {
     console.log('친구목록 조회 성공', friendListData)
@@ -58,6 +64,17 @@ function Mypage() {
 
   // custom hooks
   const [githubValue, onChangeGithubValue, githubInputValueReset] = useInput('')
+
+
+  // MOGAKKO-DATA 컴포넌트 
+  const [mogakkoData, setmogakkoData] = useState(false)
+
+  // 친구 컴포넌트
+  const [friendSidebar, setFriendSidebar] = useState(true)
+  const [friendFindNickName, setFriendFindNickName] = useState(true)
+  const [friendFindCode, setFriendFindCode] = useState(false)
+  // 쪽지 컴폰너트
+  const [messageSidebar, setMessageSidebar] = useState(false)
 
   // hooks
   const navigate = useNavigate()
@@ -308,222 +325,268 @@ function Mypage() {
             </MyCodeWrap>
 
             <NavberCategory>
-              <DataCategory>모각코 데이터</DataCategory>
-              <FriendCategory>친구</FriendCategory>
-              <Message>쪽지</Message>
+              <DataCategory mogakkoData={mogakkoData}
+                onClick={() => {
+                  setmogakkoData(true)
+                  setFriendSidebar(false)
+                  setMessageSidebar(false)
+                }}
+              >모각코 데이터</DataCategory>
+              <FriendCategory friendSidebar={friendSidebar}
+                onClick={() => {
+                  setmogakkoData(false)
+                  setFriendSidebar(true)
+                  setMessageSidebar(false)
+                }}
+              >친구</FriendCategory>
+              <Message messageSidebar={messageSidebar}
+                onClick={() => {
+                  setmogakkoData(false)
+                  setFriendSidebar(false)
+                  setMessageSidebar(true)
+                }}
+              >쪽지</Message>
             </NavberCategory>
 
           </MypageNavbar>
-          <WidthBox>
-            <MyPageTopContentWrap>
-              <MogakkoTitle>모각코 데이터</MogakkoTitle>
-              <ProfileModifyWrap>
-                <Temperaturecontainer>
-                  <TemperatureTitle>On°
-                    <img
-                      src={`${process.env.PUBLIC_URL}/image/status.webp`}
-                      onMouseEnter={() => {
-                        tempOnMouseHandler()
-                      }}
-                      onMouseLeave={() => {
-                        tempOffMouseHandler()
-                      }}
-                    ></img>
-                  </TemperatureTitle>
-                  {
-                    temponMouse &&
-                    <TemperatureMouseHoverBox>
-                      <TemperatureMouseHoverBoxdesc>
-                        당신의 코딩온도는 몇도인가요?<br />
-                        공부 시간이 늘어날수록<br />
-                        코딩 온도도 올라가요! ( 10M <img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /> 0.01)
-                      </TemperatureMouseHoverBoxdesc>
-                    </TemperatureMouseHoverBox>
-                  }
-                  <TemperatureWrap>
-                    <ProgressContainer>
-                      <Progress style={{ width: `${value}%` }} />
-                    </ProgressContainer>
-                    <span>{profileData && profileData.data.data.member.codingTem}°</span>
-                  </TemperatureWrap>
-                </Temperaturecontainer>
-
-                <TotalTimewrap>
-                  <TopContentTitle>총 공부시간</TopContentTitle>
-                  <TopContentTitleItem>{profileData && profileData.data.data.totalTimer}</TopContentTitleItem>
-                </TotalTimewrap>
-
-                <WeeklyTimeWrap>
-                  <TopContentTitle>이번 주 공부 시간</TopContentTitle>
-                  <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
-                </WeeklyTimeWrap>
-
-                <StatusWrap>
-                  <TopContentTitleWrap>
-                    <TopContentTitle>STATUS</TopContentTitle>
-                    <Status
-                      statusImg={`${process.env.PUBLIC_URL}/image/status.webp`}
-                      onMouseEnter={() => {
-                        statusOnMouseHandler()
-                      }}
-                      onMouseLeave={() => {
-                        statusOffMouseHandler()
-                      }}
-                    ></Status>
+          {mogakkoData &&
+            <WidthBox>
+              <MyPageTopContentWrap>
+                <MogakkoTitle>모각코 데이터</MogakkoTitle>
+                <ProfileModifyWrap>
+                  <Temperaturecontainer>
+                    <TemperatureTitle>On°
+                      <img
+                        src={`${process.env.PUBLIC_URL}/image/status.webp`}
+                        onMouseEnter={() => {
+                          tempOnMouseHandler()
+                        }}
+                        onMouseLeave={() => {
+                          tempOffMouseHandler()
+                        }}
+                      ></img>
+                    </TemperatureTitle>
                     {
-                      statusonMouse &&
-                      <StatusMouseHoverBox>
-                        <p>102 : <span>회원가입 시 기본값</span></p>
-                        <p>200 : <span>처음 프로필 등록시 변경</span></p>
-                        <p>400 : <span>신고 1회</span></p>
-                        <p>401 : <span>신고 2회</span></p>
-                        <p>404 : <span>신고 3회</span></p>
-                        <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
-                        <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
-                        <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
-                        <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
-                      </StatusMouseHoverBox>
+                      temponMouse &&
+                      <TemperatureMouseHoverBox>
+                        <TemperatureMouseHoverBoxdesc>
+                          당신의 코딩온도는 몇도인가요?<br />
+                          공부 시간이 늘어날수록<br />
+                          코딩 온도도 올라가요! ( 10M <img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /> 0.01)
+                        </TemperatureMouseHoverBoxdesc>
+                      </TemperatureMouseHoverBox>
                     }
-                  </TopContentTitleWrap>
-                  <TopContentTitleItem>{profileData && profileData.data.data.member.memberStatusCode}</TopContentTitleItem>
-                </StatusWrap>
-              </ProfileModifyWrap>
-            </MyPageTopContentWrap>
+                    <TemperatureWrap>
+                      <ProgressContainer>
+                        <Progress style={{ width: `${value}%` }} />
+                      </ProgressContainer>
+                      <span>{profileData && profileData.data.data.member.codingTem}°</span>
+                    </TemperatureWrap>
+                  </Temperaturecontainer>
 
-            <ChartWrap>
-              <WeeklyStudyTimewrap>
-                <p>이번 주 공부시간</p>
-                <AttendanceCheckWrap>
-                  출석체크
-                </AttendanceCheckWrap>
-                <StudyTime>
-                  공부시간 (이번주)
-                </StudyTime>
-              </WeeklyStudyTimewrap>
-              <TotalLanguageWrap>
-                <p>통합 선택 언어</p>
-                <TotalLanguage>
-                  <ChartLan />
-                </TotalLanguage>
-              </TotalLanguageWrap>
-            </ChartWrap>
+                  <TotalTimewrap>
+                    <TopContentTitle>오늘 공부시간</TopContentTitle>
+                    <TopContentTitleItem>{profileData && profileData.data.data.totalTimer}</TopContentTitleItem>
+                  </TotalTimewrap>
 
-            <MyPageMiddleContentWrap>
-              {/* <div><p>깃허브 잔디</p><img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /></div> */}
-              <GithubTitleWrap>
-                <p>깃허브 잔디</p>
-                {userGitHubId === null || userGitHubId === undefined || userGitHubId === ' ' ?
-                  null :
-                  <GithubModifyImg
-                    modify={`${process.env.PUBLIC_URL}/image/githubModify.webp`}
-                    modifyHo={`${process.env.PUBLIC_URL}/image/githubModifyHo.webp`}
-                    modifyClcik={`${process.env.PUBLIC_URL}/image/githubModifyClick.webp`}
-                    onClick={() => {
-                      setGitHub(!gitHub)
-                    }}
-                  >
-                  </GithubModifyImg>
-                }
-              </GithubTitleWrap>
+                  <WeeklyTimeWrap>
+                    <TopContentTitle>총 공부 시간</TopContentTitle>
+                    <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
+                  </WeeklyTimeWrap>
 
-              {
-                userGitHubId ?
-                  <MyPageMiddleContent>
-                    <GitHubImage src={`https://ghchart.rshah.org/232B3D/${userGitHubId}`} />
-                  </MyPageMiddleContent> :
-                  <NoGithubIdWrap onClick={() => {
-                    setGitHub(!gitHub)
-                  }}>
-                    <div><img src={`${process.env.PUBLIC_URL}/image/addSquare.png`} alt="깃허브잔디등록버튼" /></div>
-                    <p>깃허브 잔디를 등록해보세요</p>
-                  </NoGithubIdWrap>
-              }
-            </MyPageMiddleContentWrap>
-
-            {/* <MyPageBottomContentWrap>
-              <FriendListContainer>
-                <DeleteBtnWrap>
-                  <p>친구 목록</p>
-                  {friendList.length === 0 ?
-                    null :
-                    <>
+                  <StatusWrap>
+                    <TopContentTitleWrap>
+                      <TopContentTitle>STATUS</TopContentTitle>
+                      <Status
+                        statusImg={`${process.env.PUBLIC_URL}/image/status.webp`}
+                        onMouseEnter={() => {
+                          statusOnMouseHandler()
+                        }}
+                        onMouseLeave={() => {
+                          statusOffMouseHandler()
+                        }}
+                      ></Status>
                       {
-                        !friendListDelete ? <FriendListDeleteBtn onClick={() => {
-                          friendListDeleteHandler()
-                        }}>삭제 하기</FriendListDeleteBtn> :
-                          <FriendListCancleBtnWrap>
-                            <FriendListCancleBtn onClick={() => {
-                              friendListDeleteHandler()
-                            }}
-                              color={'cancle'}
-                            >취소</FriendListCancleBtn>
-                            <FriendListCancleBtn onClick={onClickDeleteFriendButtonHandler}>삭제</FriendListCancleBtn>
-                          </FriendListCancleBtnWrap>
+                        statusonMouse &&
+                        <StatusMouseHoverBox>
+                          <p>102 : <span>회원가입 시 기본값</span></p>
+                          <p>200 : <span>처음 프로필 등록시 변경</span></p>
+                          <p>400 : <span>신고 1회</span></p>
+                          <p>401 : <span>신고 2회</span></p>
+                          <p>404 : <span>신고 3회</span></p>
+                          <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
+                          <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
+                          <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
+                          <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
+                        </StatusMouseHoverBox>
                       }
-                    </>
+                    </TopContentTitleWrap>
+                    <TopContentTitleItem>{profileData && profileData.data.data.member.memberStatusCode}</TopContentTitleItem>
+                  </StatusWrap>
+                </ProfileModifyWrap>
+              </MyPageTopContentWrap>
+
+              <ChartWrap>
+                <WeeklyStudyTimewrap>
+                  <p>이번 주 공부시간</p>
+                  <AttendanceCheckWrap data-aos="fade-down" data-aos-duration="1000">
+                    출석체크
+                  </AttendanceCheckWrap>
+                  <StudyTime data-aos="fade-right" data-aos-duration="1000">
+                    <ChartTimes />
+                  </StudyTime>
+                </WeeklyStudyTimewrap>
+                <TotalLanguageWrap>
+                  <p>통합 선택 언어</p>
+                  <TotalLanguage data-aos="fade-left" data-aos-duration="1000">
+                    <ChartLan />
+                  </TotalLanguage>
+                </TotalLanguageWrap>
+              </ChartWrap>
+
+              <MyPageMiddleContentWrap>
+                {/* <div><p>깃허브 잔디</p><img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /></div> */}
+                <GithubTitleWrap>
+                  <p>깃허브 잔디</p>
+                  {userGitHubId === null || userGitHubId === undefined || userGitHubId === ' ' ?
+                    null :
+                    <GithubModifyImg
+                      modify={`${process.env.PUBLIC_URL}/image/githubModify.webp`}
+                      modifyHo={`${process.env.PUBLIC_URL}/image/githubModifyHo.webp`}
+                      modifyClcik={`${process.env.PUBLIC_URL}/image/githubModifyClick.webp`}
+                      onClick={() => {
+                        setGitHub(!gitHub)
+                      }}
+                    >
+                    </GithubModifyImg>
                   }
-                </DeleteBtnWrap>
+                </GithubTitleWrap>
 
                 {
-                  friendList.length === 0 ?
-                    <NullFriendList>
-                      <h1>추가한 친구가 없습니다</h1>
-                    </NullFriendList> :
-                    <ScrollWrap>
-                      <FriendListWrap>
-                        {friendList && friendList.map((friend, idx) => {
-                          return (
-                            <>
-                              <FriendList onClick={() => {
-                                onClickDeleteFriendCheckHandler(friend.member.nickname, idx, friend.selected)
-                                !friendListDelete && userProfileHandler(friend.member.id)
-                              }}>
-                                {
-                                  friendListDelete &&
-                                  <DeleteSelectedBtn selected={friend.selected}></DeleteSelectedBtn>
-                                }
-                                <FriendListImage friendListImg={avataGenHandler(friend.member.profileImage, friend.member.nickname)}></FriendListImage>
-                                <FriendListName>{friend.member.nickname}</FriendListName>
-                              </FriendList>
-                            </>
-                          )
-                        })}
-                      </FriendListWrap>
-                    </ScrollWrap>
+                  userGitHubId ?
+                    <MyPageMiddleContent>
+                      <GitHubImage src={`https://ghchart.rshah.org/232B3D/${userGitHubId}`} />
+                    </MyPageMiddleContent> :
+                    <NoGithubIdWrap onClick={() => {
+                      setGitHub(!gitHub)
+                    }}>
+                      <div><img src={`${process.env.PUBLIC_URL}/image/addSquare.png`} alt="깃허브잔디등록버튼" /></div>
+                      <p>깃허브 잔디를 등록해보세요</p>
+                    </NoGithubIdWrap>
                 }
-              </FriendListContainer>
+              </MyPageMiddleContentWrap>
+            </WidthBox>
+          }
 
-              <FriendRequestWrap>
-                <FriendRequestTitle>친구 요청</FriendRequestTitle>
-                {
-                  friendRequestListData && !friendRequestListData.data.data ?
-                    <NullFriendRequestList>
-                      <h1>아직 친구 요청이 없습니다.</h1>
-                    </NullFriendRequestList> :
-                    <ScrollWrap>
-                      {friendRequestListData && friendRequestListData.data.data.map((friend, idx) => {
-                        return (
-                          <>
-                            <FriendWrap>
-                              <FriendLeftContent>
-                                <FriendProfile friendRequestImg={avataGenHandler(friend.profileImage, friend.nickname)}></FriendProfile>
-                                <FriendRequestNickname>{friend.nickname}</FriendRequestNickname>
-                              </FriendLeftContent>
-                              <ButtonWrap>
-                                <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, true) }} color={'allow'}>수락</AllowBtn>
-                                <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, false) }}>거절</AllowBtn>
-                              </ButtonWrap>
-                            </FriendWrap>
-                          </>
-                        )
+          {friendSidebar &&
+            <FriendMypageWrap>
+              <MyPageBottomContentWrap>
+                <FriendListContainer>
+                  <DeleteBtnWrap>
+                    <p>친구 목록</p>
+                    {friendList.length === 0 ?
+                      null :
+                      <>
+                        {
+                          !friendListDelete ? <FriendListDeleteBtn onClick={() => {
+                            friendListDeleteHandler()
+                          }}>삭제 하기</FriendListDeleteBtn> :
+                            <FriendListCancleBtnWrap>
+                              <FriendListCancleBtn onClick={() => {
+                                friendListDeleteHandler()
+                              }}
+                                color={'cancle'}
+                              >취소</FriendListCancleBtn>
+                              <FriendListCancleBtn onClick={onClickDeleteFriendButtonHandler}>삭제</FriendListCancleBtn>
+                            </FriendListCancleBtnWrap>
+                        }
+                      </>
+                    }
+                  </DeleteBtnWrap>
 
-                      })
-                      }
-                    </ScrollWrap>
-                }
-              </FriendRequestWrap>
-            </MyPageBottomContentWrap > */}
-          </WidthBox>
+                  {
+                    friendList.length === 0 ?
+                      <NullFriendList>
+                        <h1>추가한 친구가 없습니다</h1>
+                      </NullFriendList> :
+                      <ScrollWrap>
+                        <FriendListWrap>
+                          {friendList && friendList.map((friend, idx) => {
+                            return (
+                              <>
+                                <FriendList onClick={() => {
+                                  onClickDeleteFriendCheckHandler(friend.member.nickname, idx, friend.selected)
+                                  !friendListDelete && userProfileHandler(friend.member.id)
+                                }}>
+                                  {
+                                    friendListDelete &&
+                                    <DeleteSelectedBtn selected={friend.selected}></DeleteSelectedBtn>
+                                  }
+                                  <FriendListImage friendListImg={avataGenHandler(friend.member.profileImage, friend.member.nickname)}></FriendListImage>
+                                  <FriendListName>{friend.member.nickname}</FriendListName>
+                                </FriendList>
+                              </>
+                            )
+                          })}
+                        </FriendListWrap>
+                      </ScrollWrap>
+                  }
+                </FriendListContainer>
+                <FriendMypageReqWrap>
+                  <FriendRequestWrap>
+                    <FriendRequestTitle>친구 요청</FriendRequestTitle>
+                    {
+                      friendRequestListData && !friendRequestListData.data.data ?
+                        <NullFriendRequestList>
+                          <h1>아직 친구 요청이 없습니다.</h1>
+                        </NullFriendRequestList> :
+                        <ScrollWrap>
+                          {friendRequestListData && friendRequestListData.data.data.map((friend, idx) => {
+                            return (
+                              <>
+                                <FriendWrap>
+                                  <FriendLeftContent>
+                                    <FriendProfile friendRequestImg={avataGenHandler(friend.profileImage, friend.nickname)}></FriendProfile>
+                                    <FriendRequestNickname>{friend.nickname}</FriendRequestNickname>
+                                  </FriendLeftContent>
+                                  <ButtonWrap>
+                                    <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, true) }} color={'allow'}>수락</AllowBtn>
+                                    <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, false) }}>거절</AllowBtn>
+                                  </ButtonWrap>
+                                </FriendWrap>
+                              </>
+                            )
+
+                          })
+                          }
+                        </ScrollWrap>
+                    }
+                  </FriendRequestWrap>
+                  <FriendFindwrap>
+                    <FriendFindTitleWrap>
+                      <FriendFindTitle>친구 찾기</FriendFindTitle>
+                      <FriendFindBtnWrap>
+                        <FriendFindNickNameBtn 
+                        friendFindNickName={friendFindNickName}
+                        onClick={() => {
+                          setFriendFindNickName(true)
+                          setFriendFindCode(false)
+                        }}
+                        >닉네임</FriendFindNickNameBtn>
+                        <FriendFindCodeBtn 
+                        friendFindCode={friendFindCode}
+                        onClick={() => {
+                          setFriendFindNickName(false)
+                          setFriendFindCode(true)
+                        }}
+                        >친구코드</FriendFindCodeBtn>
+                      </FriendFindBtnWrap>
+                    </FriendFindTitleWrap>
+                  </FriendFindwrap>
+                </FriendMypageReqWrap>
+              </MyPageBottomContentWrap >
+            </FriendMypageWrap>
+          }
         </MypageWrap>
 
       </FlexBox>
@@ -661,9 +724,10 @@ const MyPageUserNameWrap = styled.div`
 
 const MyPageUserName = styled.p`
   width: 100%;
-  font-size: 30px;
+  font-size: 26px;
   color: white; 
   margin-top: 26px;
+  font-family: 'Pretendard-Regular';
 `
 
 const Temperaturecontainer = styled.div`
@@ -977,20 +1041,17 @@ const MyPageBottomContentWrap = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
 `
 
 const FriendRequestWrap = styled.div`
-  width: 400px;
-  height: 100%;
-  padding: 10px;
+  width: 249px;
   box-sizing: border-box;
   border-radius: 8px;
 `
 
 const NullFriendRequestList = styled.div`
-  width: 384px;
-  height: 261px;
+  width: 249px;
+  height: 248px;
   background: var(--bg-li);
   border-radius: 10px;
   display: flex;
@@ -1024,7 +1085,8 @@ const FriendRequestNickname = styled.p`
 `
 
 const FriendWrap = styled.div`
-  width: 352px;
+  width: 249px;
+  height: 248px;
   padding: 10px;
   display: flex;
   justify-content: space-between;
@@ -1080,11 +1142,11 @@ const AllowBtn = styled.button`
 `
 
 const FriendListContainer = styled.div`
-  width: 555px;
-  height: 100%;
+  width: 559px;
+  height: 799px;
   border-radius: 8px;
-  padding: 10px;
-  margin-right: 70px;
+  display: flex;
+  flex-direction: column;
   p{
     color: white;
     font-weight: 500;
@@ -1147,8 +1209,8 @@ export const FriendListCancleBtn = styled.button`
 `
 
 const ScrollWrap = styled.div`
-  width: 100%;
-  height: 261px;
+  width: 559px;
+  height: 100%;
   overflow-y: scroll;
   
   &::-webkit-scrollbar{
@@ -1180,8 +1242,8 @@ const FriendListWrap = styled.div`
 `
 
 const NullFriendList = styled.div`
-  width: 486px;
-  height: 261px;
+  width: 559px;
+  height: 799px;
   background: var(--bg-li);
   border-radius: 10px;
   display: flex;
@@ -1267,7 +1329,7 @@ const MypageNavbar = styled.div`
   align-items: center;
   text-align: center;
   margin-right: 66px;
-  padding: 39px 43px 0 43px;
+  padding: 39px 0 0 0;
 `
 
 const MyCodeWrap = styled.div`
@@ -1316,16 +1378,25 @@ const NavberCategory = styled.ul`
 const DataCategory = styled.li`
   width: 240px;
   height: 82px;
+  background-color: ${(props) => {
+    return props.mogakkoData ? '#3E4957' : 'transparent'
+  }};
 `
 
 const FriendCategory = styled.li`
   width: 240px;
   height: 82px;
+  background-color: ${(props) => {
+    return props.friendSidebar ? '#3E4957' : 'transparent'
+  }};
 `
 
 const Message = styled.li`
     width: 240px;
     height: 82px;
+    background-color: ${(props) => {
+    return props.messageSidebar ? '#3E4957' : 'transparent'
+  }};
 `
 
 const ChartWrap = styled.div`
@@ -1361,7 +1432,11 @@ const AttendanceCheckWrap = styled.div`
 const StudyTime = styled.div`
   width: 486px;
   height: 183px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: var(--bg-li);
+  padding-bottom: 10px;
 `
 
 const TotalLanguageWrap = styled.div`
@@ -1381,5 +1456,75 @@ const TotalLanguage = styled.div`
   width: 384px;
   height: 327px;
   background-color: var(--bg-li);
+`
+
+const FriendMypageWrap = styled.div`
+  width: 893px;
+`
+
+const FriendMypageReqWrap = styled.div`
+  height: 799px;
+  margin-left: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 66px;
+`
+
+const FriendFindwrap = styled.div`
+  width: 249px;
+  height: 480px;
+`
+
+const FriendFindTitleWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`
+
+const FriendFindTitle = styled.p`
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  color: #FFFFFF;
+`
+
+const FriendFindBtnWrap = styled.div`
+
+`
+
+const FriendFindNickNameBtn = styled.button`
+  width: 48px;
+  height: 24px;
+  border: 1px solid ${(props) => {
+    return props.friendFindNickName ? '#00F0FF' : '#4A4F59'
+  }};
+  background-color: transparent;
+  color: ${(props) => {
+    return props.friendFindNickName ? '#00F0FF' : '#BEBEBE'
+  }};
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 10px;
+  margin-right: 1px;
+`
+
+const FriendFindCodeBtn = styled.button`
+  width: 48px;
+  height: 24px;
+  border: 1px solid ${(props) => {
+    return props.friendFindCode ? '#00F0FF' : '#4A4F59'
+  }};
+  background-color: transparent;
+  color: ${(props) => {
+    return props.friendFindCode ? '#00F0FF' : '#BEBEBE'
+  }};
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 10px;
 `
 export default Mypage
