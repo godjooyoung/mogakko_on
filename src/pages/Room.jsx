@@ -298,8 +298,9 @@ function Room() {
     const updateSubscribers = [...subscribers]
     setSubscribers(updateSubscribers)
     // setSubscribers(updateSubscribers)
-  }, [publisher])
-  
+    console.log('audioEnabledaudioEnabledaudioEnabledaudioEnabled',audioEnabled)
+  }, [publisher, audioEnabled])
+
   // 목록에서 방으로 바로 접근 할경우 실행되는 useEffect
   useEffect(() => {
     if (sessionInfo) {
@@ -346,7 +347,7 @@ function Room() {
     } catch (error) {
       console.log('Error starting camera sharing:', error.message)
     }
-  }, [currentVideoDevice, session])
+  }, [currentVideoDevice, session, audioEnabled])
 
   const startScreenSharing = useCallback(async (originPublish) => {
     console.log("여기까지 오니? 0")
@@ -367,9 +368,9 @@ function Room() {
       session.unpublish(originPublish)
       session.publish(screenSharingPublisher)
       // 배치 
-      setPublisher((prevPublisher)=>screenSharingPublisher)
-      setMainStreamManager((prevMainStreamManager)=>screenSharingPublisher)
-      setIsScreenSharing((prevScreenSharing)=>true)
+      setPublisher((prevPublisher) => screenSharingPublisher)
+      setMainStreamManager((prevMainStreamManager) => screenSharingPublisher)
+      setIsScreenSharing((prevScreenSharing) => true)
 
 
       // setPublisher(screenSharingPublisher, ()=>{
@@ -585,7 +586,7 @@ function Room() {
     //       ACCESS_KEY: getCookie('token'),
     //     },
     //   })
-      // return response.data // The token
+    // return response.data // The token
     // }
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
       headers: {
@@ -785,6 +786,8 @@ function Room() {
     setCount(newCount + 1)
   };
 
+
+  console.log('subscriberssubscribers', subscribers[0])
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -794,10 +797,10 @@ function Room() {
           <FlexCenter>
             <RoomCreateContainer>
               <RoomCreateWrap>
-                <RoomCreateTitle> 방 만들기 </RoomCreateTitle>
+                <RoomCreateTitle> 모각코 만들기 </RoomCreateTitle>
                 <form onSubmit={joinSession}>
                   <RoomNameWrap>
-                    <RoomName>방이름 :</RoomName>
+                    <RoomName>모각코 이름 </RoomName>
                     <RoomNameInput
                       type="text"
                       value={roomTitle}
@@ -807,7 +810,7 @@ function Room() {
                     />
                   </RoomNameWrap>
                   <LanguageWrap>
-                    <LanguageTitle>언어 :</LanguageTitle>
+                    <LanguageTitle>언어 </LanguageTitle>
                     <LanguageBtnWrap>
                       {
                         languageList.map((language, idx) => {
@@ -825,7 +828,7 @@ function Room() {
                     </LanguageBtnWrap>
                   </LanguageWrap>
                   <MaxMembersWrap>
-                    <MaxMembersTitle>최대인원 :</MaxMembersTitle>
+                    <MaxMembersTitle>최대인원 </MaxMembersTitle>
                     <MaxMembersBtnWrap>
                       {
                         maxMembers.map((ele, idx) => {
@@ -957,11 +960,10 @@ function Room() {
 
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                          <span>{e.id}</span>
-                          <UserVideoComponent streamManager={e} audioEnabled={audioEnabled} />
+                          <UserVideoComponent streamManager={e}/>
                         </div>
                       ))}
-                      
+
                     </PubilsherVideoWrap>
                     {count === 0 && data.maxMembers >= 5 ?
                       <SlideRightBtn onClick={() => {
@@ -975,7 +977,7 @@ function Room() {
                 ) : null}
 
 
-                  {/* <MainStreamWrap>
+                {/* <MainStreamWrap>
                     <UserVideoComponent streamManager={mainStreamManager} />
                   </MainStreamWrap> */}
                 {mainStreamManager !== undefined ? (
@@ -1069,6 +1071,20 @@ function Room() {
     </div>
   );
 }
+
+export const UserNickName = styled.span`
+    color: white;
+    font-size: 12px;
+    position: absolute;
+    left: 0;
+    bottom: 4px;
+    background: rgba(0, 0, 0, 0.59);
+    border-bottom-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding-top: 5px;
+    padding-bottom: 3px;
+    padding-inline: 10px;
+`
 
 const Dark = styled.div`
   width: 100vw;
