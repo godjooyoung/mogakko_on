@@ -76,6 +76,7 @@ function SignUp() {
 
         }
     };
+    
     //이메일 중복검사
     const checkEmailExistence = (email) => {
         axios.get(process.env.REACT_APP_SERVER_URL + `/members/signup/checkEmail?email=${email}`, { withCredentials: true })
@@ -87,24 +88,20 @@ function SignUp() {
                     setIsEmailValid(true);
                     setIsEmailAvailable(true);
                     setEmailChanged(false);
-                } else if (data.message === "중복된 이메일 입니다.") {
+                }
+            })
+            .catch(error => {
+                if (error.response.data.message === "중복된 이메일 입니다.") {
                     setEmailErrorMessage('이미 사용 중인 이메일 입니다.');
                     setIsEmailValid(false);
                     setIsEmailAvailable(false);
                 } else {
+                    // 오류 처리
                     setEmailErrorMessage('이메일 중복 체크에 실패했습니다.');
-                    setIsEmailValid(false);
-
-
+                    console.error('이메일 중복 체크 요청에 실패했습니다:', error);
                 }
-            })
-            .catch(error => {
-                // 오류 처리
-                setEmailErrorMessage('이메일 중복 체크에 실패했습니다.');
-                console.error('이메일 중복 체크 요청에 실패했습니다:', error);
             });
     };
-
     const passwordChangeHandler = (e) => {
         const newPassword = e.target.value;
         setPassword(newPassword);
@@ -210,20 +207,17 @@ function SignUp() {
         setIsAgreed(isAgreed);
     };
 
-    // const termsContent = () => {
-
-    // }
-
-    const termsButtonClickHandler = () => {
-        openModal();
+    const modalAgree =()=>{     
+        setIsAgreed(true);
+        closeModalHandler();
     };
-    const openModal = () => {
+
+    const openModalHandler = () => {
         setModalOpen(true);
     };
-    const closeModal = () => {
+    const closeModalHandler = () => {
         setModalOpen(false);
     };
-
 
     return (
         <>
@@ -335,16 +329,16 @@ function SignUp() {
                         <InfoButton htmlFor="checkbox">
                             개인 위치 정보 제공에 동의합니다.
                         </InfoButton>
-                        <span onClick={()=>setModalOpen(true)}>전문보기</span>
-                        {/* {!modalOpen?<></>:<><TermsModal/></>} */}
-                        {modalOpen && <TermsModal onClose={()=>setModalOpen(false)}/>}
-                        {/* <BottomButton onClick={termsButtonClickHandler}>{`전체보기`}</BottomButton>
-                        <Modal open={modalOpen} close={closeModal}>
-                            <h2>서비스 이용 약관</h2>
-                            <pre>{termsContent}</pre>
-                            <button onClick={closeModal}>닫기</button>
-                        </Modal> */}
-
+                        <span style={{ color: "white" }} onClick={openModalHandler}>(전문보기)</span>
+                        {modalOpen &&
+                            <TermsModal
+                                onClose={closeModalHandler}
+                                onAgree={modalAgree}
+                            />
+                            }
+                     
+                        {modalOpen && <TermsModal onClose={() => setModalOpen(false)} />}
+                 
                     </Wrapper>
                     <SignupButton onClick={(e) => {
                         e.preventDefault() //요청전 리로드 방지
@@ -426,7 +420,7 @@ export const ShortInput = styled.input`
     padding: 10px 10px 10px 20px;
     border:none;
     outline: none;
-    background: #394254;
+    background: var(--bg-li);
     color: #FFFFFF;
     border-radius:114px;
     box-sizing: border-box;
@@ -443,7 +437,7 @@ export const Input = styled.input`
     outline: none;
     width: 100%;
     height: 40px;
-    background: #394254;
+    background: var(--bg-li);
     color: #FFFFFF;
     border-radius:114px;
     box-sizing: border-box;
