@@ -53,7 +53,7 @@ export const PopUp = styled.div`
     position: relative;
     width: 332px;
     height: 266px;
-    background: #394254;
+    background: var(--bg-li);
     border-radius: 20px;
     display: flex;
     flex-direction: column;
@@ -81,7 +81,7 @@ export const SignBtn = styled.button`
     width: 109px;
     height: 38px;
     background: ${(props) => {
-    return props.color === 'color' ? '#00F0FF' : '#E2E2E2'
+    return props.color === 'color' ? 'var(--po-de)' : '#E2E2E2'
   }};
     border-radius: 359px;
     border: none;

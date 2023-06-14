@@ -298,8 +298,9 @@ function Room() {
     const updateSubscribers = [...subscribers]
     setSubscribers(updateSubscribers)
     // setSubscribers(updateSubscribers)
-  }, [publisher])
-  
+    console.log('audioEnabledaudioEnabledaudioEnabledaudioEnabled',audioEnabled)
+  }, [publisher, audioEnabled])
+
   // 목록에서 방으로 바로 접근 할경우 실행되는 useEffect
   useEffect(() => {
     if (sessionInfo) {
@@ -346,7 +347,7 @@ function Room() {
     } catch (error) {
       console.log('Error starting camera sharing:', error.message)
     }
-  }, [currentVideoDevice, session])
+  }, [currentVideoDevice, session, audioEnabled])
 
   const startScreenSharing = useCallback(async (originPublish) => {
     console.log("여기까지 오니? 0")
@@ -367,9 +368,9 @@ function Room() {
       session.unpublish(originPublish)
       session.publish(screenSharingPublisher)
       // 배치 
-      setPublisher((prevPublisher)=>screenSharingPublisher)
-      setMainStreamManager((prevMainStreamManager)=>screenSharingPublisher)
-      setIsScreenSharing((prevScreenSharing)=>true)
+      setPublisher((prevPublisher) => screenSharingPublisher)
+      setMainStreamManager((prevMainStreamManager) => screenSharingPublisher)
+      setIsScreenSharing((prevScreenSharing) => true)
 
 
       // setPublisher(screenSharingPublisher, ()=>{
@@ -585,7 +586,7 @@ function Room() {
     //       ACCESS_KEY: getCookie('token'),
     //     },
     //   })
-      // return response.data // The token
+    // return response.data // The token
     // }
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
       headers: {
@@ -785,6 +786,8 @@ function Room() {
     setCount(newCount + 1)
   };
 
+
+  console.log('subscriberssubscribers', subscribers[0])
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -794,10 +797,10 @@ function Room() {
           <FlexCenter>
             <RoomCreateContainer>
               <RoomCreateWrap>
-                <RoomCreateTitle> 방 만들기 </RoomCreateTitle>
+                <RoomCreateTitle> 모각코 만들기 </RoomCreateTitle>
                 <form onSubmit={joinSession}>
                   <RoomNameWrap>
-                    <RoomName>방이름 :</RoomName>
+                    <RoomName>모각코 이름 </RoomName>
                     <RoomNameInput
                       type="text"
                       value={roomTitle}
@@ -807,7 +810,7 @@ function Room() {
                     />
                   </RoomNameWrap>
                   <LanguageWrap>
-                    <LanguageTitle>언어 :</LanguageTitle>
+                    <LanguageTitle>언어 </LanguageTitle>
                     <LanguageBtnWrap>
                       {
                         languageList.map((language, idx) => {
@@ -825,7 +828,7 @@ function Room() {
                     </LanguageBtnWrap>
                   </LanguageWrap>
                   <MaxMembersWrap>
-                    <MaxMembersTitle>최대인원 :</MaxMembersTitle>
+                    <MaxMembersTitle>최대인원 </MaxMembersTitle>
                     <MaxMembersBtnWrap>
                       {
                         maxMembers.map((ele, idx) => {
@@ -894,7 +897,7 @@ function Room() {
       ) : null}
       {/* 세션이 있으면  */}
       {session !== undefined ? (
-        <div>
+        <FlexCenterInSession>
           {
             !roomPopUp &&
             <Dark>
@@ -957,11 +960,10 @@ function Room() {
 
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                          <span>{e.id}</span>
-                          <UserVideoComponent streamManager={e} audioEnabled={audioEnabled} />
+                          <UserVideoComponent streamManager={e}/>
                         </div>
                       ))}
-                      
+
                     </PubilsherVideoWrap>
                     {count === 0 && data.maxMembers >= 5 ?
                       <SlideRightBtn onClick={() => {
@@ -975,7 +977,7 @@ function Room() {
                 ) : null}
 
 
-                  {/* <MainStreamWrap>
+                {/* <MainStreamWrap>
                     <UserVideoComponent streamManager={mainStreamManager} />
                   </MainStreamWrap> */}
                 {mainStreamManager !== undefined ? (
@@ -1064,11 +1066,25 @@ function Room() {
               </SendBtnWrap>
             </ChattingWrap>
           </RoomContainer>
-        </div>
+        </FlexCenterInSession>
       ) : null}
     </div>
   );
 }
+
+export const UserNickName = styled.span`
+    color: white;
+    font-size: 12px;
+    position: absolute;
+    left: 0;
+    bottom: 4px;
+    background: rgba(0, 0, 0, 0.59);
+    border-bottom-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding-top: 5px;
+    padding-bottom: 3px;
+    padding-inline: 10px;
+`
 
 const Dark = styled.div`
   width: 100vw;
@@ -1088,7 +1104,7 @@ const PopUp = styled.div`
   position: relative;
   width: 384px;
   height: 424px;
-  background: #394254;
+  background: var(--bg-li);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -1099,7 +1115,7 @@ const PopUp = styled.div`
     font-style: normal;
     font-weight: 700;
     font-size: 22px;
-    color: #00F0FF;
+    color: var(--po-de);
     text-align: center;
     margin-top: 50px;
     margin-bottom: 20px;
@@ -1110,7 +1126,7 @@ const PopUp = styled.div`
     font-style: normal;
     font-weight: 400;
     font-size: 13px;
-    color: #00F0FF;
+    color: var(--po-de);
     text-align: center;
     line-height: 148.52%;
     margin-bottom: 30px;
@@ -1140,7 +1156,7 @@ const RoomPopUpImgBox = styled.div`
 const ParticipationBtn = styled.button`
   width: 164px;
   height: 32px;
-  background: #00F0FF;
+  background: var(--po-de);
   border-radius: 359px;
   border: none;
   transition: all 0.3s;
@@ -1157,6 +1173,15 @@ const ParticipationBtn = styled.button`
 export const FlexCenter = styled.div`
   width: 1280px;
   height: 935px;
+  /* 화면 차지하기 추가 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: calc(100vh - 79px);
+`
+export const FlexCenterInSession = styled.div`
+  /* height: 100vh; */
 `
 
 export const RoomCreateContainer = styled.div`
@@ -1203,7 +1228,7 @@ export const RoomNameInput = styled.input`
   padding: 10px 10px 10px 15px;
   outline: none;
   border: none;
-  background-color: #394254;
+  background-color: var(--bg-li);
   border-radius: 114px;
   color : #FFFFFF;
   &::placeholder{
@@ -1292,7 +1317,7 @@ export const MaxMembersBtn = styled.button`
   border-radius: 114px;
   /* background-color: transparent; */
   background-color: ${(props) => {
-    return props.isSelected ? '#00F0FF' : 'transparent';
+    return props.isSelected ? 'var(--po-de)' : 'transparent';
   }};
   color: ${(props) => {
     return props.isSelected ? '#464646' : '#FFFFFF';
@@ -1335,7 +1360,7 @@ export const PublicBtn = styled.button`
   };
 
   background-color: ${({ btnSelect }) =>
-    btnSelect === 'public' ? '#00F0FF' : 'transparent'
+    btnSelect === 'public' ? 'var(--po-de)' : 'transparent'
   };
   border: 2px solid white;
   border-radius: 114px;
@@ -1357,7 +1382,7 @@ export const ClosedBtn = styled.button`
   };
 
   background-color: ${({ btnSelect }) =>
-    btnSelect === 'closed' ? '#00F0FF' : 'transparent'
+    btnSelect === 'closed' ? 'var(--po-de)' : 'transparent'
   };
   border: 2px solid white;
   
@@ -1397,7 +1422,7 @@ export const PasswordInput = styled.input`
   padding: 10px 10px 10px 15px;
   outline: none;
   border: none;
-  background-color: #394254;
+  background-color: var(--bg-li);
   border-radius: 114px;
   &::placeholder{
     color: #BEBEBE;;
@@ -1415,7 +1440,7 @@ export const JoinBtn = styled.input`
   width: 200px;
   height: 60px;
   padding: 10px 0 10px 0;
-  background: #00F0FF;
+  background: var(--po-de);
   border-radius: 52px;
   font-weight: 700;
   font-size: 22px;
@@ -1541,6 +1566,7 @@ export const SlideLeftBtn = styled.button`
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
+  background-color: transparent;
 `
 
 export const SlideRightBtn = styled.button`
@@ -1565,6 +1591,7 @@ export const SlideRightBtn = styled.button`
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
+  background-color: transparent;
 `
 
 
@@ -1670,7 +1697,7 @@ export const ChattingWrap = styled.div`
   width: 300px;
   height: 840px;
   position: relative;
-  background-color: #394254;
+  background-color: var(--bg-li);
   border-radius: 10px;
 `
 

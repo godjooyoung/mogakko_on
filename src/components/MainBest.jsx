@@ -16,7 +16,6 @@ function MainBest(props) {
     //BestMember 조회
     const { isLoading, isError, data } = useQuery("getBestMember", getBestMember)
 
-    // 하드코딩
     const [bestMemberList, setBestMemberList] = useState([])
 
     useEffect(() => {
@@ -24,19 +23,6 @@ function MainBest(props) {
             setBestMemberList(data)
         }
     }, [data])
-
-    // useEffect(() => {
-    //     setValue(data && data.data.data.member.codingTem);
-    //     const interval = setInterval(() => {
-    //         if (value < data) {
-    //         setValue((prevValue) => prevValue + 1);
-    //     }
-    // }, 10); ms
-
-    // return () => {
-    //     clearInterval(interval);
-    // };
-    // }, [data]);
 
     // 아바타 생성 함수
     const avataGenHandler = (nickName, profileImageUrl) => {
@@ -52,13 +38,8 @@ function MainBest(props) {
 
     // 순공시간 퍼센트 함수
     const totalStudyTmCalHandler = (time) => {
-        console.log("------------------>", time) // 00H00M
         let hh = time.slice(0, -1).split('H')[0]
         let mm = time.slice(0, -1).split('H')[1]
-        console.log("::시간", hh)
-        console.log("::분 ", mm)
-        console.log("::형변환 시간", Number(hh))
-        console.log("::형변환 분 ", Number(mm))
         let totTime = Number(hh) * 60
         totTime = Number(totTime) + Number(mm)
 
@@ -115,7 +96,7 @@ function MainBest(props) {
                                                 <BestMemberCardContentDetials>
                                                     <span><img src={`${process.env.PUBLIC_URL}/image/timer.webp`} /></span>
                                                     <ProgressContainer>
-                                                        <Progress style={{ width: `${totalStudyTmCalHandler(bestMember.totalTimerWeek)}%` }} />
+                                                        <Progress style={{ width: `${totalStudyTmCalHandler(bestMember.totalTimer.weekTotal)}%` }} />
                                                     </ProgressContainer>
                                                     <span>{bestMember.totalTimerWeek}</span>
                                                 </BestMemberCardContentDetials>
@@ -190,7 +171,7 @@ export const BestMemberCard = styled.div`
     align-items: center;
     width: 234px;
     height: 269px;
-    background: #394254;
+    background: var(--bg-li);
     border-radius: 20px;
 
     &:hover {
@@ -270,7 +251,7 @@ const ProgressContainer = styled.div`
 const Progress = styled.div`
     height: 100%;
     border-radius: 62px;
-    background: #00F0FF;
+    background: var(--po-de);
     transition: width 1s ease;
     border: none;
 `
