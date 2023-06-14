@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { setCookie } from '../cookie/Cookie';
 import ChartLan from '../components/ChartLan';
 
+
 // // 00:00:00 to 00H00M
 // const formatTime = (timeString) => {
 //   console.log("formatting 전 timeString > ", timeString)
@@ -515,6 +516,7 @@ function Mypage() {
                             </FriendWrap>
                           </>
                         )
+
                       })
                       }
                     </ScrollWrap>
@@ -523,6 +525,7 @@ function Mypage() {
             </MyPageBottomContentWrap > */}
           </WidthBox>
         </MypageWrap>
+
       </FlexBox>
     </>
   )

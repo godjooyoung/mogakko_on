@@ -232,14 +232,18 @@ export const SearchLanguageBtn = styled.button`
     /* gap: 10px; */
     min-width: 72px;
     height: 42px;
-    border: 0.5px solid #FFFFFF;
+    /* border: 0.5px solid #FFFFFF; */
+    border: 0.5px solid rgba(221, 221, 221, 0.5);
     border-radius: 28px;
     cursor: pointer;
     background : ${(props)=>{
         return props.isSelected?'var(--po-de)':'transparent'
     }};
-    color : ${(props)=>{
+    /* color : ${(props)=>{
         return props.isSelected?'#464646':'#FFFFFF'
+    }}; */
+    color : ${(props)=>{
+        return props.isSelected?'black':'#FFFFFF'
     }};
     overflow: hidden;
     font-family: 'Pretendard';
@@ -258,14 +262,17 @@ export const SearchTownBtn = styled.button`
     /* gap: 10px; */
     min-width: 72px;
     height: 42px;
-    border: 0.5px solid #FFFFFF;
+    border: 0.5px solid rgba(221, 221, 221, 0.5);
     border-radius: 28px;
     cursor: pointer;
     background : ${(props)=>{
         return props.isSelected?'var(--po-de)':'transparent'
     }};
-    color : ${(props)=>{
+    /* color : ${(props)=>{
         return props.isSelected?'#464646':'#FFFFFF'
+    }}; */
+    color : ${(props)=>{
+        return props.isSelected?'black':'#FFFFFF'
     }};
     overflow: hidden;
     font-family: 'Pretendard';
