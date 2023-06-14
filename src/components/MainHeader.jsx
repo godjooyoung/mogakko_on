@@ -114,7 +114,7 @@ function MainHeader(props) {
                         handleButtonClick(event)
                         setTimeout(() => {
                             onClickRoomCreateHandler()
-                        },700)
+                        },500)
                     }}
                         rippleX={rippleX}
                         rippleY={rippleY}
@@ -189,28 +189,6 @@ export const MainButtonWrap = styled.div`
     align-items: center;
 `
 export const CreateRoomButton = styled.button`
-    /* width: 223px;
-    height: 62px;
-    background: var(--po-de);
-    font-family: 'Pretendard-Regular';
-    border-radius: 52px;
-    font-style: normal;
-    font-weight: 700;
-    font-size: 22px;
-    line-height: 16px;
-    text-align: center;
-    color: #464646;
-    border: none;
-    &:hover {
-        transition: 0.3s;
-        transform: scale(1.03);
-    }
-    &:active {
-        transition: 0.1s;
-        background-color: #00C5D1;
-        transform: scale(1);
-    } */
-
     position: relative;
     width: 223px;
     height: 62px;
@@ -264,6 +242,11 @@ export const CreateRoomButton = styled.button`
         opacity: 1;
         transform: translate(-50%, -50%) scale(0);
         transition: 0s;
+    }
+
+    &:hover {
+        transition: 0.3s;
+        transform: scale(1.03);
     }
 `
 
