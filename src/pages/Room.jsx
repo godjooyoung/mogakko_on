@@ -36,6 +36,9 @@ function Room() {
   const [videoEnabled, setVideoEnabled] = useState(true)
   const [audioEnabled, setAudioEnabled] = useState(true)
 
+  // on/off 바뀜
+  const [isChangedProperty, setIsChangedProperty] = useState(false)
+
   // Websocket
   const [isLoading, setIsLoading] = useState(true)
   const isConnected = useRef('')
@@ -216,6 +219,12 @@ function Room() {
       console.log("subscribers 확인 2 subscribers ::: ", subscribers);
     });
 
+    mySession.on('streamPropertyChanged', (event)=>{
+      console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',event.changedProperty)
+      console.log('이프 안쪽 여기 체인지 값이 바뀌면... 그 뭐시기냐 올드 퍼ㅂㄹ리셔가 바껴야함.',event.changedProperty)
+      setIsChangedProperty((prevIsChangedProperty)=>(!prevIsChangedProperty))
+    })
+
     mySession.on('streamDestroyed', (event) => {
       deleteSubscriber(event.stream.streamManager);
     });
@@ -297,9 +306,12 @@ function Room() {
     console.log("publisher............................................. ", publisher)
     const updateSubscribers = [...subscribers]
     setSubscribers(updateSubscribers)
-    // setSubscribers(updateSubscribers)
-    console.log('audioEnabledaudioEnabledaudioEnabledaudioEnabled',audioEnabled)
-  }, [publisher, audioEnabled])
+    subscribers.map((sub,i)=>{
+      console.log(sub.stream.audioActive?'서브오디오활성여부 트루'+i:'서브오디오활성여부 폴스'+i)
+    })
+  }, [publisher, audioEnabled, isChangedProperty])
+
+
 
   // 목록에서 방으로 바로 접근 할경우 실행되는 useEffect
   useEffect(() => {
@@ -318,7 +330,11 @@ function Room() {
 
   const AudioTogglehandler = () => {
     setAudioEnabled((prevValue) => !prevValue)
+    // publisher.publishAudio(!audioEnabled)
     publisher.publishAudio(!audioEnabled)
+    subscribers.map((sub)=>{
+      console.log(">>>>>> 오디오 바꾸면서 서브가 어떻게 바뀌는지 ",sub)
+    })
   }
 
   const startCameraSharing = useCallback(async (originPublish) => {
@@ -956,7 +972,7 @@ function Room() {
                       null
                     }
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
-                      <UserVideoComponent streamManager={publisher} audioEnabled={audioEnabled} />
+                      <UserVideoComponent streamManager={publisher}/>
 
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
