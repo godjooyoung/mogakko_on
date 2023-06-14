@@ -43,7 +43,7 @@ function TermsModal({ onClose, onAgree }) {
             </p>          </PopupContent>
 
           <BtnWrap>
-            <Btn type='button' color='color' onClick={onAgree}>{'동의하기'}</Btn>
+            <Btn type='button' color='color' onClick={onAgree}>동의하기</Btn>
           </BtnWrap>
 
 
