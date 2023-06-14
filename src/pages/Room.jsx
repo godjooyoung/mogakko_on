@@ -36,6 +36,9 @@ function Room() {
   const [videoEnabled, setVideoEnabled] = useState(true)
   const [audioEnabled, setAudioEnabled] = useState(true)
 
+  // on/off 바뀜
+  const [isChangedProperty, setIsChangedProperty] = useState(false)
+
   // Websocket
   const [isLoading, setIsLoading] = useState(true)
   const isConnected = useRef('')
@@ -216,6 +219,13 @@ function Room() {
       console.log("subscribers 확인 2 subscribers ::: ", subscribers);
     });
 
+    mySession.on('streamPropertyChanged', (event)=>{
+      console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',event.changedProperty)
+      if(event.changedProperty==='audioActive' || event.changedProperty === 'videoActive'){
+        setIsChangedProperty(!isChangedProperty)
+      }
+    })
+
     mySession.on('streamDestroyed', (event) => {
       deleteSubscriber(event.stream.streamManager);
     });
@@ -297,9 +307,13 @@ function Room() {
     console.log("publisher............................................. ", publisher)
     const updateSubscribers = [...subscribers]
     setSubscribers(updateSubscribers)
-    // setSubscribers(updateSubscribers)
-  }, [publisher])
-  
+    subscribers.map((sub,i)=>{
+      console.log(sub.stream.audioActive?'서브오디오활성여부 트루'+i:'서브오디오활성여부 폴스'+i)
+    })
+  }, [publisher, audioEnabled, isChangedProperty])
+
+
+
   // 목록에서 방으로 바로 접근 할경우 실행되는 useEffect
   useEffect(() => {
     if (sessionInfo) {
@@ -317,7 +331,11 @@ function Room() {
 
   const AudioTogglehandler = () => {
     setAudioEnabled((prevValue) => !prevValue)
+    // publisher.publishAudio(!audioEnabled)
     publisher.publishAudio(!audioEnabled)
+    subscribers.map((sub)=>{
+      console.log(">>>>>> 오디오 바꾸면서 서브가 어떻게 바뀌는지 ",sub)
+    })
   }
 
   const startCameraSharing = useCallback(async (originPublish) => {
@@ -346,7 +364,7 @@ function Room() {
     } catch (error) {
       console.log('Error starting camera sharing:', error.message)
     }
-  }, [currentVideoDevice, session])
+  }, [currentVideoDevice, session, audioEnabled])
 
   const startScreenSharing = useCallback(async (originPublish) => {
     console.log("여기까지 오니? 0")
@@ -367,9 +385,9 @@ function Room() {
       session.unpublish(originPublish)
       session.publish(screenSharingPublisher)
       // 배치 
-      setPublisher((prevPublisher)=>screenSharingPublisher)
-      setMainStreamManager((prevMainStreamManager)=>screenSharingPublisher)
-      setIsScreenSharing((prevScreenSharing)=>true)
+      setPublisher((prevPublisher) => screenSharingPublisher)
+      setMainStreamManager((prevMainStreamManager) => screenSharingPublisher)
+      setIsScreenSharing((prevScreenSharing) => true)
 
 
       // setPublisher(screenSharingPublisher, ()=>{
@@ -585,7 +603,7 @@ function Room() {
     //       ACCESS_KEY: getCookie('token'),
     //     },
     //   })
-      // return response.data // The token
+    // return response.data // The token
     // }
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
       headers: {
@@ -785,6 +803,8 @@ function Room() {
     setCount(newCount + 1)
   };
 
+
+  console.log('subscriberssubscribers', subscribers[0])
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -794,10 +814,10 @@ function Room() {
           <FlexCenter>
             <RoomCreateContainer>
               <RoomCreateWrap>
-                <RoomCreateTitle> 방 만들기 </RoomCreateTitle>
+                <RoomCreateTitle> 모각코 만들기 </RoomCreateTitle>
                 <form onSubmit={joinSession}>
                   <RoomNameWrap>
-                    <RoomName>방이름 :</RoomName>
+                    <RoomName>모각코 이름 </RoomName>
                     <RoomNameInput
                       type="text"
                       value={roomTitle}
@@ -807,7 +827,7 @@ function Room() {
                     />
                   </RoomNameWrap>
                   <LanguageWrap>
-                    <LanguageTitle>언어 :</LanguageTitle>
+                    <LanguageTitle>언어 </LanguageTitle>
                     <LanguageBtnWrap>
                       {
                         languageList.map((language, idx) => {
@@ -825,7 +845,7 @@ function Room() {
                     </LanguageBtnWrap>
                   </LanguageWrap>
                   <MaxMembersWrap>
-                    <MaxMembersTitle>최대인원 :</MaxMembersTitle>
+                    <MaxMembersTitle>최대인원 </MaxMembersTitle>
                     <MaxMembersBtnWrap>
                       {
                         maxMembers.map((ele, idx) => {
@@ -953,15 +973,14 @@ function Room() {
                       null
                     }
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
-                      <UserVideoComponent streamManager={publisher} audioEnabled={audioEnabled} />
+                      <UserVideoComponent streamManager={publisher}/>
 
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                          <span>{e.id}</span>
-                          <UserVideoComponent streamManager={e} audioEnabled={audioEnabled} />
+                          <UserVideoComponent streamManager={e}/>
                         </div>
                       ))}
-                      
+
                     </PubilsherVideoWrap>
                     {count === 0 && data.maxMembers >= 5 ?
                       <SlideRightBtn onClick={() => {
@@ -975,7 +994,7 @@ function Room() {
                 ) : null}
 
 
-                  {/* <MainStreamWrap>
+                {/* <MainStreamWrap>
                     <UserVideoComponent streamManager={mainStreamManager} />
                   </MainStreamWrap> */}
                 {mainStreamManager !== undefined ? (
@@ -1069,6 +1088,20 @@ function Room() {
     </div>
   );
 }
+
+export const UserNickName = styled.span`
+    color: white;
+    font-size: 12px;
+    position: absolute;
+    left: 0;
+    bottom: 4px;
+    background: rgba(0, 0, 0, 0.59);
+    border-bottom-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding-top: 5px;
+    padding-bottom: 3px;
+    padding-inline: 10px;
+`
 
 const Dark = styled.div`
   width: 100vw;

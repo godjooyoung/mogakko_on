@@ -24,17 +24,17 @@ function MainHeader(props) {
         if (isLogin) {
             console.log("#### userInfo", userInfo)
             const state = {
-                mySessionId : '',
-                myUserName : getCookie('nickName'),
-                isDirect : false,
-                title : '',
-                language : '',
-                maxMembers : '',
-                isOpened : true,
-                password : '',
-                latitude : userInfo.userLatitude,
-                longitude : userInfo.userLongitude,
-                neighborhood : userInfo.userTown,
+                mySessionId: '',
+                myUserName: getCookie('nickName'),
+                isDirect: false,
+                title: '',
+                language: '',
+                maxMembers: '',
+                isOpened: true,
+                password: '',
+                latitude: userInfo.userLatitude,
+                longitude: userInfo.userLongitude,
+                neighborhood: userInfo.userTown,
             };
             navigate('/room', { state: state })
         } else {
@@ -44,7 +44,7 @@ function MainHeader(props) {
     }
 
     const completedTitle = useMemo(() => {
-        return `온라인 Coding Mate를 찾아봐요`;
+        return `온라인 Coding Mate를 찾아보세요`;
     }, []);
 
     const [landingTitle, setLandingTitle] = useState("\u00a0");
@@ -81,27 +81,49 @@ function MainHeader(props) {
         };
     }, [completedTitle, count, isCompleted]);
 
+    //버튼 파동
+    const [rippleX, setRippleX] = useState(0);
+    const [rippleY, setRippleY] = useState(0);
+
+    const handleButtonClick = (event) => {
+        const button = event.currentTarget;
+        const rect = button.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / button.offsetWidth;
+        const y = (event.clientY - rect.top) / button.offsetHeight;
+
+        setRippleX(x);
+        setRippleY(y);
+    };
+
     return (
-        <>        
-        <MainHeaderWrap bg={`${process.env.PUBLIC_URL}/image/mainBg.webp`}>
-            <MainTitleWrap>
-                <Content isCompleted={isCompleted}>
-                    <FontSize>{landingTitle}</FontSize>
-                </Content>
-                {/* <div>모각코를 위한 서비스 플랫폼</div> */}
-                <FontSize>모각코 ON:</FontSize>
-            </MainTitleWrap>
-            <MainDescWrap>
-                <FontSizeS>근처에 있는 사람들과 모여서 각자 코딩하고</FontSizeS>
-                <FontSizeS>서로의 코드를 리뷰하며 성장하는 개발자가 되세요.</FontSizeS>
-            </MainDescWrap>
-            <MainButtonWrap>
-                <CreateRoomButton onClick={onClickRoomCreateHandler}>방 생성하기</CreateRoomButton>
-            </MainButtonWrap>
-        </MainHeaderWrap>
+        <>
+            <MainHeaderWrap bg={`${process.env.PUBLIC_URL}/image/mainBg.webp`}>
+                <MainTitleWrap>
+                    <Content isCompleted={isCompleted}>
+                        <FontSize>{landingTitle}</FontSize>
+                    </Content>
+                    {/* <div>모각코를 위한 서비스 플랫폼</div> */}
+                    <FontSize>모각코 ON:</FontSize>
+                </MainTitleWrap>
+                <MainDescWrap>
+                    <FontSizeS>근처에 있는 사람들과 모여서 각자 코딩하고</FontSizeS>
+                    <FontSizeS>서로의 코드를 리뷰하며 성장하는 개발자가 되세요.</FontSizeS>
+                </MainDescWrap>
+                <MainButtonWrap>
+                    <CreateRoomButton onClick={(event) => {
+                        handleButtonClick(event)
+                        setTimeout(() => {
+                            onClickRoomCreateHandler()
+                        },700)
+                    }}
+                        rippleX={rippleX}
+                        rippleY={rippleY}
+                    >모각코 만들기</CreateRoomButton>
+                </MainButtonWrap>
+            </MainHeaderWrap>
         </>
-        
-        
+
+
     );
 }
 
@@ -139,9 +161,9 @@ export const MainHeaderWrap = styled.div`
     justify-content: center;
     flex-direction: column;
     align-items: center;
-    /* background-image: url(${(props) => {return props.bg}}); */
+    /* background-image: url(${(props) => { return props.bg }}); */
     background-size: cover;
-    background-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 9.68%, rgba(18, 28, 42, 0.788136) 74.36%, var(--bg-de) 89.14%), url(${(props) => {return props.bg}});    
+    background-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 9.68%, rgba(18, 28, 42, 0.788136) 74.36%, var(--bg-de) 89.14%), url(${(props) => { return props.bg }});    
     background-position: center;
 `
 export const MainTitleWrap = styled.div`
@@ -167,7 +189,7 @@ export const MainButtonWrap = styled.div`
     align-items: center;
 `
 export const CreateRoomButton = styled.button`
-    width: 223px;
+    /* width: 223px;
     height: 62px;
     background: var(--po-de);
     font-family: 'Pretendard-Regular';
@@ -187,6 +209,61 @@ export const CreateRoomButton = styled.button`
         transition: 0.1s;
         background-color: #00C5D1;
         transform: scale(1);
+    } */
+
+    position: relative;
+    width: 223px;
+    height: 62px;
+    overflow: hidden;
+    border: none;
+    border-radius: 35px;
+    background-image: linear-gradient(90deg, #00F0FF, #26b9ff);
+    /* background-image: linear-gradient(90deg, #26b9ff, #00F0FF);*/
+    /* background-color: var(--po-de); */
+    color: #3d3935;
+    font-family: 'Pretendard-Regular';
+    border-radius: 52px;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    outline: none;
+    cursor: pointer;
+    &:hover {
+        box-shadow: 0px 0px 20px -5px rgba(0, 0, 0, .2);
+    }
+    &::before{
+        opacity: 0;
+        position: absolute;
+        top: calc(100% * ${(props) => props.rippleX});
+        left: calc(100% * ${(props) => props.rippleX});
+        transform: translate(-50%, -50%) scale(1);
+        padding: 50%;
+        border-radius: 50%;
+        background-color: #fff;
+        content: '';
+        transition: transform 1s, opacity 1s;
+    }
+    &:active::before {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0);
+        transition: 0s;
+    }
+    &::after {
+        opacity: 0;
+        position: absolute;
+        top: calc(100% * ${(props) => props.rippleY});
+        left: calc(100% * ${(props) => props.rippleX});
+        transform: translate(-50%, -50%) scale(1);
+        padding: 50%;
+        border-radius: 50%;
+        background-color: #fff;
+        content: '';
+        transition: transform 2s, opacity 2s;
+    }
+    &:active::after {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0);
+        transition: 0s;
     }
 `
 
