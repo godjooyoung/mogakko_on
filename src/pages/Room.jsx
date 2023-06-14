@@ -220,8 +220,8 @@ function Room() {
     });
 
     mySession.on('streamPropertyChanged', (event)=>{
-      console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',event.changedProperty)
-      console.log('이프 안쪽 여기 체인지 값이 바뀌면... 그 뭐시기냐 올드 퍼ㅂㄹ리셔가 바껴야함.',event.changedProperty)
+      console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@1',event)
+      console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2',event.changedProperty)
       setIsChangedProperty((prevIsChangedProperty)=>(!prevIsChangedProperty))
     })
 
@@ -304,11 +304,10 @@ function Room() {
   useEffect(() => {
     console.log("old subscribers ............................................. ", subscribers)
     console.log("publisher............................................. ", publisher)
+    // setSubscribers((prevSubscribers) => [...prevSubscribers])
     const updateSubscribers = [...subscribers]
-    setSubscribers(updateSubscribers)
-    subscribers.map((sub,i)=>{
-      console.log(sub.stream.audioActive?'서브오디오활성여부 트루'+i:'서브오디오활성여부 폴스'+i)
-    })
+    setSubscribers((prevSubscribers)=>[...prevSubscribers])
+
   }, [publisher, audioEnabled, isChangedProperty])
 
 
@@ -379,7 +378,6 @@ function Room() {
         frameRate: 30,
         insertMode: 'APPEND',
       })
-      ///setNumber(number => number + 1);
 
       session.unpublish(originPublish)
       session.publish(screenSharingPublisher)
@@ -410,7 +408,7 @@ function Room() {
       // 카메라 모드일 때, 화면 공유로 전환
       startScreenSharing(originPublish)
     }
-  }, [isScreenSharing, startCameraSharing, startScreenSharing])
+  }, [isScreenSharing, startCameraSharing, startScreenSharing, isChangedProperty])
 
 
   useEffect(() => {
@@ -902,7 +900,7 @@ function Room() {
                     </PasswordWrap>
                   } */}
                   <JoinBtnWrap>
-                    <JoinBtn name="commit" type="submit" value="방 생성하기" />
+                    <JoinBtn name="commit" type="submit" value="모각코 만들기" />
                   </JoinBtnWrap>
                 </form>
                 {/* <button onClick={onClickTempButton}>TEMP</button> */}

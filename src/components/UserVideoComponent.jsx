@@ -1,28 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import OpenViduVideoComponent from './OpenViduVideo';
 import { styled } from 'styled-components'
-// function UserVideoComponent({ streamManager, audioChange }) {
 function UserVideoComponent(props) {
     const [userAudio, setUserAudio] = useState(props.streamManager.stream.audioActive);
-    // const [userAudio, setUserAudio] = useState(props.streamManager.video.muted);
-    console.log("userViedoCompnent >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.", props.streamManager.stream)
+    console.log("userViedoCompnent >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>1", props.streamManager)
+    console.log("userViedoCompnent >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>2", props.streamManager.stream.connection)
     // stream 속성의 connection.data 값을 파싱, 그 안에서 clientData 속성의 값을 반환 
     // 이 함수를 호출하면 현재 사용자의 닉네임을 가져옴.
     const getNicknameTag = () => {
-        // Gets the nickName of the user
+        
         const nickName = props.streamManager.stream.connection.data
-        //const nickName = getCookie('nickName')
         return nickName
     }
-    // const userAudio = streamManager.stream.audioActive
-    // const userVideo = streamManager.stream.videoActive
 
     useEffect(() => {
         setUserAudio(props.streamManager.stream.audioActive);
     }, [props.streamManager.stream.audioActive]);
-    // useEffect(() => {
-    //     setUserAudio(props.streamManager.video.muted);
-    // }, [props.streamManager.video.muted]);
+
     return (
         <div>
             {props.streamManager !== undefined ? (
