@@ -302,11 +302,11 @@ function Room() {
   }, [data])
 
   useEffect(() => {
-    console.log("old subscribers ............................................. ", subscribers)
+    console.log("old subscribers ...................................... ", subscribers)
     console.log("publisher............................................. ", publisher)
     // setSubscribers((prevSubscribers) => [...prevSubscribers])
     const updateSubscribers = [...subscribers]
-    setSubscribers((prevSubscribers)=>[...prevSubscribers])
+    setSubscribers((prevSubscribers)=>updateSubscribers)
 
   }, [publisher, audioEnabled, isChangedProperty])
 
@@ -331,9 +331,6 @@ function Room() {
     setAudioEnabled((prevValue) => !prevValue)
     // publisher.publishAudio(!audioEnabled)
     publisher.publishAudio(!audioEnabled)
-    subscribers.map((sub)=>{
-      console.log(">>>>>> 오디오 바꾸면서 서브가 어떻게 바뀌는지 ",sub)
-    })
   }
 
   const startCameraSharing = useCallback(async (originPublish) => {
