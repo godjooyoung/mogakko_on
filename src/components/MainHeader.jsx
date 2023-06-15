@@ -163,7 +163,7 @@ export const MainHeaderWrap = styled.div`
     align-items: center;
     /* background-image: url(${(props) => { return props.bg }}); */
     background-size: cover;
-    background-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 9.68%, rgba(18, 28, 42, 0.788136) 74.36%, var(--bg-de) 89.14%), url(${(props) => { return props.bg }});    
+    background-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 9.68%, rgba(18, 28, 42, 0.788136) 62.36%, var(--bg-de) 99.14%), url(${(props) => { return props.bg }});
     background-position: center;
 `
 export const MainTitleWrap = styled.div`

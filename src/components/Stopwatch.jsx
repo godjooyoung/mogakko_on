@@ -26,8 +26,80 @@ function Stopwatch(props) {
             console.log("시간기록", response)
         }
     })
-    
-    // 타이머 버튼 클릭
+
+
+    // 1
+    const settingPrevTimeString = () => {
+        // 직전에 보낸 샌드값
+        let ss = prevSendS
+        let mm = prevSendM
+        let hh = prevSendH
+        
+        if (prevSendS > 9) {
+            ss = prevSendS
+        } else {
+            ss = '0' + prevSendS
+        }
+
+        if (prevSendM > 9) {
+            mm = prevSendM
+        } else {
+            mm = '0' + prevSendM
+        }
+
+        if (prevSendH > 9) {
+            hh = prevSendH
+        } else {
+            hh = '0' + prevSendH
+        }
+
+        return hh + ":" + mm + ":" + ss
+    }
+
+    // 2
+    const settingTimeString = () => {
+        // 현재 샌드값
+        let ss = sendSeconds
+        let mm = sendMins
+        let hh = sendHours
+        if (sendSeconds > 9) {
+            ss = sendSeconds
+        } else {
+            ss = '0' + sendSeconds
+        }
+        if (sendMins > 9) {
+            mm = sendMins
+        } else {
+            mm = '0' + sendMins
+        }
+        if (sendHours > 9) {
+            hh = sendHours
+        } else {
+            hh = '0' + sendHours
+        }
+        return hh + ":" + mm + ":" + ss
+    }
+
+    // 3
+    const calculateTimeDiff_ = (prevTime, currentTime) => {
+        const prevDate = new Date(`1970-01-01T${prevTime}`);
+        const currentDate = new Date(`1970-01-01T${currentTime}`);
+
+        const prevTimestamp = prevDate.getTime();
+        const currentTimestamp = currentDate.getTime();
+
+        const timeDiff = currentTimestamp - prevTimestamp;
+
+        // 타임스탬프 차이를 이용하여 시, 분, 초 계산
+        const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+        const mins = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+        // 시간을 포맷팅하여 반환
+        return `${hours > 9 ? hours : '0' + hours}:${mins > 9 ? mins : '0' + mins}:${seconds > 9 ? seconds : '0' + seconds}`
+    }
+
+    // 4 - 타이머 버튼 클릭
     const startStopWatch = () => {
         const satting = () => {
             if (isStarted) {
@@ -53,7 +125,7 @@ function Stopwatch(props) {
         }
         satting()
     }
-
+    
     // 값 변경 될때마다 간격 계산 -> 서버 통신
     useEffect(() => {
         if (!isStarted) {
@@ -132,7 +204,24 @@ function Stopwatch(props) {
             recordTimerMutation.mutate(calculateTimeDiff(settingPrevTimeString(), settingTimeString()))
             console.log("간격, ", calculateTimeDiff(settingPrevTimeString(), settingTimeString()))
         }
+
     }, [sendSeconds])
+
+    useEffect(()=>{
+        console.log('+-+-+-+-+-+')
+        console.log('|s|t|a|r|t|')
+        console.log('+-+-+-+-+-+')
+        return () => {
+
+            // 나가기 시간 로직 짜기 ...동기 동기 극혐
+            const leave = () => {
+                console.log('+-+-+-+-+-+')
+                console.log('|l|e|a|v|e|')
+                console.log('+-+-+-+-+-+')
+                recordTimerMutation.mutate(  calculateTimeDiff_(settingPrevTimeString(), settingTimeString())  )
+            }
+        }
+    },[])
 
     // 타이머
     useInterval(() => {
@@ -152,7 +241,7 @@ function Stopwatch(props) {
     return (
         <TimerWrap>
             <Timer><p>{hours > 9 ? hours : '0' + hours}:{mins > 9 ? mins : '0' + mins}:{seconds > 9 ? seconds : '0' + seconds}</p></Timer>
-            <TimerButton isStarted={isStarted} onClick={() => { startStopWatch(isStarted) }}>
+            <TimerButton isStarted={isStarted} onClick={() => { startStopWatch(false) }}>
                 {isStarted ? '' : ''}
             </TimerButton>
         </TimerWrap>

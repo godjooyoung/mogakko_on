@@ -71,6 +71,8 @@ export const MainContentWrap = styled.div`
     grid-template-rows: max-content;
     column-gap: 24px;
     row-gap: 64px;
+    height: 1195px;
+    align-content: center;
 `
 
 export default MainContent
