@@ -98,11 +98,11 @@ export const SignBtn = styled.button`
 `
 
 export const CloseBtn = styled.button`
-    width: 20px;
-    height: 20px;
+    width: 13px;
+    height: 13px;
     position: absolute;
-    top: 10px;
-    right: 15px;
+    top: 21px;
+    right: 24px;
     font-size: 25px;
     border: none;
     background-color: transparent;

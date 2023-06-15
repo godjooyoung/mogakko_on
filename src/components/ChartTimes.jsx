@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import styled from 'styled-components';
@@ -46,6 +46,17 @@ const data = {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 function ChartTimes(props) {
+    useEffect(()=>{
+        console.log("ChartTimes :: ",props.data)
+        return ()=>{
+            //클린
+        }
+    },[])
+
+    useEffect(()=>{
+        console.log("ChartTimes2 :: ",props.data)
+    },[props])  
+
     return (
         <ChartWrap>
             <Bar options={options} data={data} />

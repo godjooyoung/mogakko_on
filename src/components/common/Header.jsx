@@ -366,7 +366,8 @@ export const ProfileImgDiv = styled.div`
     border-radius: 50%;
     overflow: hidden;
     background-color: #ffffff;
-    box-shadow: 0 0 0 1px #ffffff;
+    /* box-shadow: 0 0 0 1px #ffffff; */
+    box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.8);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -470,7 +471,7 @@ export const AlearWrapContent = styled.div`
     height: 373.95px;
     background-color: #F9F9FA;
     z-index: 1;
-    overflow: scroll;
+    overflow-y:scroll;
 `
 
 export const AlearTitle = styled.p`
