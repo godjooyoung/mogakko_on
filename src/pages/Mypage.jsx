@@ -1825,6 +1825,7 @@ const AttendanceCheckWrap = styled.div`
   width: 486px;
   height: 126px;
   background-color: var(--bg-li);
+  background-color: transparent;
   margin-bottom: 18px;
 `
 
@@ -1835,6 +1836,7 @@ const StudyTime = styled.div`
   justify-content: center;
   align-items: center;
   background-color: var(--bg-li);
+  background-color: transparent;
   padding-bottom: 10px;
 `
 
@@ -1855,6 +1857,7 @@ const TotalLanguage = styled.div`
   width: 384px;
   height: 327px;
   background-color: var(--bg-li);
+  background-color: transparent;
 `
 
 const FriendMypageWrap = styled.div`
