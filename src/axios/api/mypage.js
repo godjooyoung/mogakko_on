@@ -107,7 +107,7 @@ const githubIdPost = async (id) => {
   }
 }
 
-
+// 친구 찾기
 const searchUser = async (id) => {
   console.log('변수idididididid', id)
   try {
@@ -118,5 +118,48 @@ const searchUser = async (id) => {
   }
 }
 
+// 받은쪽지조회
+const receiveMessage = async () => {
+  try {
+    const response = await jwtInstance.get('/directMessage/received')
+    return Promise.resolve(response)
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
 
-export { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, getUserProfile, requestFriend, githubIdPost, searchUser }
+// 보낸쪽지조회
+const sentMessage = async () => {
+  try {
+    const response = await jwtInstance.get('/directMessage/sent')
+    return Promise.resolve(response)
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+// 쪽지쓰기
+const postMessage = async (message) => {
+  try {
+    const response = await jwtInstance.post('/directMessage/send', message)
+    return Promise.resolve(response)
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { 
+  getProfile, 
+  addProfile, 
+  getFriendList,
+  getFriendRequestList, 
+  reciveFriendRequest, 
+  deleteFriend, 
+  getUserProfile, 
+  requestFriend, 
+  githubIdPost, 
+  searchUser,
+  receiveMessage,
+  postMessage,
+  sentMessage
+}
