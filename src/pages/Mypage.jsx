@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost } from '../axios/api/mypage'
+import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost, searchUser } from '../axios/api/mypage'
 import styled from 'styled-components';
 import Header from "../components/common/Header";
 import useInput from '../hooks/useInput'
@@ -37,10 +37,10 @@ function Mypage() {
     setFriendList([])
   }
 
-
   // query
   const queryClient = useQueryClient()
   const { isLoading: isProfileLoading, isError: isProfileError, data: profileData } = useQuery("getProfile", getProfile)
+
   const { isLoading: isFriendListLoading, isError: isFriendListError, data: friendListData } = useQuery("getFriendList", getFriendList, {
     refetchOnMount: false,
     onSuccess: getFriendListIsSuccessHandler,
@@ -67,17 +67,79 @@ function Mypage() {
 
 
   // MOGAKKO-DATA 컴포넌트 
-  const [mogakkoData, setmogakkoData] = useState(false)
+  const [mogakkoData, setmogakkoData] = useState(true)
 
   // 친구 컴포넌트
-  const [friendSidebar, setFriendSidebar] = useState(true)
+  const [friendSidebar, setFriendSidebar] = useState(false)
+
+  // 친구찾기 닉네임 OR CODE구분
   const [friendFindNickName, setFriendFindNickName] = useState(true)
   const [friendFindCode, setFriendFindCode] = useState(false)
+
+  // 친구찾기 useInput
+  const [findNickNameValue, onChangeFindNickNameValue, findNickNameValueReset] = useInput('')
+  const [findCodeValue, onChangeFindCodeValue, findCodeValueReset] = useInput('')
+
+  // 찾은친구 
+  const [searchFriend, setSearchFriend] = useState([])
   // 쪽지 컴폰너트
+
   const [messageSidebar, setMessageSidebar] = useState(false)
 
   // hooks
   const navigate = useNavigate()
+
+  const [isTargeting, setIsTargeting] = useState(false)
+  const [timer, setTimer] = useState(0)
+  // const { isLoading: isSearchUserLoading, isError: isSearchUserError, data: searchUserData, refetch: getSearchUserRefetch } = useQuery("getSearchUser", () => {
+  //   friendFindNickName ? searchUser({ searchRequestNickname: findNickNameValue }) : searchUser({ friendCode: findCodeValue })
+  // }, {
+  //   enabled: isTargeting,
+  //   onSuccess: () => {
+  //     console.log('searchUserDatasearchUserDatasearchUserData', searchUserData)
+  //   },
+  //   refetch: false
+  // })
+
+  const roomListMutation = useMutation(searchUser, {
+    onSuccess: (response) => {
+      console.log("searchUser ", response)
+      console.log("searchUser.data 컨텐트 검색 결과 배열 ", response.data)
+      // if (response.message === '근처에 모각코가 없습니다.') {
+      //   setSearchFriend([])
+      // } else {
+      //   setSearchFriend(response.data)
+      // }
+    }
+  })
+
+  useEffect(() => {
+    if (timer) {
+      console.log('clear timer');
+      clearTimeout(timer);
+    }
+    if (findNickNameValue !== '' || findCodeValue !== '') {
+      const newTimer = setTimeout(async () => {
+        try {
+          await roomListMutationCall()
+        } catch (e) {
+          console.error('error', e);
+        }
+      }, 1000);
+
+      setTimer(newTimer);
+
+      // 방 목록 조회
+      const roomListMutationCall = () => {
+        // roomListMutation.mutate(friendFindNickName ? { 'searchRequestNickname': findNickNameValue } : { 'friendCode': findCodeValue })
+        roomListMutation.mutate({ 
+          'searchRequestNickname': findNickNameValue,
+          'friendCode': '' 
+        })
+      }
+    }
+
+  }, [findNickNameValue, findCodeValue])
 
   useEffect(() => {
     if (profileData) {
@@ -280,6 +342,16 @@ function Mypage() {
     navigate('/profile/' + id)
   }
 
+
+  // 코드 복사 
+  const handleCopyClipBoard = (code) => {
+    try {
+      navigator.clipboard.writeText(code);
+      alert('클립보드에 복사되었습니다.');
+    } catch (error) {
+      alert('클립보드 복사에 실패하였습니다.');
+    }
+  };
   return (
     <>
       <Header />
@@ -321,7 +393,8 @@ function Mypage() {
 
             <MyCodeWrap>
               <MyCode>나의 코드: {profileData && profileData.data.data.member.friendCode}</MyCode>
-              <CopyBtn>COPY</CopyBtn>
+              <CopyBtn onClick={() => handleCopyClipBoard(profileData.data.data.member.friendCode)}
+              >COPY</CopyBtn>
             </MyCodeWrap>
 
             <NavberCategory>
@@ -540,7 +613,7 @@ function Mypage() {
                         <NullFriendRequestList>
                           <h1>아직 친구 요청이 없습니다.</h1>
                         </NullFriendRequestList> :
-                        <ScrollWrap>
+                        <ReqScrollWrap>
                           {friendRequestListData && friendRequestListData.data.data.map((friend, idx) => {
                             return (
                               <>
@@ -559,36 +632,65 @@ function Mypage() {
 
                           })
                           }
-                        </ScrollWrap>
+                        </ReqScrollWrap>
                     }
                   </FriendRequestWrap>
+
                   <FriendFindwrap>
                     <FriendFindTitleWrap>
                       <FriendFindTitle>친구 찾기</FriendFindTitle>
                       <FriendFindBtnWrap>
-                        <FriendFindNickNameBtn 
-                        friendFindNickName={friendFindNickName}
-                        onClick={() => {
-                          setFriendFindNickName(true)
-                          setFriendFindCode(false)
-                        }}
+                        <FriendFindNickNameBtn
+                          friendFindNickName={friendFindNickName}
+                          onClick={() => {
+                            setFriendFindNickName(true)
+                            setFriendFindCode(false)
+                          }}
                         >닉네임</FriendFindNickNameBtn>
-                        <FriendFindCodeBtn 
-                        friendFindCode={friendFindCode}
-                        onClick={() => {
-                          setFriendFindNickName(false)
-                          setFriendFindCode(true)
-                        }}
+                        <FriendFindCodeBtn
+                          friendFindCode={friendFindCode}
+                          onClick={() => {
+                            setFriendFindNickName(false)
+                            setFriendFindCode(true)
+                          }}
                         >친구코드</FriendFindCodeBtn>
                       </FriendFindBtnWrap>
+
                     </FriendFindTitleWrap>
+                    <FriendFindCodeInputWrap>
+                      <img src={`${process.env.PUBLIC_URL}/image/zoomIcon.webp`} alt="" />
+                      {friendFindNickName ?
+                        <FriendFindNickNameInput
+                          type="text"
+                          placeholder='닉네임 입력'
+                          value={findNickNameValue}
+                          onChange={(e) => {
+                            onChangeFindNickNameValue(e)
+                          }}
+                        /> :
+
+                        <FriendFindCodeInput
+                          type="text"
+                          placeholder='친구코드 입력'
+                          value={findCodeValue}
+                          onChange={(e) => {
+                            onChangeFindCodeValue(e)
+                          }}
+                        />
+                      }
+                    </FriendFindCodeInputWrap>
                   </FriendFindwrap>
                 </FriendMypageReqWrap>
               </MyPageBottomContentWrap >
             </FriendMypageWrap>
           }
-        </MypageWrap>
 
+          { messageSidebar &&
+            <MessageMypageWrap>
+
+            </MessageMypageWrap>
+          }
+        </MypageWrap>
       </FlexBox>
     </>
   )
@@ -648,7 +750,7 @@ const PopUp = styled.div`
     }
     margin-bottom: 30px;
     color: #FFFFFF;
-    font-family: 'Pretendard-Regular';
+    font-family: 'Pretendard';
   }
 `
 
@@ -727,7 +829,7 @@ const MyPageUserName = styled.p`
   font-size: 26px;
   color: white; 
   margin-top: 26px;
-  font-family: 'Pretendard-Regular';
+  font-family: 'Pretendard';
 `
 
 const Temperaturecontainer = styled.div`
@@ -1075,10 +1177,9 @@ const FriendRequestTitle = styled.p`
 
 const FriendRequestNickname = styled.p`
     font-weight: 500;
-    font-size: 14px;
+    font-size: 13px;
     width: 98px;
     color: white;
-    margin-bottom: 10px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1086,7 +1187,7 @@ const FriendRequestNickname = styled.p`
 
 const FriendWrap = styled.div`
   width: 249px;
-  height: 248px;
+  height: 69px;
   padding: 10px;
   display: flex;
   justify-content: space-between;
@@ -1102,8 +1203,8 @@ const FriendLeftContent = styled.div`
 `
 
 const FriendProfile = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 37.31px;
+  height: 37.31px;
   border-radius: 50%;
   background-image: ${(props) =>
     `url('${props.friendRequestImg}')`
@@ -1121,12 +1222,13 @@ const ButtonWrap = styled.div`
 `
 
 const AllowBtn = styled.button`
-  width: 70px;
+  width: 49.44px;
+  height: 23.77px;
   background-color: ${(props) => {
     return props.color === 'allow' ? 'var(--po-de)' : '#626873'
   }};
   border: none;
-  padding: 8px;
+  /* padding: 8px; */
   border-radius: 14px;
   font-weight: 700;
   font-size: 12px;
@@ -1150,7 +1252,7 @@ const FriendListContainer = styled.div`
   p{
     color: white;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 18px;
     width: 98px;
     text-align: center;
     white-space: nowrap;
@@ -1163,7 +1265,6 @@ const DeleteBtnWrap = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-right: 40px;
   margin-bottom: 10px;
   p {
     font-weight: 500;
@@ -1210,7 +1311,34 @@ export const FriendListCancleBtn = styled.button`
 
 const ScrollWrap = styled.div`
   width: 559px;
-  height: 100%;
+  height: 856px;
+  overflow-y: scroll;
+  
+  &::-webkit-scrollbar{
+      width: 7px;
+      background-color: transparent;
+      border-radius: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+      /* width: 10px; */
+      height: 10%; 
+      background-color: white;
+      border-radius: 10px;
+      height: 30px;
+  }
+
+  &::-webkit-scrollbar-track {
+      background-color: #626873;
+      border-left: 2px solid transparent;
+      border-right: 2px solid transparent;
+      background-clip: padding-box;
+  }
+`
+
+const ReqScrollWrap = styled.div`
+  width: 281px;
+  height: 248px;
   overflow-y: scroll;
   
   &::-webkit-scrollbar{
@@ -1260,8 +1388,8 @@ const NullFriendList = styled.div`
 `
 
 const FriendList = styled.div`
-  width: 114.1px;
-  height: 139px;
+  width: 166.01px;
+  height: 205.12px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1291,8 +1419,8 @@ const DeleteSelectedBtn = styled.button`
 `
 
 const FriendListImage = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 86.54px;
+  height: 85.1px;
   border-radius: 50%;
   background-image: ${(props) =>
     `url('${props.friendListImg}')`
@@ -1321,7 +1449,7 @@ const MypageWrap = styled.div`
 const MypageNavbar = styled.div`
   width: 240px;
   height: 800px;
-  background: #232B3D;
+  background: var(--bg-li);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -1526,5 +1654,59 @@ const FriendFindCodeBtn = styled.button`
   font-style: normal;
   font-weight: 700;
   font-size: 10px;
+`
+
+const FriendFindCodeInputWrap = styled.div`
+  position: relative;
+
+  img {
+    width: 19.02px;
+    height: 19.02px;
+    position: absolute;
+    top: 25px;
+    left: 15px;
+  }
+`
+
+const FriendFindNickNameInput = styled.input`
+  width: 249px;
+  height: 38px;
+  background: #232B3D;
+  border-radius: 108.396px;
+  border: none;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 15px;
+  padding-left: 44px;
+  margin-top: 15px;
+  outline: none;
+  color: #ffffff;
+`
+
+const FriendFindCodeInput = styled.input`
+  width: 249px;
+  height: 38px;
+  background: #232B3D;
+  border-radius: 108.396px;
+  border: none;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 15px;
+  padding-left: 44px;
+  margin-top: 15px;
+  outline: none;
+  color: #ffffff;
+`
+
+const MessageMypageWrap = styled.div`
+    width: 893px;
+    height: 799px;
+    /* display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 66px; */
 `
 export default Mypage
