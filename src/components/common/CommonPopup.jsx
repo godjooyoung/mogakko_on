@@ -20,7 +20,7 @@ function CommonPopup(props) {
                     <CloseBtn onClick={() => {
                         props.closeHander()
                     }}
-                        closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
+                        closeBtn={`${process.env.PUBLIC_URL}/image/inputDeleteBtn.webp`}
                     ></CloseBtn>
                     <h1>{props.msg}</h1>
                     <BtnWrap>
@@ -57,11 +57,12 @@ export const PopUp = styled.div`
     width: 332px;
     height: 198px;
     background: var(--bg-li);
-    border-radius: 20px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    box-shadow: 5px 5px 20px 0 rgba(0,0,0,0.4);
 
     h1 {
         font-family: 'Pretendard';
@@ -101,8 +102,8 @@ export const Btn = styled.button`
 `
 
 export const CloseBtn = styled.button`
-    width: 20px;
-    height: 20px;
+    width: 13px;
+    height: 13px;
     position: absolute;
     top: 10px;
     right: 15px;

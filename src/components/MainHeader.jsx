@@ -199,7 +199,7 @@ export const CreateRoomButton = styled.button`
     /* background-image: linear-gradient(90deg, #26b9ff, #00F0FF);*/
     /* background-color: var(--po-de); */
     color: #3d3935;
-    font-family: 'Pretendard-Regular';
+    font-family: 'Pretendard';
     border-radius: 52px;
     font-style: normal;
     font-weight: 700;

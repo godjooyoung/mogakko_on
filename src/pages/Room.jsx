@@ -12,6 +12,8 @@ import { useMutation } from 'react-query'
 import { leaveChatRoom } from '../axios/api/chat'
 import Header from '../components/common/Header';
 import Stopwatch from '../components/Stopwatch'
+import CommonPopup from '../components/common/CommonPopup'
+
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
 function Room() {
@@ -46,10 +48,31 @@ function Room() {
 
   const [btnSelect, setBtnSelect] = useState('public')
 
+  
   //popup창
   const [roomPopUp, setRoomPopUp] = useState(false)
   // 네비게이트 선언
   const navigate = useNavigate()
+
+  // 뒤로 가기 막기
+  const [isblocked, setIsblocked] = useState(false)
+  // 뒤로가기 동작 감지
+  const preventGoBack = () => {
+    console.log('//////////////////////////////// 뒤로가기 동작 감지')
+    window.history.pushState(null, "", location.href);
+    setIsblocked(true)
+  };
+
+  useEffect(() => {
+    console.log('//////////////////////////////// popstate 이벤트 추가')
+    window.history.pushState(null, "", location.href);
+    window.addEventListener("popstate", preventGoBack);
+
+    return () => {
+      window.removeEventListener("popstate", preventGoBack);
+    };
+  }, []);
+
   // 리브세션 서버 요청
   const leaveSessionMutation = useMutation(leaveChatRoom, {
     onSuccess: (response) => {
@@ -306,6 +329,7 @@ function Room() {
     console.log("publisher............................................. ", publisher)
     // setSubscribers((prevSubscribers) => [...prevSubscribers])
     const updateSubscribers = [...subscribers]
+    //setSubscribers((prevSubscribers)=>[...subscribers])
     setSubscribers((prevSubscribers)=>updateSubscribers)
 
   }, [publisher, audioEnabled, isChangedProperty])
@@ -943,6 +967,23 @@ function Room() {
               </PopUp>
             </Dark>
           }
+          {
+            isblocked &&
+            // msg : 화면에 표시되는 메세지
+            // isBtns : boolean
+            // priMsg  'primery 버튼 내용'
+            // secMsg  'second 버튼 내용'
+            // priHander : 'primery 버튼 클릭시 동작하는 함수'
+            // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
+            // closeHander : 닫기 함수
+            <CommonPopup msg={`정말 새로고침 혹은 뒤로가기 하시겠습니까?`} 
+              isBtns={true} 
+              priMsg='확인' 
+              secMsg='취소' 
+              priHander={()=>{leaveSession()}} 
+              secHandler={()=>(setIsblocked(false))} 
+              closeHander={()=>(setIsblocked(false))}/>
+          }
           <RoomInHeader>
             <span>{roomTitle}</span>
             <div>
@@ -1243,7 +1284,7 @@ export const RoomNameInput = styled.input`
   border-radius: 114px;
   color : #FFFFFF;
   &::placeholder{
-    color: #BEBEBE;;
+    color: #BEBEBE;
   }
 `
 
@@ -1436,7 +1477,7 @@ export const PasswordInput = styled.input`
   background-color: var(--bg-li);
   border-radius: 114px;
   &::placeholder{
-    color: #BEBEBE;;
+    color: #BEBEBE;
   }
 `
 
@@ -1810,7 +1851,8 @@ export const ChatInput = styled.textarea`
     outline: none;
     border: none;
     border-radius: 114px;
-    font-family: 'Pretendard-Regular';
+    font-family: 'Pretendard';
+    font-style: normal;
     color: white;
 `;
 
