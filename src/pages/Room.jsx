@@ -221,9 +221,8 @@ function Room() {
 
     mySession.on('streamPropertyChanged', (event)=>{
       console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',event.changedProperty)
-      if(event.changedProperty==='audioActive' || event.changedProperty === 'videoActive'){
-        setIsChangedProperty(!isChangedProperty)
-      }
+      console.log('이프 안쪽 여기 체인지 값이 바뀌면... 그 뭐시기냐 올드 퍼ㅂㄹ리셔가 바껴야함.',event.changedProperty)
+      setIsChangedProperty((prevIsChangedProperty)=>(!prevIsChangedProperty))
     })
 
     mySession.on('streamDestroyed', (event) => {
