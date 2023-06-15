@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost, searchUser } from '../axios/api/mypage'
+import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost, searchUser, receiveMessage, postMessage, sentMessage } from '../axios/api/mypage'
 import styled from 'styled-components';
 import Header from "../components/common/Header";
 import useInput from '../hooks/useInput'
@@ -49,6 +49,16 @@ function Mypage() {
   })
   const { isLoading: isFriendRequestListLoading, isError: isFriendRequestListError, data: friendRequestListData } = useQuery("getFriendRequestList", getFriendRequestList)
 
+  //받은 쪽지 State
+  const [myReceiveMessage, setMyReceiveMessage] = useState(null)
+  // 받은 쪽지 조회
+  const { isLoading: isReceiveMessageLoading, isError: isReceiveMessageError, data: receiveMessageData } = useQuery("getReceiveMessage", receiveMessage)
+
+  //보낸 쪽지 State
+  const [mysentMessage, setMySentMessage] = useState(null)
+  // 보낸 쪽지 조회
+  const { isLoading: isSentMessageLoading, isError: isSentMessageError, data: sentMessageData } = useQuery("getSentMessage", sentMessage)
+
   const [friendList, setFriendList] = useState([]) // 친구목록
   const [friendListDelete, setFriendListDelete] = useState(false) // 친구 삭제 버튼 활성화 여부
   const [statusonMouse, setStatusOnMouse] = useState(false)
@@ -82,9 +92,20 @@ function Mypage() {
 
   // 찾은친구 
   const [searchFriend, setSearchFriend] = useState([])
-  // 쪽지 컴폰너트
 
+  // 쪽지 컴폰너트
   const [messageSidebar, setMessageSidebar] = useState(false)
+  // 쪽지 받은쪽지/보낸쪽지 sidebar 구분
+  const [messageBox, setMessageBox] = useState({
+    receive: true,
+    send: false
+  })
+
+  // 쪽지 모달 on/off
+  const [postPopup, setPostPopup] = useState(false)
+
+  const [receiveUserValue, onChangeReceiveUser, receiveUserReset] = useInput('')
+  const [receiveContentValue, onChangeReceiveContent, receiveContentReset] = useInput('')
 
   // hooks
   const navigate = useNavigate()
@@ -113,6 +134,21 @@ function Mypage() {
     }
   })
 
+  // 쪽지 보내기 Mutation
+  const postMessageMutation = useMutation(postMessage, {
+    onSuccess: (response) => {
+      queryClient.invalidateQueries(receiveMessage)
+      console.log("postMessage ", response)
+    }
+  })
+
+  const postMessageHandler = () => {
+    postMessageMutation.mutate({
+      messageReceiverNickname: receiveUserValue,
+      content: receiveContentValue
+    })
+  }
+
   useEffect(() => {
     if (timer) {
       console.log('clear timer');
@@ -132,9 +168,9 @@ function Mypage() {
       // 방 목록 조회
       const roomListMutationCall = () => {
         // roomListMutation.mutate(friendFindNickName ? { 'searchRequestNickname': findNickNameValue } : { 'friendCode': findCodeValue })
-        roomListMutation.mutate({ 
+        roomListMutation.mutate({
           'searchRequestNickname': findNickNameValue,
-          'friendCode': '' 
+          'friendCode': ''
         })
       }
     }
@@ -150,6 +186,8 @@ function Mypage() {
       setCookie('userProfile', profileData.data.data.member.profileImage)
       setPreview(profileData.data.data.member.profileImage)
       setuserGitHubId(profileData.data.data.member.githubId)
+      setMyReceiveMessage(receiveMessageData && receiveMessageData.data.data)
+      setMySentMessage(sentMessageData && sentMessageData.data.data)
     }
   }, [profileData])
 
@@ -321,6 +359,30 @@ function Mypage() {
     return avataGen
   }
 
+  // 받은메세지 선택 클릭 이벤트
+  const onClickReceiveMessageHandler = (idx, isRead) => {
+    const updateMessage = myReceiveMessage.map((message, index) => {
+      if (index === idx) {
+        return { ...message, isRead: !isRead }
+      } else {
+        return { ...message, isRead: false }
+      }
+    })
+    setMyReceiveMessage(updateMessage)
+  }
+
+  // 보낸메세지 선택 클릭 이벤트
+  const onClickSentMessageHandler = (idx, isRead) => {
+    const updateMessage = mysentMessage.map((message, index) => {
+      if (index === idx) {
+        return { ...message, isRead: !isRead }
+      } else {
+        return { ...message, isRead: false }
+      }
+    })
+    setMySentMessage(updateMessage)
+  }
+
   // 물음표 버튼 hover시 나오는 정보창 (status) 핸들러
   const statusOnMouseHandler = () => {
     setStatusOnMouse(true)
@@ -403,6 +465,10 @@ function Mypage() {
                   setmogakkoData(true)
                   setFriendSidebar(false)
                   setMessageSidebar(false)
+                  setMessageBox({
+                    receive: true,
+                    send: false
+                  })
                 }}
               >모각코 데이터</DataCategory>
               <FriendCategory friendSidebar={friendSidebar}
@@ -410,6 +476,10 @@ function Mypage() {
                   setmogakkoData(false)
                   setFriendSidebar(true)
                   setMessageSidebar(false)
+                  setMessageBox({
+                    receive: true,
+                    send: false
+                  })
                 }}
               >친구</FriendCategory>
               <Message messageSidebar={messageSidebar}
@@ -419,6 +489,31 @@ function Mypage() {
                   setMessageSidebar(true)
                 }}
               >쪽지</Message>
+              {messageSidebar &&
+                <ul>
+                  <ReceiveBox
+                    receive={messageBox.receive}
+                    data-aos="slide-down"
+                    onClick={() => {
+                      setMessageBox({
+                        receive: true,
+                        send: false
+                      })
+                    }}
+                  >받은 쪽지함</ReceiveBox>
+                  <SendBox
+                    send={messageBox.send}
+                    data-aos="slide-down"
+                    data-aos-delay="100"
+                    onClick={() => {
+                      setMessageBox({
+                        receive: false,
+                        send: true
+                      })
+                    }}
+                  >보낸 쪽지함</SendBox>
+                </ul>
+              }
             </NavberCategory>
 
           </MypageNavbar>
@@ -427,6 +522,16 @@ function Mypage() {
               <MyPageTopContentWrap>
                 <MogakkoTitle>모각코 데이터</MogakkoTitle>
                 <ProfileModifyWrap>
+
+                  <TotalTimewrap>
+                    <TopContentTitle>오늘 공부시간</TopContentTitle>
+                    <TopContentTitleItem>{profileData && profileData.data.data.totalTimer}</TopContentTitleItem>
+                  </TotalTimewrap>
+
+                  <WeeklyTimeWrap>
+                    <TopContentTitle>총 공부 시간</TopContentTitle>
+                    <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
+                  </WeeklyTimeWrap>
                   <Temperaturecontainer>
                     <TemperatureTitle>On°
                       <img
@@ -456,16 +561,6 @@ function Mypage() {
                       <span>{profileData && profileData.data.data.member.codingTem}°</span>
                     </TemperatureWrap>
                   </Temperaturecontainer>
-
-                  <TotalTimewrap>
-                    <TopContentTitle>오늘 공부시간</TopContentTitle>
-                    <TopContentTitleItem>{profileData && profileData.data.data.totalTimer}</TopContentTitleItem>
-                  </TotalTimewrap>
-
-                  <WeeklyTimeWrap>
-                    <TopContentTitle>총 공부 시간</TopContentTitle>
-                    <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
-                  </WeeklyTimeWrap>
 
                   <StatusWrap>
                     <TopContentTitleWrap>
@@ -685,10 +780,100 @@ function Mypage() {
             </FriendMypageWrap>
           }
 
-          { messageSidebar &&
-            <MessageMypageWrap>
+          {
+            postPopup &&
+            <Dark>
+              <MessagePopup>
+                <CloseBtn onClick={() => {
+                  receiveUserReset()
+                  receiveContentReset()
+                  setPostPopup(!postPopup)
+                }}
+                  closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
+                ></CloseBtn>
+                <h1>쪽지 쓰기</h1>
+                <h2>받는 사람</h2>
+                <input
+                  type="text"
+                  placeholder='닉네임 혹은 코드 입력'
+                  value={receiveUserValue}
+                  onChange={(e) => {
+                    onChangeReceiveUser(e)
+                  }}
+                />
+                <textarea
+                  cols="30"
+                  rows="10"
+                  value={receiveContentValue}
+                  onChange={(e) => {
+                    onChangeReceiveContent(e)
+                  }}
+                />
 
-            </MessageMypageWrap>
+                <MessagePopupBtnWrap>
+                  <p>{receiveContentValue.length} / 1000자</p>
+                  <button onClick={() => {
+                    postMessageHandler()
+                    receiveUserReset()
+                    receiveContentReset()
+                    setPostPopup(!postPopup)
+                  }}>보내기</button>
+                </MessagePopupBtnWrap>
+              </MessagePopup>
+            </Dark>
+          }
+
+          {messageSidebar &&
+            <MessageReceiveMypageWrap>
+              <MessageReceiveMypageHeaderWrap>
+                <p>{messageBox.receive ? '받은 쪽지함' : '보낸 쪽지함'}</p>
+                <button onClick={() => {
+                  setPostPopup(!postPopup)
+                }}>쪽지쓰기</button>
+              </MessageReceiveMypageHeaderWrap>
+
+              <MessageReceiveMypageTitleWrap>
+                <MessageReceiveMypageTitleLeft>
+                  <p>보낸 사람</p>
+                  <p>내용</p>
+                </MessageReceiveMypageTitleLeft>
+                <p>날짜</p>
+              </MessageReceiveMypageTitleWrap>
+
+              <MessageScroll>
+                {messageSidebar === true && messageBox.receive === true ? (
+                  myReceiveMessage.map((e, idx) => (
+                    <ReceiveMessageWrap
+                      key={idx}
+                      onClick={() => {
+                        onClickReceiveMessageHandler(idx, e.isRead);
+                      }}
+                      isRead={e.isRead}
+                    >
+                      <ReceiveSendNickname>{e.senderNickname}</ReceiveSendNickname>
+                      <ReceiveContent>{e.content}</ReceiveContent>
+                      <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
+                    </ReceiveMessageWrap>
+                  ))
+                ) : null}
+
+                {messageSidebar === true && messageBox.send === true ? (
+                  mysentMessage.map((e, idx) => (
+                    <ReceiveMessageWrap
+                      key={idx}
+                      onClick={() => {
+                        onClickSentMessageHandler(idx, e.isRead);
+                      }}
+                      isRead={e.isRead}
+                    >
+                      <ReceiveSendNickname>{e.senderNickname}</ReceiveSendNickname>
+                      <ReceiveContent>{e.content}</ReceiveContent>
+                      <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
+                    </ReceiveMessageWrap>
+                  ))
+                ) : null}
+              </MessageScroll>
+            </MessageReceiveMypageWrap>
           }
         </MypageWrap>
       </FlexBox>
@@ -844,9 +1029,11 @@ const Temperaturecontainer = styled.div`
 `
 
 const TemperatureTitle = styled.p`
+    width: 136.72px;
     font-size: 17px;
     color: var(--po-de);
     font-weight: 900;
+    text-align: start;
     img {
       margin-left: 5px;
       margin-bottom: 2px;
@@ -1486,21 +1673,6 @@ const CopyBtn = styled.button`
 const NavberCategory = styled.ul`
   width: 240px;
   height: 82px;
-
-  li {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Pretendard';
-    font-style: normal;
-    font-weight: 500;
-    font-size: 22px;
-    color: #FFFFFF;
-    transition: all 0.3s;
-    &:hover {
-      background-color: #3E4957;
-    }
-  }
 `
 
 const DataCategory = styled.li`
@@ -1509,6 +1681,19 @@ const DataCategory = styled.li`
   background-color: ${(props) => {
     return props.mogakkoData ? '#3E4957' : 'transparent'
   }};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 22px;
+  color: #FFFFFF;
+  transition: all 0.3s;
+  cursor: pointer;
+  &:hover {
+    background-color: #3E4957;
+  }
 `
 
 const FriendCategory = styled.li`
@@ -1517,6 +1702,19 @@ const FriendCategory = styled.li`
   background-color: ${(props) => {
     return props.friendSidebar ? '#3E4957' : 'transparent'
   }};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 22px;
+  color: #FFFFFF;
+  transition: all 0.3s;
+  cursor: pointer;
+  &:hover {
+    background-color: #3E4957;
+  }
 `
 
 const Message = styled.li`
@@ -1525,7 +1723,57 @@ const Message = styled.li`
     background-color: ${(props) => {
     return props.messageSidebar ? '#3E4957' : 'transparent'
   }};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 22px;
+  color: #FFFFFF;
+  transition: all 0.3s;
+  cursor: pointer;
+  &:hover {
+    background-color: #3E4957;
+  }
 `
+
+const ReceiveBox = styled.li`
+  width: 240px;
+  height: 46px;
+  background-color: ${(props) => {
+    return props.receive ? '#2F3B49' : 'transparent'
+  }};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.3s;
+`
+
+const SendBox = styled.li`
+  width: 240px;
+  height: 46px;
+  background-color: ${(props) => {
+    return props.send ? '#2F3B49' : 'transparent'
+  }};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.3s;
+`
+
 
 const ChartWrap = styled.div`
   width: 100%;
@@ -1671,7 +1919,7 @@ const FriendFindCodeInputWrap = styled.div`
 const FriendFindNickNameInput = styled.input`
   width: 249px;
   height: 38px;
-  background: #232B3D;
+  background: var(--bg-li);
   border-radius: 108.396px;
   border: none;
   font-family: 'Pretendard';
@@ -1687,7 +1935,7 @@ const FriendFindNickNameInput = styled.input`
 const FriendFindCodeInput = styled.input`
   width: 249px;
   height: 38px;
-  background: #232B3D;
+  background-color: var(--bg-li);
   border-radius: 108.396px;
   border: none;
   font-family: 'Pretendard';
@@ -1700,13 +1948,241 @@ const FriendFindCodeInput = styled.input`
   color: #ffffff;
 `
 
-const MessageMypageWrap = styled.div`
+const MessageReceiveMypageWrap = styled.div`
     width: 893px;
-    height: 799px;
-    /* display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 66px; */
+    height: 799px; 
+`
+
+const MessageReceiveMypageHeaderWrap = styled.div`
+  height: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-inline: 20px;
+
+  p {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 29px;
+    line-height: 35px;
+    color: #FFFFFF;
+  }
+
+  button {
+    width: 88px;
+    height: 34px;
+    background: #00F0FF;
+    border-radius: 20px;
+    border: none;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 15px;
+    color: #464646;
+    transition: all 0.2s;
+    &:hover{
+      background: #00C5D1;
+    }
+  }
+`
+
+const MessageReceiveMypageTitleWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 51px;
+  padding-right: 21px;
+  p {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 17px;
+    color: #FFFFFF;
+  }
+`
+
+const MessageReceiveMypageTitleLeft = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 104px;
+`
+
+const MessageScroll = styled.div`
+  height: 670px;
+  margin-top: 10px;
+  overflow-y: scroll;
+  
+  &::-webkit-scrollbar{
+      width: 7px;
+      background-color: transparent;
+      border-radius: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+      /* width: 10px; */
+      height: 10%; 
+      background-color: white;
+      border-radius: 10px;
+      height: 30px;
+  }
+
+  &::-webkit-scrollbar-track {
+      background-color: #626873;
+      border-left: 2px solid transparent;
+      border-right: 2px solid transparent;
+      background-clip: padding-box;
+  }
+`
+
+const ReceiveMessageWrap = styled.div`
+  width: 879px;
+  height: ${(props) => {
+    return props.isRead ? '150px' : '45px'
+  }};
+  display: flex;
+  justify-content: space-between;
+  align-items: ${(props) => {
+    return props.isRead ? 'none' : 'center'
+  }};
+  padding-inline: 10px;
+  padding-top: ${(props) => {
+    return props.isRead ? '10px' : 'none'
+  }};
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 10px;
+  background-color: ${(props) => {
+    return props.isRead ? 'var(--bg-li)' : 'transparent'
+  }};
+  border-radius: 10px;
+  &:hover{
+    background: var(--bg-li);
+  }
+`
+
+const ReceiveSendNickname = styled.p`
+  width: 100px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  color: #FFFFFF;
+`
+
+const ReceiveContent = styled.p`
+  width: 550px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  color: #FFFFFF;
+`
+
+const ReceiveCreatedAt = styled.p`
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  color: #FFFFFF;
+`
+
+const MessagePopup = styled.div`
+  position: relative;
+  width: 384px;
+  height: 502px;
+  background: var(--bg-li);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #232B3D;
+  border-radius: 10px;
+  padding: 38px 32px 34px 32px;
+
+  h1 {
+    width: 295px;
+    height: 72px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 26px;
+    color: #FFFFFF;
+  }
+
+  h2 {
+    width: 73px;
+    height: 29px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 15px;
+    color: #FFFFFF; 
+    margin-bottom: 3px;
+  }
+
+  input {
+    width: 319px;
+    height: 30px;
+    background-color: #3E4957;
+    border-radius: 108.396px;
+    border:none;
+    padding-left: 14px;
+    outline: none;
+    color: white;
+    margin-bottom: 21px;
+    color: #BEBEBE;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+  }
+
+  textarea {
+    width: 319px;
+    height: 235px;
+    border: 1px solid #FFFFFF;
+    border-radius: 10px;
+    outline: none;
+    padding: 14px;
+    background-color: transparent;
+    color: #BEBEBE;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 23px;
+    letter-spacing: 1.5px;
+  }
+`
+
+const MessagePopupBtnWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+
+  p {
+    width: 94px;
+    height: 22px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+    color: #BEBEBE;
+  }
+
+  button {
+    width: 74px;
+    height: 28px;
+    background: #00F0FF;
+    border-radius: 45.3455px;
+    border: none;
+    transition: all 0.2s;
+    &:hover{
+      background: #00C5D1;
+    }
+  }
 `
 export default Mypage

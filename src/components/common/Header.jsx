@@ -10,6 +10,12 @@ import { __logoutResetSearch } from '../../redux/modules/search'
 import { useLocation } from 'react-router-dom'
 
 function Header(props) {
+    
+    // 전역에 등록된 알람 내역 가져오기
+    const alarmInfo = useSelector((state) => {
+        return state.alarmInfo
+    })
+
     // hooks
     const navigate = useNavigate();
     const eventSourceRef = useRef(null);
@@ -20,8 +26,13 @@ function Header(props) {
     const [isLogin, setIsLogin] = useState(false)
     const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
     const [isVisible, setIsVisible] = useState(true)
-    const [isNewNotification, setIsNewNotification] = useState(false)
+    
+    // 신규 알람 카운트
+    const [isNewNotification, setIsNewNotification] = useState(alarmInfo.filter((alarm)=>{return alarm.indexOf('EventStream Created') === -1}).length)
 
+    // 신규알람 표시 여부
+    const [isNewNoti, setIsNewNoti] = useState(false)
+    
     const urlPathname = location.pathname;
 
     useEffect(() => {
@@ -40,22 +51,24 @@ function Header(props) {
         }
     })
     
-    // 알람 신규로 올때마다 상태값 바뀌는지 콘솔 찍기 테스트용
+    // 알람 신규로 올때
     useEffect(()=>{
-        if(isNewNotification){
-            console.log("TEST 신규 알림이 발생했습니다.")
+
+        console.log("알람건수:::::::::::::::  ", isNewNotification)
+        if(isNewNotification>1){
+            setIsNewNoti(true)
+        }else{
+            setIsNewNoti(false)
         }
     },[isNewNotification])
 
-    // 전역에 등록된 사용자 프로필 이미지 가져오기
-    const userProfile = useSelector((state) => {
-        return state.userInfo.userProfile
-    })
+    // 알람 창을 열었으면 신규 알람 아이콘 없앤다.
+    useEffect(()=>{
+        if(isAlarmWindowOpen){
+            setIsNewNoti(false)
+        }
+    },[isAlarmWindowOpen])
 
-    // 전역에 등록된 알람 내역 가져오기
-    const alarmInfo = useSelector((state) => {
-        return state.alarmInfo
-    })
 
     useEffect(() => {
         // 세션 스토리지에서 SSE 구독 상태를 확인
@@ -98,13 +111,16 @@ function Header(props) {
 
                     eventSourceRef.current.addEventListener('message', (event) => {
                         console.log("[INFO] SSE message event", event)
+                        //SSE message event
                         const data = event.data
                         console.log("[INFO] SSE message data ", data)
+
+                        setIsNewNotification((prevIsNewNotification)=>prevIsNewNotification+1)
                         // if(data.indexOf('EventStream Created') === -1){
-                        //     setIsNewNotification(true)
-                        // }else{
-                        //     setIsNewNotification(false)
+                        //     console.log('최초 연결 알람이 아닌 추가 알라밍 발생했습니다!!!!!!!!!!!', data)
+                        //     setIsNewNotification((prevIsNewNotification)=>prevIsNewNotification+1)
                         // }
+
                         dispatcher(__alarmSender(data))
                     })
                     return () => {
@@ -288,6 +304,7 @@ function Header(props) {
                         <HeaderButton onClick={onClickLogOutHandler} width={85} marginRight={10} ><p>로그아웃</p></HeaderButton>
                         <AlearmWrap>
                             <HeaderButton onClick={() => { onClickAlearmHandler(isAlarmWindowOpen) }} marginRight={17} width={40}>
+                                {isNewNoti?<NewNoti/>:<></>}
                                 <AlearmImg src={`${process.env.PUBLIC_URL}/image/alearmBtn.svg`} alt="알람버튼" />
                             </HeaderButton>
                             {!isAlarmWindowOpen ? <></> :
@@ -531,5 +548,17 @@ export const NoneMessage = styled.p`
 
 export const Logo = styled.img`
     cursor: pointer;
+`
+
+export const NewNoti = styled.div`
+    width: 10px;
+    height: 10px;
+    overflow: hidden;
+    border-radius: 50%;
+    background-color: #FF635D;
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    z-index: 1;
 `
 export default Header;

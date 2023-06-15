@@ -39,7 +39,7 @@ function Main() {
             <MainContent openHander={popupOpenHander}/>
             <MainBest openHander={popupOpenHander}/>
         </MainContaniner>
-        <Top onClick={goToTopHandler} url={`${process.env.PUBLIC_URL}/image/top.png`}></Top>
+        <Top onClick={goToTopHandler} url={`${process.env.PUBLIC_URL}/image/goToTopBtn.webp`}></Top>
         </MainWrap>
         </>
     );
@@ -51,7 +51,7 @@ export const MainWrap = styled.div`
 export const Top = styled.div`
     width: 60px;
     height: 60px;
-    background: #4C5163;
+    background: var(--bg-li);
     border-radius: 50%;
     color : white;
     text-align: center;
@@ -72,6 +72,8 @@ export const Top = styled.div`
         transition: 0.2s;
         transform: scale(1);
     }
+    background-position: center;
+    background-repeat: no-repeat;
 `
 export const MainContaniner = styled.div`
     position: relative;

@@ -58,12 +58,12 @@ const SignIn = () => {
 
     const emailChangeHandler = (e) => {
         setEmail(e.target.value)
-        setEmailError('')
+        // setEmailError('')
     };
 
     const passwordChangeHandler = (e) => {
         setPassword(e.target.value)
-        setPasswordError('')
+        // setPasswordError('')
     };
 
     // email state, password state 변경시 유효성 체크
