@@ -555,7 +555,7 @@ export const NewNoti = styled.div`
     height: 10px;
     overflow: hidden;
     border-radius: 50%;
-    background-color: red;
+    background-color: #FF635D;
     position: absolute;
     top: 5px;
     left: 10px;
