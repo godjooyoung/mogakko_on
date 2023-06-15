@@ -4,14 +4,36 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import TermsModal from '../components/common/TermsModal.jsx';
+import CommonPopup from '../components/common/CommonPopup'
+
 axios.defaults.withCredentials = true;
 
 function SignUp() {
     const navigate = useNavigate();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [nickname, setNickname] = useState('');
+    // 내부 상태
+    const [isOpen, setIsOpen] = useState(false)
+    const [popMsg, setPopMsg] = useState('')
+    // 팝업 오픈 함수
+    const popupOpenHander = (msg) => {
+        setPopMsg((prevPopMsg)=>msg)
+        setIsOpen(()=>true)
+    }
+    // 팝업 클로즈 함수
+    const popupCloseHandler = () => {
+        setIsOpen(false)
+        // 상태 초기화
+        setEmail('')
+        setPassword('')
+        setEmailErrorMessage('')
+        setPasswordErrorMessage('')
+        // setIsValidationEmail(false)
+        // setIsValidationPassword(false)
+    }
 
     const [isEmailValid, setIsEmailValid] = useState(false);
     const [isEmailAvailable, setIsEmailAvailable] = useState(false);
@@ -172,6 +194,8 @@ function SignUp() {
             .catch(error => {
                 // 데이터 전송 중 오류가 발생했을 때 실행할 코드
                 console.error(error);
+                popupOpenHander(error)
+
             });
     }
 
@@ -221,6 +245,11 @@ function SignUp() {
 
     return (
         <>
+        {
+            isOpen?
+            <CommonPopup msg={popMsg} closeHadler={popupCloseHandler} isBtns={false} priMsg={'확인'} priHandler={popupCloseHandler}/>
+            :<></>
+        }
 
             <FormDiv>
                 <Form>
@@ -350,7 +379,7 @@ function SignUp() {
             </FormDiv>
         </>
     );
-}
+};
 
 
 export default SignUp;

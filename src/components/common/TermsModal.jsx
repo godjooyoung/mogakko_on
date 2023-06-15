@@ -78,6 +78,7 @@ background: var(--bg-li);
 border-radius: 20px;
 display: flex;
 flex-direction: column;
+justify-content: space-between;
 font-family: 'Pretendard';
 font-style: normal;
 font-weight: 600;
@@ -108,6 +109,7 @@ align-items: center;
 color: #FFFFFF;
 `
 export const PopupContent = styled.div`
+flex:1;
 width: 574px;
 height: 606px;
 margin:0 74px 102px 60px;
@@ -160,6 +162,7 @@ export const BtnWrap = styled.div`
     gap: 20px;
     align-items: flex-end; 
     margin-bottom:27px;
+    margin-top:auo;
 `
 export const Btn = styled.button`
     width: 164px;
