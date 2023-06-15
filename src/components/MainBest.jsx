@@ -245,7 +245,8 @@ const ProgressContainer = styled.div`
     border: none;
     width: 119px;
     height: 4px;
-    border: 0.5px solid #FFFFFF;
+    /* border: 0.5px solid #FFFFFF; */
+    border: 0.5px solid rgba(221, 221, 221, 0.5);
 `
 
 const Progress = styled.div`

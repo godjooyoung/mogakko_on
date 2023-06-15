@@ -11,6 +11,7 @@ import ChartLan from '../components/ChartLan';
 import ChartTimes from '../components/ChartTimes';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import ChartWeekly from '../components/ChartWeekly';
 
 // // 00:00:00 to 00H00M
 // const formatTime = (timeString) => {
@@ -49,16 +50,16 @@ function Mypage() {
   })
   const { isLoading: isFriendRequestListLoading, isError: isFriendRequestListError, data: friendRequestListData } = useQuery("getFriendRequestList", getFriendRequestList)
 
-  //받은 쪽지 State
-  const [myReceiveMessage, setMyReceiveMessage] = useState(null)
   // 받은 쪽지 조회
   const { isLoading: isReceiveMessageLoading, isError: isReceiveMessageError, data: receiveMessageData } = useQuery("getReceiveMessage", receiveMessage)
+  //받은 쪽지 State
+  const [myReceiveMessage, setMyReceiveMessage] = useState(null)
 
-  //보낸 쪽지 State
-  const [mysentMessage, setMySentMessage] = useState(null)
   // 보낸 쪽지 조회
   const { isLoading: isSentMessageLoading, isError: isSentMessageError, data: sentMessageData } = useQuery("getSentMessage", sentMessage)
 
+  //보낸 쪽지 State
+  const [mysentMessage, setMySentMessage] = useState(null)
   const [friendList, setFriendList] = useState([]) // 친구목록
   const [friendListDelete, setFriendListDelete] = useState(false) // 친구 삭제 버튼 활성화 여부
   const [statusonMouse, setStatusOnMouse] = useState(false)
@@ -125,12 +126,13 @@ function Mypage() {
   const roomListMutation = useMutation(searchUser, {
     onSuccess: (response) => {
       console.log("searchUser ", response)
-      console.log("searchUser.data 컨텐트 검색 결과 배열 ", response.data)
-      // if (response.message === '근처에 모각코가 없습니다.') {
-      //   setSearchFriend([])
-      // } else {
-      //   setSearchFriend(response.data)
-      // }
+      console.log("searchUser.data 컨텐트 검색 결과 ", response.data)
+      console.log("searchUser.data.data 컨텐트 검색 결과 배열 ", response.data.data)
+      if (response.data.message === '검색된 멤버가 없습니다.') {
+        setSearchFriend([])
+      } else {
+        setSearchFriend(response.data.data)
+      }
     }
   })
 
@@ -167,11 +169,13 @@ function Mypage() {
 
       // 방 목록 조회
       const roomListMutationCall = () => {
-        // roomListMutation.mutate(friendFindNickName ? { 'searchRequestNickname': findNickNameValue } : { 'friendCode': findCodeValue })
-        roomListMutation.mutate({
-          'searchRequestNickname': findNickNameValue,
-          'friendCode': ''
-        })
+        if (friendFindNickName) {
+          // 친구 닉네임으로 찾기 활성화 상태
+          roomListMutation.mutate({ type: 'NAME', value: findNickNameValue })
+        } else {
+          // 친구 코드로 찾기 활성화 상태
+          roomListMutation.mutate({ type: 'CODE', value: findCodeValue })
+        }
       }
     }
 
@@ -360,28 +364,28 @@ function Mypage() {
   }
 
   // 받은메세지 선택 클릭 이벤트
-  const onClickReceiveMessageHandler = (idx, isRead) => {
-    const updateMessage = myReceiveMessage.map((message, index) => {
-      if (index === idx) {
-        return { ...message, isRead: !isRead }
-      } else {
-        return { ...message, isRead: false }
-      }
-    })
-    setMyReceiveMessage(updateMessage)
-  }
+  // const onClickReceiveMessageHandler = (idx, isRead) => {
+  //   const updateMessage = myReceiveMessage.map((message, index) => {
+  //     if (index === idx) {
+  //       return { ...message, isRead: !isRead }
+  //     } else {
+  //       return { ...message, isRead: false }
+  //     }
+  //   })
+  //   setMyReceiveMessage(updateMessage)
+  // }
 
   // 보낸메세지 선택 클릭 이벤트
-  const onClickSentMessageHandler = (idx, isRead) => {
-    const updateMessage = mysentMessage.map((message, index) => {
-      if (index === idx) {
-        return { ...message, isRead: !isRead }
-      } else {
-        return { ...message, isRead: false }
-      }
-    })
-    setMySentMessage(updateMessage)
-  }
+  // const onClickSentMessageHandler = (idx, isRead) => {
+  //   const updateMessage = mysentMessage.map((message, index) => {
+  //     if (index === idx) {
+  //       return { ...message, isRead: !isRead }
+  //     } else {
+  //       return { ...message, isRead: false }
+  //     }
+  //   })
+  //   setMySentMessage(updateMessage)
+  // }
 
   // 물음표 버튼 hover시 나오는 정보창 (status) 핸들러
   const statusOnMouseHandler = () => {
@@ -456,6 +460,7 @@ function Mypage() {
             <MyCodeWrap>
               <MyCode>나의 코드: {profileData && profileData.data.data.member.friendCode}</MyCode>
               <CopyBtn onClick={() => handleCopyClipBoard(profileData.data.data.member.friendCode)}
+                imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
               >COPY</CopyBtn>
             </MyCodeWrap>
 
@@ -598,30 +603,30 @@ function Mypage() {
                 <WeeklyStudyTimewrap>
                   <p>이번 주 공부시간</p>
                   <AttendanceCheckWrap data-aos="fade-down" data-aos-duration="1000">
-                    출석체크
+                    <ChartWeekly data={profileData && profileData.data.data.timeOfWeek} />
                   </AttendanceCheckWrap>
                   <StudyTime data-aos="fade-right" data-aos-duration="1000">
-                    <ChartTimes />
+                    <ChartTimes data={profileData && profileData.data.data.timeOfWeek} />
                   </StudyTime>
                 </WeeklyStudyTimewrap>
                 <TotalLanguageWrap>
                   <p>통합 선택 언어</p>
                   <TotalLanguage data-aos="fade-left" data-aos-duration="1000">
-                    <ChartLan />
+                    <ChartLan data={profileData && profileData.data.data.languageList} />
                   </TotalLanguage>
                 </TotalLanguageWrap>
               </ChartWrap>
 
               <MyPageMiddleContentWrap>
                 {/* <div><p>깃허브 잔디</p><img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /></div> */}
-                <GithubTitleWrap>
+                <GithubTitleWrap userGitHubId={userGitHubId}>
                   <p>깃허브 잔디</p>
                   {userGitHubId === null || userGitHubId === undefined || userGitHubId === ' ' ?
                     null :
                     <GithubModifyImg
-                      modify={`${process.env.PUBLIC_URL}/image/githubModify.webp`}
-                      modifyHo={`${process.env.PUBLIC_URL}/image/githubModifyHo.webp`}
-                      modifyClcik={`${process.env.PUBLIC_URL}/image/githubModifyClick.webp`}
+                      modify={`${process.env.PUBLIC_URL}/image/gitHubEdit.png`}
+                      modifyHo={`${process.env.PUBLIC_URL}/image/gitHubEdit.pngp`}
+                      modifyClcik={`${process.env.PUBLIC_URL}/image/gitHubEdit.png`}
                       onClick={() => {
                         setGitHub(!gitHub)
                       }}
@@ -774,7 +779,23 @@ function Mypage() {
                         />
                       }
                     </FriendFindCodeInputWrap>
+
+                    <SearchScrollWrap>
+                      {searchFriend && searchFriend?.map((e, idx) => {
+                        return (
+                          <FriendWrap>
+                            <FriendSearchContentWrap>
+                              <FriendProfile friendRequestImg={avataGenHandler(e.profileImage, e.nickname)}></FriendProfile>
+                              <FriendRequestNickname>{e.nickname}</FriendRequestNickname>
+                            </FriendSearchContentWrap>
+                            {e.friend === false ? <FriendSearchBtn>친구신청</FriendSearchBtn> : null}
+                          </FriendWrap>
+                        )
+                      })
+                      }
+                    </SearchScrollWrap>
                   </FriendFindwrap>
+
                 </FriendMypageReqWrap>
               </MyPageBottomContentWrap >
             </FriendMypageWrap>
@@ -834,7 +855,7 @@ function Mypage() {
 
               <MessageReceiveMypageTitleWrap>
                 <MessageReceiveMypageTitleLeft>
-                  <p>보낸 사람</p>
+                  <p>{messageBox.send ? '받는 사람' : '보낸 사람'}</p>
                   <p>내용</p>
                 </MessageReceiveMypageTitleLeft>
                 <p>날짜</p>
@@ -842,11 +863,11 @@ function Mypage() {
 
               <MessageScroll>
                 {messageSidebar === true && messageBox.receive === true ? (
-                  myReceiveMessage.map((e, idx) => (
+                  receiveMessageData && receiveMessageData.data.data.slice().reverse().map((e, idx) => (
                     <ReceiveMessageWrap
                       key={idx}
                       onClick={() => {
-                        onClickReceiveMessageHandler(idx, e.isRead);
+                        // onClickReceiveMessageHandler(idx, e.isRead);
                       }}
                       isRead={e.isRead}
                     >
@@ -858,15 +879,15 @@ function Mypage() {
                 ) : null}
 
                 {messageSidebar === true && messageBox.send === true ? (
-                  mysentMessage.map((e, idx) => (
+                  sentMessageData && sentMessageData.data.data.slice().reverse().map((e, idx) => (
                     <ReceiveMessageWrap
                       key={idx}
                       onClick={() => {
-                        onClickSentMessageHandler(idx, e.isRead);
+                        // onClickSentMessageHandler(idx, e.isRead);
                       }}
                       isRead={e.isRead}
                     >
-                      <ReceiveSendNickname>{e.senderNickname}</ReceiveSendNickname>
+                      <ReceiveSendNickname>{e.receiverNickname}</ReceiveSendNickname>
                       <ReceiveContent>{e.content}</ReceiveContent>
                       <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
                     </ReceiveMessageWrap>
@@ -955,11 +976,11 @@ const GitHubBtn = styled.button`
 `
 
 const CloseBtn = styled.button`
-  width: 20px;
-  height: 20px;
+  width: 13px;
+  height: 13px;
   position: absolute;
-  top: 10px;
-  right: 15px;
+  top: 21px;
+  right: 24px;
   font-size: 25px;
   border: none;
   background-color: transparent;
@@ -1257,35 +1278,45 @@ const GithubTitleWrap = styled.div`
   padding-bottom: 7px;
   box-sizing: border-box;
   p {
-    width: 863px;
+    width: ${(props) => {
+    return props.userGitHubId === null || props.userGitHubId === undefined || props.userGitHubId === ' ' ? '895px' : '863px'
+  }};
   }
 `
 
 const GithubModifyImg = styled.div`
   width: 33px;
   height: 33px;
+  border-radius: 50%;
   transition: all 0.3s;
   cursor: pointer;
+  background-position: center;
+  background-repeat: no-repeat;
   background-image: url(
         ${(props) => {
     return props.modify
-  }}
-  );
-  &:hover {
+  }});
+  background-color: transparent;
+  /* &:hover {
       background-image: url(
           ${(props) => {
     return props.modifyHo
-  }}
-    );
-  }
-
-  &:active {
+  }});
+  } */
+  /* &:active {
     background-image: url(
           ${(props) => {
     return props.modifyClcik
-  }}
-    );
+  }});
+  } */
+  &:hover {
+    background-color: #68707C;
   }
+  &:active {
+    background-color: #3E4957;
+  }
+
+  
 `
 
 const MyPageMiddleContent = styled.div`
@@ -1417,8 +1448,10 @@ const AllowBtn = styled.button`
   border: none;
   /* padding: 8px; */
   border-radius: 14px;
+  font-family: 'Pretendard';
+  font-style: normal;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 11px;
   transition: all 0.3s;
   color: ${(props) => {
     return props.color === 'allow' ? '#464646' : '#FFFFFF'
@@ -1494,6 +1527,10 @@ export const FriendListCancleBtn = styled.button`
     return props.color === 'cancle' ? '#3E4957' : '#00C5D1'
   }};
   }
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
 `
 
 const ScrollWrap = styled.div`
@@ -1668,6 +1705,11 @@ const CopyBtn = styled.button`
   width: 12px;
   height: 12px;
   font-size: 0;
+  background-color: transparent;
+  border: none;
+  background-image: ${(props) =>
+    `url(${props.imgUrl})`
+  };
 `
 
 const NavberCategory = styled.ul`
@@ -1802,6 +1844,7 @@ const AttendanceCheckWrap = styled.div`
   width: 486px;
   height: 126px;
   background-color: var(--bg-li);
+  /* background-color: transparent; */
   margin-bottom: 18px;
 `
 
@@ -1812,6 +1855,7 @@ const StudyTime = styled.div`
   justify-content: center;
   align-items: center;
   background-color: var(--bg-li);
+  /* background-color: transparent; */
   padding-bottom: 10px;
 `
 
@@ -1832,6 +1876,7 @@ const TotalLanguage = styled.div`
   width: 384px;
   height: 327px;
   background-color: var(--bg-li);
+  /* background-color: transparent; */
 `
 
 const FriendMypageWrap = styled.div`
@@ -2096,7 +2141,7 @@ const MessagePopup = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: #232B3D;
+  background: var(--bg-li);
   border-radius: 10px;
   padding: 38px 32px 34px 32px;
 
@@ -2183,6 +2228,58 @@ const MessagePopupBtnWrap = styled.div`
     &:hover{
       background: #00C5D1;
     }
+  }
+`
+
+const SearchScrollWrap = styled.div`
+  width: 281px;
+  height: 350px;
+  overflow-y: scroll;
+  margin-top: 20px;
+  
+  &::-webkit-scrollbar{
+      width: 7px;
+      background-color: transparent;
+      border-radius: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+      /* width: 10px; */
+      height: 10%; 
+      background-color: white;
+      border-radius: 10px;
+      height: 30px;
+  }
+
+  &::-webkit-scrollbar-track {
+      background-color: #626873;
+      border-left: 2px solid transparent;
+      border-right: 2px solid transparent;
+      background-clip: padding-box;
+  }
+`
+
+const FriendSearchContentWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+`
+
+const FriendSearchBtn = styled.button`
+  width: 62.76px;
+  height: 23.77px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
+  background: var(--po-de);
+  border-radius: 13.3117px;
+  color: #464646;
+  border: none;
+  transition: all 0.2s;
+  &:hover {
+    background: #00C5D1;
   }
 `
 export default Mypage
