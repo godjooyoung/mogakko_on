@@ -10,7 +10,6 @@ const { kakao } = window;
 function MainMap(props) {
 
     // 내부
-    const [timer, setTimer] = useState(0); // 디바운싱 타이머
     const [isLogin, setIsLogin] = useState(false) // 로그인 여부
 
     // 전역
@@ -169,7 +168,7 @@ function MainMap(props) {
         })
 
         //마커들이 모두 보이는 위치로 지도를 옮김
-        // map.setBounds(bounds);
+        //map.setBounds(bounds);
 
         // 드래그가 발생할 경우 지도의 중심 좌표를 다시 얻어와서 조회한다.
         kakao.maps.event.addListener(map, 'dragend', function () {
