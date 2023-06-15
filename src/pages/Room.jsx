@@ -58,9 +58,9 @@ function Room() {
   const [isblocked, setIsblocked] = useState(false)
   // 뒤로가기 동작 감지
   const preventGoBack = () => {
-    console.log('//////////////////////////////// 뒤로가기 동작 감지')
-    window.history.pushState(null, "", location.href);
-    setIsblocked(true)
+      console.log('//////////////////////////////// 뒤로가기 동작 감지')
+      window.history.pushState(null, "", location.href);
+      setIsblocked(true)
   };
 
   useEffect(() => {
@@ -976,7 +976,8 @@ function Room() {
             // priHander : 'primery 버튼 클릭시 동작하는 함수'
             // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
             // closeHander : 닫기 함수
-            <CommonPopup msg={`정말 새로고침 혹은 뒤로가기 하시겠습니까?`} 
+            <CommonPopup msg={`뒤로가기 하시겠습니까?`} 
+              secondMsg={'공부시간이 기록되지 않을 수 있습니다.'}
               isBtns={true} 
               priMsg='확인' 
               secMsg='취소' 
