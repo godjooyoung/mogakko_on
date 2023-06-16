@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost, searchUser, receiveMessage, postMessage, sentMessage } from '../axios/api/mypage'
+import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost, searchUser, receiveMessage, postMessage, sentMessage, requestFriend } from '../axios/api/mypage'
 import styled from 'styled-components';
 import Header from "../components/common/Header";
 import useInput from '../hooks/useInput'
@@ -33,9 +33,9 @@ const MakeNoteHandler = ({ idx, nickName, content, createdAt }) => {
   }
   return (
     <>
-      <ReceiveMessageWrap key={idx} onClick={()=>(toggleChangerHandler(isToggle))} isRead={isToggle}>
+      <ReceiveMessageWrap key={idx} onClick={() => (toggleChangerHandler(isToggle))} isRead={isToggle}>
         <ReceiveSendNickname>{nickName}</ReceiveSendNickname>
-        <ReceiveContent>{content}</ReceiveContent>
+        <ReceiveContent isRead={isToggle}>{content}</ReceiveContent>
         <ReceiveCreatedAt>{createdAt}</ReceiveCreatedAt>
       </ReceiveMessageWrap>
     </>
@@ -346,6 +346,19 @@ function Mypage() {
     deleteFriendMutation.mutate(deleteFriendList)
   }
 
+  // 친구 추가 보내기
+  const friendRequetMutation = useMutation(requestFriend, {
+    onSuccess: (response) => {
+      console.log(">>> 친구 추가 보내기 성공", response.data.message)
+    },
+  })
+  
+  // 친구 추가 핸들러
+  const onClickRqFriendshipBtnHandler = (target) => {
+    console.log("나랑 친구할래?", target)
+    friendRequetMutation.mutate(target)
+  }
+
   // 파일 수정 핸들러
   const handleFileChange = (event) => {
     console.log("프로필 이미지 수정 핸들러 실행")
@@ -534,7 +547,7 @@ function Mypage() {
                     <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
                   </WeeklyTimeWrap>
                   <Temperaturecontainer>
-                    <TemperatureTitle>On°
+                    <TemperatureTitle>ON°
                       <img
                         src={`${process.env.PUBLIC_URL}/image/status.webp`}
                         onMouseEnter={() => {
@@ -565,7 +578,7 @@ function Mypage() {
 
                   <StatusWrap>
                     <TopContentTitleWrap>
-                      <TopContentTitle>STATUS</TopContentTitle>
+                      <TopContentTitle>상태코드</TopContentTitle>
                       <Status
                         statusImg={`${process.env.PUBLIC_URL}/image/status.webp`}
                         onMouseEnter={() => {
@@ -580,9 +593,6 @@ function Mypage() {
                         <StatusMouseHoverBox>
                           <p>102 : <span>회원가입 시 기본값</span></p>
                           <p>200 : <span>처음 프로필 등록시 변경</span></p>
-                          <p>400 : <span>신고 1회</span></p>
-                          <p>401 : <span>신고 2회</span></p>
-                          <p>404 : <span>신고 3회</span></p>
                           <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
                           <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
                           <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
@@ -616,7 +626,7 @@ function Mypage() {
               <MyPageMiddleContentWrap>
                 {/* <div><p>깃허브 잔디</p><img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /></div> */}
                 <GithubTitleWrap userGitHubId={userGitHubId}>
-                  <p>깃허브 잔디</p>
+                  <p>GitHub</p>
                   {userGitHubId === null || userGitHubId === undefined || userGitHubId === ' ' ?
                     null :
                     <GithubModifyImg
@@ -795,7 +805,9 @@ function Mypage() {
                               <FriendProfile friendRequestImg={avataGenHandler(e.profileImage, e.nickname)}></FriendProfile>
                               <FriendRequestNickname>{e.nickname}</FriendRequestNickname>
                             </FriendSearchContentWrap>
-                            {e.friend === false ? <FriendSearchBtn>친구신청</FriendSearchBtn> : null}
+                            {e.friend === false ? <FriendSearchBtn onClick={() => {
+                              onClickRqFriendshipBtnHandler(e.nickname)
+                            }}>친구신청</FriendSearchBtn> : null}
                           </FriendWrap>
                         )
                       })
@@ -836,10 +848,11 @@ function Mypage() {
                   onChange={(e) => {
                     onChangeReceiveContent(e)
                   }}
+                  maxLength={200}
                 />
 
                 <MessagePopupBtnWrap>
-                  <p>{receiveContentValue.length} / 1000자</p>
+                  <p>{receiveContentValue.length} / 200자</p>
                   <button onClick={() => {
                     postMessageHandler()
                     receiveUserReset()
@@ -871,7 +884,7 @@ function Mypage() {
               <MessageScroll>
                 {messageSidebar === true && messageBox.receive === true ? (
                   receiveMessageData && receiveMessageData.data.data?.slice().reverse().map((e, idx) => (
-                    <MakeNoteHandler idx={idx} nickName={e.senderNickname} content={e.content} createdAt={e.createdAt}/>
+                    <MakeNoteHandler idx={idx} nickName={e.senderNickname} content={e.content} createdAt={e.createdAt} />
                     // <ReceiveMessageWrap
                     //   key={idx}
                     //   onClick={() => {}}
@@ -887,7 +900,7 @@ function Mypage() {
                 {/* 보낸쪽지함 */}
                 {messageSidebar === true && messageBox.send === true ? (
                   sentMessageData && sentMessageData.data.data?.slice().reverse().map((e, idx) => (
-                    <MakeNoteHandler idx={idx} nickName={e.receiverNickname} content={e.content} createdAt={e.createdAt}/>
+                    <MakeNoteHandler idx={idx} nickName={e.receiverNickname} content={e.content} createdAt={e.createdAt} />
                     // makeNoteHandler(idx, e.receiverNickname, e.content, e.createdAt)
                     // <ReceiveMessageWrap
                     //   key={idx}
@@ -1245,9 +1258,9 @@ const TopContentTitleItem = styled.h1`
 const StatusMouseHoverBox = styled.div`
   position: absolute;
   right: -65px;
-  bottom: -235px;
+  bottom: -170px;
   width: 215px;
-  height: 229px;
+  height: 160px;
   background: #F9F9FA;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
@@ -2186,6 +2199,15 @@ const ReceiveContent = styled.p`
   font-weight: 500;
   font-size: 13px;
   color: #FFFFFF;
+  white-space: ${(props) => {
+    return props.isRead ? 'normal' : 'nowrap'
+  }};
+  overflow: ${(props) => {
+    return props.isRead ? 'visible' : 'hidden'
+  }};
+  text-overflow: ${(props) => {
+    return props.isRead ? 'clip' : 'ellipsis'
+  }}
 `
 
 const ReceiveCreatedAt = styled.p`
@@ -2262,6 +2284,13 @@ const MessagePopup = styled.div`
     font-size: 11px;
     line-height: 23px;
     letter-spacing: 1.5px;
+    overflow-y: scroll;
+    resize: none;
+    &::-webkit-scrollbar{
+      width: 7px;
+      background-color: transparent;
+      border-radius: 8px;
+    }
   }
 `
 
