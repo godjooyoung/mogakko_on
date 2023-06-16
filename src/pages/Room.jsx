@@ -54,8 +54,12 @@ function Room() {
   // 네비게이트 선언
   const navigate = useNavigate()
 
-  // 뒤로 가기 막기
+  // 뒤로 가기 막기 팝업 활성 여부
   const [isblocked, setIsblocked] = useState(false)
+
+  // 나가기 팝업 창 활성 여부
+  const [isBeforeLeave, setIsBeforeLeave] = useState(false) 
+
   // 뒤로가기 동작 감지
   const preventGoBack = () => {
       console.log('//////////////////////////////// 뒤로가기 동작 감지')
@@ -72,6 +76,16 @@ function Room() {
       window.removeEventListener("popstate", preventGoBack);
     };
   }, []);
+
+  // 나가기 버튼클릭 시 팝업 띄우기 위해서 동작하는 함수
+  const leavePopOpenHandler = () => {
+      console.log('나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름')
+      setIsBeforeLeave(true)
+  }
+
+  useEffect(()=>{
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> 나가려고?", isBeforeLeave)
+  },[isBeforeLeave])
 
   // 리브세션 서버 요청
   const leaveSessionMutation = useMutation(leaveChatRoom, {
@@ -486,15 +500,16 @@ function Room() {
     // TODO 방 떠났다는 요청 서버에 보내기
     const leaveSessionMutationCall = () => {
       console.log("방나가기..... ", session)
+      console.log("방나가기.....방장인가?", sessionInfo.isDirect)
       if (sessionInfo.isDirect) {
-        console.log("방나가기.....방장아님1 ", openViduSession)
-        console.log("방나가기.....방장아님2 ", mySessionId)
+        console.log("방나가기.....방장아님1 ", openViduSession) //있음
+        console.log("방나가기.....방장아님2 ", mySessionId)     //있음
         console.log("방나가기.....방장아님3 ", session)
         leaveSessionMutation.mutate(openViduSession)
       } else {
         console.log("방나가기.....방장임1 ", openViduSession)
         console.log("방나가기.....방장임2 ", mySessionId)
-        console.log("방나가기.....방장임3 ", session.options.sessionId)
+        console.log("방나가기.....방장임3 ", session.options.sessionId) //있음
         leaveSessionMutation.mutate(session.options.sessionId)
       }
     }
@@ -821,7 +836,6 @@ function Room() {
     setCount(newCount + 1)
   };
 
-
   console.log('subscriberssubscribers', subscribers[0])
   return (
     <div className="container">
@@ -977,7 +991,7 @@ function Room() {
             // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
             // closeHander : 닫기 함수
             <CommonPopup msg={`뒤로가기 하시겠습니까?`} 
-              secondMsg={'공부시간이 기록되지 않을 수 있습니다.'}
+              secondMsg={'모각코 참여 시간이을 기록하셨나요?'}
               isBtns={true} 
               priMsg='확인' 
               secMsg='취소' 
@@ -985,11 +999,31 @@ function Room() {
               secHandler={()=>(setIsblocked(false))} 
               closeHander={()=>(setIsblocked(false))}/>
           }
+          {
+            isBeforeLeave &&
+            // msg : 화면에 표시되는 메세지
+            // isBtns : boolean
+            // priMsg  'primery 버튼 내용'
+            // secMsg  'second 버튼 내용'
+            // priHander : 'primery 버튼 클릭시 동작하는 함수'
+            // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
+            // closeHander : 닫기 함수
+            <CommonPopup msg={`나가시겠습니까?`} 
+              secondMsg={'모각코 참여 시간을 기록하셨나요?'}
+              isBtns={true} 
+              priMsg='확인' 
+              secMsg='취소' 
+              priHander={()=>{leaveSession()}} 
+              secHandler={()=>(setIsBeforeLeave(false))} 
+              closeHander={()=>(setIsBeforeLeave(false))}/>
+          }
+
           <RoomInHeader>
             <span>{roomTitle}</span>
             <div>
               <LeaveBtn
-                onClick={leaveSession}
+                onClick={()=>(leavePopOpenHandler())}
+                //onClick={leaveSession}
                 LeaveBtnImg={`${process.env.PUBLIC_URL}/image/roomLeaveBtn.webp`}
                 LeaveBtnHoverImg={`${process.env.PUBLIC_URL}/image/leaveHover.webp`}
               />
@@ -1376,13 +1410,13 @@ export const MaxMembersBtn = styled.button`
   color: ${(props) => {
     return props.isSelected ? '#464646' : '#FFFFFF';
   }};
-  border: 2px solid white;
+  border: 1px solid white;
 
   font-family: 'Pretendard';
   font-style: normal;
   font-weight: 700;
   font-size: 16px;
-  line-height: 150%;
+  //0617주석 line-height: 150%;
 `
 
 
@@ -1423,7 +1457,7 @@ export const PublicBtn = styled.button`
   font-style: normal;
   font-weight: 700;
   font-size: 16px;
-  line-height: 150%;
+  //0617주석 line-height: 150%;
   text-align: center;
 `
 
@@ -1446,7 +1480,7 @@ export const ClosedBtn = styled.button`
   font-style: normal;
   font-weight: 700;
   font-size: 16px;
-  line-height: 150%;
+  //0617주석 line-height: 150%;
   text-align: center;
 `
 
@@ -1502,7 +1536,7 @@ export const JoinBtn = styled.input`
   border: none;
   cursor: pointer;
   
-  line-height: 73%;
+  //0617주석 line-height: 73%;
   font-family: 'Pretendard';
   font-style: normal;
 `
@@ -1758,7 +1792,7 @@ export const ChattingWrap = styled.div`
 export const ChattingHeader = styled.p`
   font-size: 20px;
   height: 50px;
-  line-height: 30px;
+  //0617주석 line-height: 30px;
   padding: 10px;
   box-sizing: border-box;
   color:white;

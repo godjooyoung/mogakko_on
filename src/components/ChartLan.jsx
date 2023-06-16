@@ -1,69 +1,133 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import styled from 'styled-components';
+
+/* [
+
+[
+{languageEnum: 'JAVA', percentage: 21.71}
+{languageEnum: 'KOTLIN', percentage: 21.71}
+{languageEnum: 'C++', percentage: 23.68}
+{languageEnum: 'PYTHON', percentage: 15.79}
+{languageEnum: 'C#', percentage: 15.79}
+{languageEnum: 'C', percentage: 17.11}
+{languageEnum: 'JAVASCRIPT', percentage: 4.61}
+{languageEnum: 'ETC', percentage: 0.66}
+]
+*/
+
 ChartJS.register(ArcElement, Tooltip, Legend);
-export const data = {
-    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-    datasets: [
-        {
-            label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.8)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)',
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-            ],
-            borderWidth: 1,
-        },
-    ],
-    position: 'bottom',
-};
-
-
 function ChartLan(props) {
 
-    useEffect(()=>{
+    useEffect(() => {
         // 초기
-        console.log("ChartLan :: ",props.data)
+        console.log("ChartLan :: ", props.data)
         return () => {
             // 클린
         }
-    },[])
+    }, [])
 
-    useEffect(()=>{
-        // 초기
-        console.log("ChartLan2 :: ",props.data)
-    },[props])
-    
+    useEffect(() => {
+        if (props.data) {
+            // console.log("ChartLan2 :: ", props.data)
+            // const dataObject = props.data;
+            // const sortedArray = dataObject
+            //     .sort((a, b) => {
+            //         const langs = ['JAVA', 'PYTHON', 'JAVASCRIPT', 'C', 'C#', 'C++', 'KOTLIN', 'ETC']
+            //         return langs.indexOf(a.languageEnum) - langs.indexOf(b.languageEnum)
+            //     })
+            //     .map(entry => entry.percentage)
+
+            // console.log(".............>>>>>", sortedArray)
+
+            console.log("ChartLan2 :: ", props.data);
+            const dataObject2 = props.data;
+            const langs2 = ['JAVA', 'PYTHON', 'JAVASCRIPT', 'C', 'C#', 'C++', 'KOTLIN', 'ETC'];
+
+            const resultArray2 = langs2.map(lang => {
+                const foundData2 = dataObject2.find(item => item.languageEnum === lang);
+                return foundData2 ? foundData2.percentage : 0;
+            });
+
+            console.log(".............>>>>><<<<<<>>>>>", resultArray2);
+
+
+            setChartData((prevChartData) => ({
+                ...prevChartData,
+                datasets: [
+                    {
+                        ...prevChartData.datasets[0],
+                        data: resultArray2,
+                    },
+                ],
+            }));
+        }
+    }, [props])
+
 
     const options = {
-        options: {
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: {
-                        color: 'rgb(255, 99, 132)'
-                    }
+        plugins: {
+            legend: {
+                display: true,
+                position : 'left',
+                labels : {
+                    boxWidth : 33,
+                    boxHeight : 13,
+                    font: {
+                        size: 12
+                    },
+                    color : '#ffffff'
                 }
             }
-        },
-        position: 'bottom',
+        }
     }
+
+    const [chartData, setChartData] = useState({
+        labels: ['JAVA', 'PYTHON', 'JAVASCRIPT', 'C', 'C#', 'C++', 'KOTLIN', 'ETC'],
+        datasets: [
+            {
+                label: '참여도 ',
+                data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                backgroundColor: [
+                    'rgba(233, 64, 70, 0.2)',
+                    'rgba(47, 145, 231, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(47, 145, 231, 0.2)',
+                    'rgba(143, 95, 232, 0.2)',
+                    'rgba(109, 211, 94, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(98, 104, 115, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(233, 64, 70, 1)',
+                    'rgba(47, 145, 231, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(47, 145, 231, 1)',
+                    'rgba(143, 95, 232, 1)',
+                    'rgba(109, 211, 94, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(98,104,115, 1)',
+                ],
+                hoverBackgroundColor: [
+                    'rgba(233, 64, 70, 0.8)',
+                    'rgba(47, 145, 231, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(47, 145, 231, 0.8)',
+                    'rgba(143, 95, 232, 0.8)',
+                    'rgba(109, 211, 94, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(98,104,115, 0.8)',
+                ],
+                borderWidth: 1,
+            },
+        ],
+        position: 'left',
+    })
+
     return (
         <ChartWrap>
-            <Doughnut data={data} options={options} />
+            <Doughnut data={chartData} options={options} />
         </ChartWrap>
     );
 }

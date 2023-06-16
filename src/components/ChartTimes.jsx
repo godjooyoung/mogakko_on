@@ -52,10 +52,11 @@ function ChartTimes(props) {
 
     const labels = ['월', '화', '수', '목', '금', '토', '일'];
 
-    const data = {
+    const [chartData, setChartData] = useState({
+        responsive: false,
         labels: labels,
         datasets: [{
-            data: [10.0, 12.0, 2.5, 0.8, 12.0, 10.0, 10.0],
+            data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             backgroundColor: [
                 'rgba(0, 240, 255, 0.2)',
                 'rgba(0, 240, 255, 0.2)',
@@ -84,12 +85,13 @@ function ChartTimes(props) {
                 'rgb(0, 240, 255)'
             ],                  // 호버시 막대 컬러
             borderWidth: 1,     // 막대바 테두리
-            barPercentage: 0.7, // 막대바 폭
+            barPercentage: 0.5, // 막대바 폭
         }]
-    }
+    })
 
     useEffect(() => {
         console.log("ChartTimes :: ", props.data)
+        
         return () => {
             //클린
         }
@@ -99,20 +101,40 @@ function ChartTimes(props) {
     useEffect(() => {
         if (props.data) {
             console.log("ChartTimes2 :: ", props.data)
+    
+        const dataObject = props.data
+        const dataArray = Object.entries(dataObject).sort((a, b) => {
+            // 주어진 요일 순서대로 정렬하기 위해 숫자로 변환하여 비교
+            const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+                return weekdays.indexOf(a[0]) - weekdays.indexOf(b[0]);
+            }).map((entry) => entry[1]).slice(1)
+
+        console.log(".............>",dataArray);
+
+
+        setChartData((prevChartData) => ({
+            ...prevChartData,
+            datasets: [
+            {
+                ...prevChartData.datasets[0],
+                data: dataArray,
+            },
+            ],
+        }));
+        
         }
     }, [props])
 
 
     return (
         <ChartWrap>
-            <Bar options={options} data={data} />
+            <Bar options={options} data={chartData} width={446} height={168}/>
         </ChartWrap>
     );
 }
 
 const ChartWrap = styled.div`
-    width: 100% ;
-    /* width: 446px; */
+    width: 446px;
     height: 168px;
     display: flex;
     justify-content: center;
@@ -120,3 +142,40 @@ const ChartWrap = styled.div`
 `
 
 export default ChartTimes;
+
+// const data = {
+//     responsive: false,
+//     labels: labels,
+//     datasets: [{
+//         data: [10.0, 12.0, 2.5, 0.8, 12.0, 10.0, 10.0],
+//         backgroundColor: [
+//             'rgba(0, 240, 255, 0.2)',
+//             'rgba(0, 240, 255, 0.2)',
+//             'rgba(0, 240, 255, 0.2)',
+//             'rgba(0, 240, 255, 0.2)',
+//             'rgba(0, 240, 255, 0.2)',
+//             'rgba(0, 240, 255, 0.2)',
+//             'rgba(0, 240, 255, 0.2)'
+//         ],
+//         borderColor: [
+//             'rgb(0, 240, 255)',
+//             'rgb(0, 240, 255)',
+//             'rgb(0, 240, 255)',
+//             'rgb(0, 240, 255)',
+//             'rgb(0, 240, 255)',
+//             'rgb(0, 240, 255)',
+//             'rgb(0, 240, 255)'
+//         ],
+//         hoverBackgroundColor: [
+//             'rgb(0, 240, 255)',
+//             'rgb(0, 240, 255)',
+//             'rgb(0, 240, 255)',
+//             'rgb(0, 240, 255)',
+//             'rgb(0, 240, 255)',
+//             'rgb(0, 240, 255)',
+//             'rgb(0, 240, 255)'
+//         ],                  // 호버시 막대 컬러
+//         borderWidth: 1,     // 막대바 테두리
+//         barPercentage: 0.5, // 막대바 폭
+//     }]
+// }
