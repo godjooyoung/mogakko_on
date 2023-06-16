@@ -74,7 +74,7 @@ export const PopUp = styled.div`
 position: relative;
 width: 708px;
 height: 845px;
-max-height: 85vh;
+max-height: 90vh;
 background: var(--bg-li);
 border-radius: 20px;
 display: flex;
