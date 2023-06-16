@@ -58,9 +58,9 @@ function Room() {
   const [isblocked, setIsblocked] = useState(false)
   // 뒤로가기 동작 감지
   const preventGoBack = () => {
-    console.log('//////////////////////////////// 뒤로가기 동작 감지')
-    window.history.pushState(null, "", location.href);
-    setIsblocked(true)
+      console.log('//////////////////////////////// 뒤로가기 동작 감지')
+      window.history.pushState(null, "", location.href);
+      setIsblocked(true)
   };
 
   useEffect(() => {
@@ -976,7 +976,8 @@ function Room() {
             // priHander : 'primery 버튼 클릭시 동작하는 함수'
             // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
             // closeHander : 닫기 함수
-            <CommonPopup msg={`정말 새로고침 혹은 뒤로가기 하시겠습니까?`} 
+            <CommonPopup msg={`뒤로가기 하시겠습니까?`} 
+              secondMsg={'공부시간이 기록되지 않을 수 있습니다.'}
               isBtns={true} 
               priMsg='확인' 
               secMsg='취소' 
@@ -1098,6 +1099,7 @@ function Room() {
                   onChange={(e) => setMessage(e.target.value)}
                   cols="30"
                   rows="10"
+                  placeholder='대화를 입력하세요'
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       if (!e.shiftKey) {
@@ -1764,7 +1766,7 @@ export const ChattingHeader = styled.p`
 
 export const ChatContentWrap = styled.div`
     padding: 10px 15px;
-    height: 735px;
+    height: 745px;
     overflow-y: scroll;
     &::-webkit-scrollbar {
         display: none;
@@ -1836,15 +1838,15 @@ export const ChatInputWrap = styled.div`
 `
 
 export const ChatInput = styled.textarea`
-    width: 234px;
-    height: 50px;
+    width: 224px;
+    height: 30px;
     background-color: #626873;
-    padding: 18px 35px 0 20px;
+    padding: 4px 35px 0 20px;
     letter-spacing: 2.5px;
     resize: none;
     box-sizing: border-box;
     font-size: 16px;
-    font-weight: 900;
+    font-weight: 500;
     &::-webkit-scrollbar {
         display: none;
     }
@@ -1854,6 +1856,14 @@ export const ChatInput = styled.textarea`
     font-family: 'Pretendard';
     font-style: normal;
     color: white;
+    &::placeholder {
+      font-family: 'Pretendard';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 12px;
+      line-height: 23px;
+      color: #BEBEBE;
+    }
 `;
 
 export const SendBtnWrap = styled.div`

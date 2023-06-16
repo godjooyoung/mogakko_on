@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import styled from 'styled-components';
@@ -33,6 +33,21 @@ export const data = {
 
 
 function ChartLan(props) {
+
+    useEffect(()=>{
+        // 초기
+        console.log("ChartLan :: ",props.data)
+        return () => {
+            // 클린
+        }
+    },[])
+
+    useEffect(()=>{
+        // 초기
+        console.log("ChartLan2 :: ",props.data)
+    },[props])
+    
+
     const options = {
         options: {
             plugins: {
