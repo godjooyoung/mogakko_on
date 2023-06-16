@@ -172,7 +172,7 @@ function MainSearch(props) {
             </div>
             
             <div>
-                <SearcFilterTitle>기술</SearcFilterTitle>
+                <SearcFilterTitle>언어</SearcFilterTitle>
                 <SearchLanguageBtnWrap>
                     {languageList.map((language, idx) => {
                         return <SearchLanguageBtn isSelected={language.isSelected} onClick={() => (onClickLanguageHandler(idx, language.isSelected))}>{language.desc}</SearchLanguageBtn>
