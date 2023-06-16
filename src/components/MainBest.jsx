@@ -87,7 +87,7 @@ function MainBest(props) {
                                                     <ProgressContainer>
                                                         <Progress style={{ width: `${bestMember.member.codingTem}%` }} />
                                                     </ProgressContainer>
-                                                    <span>{bestMember.member.codingTem}</span>
+                                                    <span>{bestMember.member.codingTem}°</span>
                                                 </BestMemberCardContentDetials>
                                             </BestMemberCardContent>
                                             {/* 15px 간격 */}
