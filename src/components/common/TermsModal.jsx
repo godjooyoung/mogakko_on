@@ -74,6 +74,7 @@ export const PopUp = styled.div`
 position: relative;
 width: 708px;
 height: 845px;
+max-height: 90vh;
 background: var(--bg-li);
 border-radius: 20px;
 display: flex;
@@ -112,6 +113,7 @@ export const PopupContent = styled.div`
 flex:1;
 width: 574px;
 height: 606px;
+overflow-y: auto;
 margin:0 74px 102px 60px;
 font-family: 'Pretendard';
 font-style: normal;
@@ -133,6 +135,26 @@ p {
   font-weight: 400;
   font-size: 13px;
   line-height: 40px;
+}
+&::-webkit-scrollbar{
+  width: 7px;
+  background-color: transparent;
+  border-radius: 8px;
+}
+
+&::-webkit-scrollbar-thumb {
+  /* width: 10px; */
+  height: 10%; 
+  background-color: white;
+  border-radius: 10px;
+  height: 30px;
+}
+
+&::-webkit-scrollbar-track {
+  background-color: white;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  background-clip: padding-box;
 }
 
 `
