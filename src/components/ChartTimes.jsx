@@ -17,13 +17,34 @@ function ChartTimes(props) {
                 display: false,
                 text: `Week's Study Time`,
             },
+            tooltip: { // 툴팁 속성 설정
+                backgroundColor: 'white',
+                titleColor: 'rgba(225,116,103)',
+                bodyColor: 'rgba(0,0,0)',
+                caretSize: 0,
+                boxWidth: '100px',
+                borderColor: 'rgba(225,116,103)',
+                borderWidth: 1,
+            },
         },
         scales: {
-            width: 496,
-            height: 187,
             y: { // defining min and max so hiding the dataset does not change scale range
                 min: 0,
-                max: 10
+                max: 10,
+                ticks: {
+                    font: {
+                      size: 12, // Specify the font size for the scale ticks
+                    },
+                    color: '#ffffff', // Specify the font color for the scale ticks
+                },
+            },
+            x: { // defining min and max so hiding the dataset does not change scale range
+                ticks: {
+                    font: {
+                      size: 12, // Specify the font size for the scale ticks
+                    },
+                    color: '#ffffff', // Specify the font color for the scale ticks
+                },
             }
         },
 
@@ -90,7 +111,8 @@ function ChartTimes(props) {
 }
 
 const ChartWrap = styled.div`
-    width: 446px;
+    width: 100% ;
+    /* width: 446px; */
     height: 168px;
     display: flex;
     justify-content: center;
