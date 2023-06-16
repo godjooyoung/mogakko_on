@@ -175,11 +175,18 @@ function SignUp() {
         }
     };
 
+    const hasWhitespace = (str) => {
+        return /\s/.test(str);
+    };
+
     const nicknameChangeHandler = (e) => {
         const newNickname = e.target.value;
         setNickname(newNickname);
         if (newNickname.length < 2 || newNickname.length > 8) {
             setNicknameErrorMessage('닉네임은 2~8자 사이여야 합니다.');
+            setNicknameChanged(false);
+        } else if(hasWhitespace(newNickname)){
+            setNicknameErrorMessage('닉네임은 빈 칸을 포함할 수 없습니다.')
             setNicknameChanged(false);
         } else {
             setNicknameErrorMessage('')
