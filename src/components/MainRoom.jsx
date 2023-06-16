@@ -11,28 +11,28 @@ const getBgImg = (lang) => {
     let imgUrl;
     switch (lang) {
         case "JAVA":
-            imgUrl = `${process.env.PUBLIC_URL}/image/roomJava.webp`
+            imgUrl = `${process.env.PUBLIC_URL}/image/_rcdJava.webp`
             break;
         case "JAVASCRIPT":
-            imgUrl = `${process.env.PUBLIC_URL}/image/roomJs.webp`
+            imgUrl = `${process.env.PUBLIC_URL}/image/_rcdJs.webp`
             break;
         case "PYTHON":
-            imgUrl = `${process.env.PUBLIC_URL}/image/roomPy.webp`
+            imgUrl = `${process.env.PUBLIC_URL}/image/_rcdPy.webp`
             break;
         case "C":
-            imgUrl = `${process.env.PUBLIC_URL}/image/roomC.webp`
+            imgUrl = `${process.env.PUBLIC_URL}/image/_rcdC.webp`
             break;
         case "C#":
-            imgUrl = `${process.env.PUBLIC_URL}/image/roomCshrp.webp`
+            imgUrl = `${process.env.PUBLIC_URL}/image/_rcdCs.webp`
             break;
         case "C++":
-            imgUrl = `${process.env.PUBLIC_URL}/image/roomCpl.webp`
+            imgUrl = `${process.env.PUBLIC_URL}/image/_rcdCp.webp`
             break;
         case "KOTLIN":
-            imgUrl = `${process.env.PUBLIC_URL}/image/roomKt.webp`
+            imgUrl = `${process.env.PUBLIC_URL}/image/_rcdKt.webp`
             break;
         default:
-            imgUrl = `${process.env.PUBLIC_URL}/image/roomEtc.webp`
+            imgUrl = `${process.env.PUBLIC_URL}/image/_rcdEtc.png`
             break;
     }
     return imgUrl
@@ -357,6 +357,7 @@ export const RoomCard = styled.div`
     /* display: flex;
     flex-direction : column; */
     background: linear-gradient(252.91deg, #00C4BD 0%, #267F82 20.31%, #394254 38.54%);
+    background: linear-gradient(227deg, #00C4BD 2%, #267F82 10.31%, var(--bg-li) 37.54%);
     border-radius: 20px;
     width: 443px;
     height: 167px;
@@ -367,7 +368,12 @@ export const RoomCard = styled.div`
     background-image : url(
         ${(props) => { return getBgImg(props.language) }}
     );
+    background-image: linear-gradient(227deg, rgb(0, 196, 189, 0.5) 2%, rgb(38, 127, 130, 0.5) 10.31%, rgb(22, 31, 54, 0.8) 37.54%), url(${(props) => { return getBgImg(props.language) }});
+    
+    background-image : linear-gradient(227deg, rgb(0, 196, 189, 1) 0%, rgb(38, 127, 130, 0.67) 14.31%, rgb(22, 31, 54, 0.8) 35.54%), url(${(props) => { return getBgImg(props.language) }});
     border : ${(props) => { return checkSelcetdCard('border' ,props.searchIdx) }};
+
+
 `
 export const RoomCardBgImg = styled.img`
     position: relative;

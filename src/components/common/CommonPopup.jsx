@@ -10,6 +10,7 @@ import styled from 'styled-components'
 // priHander : 'primery 버튼 클릭시 동작하는 함수'
 // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
 // closeHander : 닫기 함수
+// secondMsg : 두줄 메세지 작성시
 
 function CommonPopup(props) {
 
@@ -20,15 +21,18 @@ function CommonPopup(props) {
                     <CloseBtn onClick={() => {
                         props.closeHander()
                     }}
-                        closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
+                        closeBtn={`${process.env.PUBLIC_URL}/image/inputDeleteBtn.webp`}
                     ></CloseBtn>
-                    <h1>{props.msg}</h1>
-                    <BtnWrap>
+                    <TextWrap isTitleOnly={props.secondMsg?false:true}>
+                        <h1>{props.msg}</h1>
+                        {props.secondMsg?<h1>{props.secondMsg}</h1>:<></>}
+                    </TextWrap>
+                    <BtnWrap isBtns={props.isBtns}>
                         {props.isBtns?<>
                             <Btn color='color' onClick={()=>{props.priHander()}}>{props.priMsg}</Btn>
                             <Btn onClick={()=>{props.secHandler()}}>{props.secMsg}</Btn>
                         </>:<>
-                            <Btn color='color' onClick={()=>{props.priHander()}}>{props.priMsg}</Btn>
+                            <Btn isBtns={props.isBtns} color='color' onClick={()=>{props.priHander()}}>{props.priMsg}</Btn>
                         </>}
                     </BtnWrap>
                 </PopUp>
@@ -44,8 +48,8 @@ export const Dark = styled.div`
     top: 0;
     left: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0,0.6);
-    z-index: 2;
+    background-color: rgba(0, 0, 0,0.8);
+    z-index: 5;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -57,11 +61,14 @@ export const PopUp = styled.div`
     width: 332px;
     height: 198px;
     background: var(--bg-li);
+    /* border-radius: 8px; */
     border-radius: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    /* justify-content: center; */
     align-items: center;
+    box-shadow: 5px 5px 20px 0 rgba(0,0,0,0.4);
+    justify-content: space-between;
 
     h1 {
         font-family: 'Pretendard';
@@ -69,20 +76,47 @@ export const PopUp = styled.div`
         font-weight: 500;
         font-size: 15px;
         color: #FFFFFF;
-        margin-top: 15px;
-        margin-bottom: 30px;
+    }
+`
+export const TextWrap = styled.div`
+    text-align: center;
+    width: 241px;
+    height: 80px;
+    margin-top: 47px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    h1 {
+        font-family: 'Pretendard';
+        font-style: normal;
+        font-weight: 500;
+        font-size: 15px;
+        color: #FFFFFF;
     }
 `
 
 export const BtnWrap = styled.div`
+    width: 241px;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    justify-content: ${(props) => {
+        return props.isBtns? 'space-between' : 'center'
+    }};
+    gap: 12px;
+    margin-bottom: 27px;
+    margin-bottom: ${(props) => {
+        return props.isBtns? '27px' : '34px'
+    }};
 `
 
 export const Btn = styled.button`
     width: 109px;
-    height: 38px;
+    width: ${(props) => {
+        return props.isBtns? '109px' : '164px'
+    }};
+    height: 32px;
     background: ${(props) => {
         return props.color === 'color' ? 'var(--po-de)' : '#E2E2E2'
     }};
@@ -101,11 +135,11 @@ export const Btn = styled.button`
 `
 
 export const CloseBtn = styled.button`
-    width: 20px;
-    height: 20px;
+    width: 13px;
+    height: 13px;
     position: absolute;
-    top: 10px;
-    right: 15px;
+    top: 21px;
+    right: 24px;
     font-size: 25px;
     border: none;
     background-color: transparent;

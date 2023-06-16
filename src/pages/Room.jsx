@@ -12,6 +12,8 @@ import { useMutation } from 'react-query'
 import { leaveChatRoom } from '../axios/api/chat'
 import Header from '../components/common/Header';
 import Stopwatch from '../components/Stopwatch'
+import CommonPopup from '../components/common/CommonPopup'
+
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
 function Room() {
@@ -46,10 +48,31 @@ function Room() {
 
   const [btnSelect, setBtnSelect] = useState('public')
 
+  
   //popup창
   const [roomPopUp, setRoomPopUp] = useState(false)
   // 네비게이트 선언
   const navigate = useNavigate()
+
+  // 뒤로 가기 막기
+  const [isblocked, setIsblocked] = useState(false)
+  // 뒤로가기 동작 감지
+  const preventGoBack = () => {
+      console.log('//////////////////////////////// 뒤로가기 동작 감지')
+      window.history.pushState(null, "", location.href);
+      setIsblocked(true)
+  };
+
+  useEffect(() => {
+    console.log('//////////////////////////////// popstate 이벤트 추가')
+    window.history.pushState(null, "", location.href);
+    window.addEventListener("popstate", preventGoBack);
+
+    return () => {
+      window.removeEventListener("popstate", preventGoBack);
+    };
+  }, []);
+
   // 리브세션 서버 요청
   const leaveSessionMutation = useMutation(leaveChatRoom, {
     onSuccess: (response) => {
@@ -220,8 +243,8 @@ function Room() {
     });
 
     mySession.on('streamPropertyChanged', (event)=>{
-      console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',event.changedProperty)
-      console.log('이프 안쪽 여기 체인지 값이 바뀌면... 그 뭐시기냐 올드 퍼ㅂㄹ리셔가 바껴야함.',event.changedProperty)
+      console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@1',event)
+      console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2',event.changedProperty)
       setIsChangedProperty((prevIsChangedProperty)=>(!prevIsChangedProperty))
     })
 
@@ -302,13 +325,13 @@ function Room() {
   }, [data])
 
   useEffect(() => {
-    console.log("old subscribers ............................................. ", subscribers)
+    console.log("old subscribers ...................................... ", subscribers)
     console.log("publisher............................................. ", publisher)
+    // setSubscribers((prevSubscribers) => [...prevSubscribers])
     const updateSubscribers = [...subscribers]
-    setSubscribers(updateSubscribers)
-    subscribers.map((sub,i)=>{
-      console.log(sub.stream.audioActive?'서브오디오활성여부 트루'+i:'서브오디오활성여부 폴스'+i)
-    })
+    //setSubscribers((prevSubscribers)=>[...subscribers])
+    setSubscribers((prevSubscribers)=>updateSubscribers)
+
   }, [publisher, audioEnabled, isChangedProperty])
 
 
@@ -332,9 +355,6 @@ function Room() {
     setAudioEnabled((prevValue) => !prevValue)
     // publisher.publishAudio(!audioEnabled)
     publisher.publishAudio(!audioEnabled)
-    subscribers.map((sub)=>{
-      console.log(">>>>>> 오디오 바꾸면서 서브가 어떻게 바뀌는지 ",sub)
-    })
   }
 
   const startCameraSharing = useCallback(async (originPublish) => {
@@ -379,7 +399,6 @@ function Room() {
         frameRate: 30,
         insertMode: 'APPEND',
       })
-      ///setNumber(number => number + 1);
 
       session.unpublish(originPublish)
       session.publish(screenSharingPublisher)
@@ -410,7 +429,7 @@ function Room() {
       // 카메라 모드일 때, 화면 공유로 전환
       startScreenSharing(originPublish)
     }
-  }, [isScreenSharing, startCameraSharing, startScreenSharing])
+  }, [isScreenSharing, startCameraSharing, startScreenSharing, isChangedProperty])
 
 
   useEffect(() => {
@@ -902,7 +921,7 @@ function Room() {
                     </PasswordWrap>
                   } */}
                   <JoinBtnWrap>
-                    <JoinBtn name="commit" type="submit" value="방 생성하기" />
+                    <JoinBtn name="commit" type="submit" value="모각코 만들기" />
                   </JoinBtnWrap>
                 </form>
                 {/* <button onClick={onClickTempButton}>TEMP</button> */}
@@ -947,6 +966,24 @@ function Room() {
                 }}>참여하기</ParticipationBtn>
               </PopUp>
             </Dark>
+          }
+          {
+            isblocked &&
+            // msg : 화면에 표시되는 메세지
+            // isBtns : boolean
+            // priMsg  'primery 버튼 내용'
+            // secMsg  'second 버튼 내용'
+            // priHander : 'primery 버튼 클릭시 동작하는 함수'
+            // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
+            // closeHander : 닫기 함수
+            <CommonPopup msg={`뒤로가기 하시겠습니까?`} 
+              secondMsg={'공부시간이 기록되지 않을 수 있습니다.'}
+              isBtns={true} 
+              priMsg='확인' 
+              secMsg='취소' 
+              priHander={()=>{leaveSession()}} 
+              secHandler={()=>(setIsblocked(false))} 
+              closeHander={()=>(setIsblocked(false))}/>
           }
           <RoomInHeader>
             <span>{roomTitle}</span>
@@ -1062,6 +1099,7 @@ function Room() {
                   onChange={(e) => setMessage(e.target.value)}
                   cols="30"
                   rows="10"
+                  placeholder='대화를 입력하세요'
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       if (!e.shiftKey) {
@@ -1248,7 +1286,7 @@ export const RoomNameInput = styled.input`
   border-radius: 114px;
   color : #FFFFFF;
   &::placeholder{
-    color: #BEBEBE;;
+    color: #BEBEBE;
   }
 `
 
@@ -1441,7 +1479,7 @@ export const PasswordInput = styled.input`
   background-color: var(--bg-li);
   border-radius: 114px;
   &::placeholder{
-    color: #BEBEBE;;
+    color: #BEBEBE;
   }
 `
 
@@ -1728,7 +1766,7 @@ export const ChattingHeader = styled.p`
 
 export const ChatContentWrap = styled.div`
     padding: 10px 15px;
-    height: 735px;
+    height: 745px;
     overflow-y: scroll;
     &::-webkit-scrollbar {
         display: none;
@@ -1800,23 +1838,32 @@ export const ChatInputWrap = styled.div`
 `
 
 export const ChatInput = styled.textarea`
-    width: 234px;
-    height: 50px;
+    width: 224px;
+    height: 30px;
     background-color: #626873;
-    padding: 18px 35px 0 20px;
+    padding: 4px 35px 0 20px;
     letter-spacing: 2.5px;
     resize: none;
     box-sizing: border-box;
     font-size: 16px;
-    font-weight: 900;
+    font-weight: 500;
     &::-webkit-scrollbar {
         display: none;
     }
     outline: none;
     border: none;
     border-radius: 114px;
-    font-family: 'Pretendard-Regular';
+    font-family: 'Pretendard';
+    font-style: normal;
     color: white;
+    &::placeholder {
+      font-family: 'Pretendard';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 12px;
+      line-height: 23px;
+      color: #BEBEBE;
+    }
 `;
 
 export const SendBtnWrap = styled.div`

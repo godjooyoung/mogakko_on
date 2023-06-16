@@ -5,11 +5,17 @@ import { getCookie, removeCookie } from '../../cookie/Cookie';
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useDispatch, useSelector } from 'react-redux';
 import { __alarmSender, __alarmClean } from '../../redux/modules/alarm'
-import { __logoutResetUser} from '../../redux/modules/user'
+import { __logoutResetUser } from '../../redux/modules/user'
 import { __logoutResetSearch } from '../../redux/modules/search'
 import { useLocation } from 'react-router-dom'
 
 function Header(props) {
+
+    // 전역에 등록된 알람 내역 가져오기
+    const alarmInfo = useSelector((state) => {
+        return state.alarmInfo
+    })
+
     // hooks
     const navigate = useNavigate();
     const eventSourceRef = useRef(null);
@@ -20,7 +26,12 @@ function Header(props) {
     const [isLogin, setIsLogin] = useState(false)
     const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
     const [isVisible, setIsVisible] = useState(true)
-    const [isNewNotification, setIsNewNotification] = useState(false)
+
+    // 신규 알람 카운트
+    const [isNewNotification, setIsNewNotification] = useState(alarmInfo.filter((alarm) => { return alarm.indexOf('EventStream Created') === -1 }).length)
+
+    // 신규알람 표시 여부
+    const [isNewNoti, setIsNewNoti] = useState(false)
 
     const urlPathname = location.pathname;
 
@@ -35,27 +46,29 @@ function Header(props) {
             }
         }
         checkLoginStatus()
-        if(urlPathname === '/signup' || urlPathname === '/signin'){
+        if (urlPathname === '/signup' || urlPathname === '/signin') {
             setIsVisible(false)
         }
     })
-    
-    // 알람 신규로 올때마다 상태값 바뀌는지 콘솔 찍기 테스트용
-    useEffect(()=>{
-        if(isNewNotification){
-            console.log("TEST 신규 알림이 발생했습니다.")
+
+    // 알람 신규로 올때
+    useEffect(() => {
+
+        console.log("알람건수:::::::::::::::  ", isNewNotification)
+        if (isNewNotification > 1) {
+            setIsNewNoti(true)
+        } else {
+            setIsNewNoti(false)
         }
-    },[isNewNotification])
+    }, [isNewNotification])
 
-    // 전역에 등록된 사용자 프로필 이미지 가져오기
-    const userProfile = useSelector((state) => {
-        return state.userInfo.userProfile
-    })
+    // 알람 창을 열었으면 신규 알람 아이콘 없앤다.
+    useEffect(() => {
+        if (isAlarmWindowOpen) {
+            setIsNewNoti(false)
+        }
+    }, [isAlarmWindowOpen])
 
-    // 전역에 등록된 알람 내역 가져오기
-    const alarmInfo = useSelector((state) => {
-        return state.alarmInfo
-    })
 
     useEffect(() => {
         // 세션 스토리지에서 SSE 구독 상태를 확인
@@ -98,13 +111,16 @@ function Header(props) {
 
                     eventSourceRef.current.addEventListener('message', (event) => {
                         console.log("[INFO] SSE message event", event)
+                        //SSE message event
                         const data = event.data
                         console.log("[INFO] SSE message data ", data)
+
+                        setIsNewNotification((prevIsNewNotification) => prevIsNewNotification + 1)
                         // if(data.indexOf('EventStream Created') === -1){
-                        //     setIsNewNotification(true)
-                        // }else{
-                        //     setIsNewNotification(false)
+                        //     console.log('최초 연결 알람이 아닌 추가 알라밍 발생했습니다!!!!!!!!!!!', data)
+                        //     setIsNewNotification((prevIsNewNotification)=>prevIsNewNotification+1)
                         // }
+
                         dispatcher(__alarmSender(data))
                     })
                     return () => {
@@ -120,7 +136,7 @@ function Header(props) {
             subcribeSSE()
             avataGenHandler()
         }
-        if(!isLogin){
+        if (!isLogin) {
             dispatcher(__alarmClean())
         }
 
@@ -147,16 +163,16 @@ function Header(props) {
         const pos = content.indexOf(userNickName)
         let highLightName
         let nonHighLightContnent
-        if(pos!==-1){
+        if (pos !== -1) {
             highLightName = content.substr(pos, userNickName.length)
-            nonHighLightContnent = content.substr((pos+userNickName.length))
-            console.log("######## highLightContnent " ,highLightName)
-            console.log("######## nonHighLightContnent " ,nonHighLightContnent)
+            nonHighLightContnent = content.substr((pos + userNickName.length))
+            console.log("######## highLightContnent ", highLightName)
+            console.log("######## nonHighLightContnent ", nonHighLightContnent)
             return <><span>{highLightName}</span>{nonHighLightContnent}</>
-        }else{
+        } else {
             return <>{content}</>
         }
-        
+
     }
 
     // 알림 내용 컴포넌트 생성 함수
@@ -164,7 +180,7 @@ function Header(props) {
         if (alarmInfo) {
             // 전역 스토어에 저장되어있는 알람 내역
             console.log("[global] alarmInfo > ", alarmInfo)
-            
+
             // 알람 테스트를 위한 목 데이터
             // const alarmInfoTest4 = [
             //     'EventStream Created. [memberId=8]',
@@ -175,7 +191,7 @@ function Header(props) {
             // ]
 
             // EventStream Created 포함하고 있지 않은 알람만 표현해준다.
-            const filterAlarm = alarmInfo.filter((alarm)=>{
+            const filterAlarm = alarmInfo.filter((alarm) => {
                 return alarm.indexOf('EventStream Created') === -1
             })
 
@@ -194,7 +210,7 @@ function Header(props) {
                             return (
                                 <AlearmContent>
                                     <ProfileImgDivInAlarm>
-                                        <img src={JSON.parse(alarm).senderProfileUrl} alt="프로필사진"  width='44px' height='44px'/>
+                                        <img src={JSON.parse(alarm).senderProfileUrl} alt="프로필사진" width='44px' height='44px' />
                                         {/* {avataGenHandler('alearm', JSON.parse(alarm).senderProfileUrl, JSON.parse(alarm).senderNickname)} */}
                                     </ProfileImgDivInAlarm>
                                     <AlearmContentWrap onClick={onClickMyPageHandler}>
@@ -261,7 +277,7 @@ function Header(props) {
 
         logout()
     }
-    
+
     const onClickMyPageHandler = () => {
         navigate('/mypage')
     }
@@ -279,15 +295,16 @@ function Header(props) {
                 </HeaderLeftContent>
                 <HeaderRightContent>
                     {!isLogin ? <>
-                        {isVisible?<>
+                        {isVisible ? <>
                             <HeaderButton onClick={onClickSignInHandler} width={67} marginRight={18}><p>로그인</p></HeaderButton>
                             <HeaderButton onClick={onClickSignUpHandler} width={115} border={true} marginRight={0}><p>회원가입</p></HeaderButton>
-                        </>:<></>
+                        </> : <></>
                         }
                     </> : <>
                         <HeaderButton onClick={onClickLogOutHandler} width={85} marginRight={10} ><p>로그아웃</p></HeaderButton>
                         <AlearmWrap>
                             <HeaderButton onClick={() => { onClickAlearmHandler(isAlarmWindowOpen) }} marginRight={17} width={40}>
+                                {isNewNoti ? <NewNoti /> : <></>}
                                 <AlearmImg src={`${process.env.PUBLIC_URL}/image/alearmBtn.svg`} alt="알람버튼" />
                             </HeaderButton>
                             {!isAlarmWindowOpen ? <></> :
@@ -302,15 +319,15 @@ function Header(props) {
                         </AlearmWrap>
 
                         {/* <HeaderButton onClick={onClickMyPageHandler} marginRight={39}> */}
-                        
-                            <ProfileImgDiv onClick={onClickMyPageHandler}>
-                                {
-                                    // console.log("profileImg",profileImg)
-                                    //profileImg === '' ? <img src={`${process.env.PUBLIC_URL}/image/profileEmpty.svg`} alt="프로필사진" />:<img src='http://www.gravatar.com/avatar/테스트유저1?d=identicon&s=400' alt="프로필사진" />
-                                    avataGenHandler()
-                                }
-                            </ProfileImgDiv>
-                        
+
+                        <ProfileImgDiv onClick={onClickMyPageHandler}>
+                            {
+                                // console.log("profileImg",profileImg)
+                                //profileImg === '' ? <img src={`${process.env.PUBLIC_URL}/image/profileEmpty.svg`} alt="프로필사진" />:<img src='http://www.gravatar.com/avatar/테스트유저1?d=identicon&s=400' alt="프로필사진" />
+                                avataGenHandler()
+                            }
+                        </ProfileImgDiv>
+
                         {/* </HeaderButton> */}
                     </>
                     }
@@ -349,7 +366,8 @@ export const ProfileImgDiv = styled.div`
     border-radius: 50%;
     overflow: hidden;
     background-color: #ffffff;
-    box-shadow: 0 0 0 1px #ffffff;
+    /* box-shadow: 0 0 0 1px #ffffff; */
+    box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.8);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -453,7 +471,13 @@ export const AlearWrapContent = styled.div`
     height: 373.95px;
     background-color: #F9F9FA;
     z-index: 1;
-    overflow: scroll;
+    overflow-y:scroll;
+    overflow-x: hidden;
+    &::-webkit-scrollbar{
+        width: 7px;
+        background-color: transparent;
+        border-radius: 8px;
+    }
 `
 
 export const AlearTitle = styled.p`
@@ -531,5 +555,17 @@ export const NoneMessage = styled.p`
 
 export const Logo = styled.img`
     cursor: pointer;
+`
+
+export const NewNoti = styled.div`
+    width: 10px;
+    height: 10px;
+    overflow: hidden;
+    border-radius: 50%;
+    background-color: #FF635D;
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    z-index: 1;
 `
 export default Header;

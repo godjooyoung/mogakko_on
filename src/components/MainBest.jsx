@@ -191,9 +191,9 @@ export const BestMemberProfileImage = styled.div`
     height: 80px;
     border-radius: 50%;
     overflow: hidden;
-    box-shadow: 0 0 0 1px #ffffff;
+    /* box-shadow: 0 0 0 1px #ffffff; */
     margin: 26px auto 12px;
-    background-color: white;
+    /* background-color: white; */
 `
 
 export const BestMemberName = styled.p`
@@ -245,7 +245,8 @@ const ProgressContainer = styled.div`
     border: none;
     width: 119px;
     height: 4px;
-    border: 0.5px solid #FFFFFF;
+    /* border: 0.5px solid #FFFFFF; */
+    border: 0.5px solid rgba(221, 221, 221, 0.5);
 `
 
 const Progress = styled.div`

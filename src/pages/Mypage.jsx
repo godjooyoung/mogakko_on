@@ -1,13 +1,17 @@
 
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost } from '../axios/api/mypage'
+import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost, searchUser, receiveMessage, postMessage, sentMessage } from '../axios/api/mypage'
 import styled from 'styled-components';
 import Header from "../components/common/Header";
 import useInput from '../hooks/useInput'
 import { useNavigate } from 'react-router-dom';
 import { setCookie } from '../cookie/Cookie';
-// import ChartLan from '../components/ChartLan';
+import ChartLan from '../components/ChartLan';
+import ChartTimes from '../components/ChartTimes';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import ChartWeekly from '../components/ChartWeekly';
 
 // // 00:00:00 to 00H00M
 // const formatTime = (timeString) => {
@@ -20,7 +24,30 @@ import { setCookie } from '../cookie/Cookie';
 //   return `${formattedHours}H${formattedMinutes}M`;
 // }
 
+// 쪽지 컴포넌트화
+const MakeNoteHandler = ({ idx, nickName, content, createdAt }) => {
+  const [isToggle, setIsToggle] = useState(false)
+  const toggleChangerHandler = (toggle) => {
+    setIsToggle(!toggle)
+    console.log('토글토글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글,', isToggle)
+  }
+  return (
+    <>
+      <ReceiveMessageWrap key={idx} onClick={()=>(toggleChangerHandler(isToggle))} isRead={isToggle}>
+        <ReceiveSendNickname>{nickName}</ReceiveSendNickname>
+        <ReceiveContent>{content}</ReceiveContent>
+        <ReceiveCreatedAt>{createdAt}</ReceiveCreatedAt>
+      </ReceiveMessageWrap>
+    </>
+  )
+}
+
 function Mypage() {
+
+  // AOS init설정
+  useEffect(() => {
+    AOS.init();
+  })
 
   const getFriendListIsSuccessHandler = () => {
     console.log('친구목록 조회 성공', friendListData)
@@ -30,18 +57,28 @@ function Mypage() {
     setFriendList([])
   }
 
-
   // query
   const queryClient = useQueryClient()
-  const { isLoading: isProfileLoading, isError: isProfileError, data: profileData} = useQuery("getProfile", getProfile)
-  const { isLoading: isFriendListLoading, isError: isFriendListError, data: friendListData} = useQuery("getFriendList", getFriendList, {
-      refetchOnMount: false,
-      onSuccess : getFriendListIsSuccessHandler ,
-      onError: getFriendListIsErrorHandler,
-      retry : false
-  })
-  const { isLoading: isFriendRequestListLoading, isError: isFriendRequestListError, data: friendRequestListData} = useQuery("getFriendRequestList", getFriendRequestList)
+  const { isLoading: isProfileLoading, isError: isProfileError, data: profileData } = useQuery("getProfile", getProfile)
 
+  const { isLoading: isFriendListLoading, isError: isFriendListError, data: friendListData } = useQuery("getFriendList", getFriendList, {
+    refetchOnMount: false,
+    onSuccess: getFriendListIsSuccessHandler,
+    onError: getFriendListIsErrorHandler,
+    retry: false
+  })
+  const { isLoading: isFriendRequestListLoading, isError: isFriendRequestListError, data: friendRequestListData } = useQuery("getFriendRequestList", getFriendRequestList)
+
+  // 받은 쪽지 조회
+  const { isLoading: isReceiveMessageLoading, isError: isReceiveMessageError, data: receiveMessageData } = useQuery("getReceiveMessage", receiveMessage)
+  //받은 쪽지 State
+  const [myReceiveMessage, setMyReceiveMessage] = useState(null)
+
+  // 보낸 쪽지 조회
+  const { isLoading: isSentMessageLoading, isError: isSentMessageError, data: sentMessageData } = useQuery("getSentMessage", sentMessage)
+
+  //보낸 쪽지 State
+  const [mysentMessage, setMySentMessage] = useState(null)
   const [friendList, setFriendList] = useState([]) // 친구목록
   const [friendListDelete, setFriendListDelete] = useState(false) // 친구 삭제 버튼 활성화 여부
   const [statusonMouse, setStatusOnMouse] = useState(false)
@@ -49,7 +86,7 @@ function Mypage() {
   const [value, setValue] = useState(0)
   const [gitHub, setGitHub] = useState(false)
   const [userGitHubId, setuserGitHubId] = useState('')
-  
+
   // 프로필 이미지 수정 관련 내부 스테이트
   const [fileAttach, setFileAttach] = useState('')
   const [preview, setPreview] = useState(profileData && profileData.data.data.member.profileImage)
@@ -58,43 +95,147 @@ function Mypage() {
   // custom hooks
   const [githubValue, onChangeGithubValue, githubInputValueReset] = useInput('')
 
+
+  // MOGAKKO-DATA 컴포넌트 
+  const [mogakkoData, setmogakkoData] = useState(true)
+
+  // 친구 컴포넌트
+  const [friendSidebar, setFriendSidebar] = useState(false)
+
+  // 친구찾기 닉네임 OR CODE구분
+  const [friendFindNickName, setFriendFindNickName] = useState(true)
+  const [friendFindCode, setFriendFindCode] = useState(false)
+
+  // 친구찾기 useInput
+  const [findNickNameValue, onChangeFindNickNameValue, findNickNameValueReset] = useInput('')
+  const [findCodeValue, onChangeFindCodeValue, findCodeValueReset] = useInput('')
+
+  // 찾은친구 
+  const [searchFriend, setSearchFriend] = useState([])
+
+  // 쪽지 컴폰너트
+  const [messageSidebar, setMessageSidebar] = useState(false)
+  // 쪽지 받은쪽지/보낸쪽지 sidebar 구분
+  const [messageBox, setMessageBox] = useState({
+    receive: true,
+    send: false
+  })
+
+  // 쪽지 모달 on/off
+  const [postPopup, setPostPopup] = useState(false)
+
+  const [receiveUserValue, onChangeReceiveUser, receiveUserReset] = useInput('')
+  const [receiveContentValue, onChangeReceiveContent, receiveContentReset] = useInput('')
+
   // hooks
   const navigate = useNavigate()
+
+  const [isTargeting, setIsTargeting] = useState(false)
+  const [timer, setTimer] = useState(0)
+  // const { isLoading: isSearchUserLoading, isError: isSearchUserError, data: searchUserData, refetch: getSearchUserRefetch } = useQuery("getSearchUser", () => {
+  //   friendFindNickName ? searchUser({ searchRequestNickname: findNickNameValue }) : searchUser({ friendCode: findCodeValue })
+  // }, {
+  //   enabled: isTargeting,
+  //   onSuccess: () => {
+  //     console.log('searchUserDatasearchUserDatasearchUserData', searchUserData)
+  //   },
+  //   refetch: false
+  // })
+
+  const roomListMutation = useMutation(searchUser, {
+    onSuccess: (response) => {
+      console.log("searchUser ", response)
+      console.log("searchUser.data 컨텐트 검색 결과 ", response.data)
+      console.log("searchUser.data.data 컨텐트 검색 결과 배열 ", response.data.data)
+      if (response.data.message === '검색된 멤버가 없습니다.') {
+        setSearchFriend([])
+      } else {
+        setSearchFriend(response.data.data)
+      }
+    }
+  })
+
+  // 쪽지 보내기 Mutation
+  const postMessageMutation = useMutation(postMessage, {
+    onSuccess: (response) => {
+      queryClient.invalidateQueries(receiveMessage)
+      console.log("postMessage ", response)
+    }
+  })
+
+  const postMessageHandler = () => {
+    postMessageMutation.mutate({
+      messageReceiverNickname: receiveUserValue,
+      content: receiveContentValue
+    })
+  }
+
+  useEffect(() => {
+    if (timer) {
+      console.log('clear timer');
+      clearTimeout(timer);
+    }
+    if (findNickNameValue !== '' || findCodeValue !== '') {
+      const newTimer = setTimeout(async () => {
+        try {
+          await roomListMutationCall()
+        } catch (e) {
+          console.error('error', e);
+        }
+      }, 1000);
+
+      setTimer(newTimer);
+
+      // 방 목록 조회
+      const roomListMutationCall = () => {
+        if (friendFindNickName) {
+          // 친구 닉네임으로 찾기 활성화 상태
+          roomListMutation.mutate({ type: 'NAME', value: findNickNameValue })
+        } else {
+          // 친구 코드로 찾기 활성화 상태
+          roomListMutation.mutate({ type: 'CODE', value: findCodeValue })
+        }
+      }
+    }
+
+  }, [findNickNameValue, findCodeValue])
 
   useEffect(() => {
     if (profileData) {
       console.log("마이페이지 조회 결과", profileData)
       console.log("마이페이지 조회 결과-profileImage", profileData.data.data.member.profileImage)
       console.log("마이페이지 조회 결과-nickname", profileData.data.data.member.nickname)
-      
+
       setCookie('userProfile', profileData.data.data.member.profileImage)
       setPreview(profileData.data.data.member.profileImage)
       setuserGitHubId(profileData.data.data.member.githubId)
+      setMyReceiveMessage(receiveMessageData && receiveMessageData.data.data)
+      setMySentMessage(sentMessageData && sentMessageData.data.data)
     }
   }, [profileData])
-  
+
   // 친구목록 조회 useEffect
-  useEffect(()=>{
-    if(friendListData){
+  useEffect(() => {
+    if (friendListData) {
       console.log("친구목록 조회 1", friendListData)
       console.log("친구목록 조회 2", friendListData.data.data)
-      if(friendListData.data.data){
+      if (friendListData.data.data) {
         setFriendList(friendListData.data.data)
-      }else{
+      } else {
         setFriendList([])
       }
     }
-  },[friendListData])
-    
+  }, [friendListData])
+
   // 친구요청 목록 조회 useEffect
-  useEffect(()=>{
-    if(friendRequestListData){ 
+  useEffect(() => {
+    if (friendRequestListData) {
       console.log("친구요청목록 조회 1", friendRequestListData)
       console.log("친구요청목록 조회 2", friendRequestListData.data.data)
     }
-  },[friendRequestListData])
-  
-  // 코딩온도 애니메이션 useEffect
+  }, [friendRequestListData])
+
+  // MY 코딩온도 애니메이션 useEffect
   useEffect(() => {
     setValue(profileData && profileData.data.data.member.codingTem)
     const interval = setInterval(() => {
@@ -213,16 +354,16 @@ function Mypage() {
     setPreview(objectUrl)
     setIsFileModify(true)
   }
-  
+
   // 프로필 이미지 저장 핸들러 - onchange 랑 onClick이랑 동시에 동작하면 왜 온클릭이 무시될까요? 일단 바꿈 
   const submitImgHandler = () => {
-      console.log("프로필 이미지 전송 핸들러 실행")
-      const newFile = new FormData();
-      newFile.append("imageFile", fileAttach)
-      filemutation.mutate(newFile)
-      setIsFileModify(false)
+    console.log("프로필 이미지 전송 핸들러 실행")
+    const newFile = new FormData();
+    newFile.append("imageFile", fileAttach)
+    filemutation.mutate(newFile)
+    setIsFileModify(false)
   }
-    
+
   //githubID 저장 핸들러
   const githubIdHandler = () => {
     githubMutation.mutate(githubValue)
@@ -261,7 +402,18 @@ function Mypage() {
   const userProfileHandler = (id) => {
     navigate('/profile/' + id)
   }
-                    
+
+
+  // 코드 복사 
+  const handleCopyClipBoard = (code) => {
+    try {
+      navigator.clipboard.writeText(code);
+      alert('클립보드에 복사되었습니다.');
+    } catch (error) {
+      alert('클립보드 복사에 실패하였습니다.');
+    }
+  }
+
   return (
     <>
       <Header />
@@ -287,212 +439,471 @@ function Mypage() {
         </Dark>
       }
       <FlexBox>
-        <div>
-          <MyPageTopContentWrap>
-            <ProfileModifyWrap>
-              <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
-                <ImageWrap BgImg={preview} width='155px' height='155px'/>
-                <div>
-                  <FileButton htmlFor="file"
-                    modify={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`}
-                    modifyClick={`${process.env.PUBLIC_URL}/image/modifyClickBtn.webp`}
-                  ></FileButton>
-                  <FileInput type="file" id="file" onChange={handleFileChange} />
-                </div>
-              </ProfileModifyContent>
-              <MyPageUserNameWrap>
-                <MyPageUserName>{profileData && profileData.data.data.member.nickname}</MyPageUserName>
-                <Temperaturecontainer>
-                  <TemperatureTitle>On°
-                    <img
-                      src={`${process.env.PUBLIC_URL}/image/status.webp`}
-                      onMouseEnter={() => {
-                        tempOnMouseHandler()
+        <MypageWrap>
+          <MypageNavbar>
+            <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
+              <ImageWrap BgImg={preview} width='155px' height='155px' />
+              <div>
+                <FileButton htmlFor="file"
+                  modify={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`}
+                  modifyClick={`${process.env.PUBLIC_URL}/image/modifyClickBtn.webp`}
+                ></FileButton>
+                <FileInput type="file" id="file" onChange={handleFileChange} />
+              </div>
+            </ProfileModifyContent>
+            <MyPageUserName>{profileData && profileData.data.data.member.nickname}</MyPageUserName>
+
+            <MyCodeWrap>
+              <MyCode>나의 코드: {profileData && profileData.data.data.member.friendCode}</MyCode>
+              <CopyBtn onClick={() => handleCopyClipBoard(profileData.data.data.member.friendCode)}
+                imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
+              >COPY</CopyBtn>
+            </MyCodeWrap>
+
+            <NavberCategory>
+              <DataCategory mogakkoData={mogakkoData}
+                onClick={() => {
+                  setmogakkoData(true)
+                  setFriendSidebar(false)
+                  setMessageSidebar(false)
+                  setMessageBox({
+                    receive: true,
+                    send: false
+                  })
+                }}
+              >모각코 데이터</DataCategory>
+              <FriendCategory friendSidebar={friendSidebar}
+                onClick={() => {
+                  setmogakkoData(false)
+                  setFriendSidebar(true)
+                  setMessageSidebar(false)
+                  setMessageBox({
+                    receive: true,
+                    send: false
+                  })
+                }}
+              >친구</FriendCategory>
+              <Message messageSidebar={messageSidebar}
+                onClick={() => {
+                  setmogakkoData(false)
+                  setFriendSidebar(false)
+                  setMessageSidebar(true)
+                }}
+              >쪽지</Message>
+              {messageSidebar &&
+                <ul>
+                  <ReceiveBox
+                    receive={messageBox.receive}
+                    data-aos="slide-down"
+                    onClick={() => {
+                      setMessageBox({
+                        receive: true,
+                        send: false
+                      })
+                    }}
+                  >받은 쪽지함</ReceiveBox>
+                  <SendBox
+                    send={messageBox.send}
+                    data-aos="slide-down"
+                    data-aos-delay="100"
+                    onClick={() => {
+                      setMessageBox({
+                        receive: false,
+                        send: true
+                      })
+                    }}
+                  >보낸 쪽지함</SendBox>
+                </ul>
+              }
+            </NavberCategory>
+
+          </MypageNavbar>
+          {mogakkoData &&
+            <WidthBox>
+              <MyPageTopContentWrap>
+                <MogakkoTitle>모각코 데이터</MogakkoTitle>
+                <ProfileModifyWrap>
+
+                  <TotalTimewrap>
+                    <TopContentTitle>오늘 공부시간</TopContentTitle>
+                    <TopContentTitleItem>{profileData && profileData.data.data.totalTimer}</TopContentTitleItem>
+                  </TotalTimewrap>
+
+                  <WeeklyTimeWrap>
+                    <TopContentTitle>총 공부 시간</TopContentTitle>
+                    <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
+                  </WeeklyTimeWrap>
+                  <Temperaturecontainer>
+                    <TemperatureTitle>On°
+                      <img
+                        src={`${process.env.PUBLIC_URL}/image/status.webp`}
+                        onMouseEnter={() => {
+                          tempOnMouseHandler()
+                        }}
+                        onMouseLeave={() => {
+                          tempOffMouseHandler()
+                        }}
+                      ></img>
+                    </TemperatureTitle>
+                    {
+                      temponMouse &&
+                      <TemperatureMouseHoverBox>
+                        <TemperatureMouseHoverBoxdesc>
+                          당신의 코딩온도는 몇도인가요?<br />
+                          공부 시간이 늘어날수록<br />
+                          코딩 온도도 올라가요! ( 10M <img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /> 0.01)
+                        </TemperatureMouseHoverBoxdesc>
+                      </TemperatureMouseHoverBox>
+                    }
+                    <TemperatureWrap>
+                      <ProgressContainer>
+                        <Progress style={{ width: `${value}%` }} />
+                      </ProgressContainer>
+                      <span>{profileData && profileData.data.data.member.codingTem}°</span>
+                    </TemperatureWrap>
+                  </Temperaturecontainer>
+
+                  <StatusWrap>
+                    <TopContentTitleWrap>
+                      <TopContentTitle>STATUS</TopContentTitle>
+                      <Status
+                        statusImg={`${process.env.PUBLIC_URL}/image/status.webp`}
+                        onMouseEnter={() => {
+                          statusOnMouseHandler()
+                        }}
+                        onMouseLeave={() => {
+                          statusOffMouseHandler()
+                        }}
+                      ></Status>
+                      {
+                        statusonMouse &&
+                        <StatusMouseHoverBox>
+                          <p>102 : <span>회원가입 시 기본값</span></p>
+                          <p>200 : <span>처음 프로필 등록시 변경</span></p>
+                          <p>400 : <span>신고 1회</span></p>
+                          <p>401 : <span>신고 2회</span></p>
+                          <p>404 : <span>신고 3회</span></p>
+                          <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
+                          <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
+                          <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
+                          <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
+                        </StatusMouseHoverBox>
+                      }
+                    </TopContentTitleWrap>
+                    <TopContentTitleItem>{profileData && profileData.data.data.member.memberStatusCode}</TopContentTitleItem>
+                  </StatusWrap>
+                </ProfileModifyWrap>
+              </MyPageTopContentWrap>
+
+              <ChartWrap>
+                <WeeklyStudyTimewrap>
+                  <p>이번 주 공부시간</p>
+                  <AttendanceCheckWrap data-aos="fade-down" data-aos-duration="1000">
+                    <ChartWeekly data={profileData && profileData.data.data.timeOfWeek} />
+                  </AttendanceCheckWrap>
+                  <StudyTime data-aos="fade-right" data-aos-duration="1000">
+                    <ChartTimes data={profileData && profileData.data.data.timeOfWeek} />
+                  </StudyTime>
+                </WeeklyStudyTimewrap>
+                <TotalLanguageWrap>
+                  <p>통합 선택 언어</p>
+                  <TotalLanguage data-aos="fade-left" data-aos-duration="1000">
+                    <ChartLan data={profileData && profileData.data.data.languageList} />
+                  </TotalLanguage>
+                </TotalLanguageWrap>
+              </ChartWrap>
+
+              <MyPageMiddleContentWrap>
+                {/* <div><p>깃허브 잔디</p><img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /></div> */}
+                <GithubTitleWrap userGitHubId={userGitHubId}>
+                  <p>깃허브 잔디</p>
+                  {userGitHubId === null || userGitHubId === undefined || userGitHubId === ' ' ?
+                    null :
+                    <GithubModifyImg
+                      modify={`${process.env.PUBLIC_URL}/image/gitHubEdit.png`}
+                      modifyHo={`${process.env.PUBLIC_URL}/image/gitHubEdit.pngp`}
+                      modifyClcik={`${process.env.PUBLIC_URL}/image/gitHubEdit.png`}
+                      onClick={() => {
+                        setGitHub(!gitHub)
                       }}
-                      onMouseLeave={() => {
-                        tempOffMouseHandler()
-                      }}
-                    ></img>
-                  </TemperatureTitle>
-                  {
-                    temponMouse &&
-                    <TemperatureMouseHoverBox>
-                      <TemperatureMouseHoverBoxdesc>
-                        당신의 코딩온도는 몇도인가요?<br />
-                        공부 시간이 늘어날수록<br />
-                        코딩 온도도 올라가요! ( 10M <img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /> 0.01)
-                      </TemperatureMouseHoverBoxdesc>
-                    </TemperatureMouseHoverBox>
+                    >
+                    </GithubModifyImg>
                   }
-                  <TemperatureWrap>
-                    <ProgressContainer>
-                      <Progress style={{ width: `${value}%` }} />
-                    </ProgressContainer>
-                    <span>{profileData && profileData.data.data.member.codingTem}°</span>
-                  </TemperatureWrap>
-                </Temperaturecontainer>
-              </MyPageUserNameWrap>
-              <TimerWrap>
-                <div>
-                  <TopContentTitle>총 공부시간</TopContentTitle>
-                  <TopContentTitleItem>{profileData && profileData.data.data.totalTimer}</TopContentTitleItem>
-                </div>
+                </GithubTitleWrap>
 
-                <div>
-                  <TopContentTitle>이번 주 공부 시간</TopContentTitle>
-                  <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
-                </div>
-
-                <div>
-                  <TopContentTitleWrap>
-                    <TopContentTitle>STATUS</TopContentTitle>
-                    <Status
-                      statusImg={`${process.env.PUBLIC_URL}/image/status.webp`}
-                      onMouseEnter={() => {
-                        statusOnMouseHandler()
-                      }}
-                      onMouseLeave={() => {
-                        statusOffMouseHandler()
-                      }}
-                    ></Status>
-                    {
-                      statusonMouse &&
-                      <StatusMouseHoverBox>
-                        <p>102 : <span>회원가입 시 기본값</span></p>
-                        <p>200 : <span>처음 프로필 등록시 변경</span></p>
-                        <p>400 : <span>신고 1회</span></p>
-                        <p>401 : <span>신고 2회</span></p>
-                        <p>404 : <span>신고 3회</span></p>
-                        <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
-                        <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
-                        <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
-                        <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
-                      </StatusMouseHoverBox>
-                    }
-                  </TopContentTitleWrap>
-                  <TopContentTitleItem>{profileData && profileData.data.data.member.memberStatusCode}</TopContentTitleItem>
-                </div>
-              </TimerWrap>
-            </ProfileModifyWrap>
-          </MyPageTopContentWrap>
-
-          <MyPageMiddleContentWrap>
-            {/* <div><p>깃허브 잔디</p><img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /></div> */}
-            <GithubTitleWrap>
-              <p>깃허브 잔디</p>
-              {userGitHubId === null || userGitHubId === undefined || userGitHubId === ' '?
-                null :
-                <GithubModifyImg
-                  modify={`${process.env.PUBLIC_URL}/image/githubModify.webp`}
-                  modifyHo={`${process.env.PUBLIC_URL}/image/githubModifyHo.webp`}
-                  modifyClcik={`${process.env.PUBLIC_URL}/image/githubModifyClick.webp`}
-                  onClick={() => {
-                    setGitHub(!gitHub)
-                  }}
-                >
-                </GithubModifyImg> 
-              }
-            </GithubTitleWrap>
-
-            {
-              userGitHubId ?
-                <MyPageMiddleContent>
-                  <GitHubImage src={`https://ghchart.rshah.org/232B3D/${userGitHubId}`} />
-                </MyPageMiddleContent> :
-                <NoGithubIdWrap onClick={() => {
-                  setGitHub(!gitHub)
-                }}>
-                  <div><img src={`${process.env.PUBLIC_URL}/image/addSquare.png`} alt="깃허브잔디등록버튼" /></div>
-                  <p>깃허브 잔디를 등록해보세요</p>
-                </NoGithubIdWrap>
-            }
-          </MyPageMiddleContentWrap>
-
-          <MyPageBottomContentWrap>
-            <FriendListContainer>
-              <DeleteBtnWrap>
-                <p>친구 목록</p>
-                {friendList.length === 0 ?
-                  null :
-                  <>
-                    {
-                      !friendListDelete ? <FriendListDeleteBtn onClick={() => {
-                        friendListDeleteHandler()
-                      }}>삭제 하기</FriendListDeleteBtn> :
-                        <FriendListCancleBtnWrap>
-                          <FriendListCancleBtn onClick={() => {
-                            friendListDeleteHandler()
-                          }}
-                            color={'cancle'}
-                          >취소</FriendListCancleBtn>
-                          <FriendListCancleBtn onClick={onClickDeleteFriendButtonHandler}>삭제</FriendListCancleBtn>
-                        </FriendListCancleBtnWrap>
-                    }
-                  </>
+                {
+                  userGitHubId ?
+                    <MyPageMiddleContent>
+                      <GitHubImage src={`https://ghchart.rshah.org/232B3D/${userGitHubId}`} />
+                    </MyPageMiddleContent> :
+                    <NoGithubIdWrap onClick={() => {
+                      setGitHub(!gitHub)
+                    }}>
+                      <div><img src={`${process.env.PUBLIC_URL}/image/addSquare.png`} alt="깃허브잔디등록버튼" /></div>
+                      <p>깃허브 잔디를 등록해보세요</p>
+                    </NoGithubIdWrap>
                 }
-              </DeleteBtnWrap>
+              </MyPageMiddleContentWrap>
+            </WidthBox>
+          }
 
-              {
-                friendList.length === 0 ?
-                  <NullFriendList>
-                    <h1>추가한 친구가 없습니다</h1>
-                  </NullFriendList> :
-                  <ScrollWrap>
-                    <FriendListWrap>
-                      {friendList && friendList.map((friend, idx) => {
-                        return (
-                          <>
-                            <FriendList onClick={() => {
-                              onClickDeleteFriendCheckHandler(friend.member.nickname, idx, friend.selected)
-                              !friendListDelete && userProfileHandler(friend.member.id)
-                            }}>
-                              {
-                                friendListDelete &&
-                                <DeleteSelectedBtn selected={friend.selected}></DeleteSelectedBtn>
-                              }
-                              <FriendListImage friendListImg={avataGenHandler(friend.member.profileImage, friend.member.nickname)}></FriendListImage>
-                              <FriendListName>{friend.member.nickname}</FriendListName>
-                            </FriendList>
-                          </>
-                        )
-                      })}
-                    </FriendListWrap>
-                  </ScrollWrap>
-              }
-            </FriendListContainer>
-
-            <FriendRequestWrap>
-              <FriendRequestTitle>친구 요청</FriendRequestTitle>
-              {
-                friendRequestListData&&!friendRequestListData.data.data?
-                  <NullFriendRequestList>
-                    <h1>아직 친구 요청이 없습니다.</h1>
-                  </NullFriendRequestList> :
-                  <ScrollWrap>
-                    {friendRequestListData && friendRequestListData.data.data.map((friend, idx) => {
-                      return (
-                        <>
-                          <FriendWrap>
-                            <FriendLeftContent>
-                              <FriendProfile friendRequestImg={avataGenHandler(friend.profileImage, friend.nickname)}></FriendProfile>
-                              <FriendRequestNickname>{friend.nickname}</FriendRequestNickname>
-                            </FriendLeftContent>
-                            <ButtonWrap>
-                              <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, true) }} color={'allow'}>수락</AllowBtn>
-                              <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, false) }}>거절</AllowBtn>
-                            </ButtonWrap>
-                          </FriendWrap>
-                        </>
-                      )
-                    })
+          {friendSidebar &&
+            <FriendMypageWrap>
+              <MyPageBottomContentWrap>
+                <FriendListContainer>
+                  <DeleteBtnWrap>
+                    <FriendListTitle>친구 목록</FriendListTitle>
+                    {friendList.length === 0 ?
+                      null :
+                      <>
+                        {
+                          !friendListDelete ? <FriendListDeleteBtn onClick={() => {
+                            friendListDeleteHandler()
+                          }}>삭제 하기</FriendListDeleteBtn> :
+                            <FriendListCancleBtnWrap>
+                              <FriendListCancleBtn onClick={() => {
+                                friendListDeleteHandler()
+                              }}
+                                color={'cancle'}
+                              >취소</FriendListCancleBtn>
+                              <FriendListCancleBtn onClick={onClickDeleteFriendButtonHandler}>삭제</FriendListCancleBtn>
+                            </FriendListCancleBtnWrap>
+                        }
+                      </>
                     }
-                  </ScrollWrap>
-              }
-            </FriendRequestWrap>
-            {/* 차트 */}
-            {/* <ChartLan/> */}
-          </MyPageBottomContentWrap >
-        </div>
+                  </DeleteBtnWrap>
+
+                  {
+                    friendList.length === 0 ?
+                      <NullFriendList>
+                        <h1>추가한 친구가 없습니다</h1>
+                      </NullFriendList> :
+                      <ScrollWrap>
+                        <FriendListWrap>
+                          {friendList && friendList.map((friend, idx) => {
+                            return (
+                              <>
+                                <FriendList onClick={() => {
+                                  onClickDeleteFriendCheckHandler(friend.member.nickname, idx, friend.selected)
+                                  !friendListDelete && userProfileHandler(friend.member.id)
+                                }}>
+                                  {
+                                    friendListDelete &&
+                                    <DeleteSelectedBtn selected={friend.selected}></DeleteSelectedBtn>
+                                  }
+                                  <FriendListImage friendListImg={avataGenHandler(friend.member.profileImage, friend.member.nickname)}></FriendListImage>
+                                  <FriendListName>{friend.member.nickname}</FriendListName>
+
+                                  <FriendListTemperaturecontainer>
+                                    <FriendListTemperatureTitle>On°</FriendListTemperatureTitle>
+                                    <FriendListTemperatureWrap>
+                                      <img src={`${process.env.PUBLIC_URL}/image/mannerTemp.webp`} />
+                                      <FriendListProgressContainer>
+                                        <FriendListProgress style={{ width: `${friend.member.codingTem}%` }} />
+                                      </FriendListProgressContainer>
+                                      <span>{friend.member.codingTem}°</span>
+                                    </FriendListTemperatureWrap>
+                                  </FriendListTemperaturecontainer>
+                                </FriendList>
+                              </>
+                            )
+                          })}
+                        </FriendListWrap>
+                      </ScrollWrap>
+                  }
+                </FriendListContainer>
+                <FriendMypageReqWrap>
+                  <FriendRequestWrap>
+                    <FriendRequestTitle>친구 요청</FriendRequestTitle>
+                    {
+                      friendRequestListData && !friendRequestListData.data.data ?
+                        <NullFriendRequestList>
+                          <h1>아직 친구 요청이 없습니다.</h1>
+                        </NullFriendRequestList> :
+                        <ReqScrollWrap>
+                          {friendRequestListData && friendRequestListData.data.data.map((friend, idx) => {
+                            return (
+                              <>
+                                <FriendWrap>
+                                  <FriendLeftContent>
+                                    <FriendProfile friendRequestImg={avataGenHandler(friend.profileImage, friend.nickname)}></FriendProfile>
+                                    <FriendRequestNickname>{friend.nickname}</FriendRequestNickname>
+                                  </FriendLeftContent>
+                                  <ButtonWrap>
+                                    <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, true) }} color={'allow'}>수락</AllowBtn>
+                                    <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, false) }}>거절</AllowBtn>
+                                  </ButtonWrap>
+                                </FriendWrap>
+                              </>
+                            )
+
+                          })
+                          }
+                        </ReqScrollWrap>
+                    }
+                  </FriendRequestWrap>
+
+                  <FriendFindwrap>
+                    <FriendFindTitleWrap>
+                      <FriendFindTitle>친구 찾기</FriendFindTitle>
+                      <FriendFindBtnWrap>
+                        <FriendFindNickNameBtn
+                          friendFindNickName={friendFindNickName}
+                          onClick={() => {
+                            setFriendFindNickName(true)
+                            setFriendFindCode(false)
+                          }}
+                        >닉네임</FriendFindNickNameBtn>
+                        <FriendFindCodeBtn
+                          friendFindCode={friendFindCode}
+                          onClick={() => {
+                            setFriendFindNickName(false)
+                            setFriendFindCode(true)
+                          }}
+                        >친구코드</FriendFindCodeBtn>
+                      </FriendFindBtnWrap>
+
+                    </FriendFindTitleWrap>
+                    <FriendFindCodeInputWrap>
+                      <img src={`${process.env.PUBLIC_URL}/image/zoomIcon.webp`} alt="" />
+                      {friendFindNickName ?
+                        <FriendFindNickNameInput
+                          type="text"
+                          placeholder='닉네임 입력'
+                          value={findNickNameValue}
+                          onChange={(e) => {
+                            onChangeFindNickNameValue(e)
+                          }}
+                        /> :
+
+                        <FriendFindCodeInput
+                          type="text"
+                          placeholder='친구코드 입력'
+                          value={findCodeValue}
+                          onChange={(e) => {
+                            onChangeFindCodeValue(e)
+                          }}
+                        />
+                      }
+                    </FriendFindCodeInputWrap>
+
+                    <SearchScrollWrap>
+                      {searchFriend && searchFriend?.map((e, idx) => {
+                        return (
+                          <FriendWrap>
+                            <FriendSearchContentWrap>
+                              <FriendProfile friendRequestImg={avataGenHandler(e.profileImage, e.nickname)}></FriendProfile>
+                              <FriendRequestNickname>{e.nickname}</FriendRequestNickname>
+                            </FriendSearchContentWrap>
+                            {e.friend === false ? <FriendSearchBtn>친구신청</FriendSearchBtn> : null}
+                          </FriendWrap>
+                        )
+                      })
+                      }
+                    </SearchScrollWrap>
+                  </FriendFindwrap>
+
+                </FriendMypageReqWrap>
+              </MyPageBottomContentWrap >
+            </FriendMypageWrap>
+          }
+
+          {
+            postPopup &&
+            <Dark>
+              <MessagePopup>
+                <CloseBtn onClick={() => {
+                  receiveUserReset()
+                  receiveContentReset()
+                  setPostPopup(!postPopup)
+                }}
+                  closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
+                ></CloseBtn>
+                <h1>쪽지 쓰기</h1>
+                <h2>받는 사람</h2>
+                <input
+                  type="text"
+                  placeholder='닉네임 혹은 코드 입력'
+                  value={receiveUserValue}
+                  onChange={(e) => {
+                    onChangeReceiveUser(e)
+                  }}
+                />
+                <textarea
+                  cols="30"
+                  rows="10"
+                  value={receiveContentValue}
+                  onChange={(e) => {
+                    onChangeReceiveContent(e)
+                  }}
+                />
+
+                <MessagePopupBtnWrap>
+                  <p>{receiveContentValue.length} / 1000자</p>
+                  <button onClick={() => {
+                    postMessageHandler()
+                    receiveUserReset()
+                    receiveContentReset()
+                    setPostPopup(!postPopup)
+                  }}>보내기</button>
+                </MessagePopupBtnWrap>
+              </MessagePopup>
+            </Dark>
+          }
+
+          {messageSidebar &&
+            <MessageReceiveMypageWrap>
+              <MessageReceiveMypageHeaderWrap>
+                <p>{messageBox.receive ? '받은 쪽지함' : '보낸 쪽지함'}</p>
+                <button onClick={() => {
+                  setPostPopup(!postPopup)
+                }}>쪽지쓰기</button>
+              </MessageReceiveMypageHeaderWrap>
+
+              <MessageReceiveMypageTitleWrap>
+                <MessageReceiveMypageTitleLeft>
+                  <p>{messageBox.send ? '받는 사람' : '보낸 사람'}</p>
+                  <p>내용</p>
+                </MessageReceiveMypageTitleLeft>
+                <p>날짜</p>
+              </MessageReceiveMypageTitleWrap>
+
+              <MessageScroll>
+                {messageSidebar === true && messageBox.receive === true ? (
+                  receiveMessageData && receiveMessageData.data.data?.slice().reverse().map((e, idx) => (
+                    <MakeNoteHandler idx={idx} nickName={e.senderNickname} content={e.content} created={e.createdAt}/>
+                    // <ReceiveMessageWrap
+                    //   key={idx}
+                    //   onClick={() => {}}
+                    //   isRead={false}
+                    // >
+                    //   <ReceiveSendNickname>{e.senderNickname}</ReceiveSendNickname>
+                    //   <ReceiveContent>{e.content}</ReceiveContent>
+                    //   <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
+                    // </ReceiveMessageWrap>
+                  ))
+                ) : null}
+
+                {/* 보낸쪽지함 */}
+                {messageSidebar === true && messageBox.send === true ? (
+                  sentMessageData && sentMessageData.data.data?.slice().reverse().map((e, idx) => (
+                    <MakeNoteHandler idx={idx} nickName={e.receiverNickname} content={e.content} created={e.createdAt}/>
+                    // makeNoteHandler(idx, e.receiverNickname, e.content, e.createdAt)
+                    // <ReceiveMessageWrap
+                    //   key={idx}
+                    //   onClick={() => {}}
+                    //   isRead={false}
+                    // >
+                    //   <ReceiveSendNickname>{e.receiverNickname}</ReceiveSendNickname>
+                    //   <ReceiveContent>{e.content}</ReceiveContent>
+                    //   <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
+                    // </ReceiveMessageWrap>
+                  ))
+                ) : null}
+              </MessageScroll>
+            </MessageReceiveMypageWrap>
+          }
+        </MypageWrap>
       </FlexBox>
     </>
   )
@@ -552,7 +963,7 @@ const PopUp = styled.div`
     }
     margin-bottom: 30px;
     color: #FFFFFF;
-    font-family: 'Pretendard-Regular';
+    font-family: 'Pretendard';
   }
 `
 
@@ -572,11 +983,11 @@ const GitHubBtn = styled.button`
 `
 
 const CloseBtn = styled.button`
-  width: 20px;
-  height: 20px;
+  width: 13px;
+  height: 13px;
   position: absolute;
-  top: 10px;
-  right: 15px;
+  top: 21px;
+  right: 24px;
   font-size: 25px;
   border: none;
   background-color: transparent;
@@ -588,16 +999,29 @@ const CloseBtn = styled.button`
 `
 
 const MyPageTopContentWrap = styled.div`
-  height: 220px;
+  height: 175px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   margin-top: 15px;
 `
 
+const MogakkoTitle = styled.p`
+  width: 100%;
+  color: #FFFFFF;
+  text-align: start;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 29px;
+  margin-bottom: 10px;
+`
+
 const ProfileModifyWrap = styled.div`
+  width: 100%;
   display: flex;
-  gap: 30px;
+  justify-content: space-between;
 `
 
 const ProfileModifyContent = styled.form`
@@ -615,21 +1039,29 @@ const MyPageUserNameWrap = styled.div`
 
 const MyPageUserName = styled.p`
   width: 100%;
-  font-size: 32px;
+  font-size: 26px;
   color: white; 
+  margin-top: 26px;
+  font-family: 'Pretendard';
 `
 
 const Temperaturecontainer = styled.div`
+  width: 207px;
+  height: 108px;
   position: relative;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 10px;
 `
 
 const TemperatureTitle = styled.p`
+    width: 136.72px;
     font-size: 17px;
     color: var(--po-de);
     font-weight: 900;
+    text-align: start;
     img {
       margin-left: 5px;
       margin-bottom: 2px;
@@ -666,7 +1098,6 @@ const TemperatureWrap = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
-
   span {
     font-size: 14px;
     color: var(--po-de);
@@ -692,8 +1123,8 @@ const Progress = styled.div`
 
 
 const ImageWrap = styled.div`
-width: 155px;
-height: 155px;
+  width: 133px;
+  height: 133px;
   border-radius: 50%;
   background-image: ${(props) =>
     `url('${props.BgImg}')`
@@ -714,8 +1145,8 @@ const FileButton = styled.label`
   box-sizing: border-box;
   border-radius: 50%;
   position: absolute;
-  right: 5px;
-  bottom: 10px;
+  right: 2px;
+  bottom: 7px;
   transition: all 0.3s;
   background-image: url(
     ${(props) => {
@@ -748,6 +1179,33 @@ const TimerWrap = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-left: 70px;
+`
+
+const TotalTimewrap = styled.div`
+  width: 207px;
+  height: 108px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`
+
+const WeeklyTimeWrap = styled.div`
+  width: 207px;
+  height: 108px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`
+
+const StatusWrap = styled.div`
+  width: 207px;
+  height: 108px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `
 
 const TopContentTitleWrap = styled.div`
@@ -804,7 +1262,7 @@ const StatusMouseHoverBox = styled.div`
 `
 
 const MyPageMiddleContentWrap = styled.div`
-  height: 280px;
+  width: 893px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -827,35 +1285,45 @@ const GithubTitleWrap = styled.div`
   padding-bottom: 7px;
   box-sizing: border-box;
   p {
-    width: 990px;
+    width: ${(props) => {
+    return props.userGitHubId === null || props.userGitHubId === undefined || props.userGitHubId === ' ' ? '895px' : '863px'
+  }};
   }
 `
 
 const GithubModifyImg = styled.div`
   width: 33px;
   height: 33px;
+  border-radius: 50%;
   transition: all 0.3s;
   cursor: pointer;
+  background-position: center;
+  background-repeat: no-repeat;
   background-image: url(
         ${(props) => {
     return props.modify
-  }}
-  );
-  &:hover {
+  }});
+  background-color: transparent;
+  /* &:hover {
       background-image: url(
           ${(props) => {
     return props.modifyHo
-  }}
-    );
-  }
-
-  &:active {
+  }});
+  } */
+  /* &:active {
     background-image: url(
           ${(props) => {
     return props.modifyClcik
-  }}
-    );
+  }});
+  } */
+  &:hover {
+    background-color: #68707C;
   }
+  &:active {
+    background-color: #3E4957;
+  }
+
+  
 `
 
 const MyPageMiddleContent = styled.div`
@@ -866,8 +1334,8 @@ const MyPageMiddleContent = styled.div`
 `
 
 const NoGithubIdWrap = styled.div`
-  width: 1026px;
-  height: 186px;
+  width: 893px;
+  height: 160px;
   background: var(--bg-li);
   border-radius: 10px;
   display: flex;
@@ -900,20 +1368,17 @@ const MyPageBottomContentWrap = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
 `
 
 const FriendRequestWrap = styled.div`
-  width: 400px;
-  height: 100%;
-  padding: 10px;
+  width: 249px;
   box-sizing: border-box;
   border-radius: 8px;
 `
 
 const NullFriendRequestList = styled.div`
-  width: 384px;
-  height: 261px;
+  width: 249px;
+  height: 248px;
   background: var(--bg-li);
   border-radius: 10px;
   display: flex;
@@ -937,17 +1402,17 @@ const FriendRequestTitle = styled.p`
 
 const FriendRequestNickname = styled.p`
     font-weight: 500;
-    font-size: 14px;
+    font-size: 13px;
     width: 98px;
     color: white;
-    margin-bottom: 10px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 `
 
 const FriendWrap = styled.div`
-  width: 352px;
+  width: 249px;
+  height: 69px;
   padding: 10px;
   display: flex;
   justify-content: space-between;
@@ -963,8 +1428,8 @@ const FriendLeftContent = styled.div`
 `
 
 const FriendProfile = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 37.31px;
+  height: 37.31px;
   border-radius: 50%;
   background-image: ${(props) =>
     `url('${props.friendRequestImg}')`
@@ -982,15 +1447,18 @@ const ButtonWrap = styled.div`
 `
 
 const AllowBtn = styled.button`
-  width: 70px;
+  width: 49.44px;
+  height: 23.77px;
   background-color: ${(props) => {
     return props.color === 'allow' ? 'var(--po-de)' : '#626873'
   }};
   border: none;
-  padding: 8px;
+  /* padding: 8px; */
   border-radius: 14px;
+  font-family: 'Pretendard';
+  font-style: normal;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 11px;
   transition: all 0.3s;
   color: ${(props) => {
     return props.color === 'allow' ? '#464646' : '#FFFFFF'
@@ -1003,28 +1471,28 @@ const AllowBtn = styled.button`
 `
 
 const FriendListContainer = styled.div`
-  width: 555px;
-  height: 100%;
+  width: 559px;
+  height: 799px;
   border-radius: 8px;
-  padding: 10px;
-  margin-right: 70px;
-  p{
+  display: flex;
+  flex-direction: column;
+`
+
+const FriendListTitle = styled.p`
     color: white;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 18px;
     width: 98px;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
 `
 
 const DeleteBtnWrap = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-right: 40px;
   margin-bottom: 10px;
   p {
     font-weight: 500;
@@ -1067,11 +1535,91 @@ export const FriendListCancleBtn = styled.button`
     return props.color === 'cancle' ? '#3E4957' : '#00C5D1'
   }};
   }
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
 `
 
 const ScrollWrap = styled.div`
-  width: 100%;
-  height: 261px;
+  width: 559px;
+  height: 856px;
+  overflow-y: scroll;
+  
+  &::-webkit-scrollbar{
+      width: 7px;
+      background-color: transparent;
+      border-radius: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+      /* width: 10px; */
+      height: 10%; 
+      background-color: white;
+      border-radius: 10px;
+      height: 30px;
+  }
+
+  &::-webkit-scrollbar-track {
+      background-color: #626873;
+      border-left: 2px solid transparent;
+      border-right: 2px solid transparent;
+      background-clip: padding-box;
+  }
+`
+
+const FriendListTemperaturecontainer = styled.div`
+  width: 166px;
+  height: 40px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`
+
+const FriendListTemperatureTitle = styled.p`
+    width: 145px;
+    height: 20px;
+    font-size: 9px;
+    color: var(--po-de);
+    font-weight: 900;
+    text-align: start;
+`
+
+const FriendListTemperatureWrap = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  span {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 7px;
+    color: #FFFFFF;
+  }
+`
+
+const FriendListProgressContainer = styled.div`
+  width: 100px;
+  height: 8px;
+  margin-top: 2px;
+  background:transparent;
+  border-radius: 33px;
+  border: 1px solid white;
+`;
+
+const FriendListProgress = styled.div`
+  height: 100%;
+  border-radius:10px;
+  background: var(--po-de);
+  transition: width 1s ease;
+  border: none;
+`;
+
+const ReqScrollWrap = styled.div`
+  width: 281px;
+  height: 248px;
   overflow-y: scroll;
   
   &::-webkit-scrollbar{
@@ -1103,8 +1651,8 @@ const FriendListWrap = styled.div`
 `
 
 const NullFriendList = styled.div`
-  width: 486px;
-  height: 261px;
+  width: 559px;
+  height: 799px;
   background: var(--bg-li);
   border-radius: 10px;
   display: flex;
@@ -1121,8 +1669,8 @@ const NullFriendList = styled.div`
 `
 
 const FriendList = styled.div`
-  width: 114.1px;
-  height: 139px;
+  width: 166.01px;
+  height: 205.12px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1152,8 +1700,8 @@ const DeleteSelectedBtn = styled.button`
 `
 
 const FriendListImage = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 86.54px;
+  height: 85.1px;
   border-radius: 50%;
   background-image: ${(props) =>
     `url('${props.friendListImg}')`
@@ -1167,5 +1715,628 @@ const FriendListImage = styled.div`
 
 const FriendListName = styled.p`
   color: white;
+`
+
+const WidthBox = styled.div`
+  width: 893px;
+`
+
+const MypageWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`
+
+const MypageNavbar = styled.div`
+  width: 240px;
+  height: 800px;
+  background: var(--bg-li);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  margin-right: 66px;
+  padding: 39px 0 0 0;
+`
+
+const MyCodeWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  margin-bottom: 30px;
+`
+
+const MyCode = styled.p`
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  color: #BEBEBE;
+`
+
+const CopyBtn = styled.button`
+  width: 12px;
+  height: 12px;
+  font-size: 0;
+  background-color: transparent;
+  border: none;
+  background-image: ${(props) =>
+    `url(${props.imgUrl})`
+  };
+`
+
+const NavberCategory = styled.ul`
+  width: 240px;
+  height: 82px;
+`
+
+const DataCategory = styled.li`
+  width: 240px;
+  height: 82px;
+  background-color: ${(props) => {
+    return props.mogakkoData ? '#3E4957' : 'transparent'
+  }};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 22px;
+  color: #FFFFFF;
+  transition: all 0.3s;
+  cursor: pointer;
+  &:hover {
+    background-color: #3E4957;
+  }
+`
+
+const FriendCategory = styled.li`
+  width: 240px;
+  height: 82px;
+  background-color: ${(props) => {
+    return props.friendSidebar ? '#3E4957' : 'transparent'
+  }};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 22px;
+  color: #FFFFFF;
+  transition: all 0.3s;
+  cursor: pointer;
+  &:hover {
+    background-color: #3E4957;
+  }
+`
+
+const Message = styled.li`
+    width: 240px;
+    height: 82px;
+    background-color: ${(props) => {
+    return props.messageSidebar ? '#3E4957' : 'transparent'
+  }};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 22px;
+  color: #FFFFFF;
+  transition: all 0.3s;
+  cursor: pointer;
+  &:hover {
+    background-color: #3E4957;
+  }
+`
+
+const ReceiveBox = styled.li`
+  width: 240px;
+  height: 46px;
+  background-color: ${(props) => {
+    return props.receive ? '#2F3B49' : 'transparent'
+  }};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.3s;
+`
+
+const SendBox = styled.li`
+  width: 240px;
+  height: 46px;
+  background-color: ${(props) => {
+    return props.send ? '#2F3B49' : 'transparent'
+  }};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.3s;
+`
+
+
+const ChartWrap = styled.div`
+  width: 100%;
+  height: 376px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+`
+
+const WeeklyStudyTimewrap = styled.div`
+  width: 486px;
+  color: white;
+
+  p{
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 21px;
+    line-height: 25px;
+    margin-bottom: 17px;
+  }
+`
+
+const AttendanceCheckWrap = styled.div`
+  width: 486px;
+  height: 126px;
+  background-color: var(--bg-li);
+  /* background-color: transparent; */
+  margin-bottom: 18px;
+`
+
+const StudyTime = styled.div`
+  width: 486px;
+  height: 183px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-li);
+  /* background-color: transparent; */
+  padding-bottom: 10px;
+`
+
+const TotalLanguageWrap = styled.div`
+  width: 384px;
+  color: white;
+  p{
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 21px;
+    line-height: 25px;
+    margin-bottom: 17px;
+  }
+`
+
+const TotalLanguage = styled.div`
+  width: 384px;
+  height: 327px;
+  background-color: var(--bg-li);
+  /* background-color: transparent; */
+`
+
+const FriendMypageWrap = styled.div`
+  width: 893px;
+`
+
+const FriendMypageReqWrap = styled.div`
+  height: 799px;
+  margin-left: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 66px;
+`
+
+const FriendFindwrap = styled.div`
+  width: 249px;
+  height: 480px;
+`
+
+const FriendFindTitleWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`
+
+const FriendFindTitle = styled.p`
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  color: #FFFFFF;
+`
+
+const FriendFindBtnWrap = styled.div`
+
+`
+
+const FriendFindNickNameBtn = styled.button`
+  width: 48px;
+  height: 24px;
+  border: 1px solid ${(props) => {
+    return props.friendFindNickName ? '#00F0FF' : '#4A4F59'
+  }};
+  background-color: transparent;
+  color: ${(props) => {
+    return props.friendFindNickName ? '#00F0FF' : '#BEBEBE'
+  }};
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 10px;
+  margin-right: 1px;
+`
+
+const FriendFindCodeBtn = styled.button`
+  width: 48px;
+  height: 24px;
+  border: 1px solid ${(props) => {
+    return props.friendFindCode ? '#00F0FF' : '#4A4F59'
+  }};
+  background-color: transparent;
+  color: ${(props) => {
+    return props.friendFindCode ? '#00F0FF' : '#BEBEBE'
+  }};
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 10px;
+`
+
+const FriendFindCodeInputWrap = styled.div`
+  position: relative;
+
+  img {
+    width: 19.02px;
+    height: 19.02px;
+    position: absolute;
+    top: 25px;
+    left: 15px;
+  }
+`
+
+const FriendFindNickNameInput = styled.input`
+  width: 249px;
+  height: 38px;
+  background: var(--bg-li);
+  border-radius: 108.396px;
+  border: none;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 15px;
+  padding-left: 44px;
+  margin-top: 15px;
+  outline: none;
+  color: #ffffff;
+`
+
+const FriendFindCodeInput = styled.input`
+  width: 249px;
+  height: 38px;
+  background-color: var(--bg-li);
+  border-radius: 108.396px;
+  border: none;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 15px;
+  padding-left: 44px;
+  margin-top: 15px;
+  outline: none;
+  color: #ffffff;
+`
+
+const MessageReceiveMypageWrap = styled.div`
+    width: 893px;
+    height: 799px; 
+`
+
+const MessageReceiveMypageHeaderWrap = styled.div`
+  height: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-inline: 20px;
+
+  p {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 29px;
+    line-height: 35px;
+    color: #FFFFFF;
+  }
+
+  button {
+    width: 88px;
+    height: 34px;
+    background: #00F0FF;
+    border-radius: 20px;
+    border: none;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 15px;
+    color: #464646;
+    transition: all 0.2s;
+    &:hover{
+      background: #00C5D1;
+    }
+  }
+`
+
+const MessageReceiveMypageTitleWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 51px;
+  padding-right: 21px;
+  p {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 17px;
+    color: #FFFFFF;
+  }
+`
+
+const MessageReceiveMypageTitleLeft = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 104px;
+`
+
+const MessageScroll = styled.div`
+  height: 670px;
+  margin-top: 10px;
+  overflow-y: scroll;
+  
+  &::-webkit-scrollbar{
+      width: 7px;
+      background-color: transparent;
+      border-radius: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+      /* width: 10px; */
+      height: 10%; 
+      background-color: white;
+      border-radius: 10px;
+      height: 30px;
+  }
+
+  &::-webkit-scrollbar-track {
+      background-color: #626873;
+      border-left: 2px solid transparent;
+      border-right: 2px solid transparent;
+      background-clip: padding-box;
+  }
+`
+
+const ReceiveMessageWrap = styled.div`
+  width: 879px;
+  height: ${(props) => {
+    return props.isRead ? '150px' : '45px'
+  }};
+  display: flex;
+  justify-content: space-between;
+  align-items: ${(props) => {
+    return props.isRead ? 'none' : 'center'
+  }};
+  padding-inline: 10px;
+  padding-top: ${(props) => {
+    return props.isRead ? '10px' : 'none'
+  }};
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 10px;
+  background-color: ${(props) => {
+    return props.isRead ? 'var(--bg-li)' : 'transparent'
+  }};
+  border-radius: 10px;
+  &:hover{
+    background: var(--bg-li);
+  }
+`
+
+const ReceiveSendNickname = styled.p`
+  width: 100px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  color: #FFFFFF;
+`
+
+const ReceiveContent = styled.p`
+  width: 550px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  color: #FFFFFF;
+`
+
+const ReceiveCreatedAt = styled.p`
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  color: #FFFFFF;
+`
+
+const MessagePopup = styled.div`
+  position: relative;
+  width: 384px;
+  height: 502px;
+  background: var(--bg-li);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--bg-li);
+  border-radius: 10px;
+  padding: 38px 32px 34px 32px;
+
+  h1 {
+    width: 295px;
+    height: 72px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 26px;
+    color: #FFFFFF;
+  }
+
+  h2 {
+    width: 73px;
+    height: 29px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 15px;
+    color: #FFFFFF; 
+    margin-bottom: 3px;
+  }
+
+  input {
+    width: 319px;
+    height: 30px;
+    background-color: #3E4957;
+    border-radius: 108.396px;
+    border:none;
+    padding-left: 14px;
+    outline: none;
+    color: white;
+    margin-bottom: 21px;
+    color: #BEBEBE;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+  }
+
+  textarea {
+    width: 319px;
+    height: 235px;
+    border: 1px solid #FFFFFF;
+    border-radius: 10px;
+    outline: none;
+    padding: 14px;
+    background-color: transparent;
+    color: #BEBEBE;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 23px;
+    letter-spacing: 1.5px;
+  }
+`
+
+const MessagePopupBtnWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+
+  p {
+    width: 94px;
+    height: 22px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+    color: #BEBEBE;
+  }
+
+  button {
+    width: 74px;
+    height: 28px;
+    background: #00F0FF;
+    border-radius: 45.3455px;
+    border: none;
+    transition: all 0.2s;
+    &:hover{
+      background: #00C5D1;
+    }
+  }
+`
+
+const SearchScrollWrap = styled.div`
+  width: 281px;
+  height: 350px;
+  overflow-y: scroll;
+  margin-top: 20px;
+  
+  &::-webkit-scrollbar{
+      width: 7px;
+      background-color: transparent;
+      border-radius: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+      /* width: 10px; */
+      height: 10%; 
+      background-color: white;
+      border-radius: 10px;
+      height: 30px;
+  }
+
+  &::-webkit-scrollbar-track {
+      background-color: #626873;
+      border-left: 2px solid transparent;
+      border-right: 2px solid transparent;
+      background-clip: padding-box;
+  }
+`
+
+const FriendSearchContentWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+`
+
+const FriendSearchBtn = styled.button`
+  width: 62.76px;
+  height: 23.77px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
+  background: var(--po-de);
+  border-radius: 13.3117px;
+  color: #464646;
+  border: none;
+  transition: all 0.2s;
+  &:hover {
+    background: #00C5D1;
+  }
 `
 export default Mypage

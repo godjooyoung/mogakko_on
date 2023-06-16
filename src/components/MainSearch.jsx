@@ -13,8 +13,6 @@ function MainSearch(props) {
 
     const dispatcher = useDispatch()
     
-    // const formData = new FormData()
-    
     // 리액트 쿼리
     const queryClient = useQueryClient()
 
@@ -60,13 +58,7 @@ function MainSearch(props) {
             { desc:'C', language : 'C', isSelected : false },
             { desc:'C#', language : 'CSHARP', isSelected : false },
             { desc:'C++', language : 'CPLPL', isSelected : false },
-            // { desc:'RUBY', language : 'RUBY', isSelected : false },
             { desc:'KOTLIN', language : 'KOTLIN', isSelected : false },
-            // { desc:'SWIFT', language : 'SWIFT', isSelected : false },
-            // { desc:'GO', language : 'GO', isSelected : false },
-            // { desc:'PHP', language : 'PHP', isSelected : false },
-            // { desc:'RUST', language : 'RUST', isSelected : false },
-            // { desc:'LUA', language : 'LUA', isSelected : false },
             { desc:'ETC', language : 'ETC', isSelected : false},
         ]
     )
@@ -129,26 +121,6 @@ function MainSearch(props) {
         }
     }, [getLatLngQuery.isSuccess])
 
-
-    // // TODO sjy 나중에 이 폼데이터를 서버에 보내야함. 
-    // // 서버에 폼 데이터 보내기
-    // const sendData = (lat, lon , keyword, language) => {
-    //     formData.append('lat', lat);
-    //     formData.append('lon', lon);
-    //     if (keyword) {
-    //         formData.append('searchKeyword', '');
-    //     } else {
-    //         formData.append('searchKeyword', keyword);
-    //     }
-
-    //     if (language) {
-    //         formData.append('language', '');
-    //     } else {
-    //         formData.append('language', language);
-    //     }
-    //     console.log("[INFO] Send formData ", [...formData])
-    // }
-
     useEffect(()=>{
         const setFiltering = () => {
             let languageFilterCnt = 0
@@ -185,7 +157,7 @@ function MainSearch(props) {
                         <img src={`${process.env.PUBLIC_URL}/image/zoomOut.svg`} alt="돋보기아이콘" width='20' height='20' />
                     </div>
                     <SearchInput type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='원하시는 모각코 장소, 제목을 검색하세요.' autoComplete='do-not-autofill' />
-                    <SearchResetBtn closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`} onClick={()=>{keywordReset()}}></SearchResetBtn>
+                    <SearchResetBtn closeBtn={`${process.env.PUBLIC_URL}/image/inputDeleteBtn.webp`} onClick={()=>{keywordReset()}}></SearchResetBtn>
                     
                 </SearchBar>
             </Search>
@@ -225,54 +197,81 @@ export const SearchLanguageBtnWrap = styled.div`
 `
 export const SearchLanguageBtn = styled.button`
     padding: 9px 20px;
-    /* margin-left: 9px; */
     margin-right: 9px;
     margin-bottom: 12px;
-    /* text-align: center; */
-    /* gap: 10px; */
     min-width: 72px;
     height: 42px;
-    border: 0.5px solid #FFFFFF;
+    /* border: 0.5px solid #FFFFFF; */
+    border: 0.5px solid rgba(221, 221, 221, 0.5);
     border-radius: 28px;
     cursor: pointer;
     background : ${(props)=>{
         return props.isSelected?'var(--po-de)':'transparent'
     }};
-    color : ${(props)=>{
+    /* color : ${(props)=>{
         return props.isSelected?'#464646':'#FFFFFF'
+    }}; */
+    color : ${(props)=>{
+        return props.isSelected?'black':'#FFFFFF'
     }};
+    
     overflow: hidden;
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 700;
     font-size: 18px;
-    line-height: 24px;
+    /* line-height: 24px; */
+    line-height: 133%;
+
+    &:hover {
+        transition: 0.3s;
+        background: #68707C;
+        color : #FFFFFF;
+    }
+    &:active {
+        transition: 0.3s;
+        background: #3E4957;
+        color : #FFFFFF;
+    }
+
 `
 
 export const SearchTownBtn = styled.button`
     padding: 9px 20px;
-    /* margin-left: 9px; */
     margin-right: 9px;
     margin-bottom: 12px;
-    /* text-align: center; */
-    /* gap: 10px; */
     min-width: 72px;
     height: 42px;
-    border: 0.5px solid #FFFFFF;
+    border: 0.5px solid rgba(221, 221, 221, 0.5);
     border-radius: 28px;
     cursor: pointer;
     background : ${(props)=>{
         return props.isSelected?'var(--po-de)':'transparent'
     }};
-    color : ${(props)=>{
+    /* color : ${(props)=>{
         return props.isSelected?'#464646':'#FFFFFF'
+    }}; */
+    color : ${(props)=>{
+        return props.isSelected?'black':'#FFFFFF'
     }};
     overflow: hidden;
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 700;
     font-size: 18px;
-    line-height: 24px;
+    /* line-height: 24px; */
+    line-height: 133%;
+
+    &:hover {
+        transition: 0.3s;
+        background: #68707C;
+        color : #FFFFFF;
+    }
+    &:active {
+        transition: 0.3s;
+        background: #3E4957;
+        color : #FFFFFF;
+    }
 `
 
 export const SearchTitle = styled.h1`
@@ -283,7 +282,6 @@ export const SearchTitle = styled.h1`
     line-height: 35px;
     display: flex;
     align-items: center;
-    /* 검정바탕 글 */
     color: #FFFFFF;
 `
 export const SearcFilterTitle = styled.h2`
@@ -293,7 +291,6 @@ export const SearcFilterTitle = styled.h2`
     font-size: 22px;
     /* line-height: 24px; */
     line-height : 109%;
-    /* 검정바탕 글 */
     color: #FFFFFF;
     margin-bottom: 20px;
 `
@@ -317,10 +314,13 @@ export const SearchInput = styled.input`
     border:none;
     color: #FFFFFF;
     outline: none;
+    &::placeholder{
+        color: #BEBEBE;
+    }
 `
 export const SearchResetBtn = styled.button`
-    width: 20px;
-    height: 20px;
+    width: 13px;
+    height: 13px;
     border: none;
     color: #FFFFFF;
     background-image: ${(props) =>

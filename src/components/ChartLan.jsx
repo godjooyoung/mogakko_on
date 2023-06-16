@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-
+import styled from 'styled-components';
 ChartJS.register(ArcElement, Tooltip, Legend);
 export const data = {
     labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
@@ -33,7 +33,22 @@ export const data = {
 
 
 function ChartLan(props) {
-    const  options={
+
+    useEffect(()=>{
+        // 초기
+        console.log("ChartLan :: ",props.data)
+        return () => {
+            // 클린
+        }
+    },[])
+
+    useEffect(()=>{
+        // 초기
+        console.log("ChartLan2 :: ",props.data)
+    },[props])
+    
+
+    const options = {
         options: {
             plugins: {
                 legend: {
@@ -47,10 +62,18 @@ function ChartLan(props) {
         position: 'bottom',
     }
     return (
-        <div>
-            <Doughnut data={data} options={options} />;
-        </div>
+        <ChartWrap>
+            <Doughnut data={data} options={options} />
+        </ChartWrap>
     );
 }
+
+const ChartWrap = styled.div`
+    width: 384px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
 
 export default ChartLan;

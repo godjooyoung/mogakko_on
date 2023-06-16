@@ -29,11 +29,15 @@ const GlobalStyle = createGlobalStyle`
     }
     // --bg-de #172435
     // --bg-li #394254
+    // --bg-li : #232B3D;          
     :root {
-    --bg-de : #010D25;
-    --bg-li : #232B3D;
-    --po-de : #00F0FF;
-    --bg-de-rgba : rgb(1, 13, 37);
+    --bg-de : #010D25;                   //배경색 1
+    --bg-de-rgba : rgb(1, 13, 37);       //배경색 1 - rgb
+    --bg-li : #161f36;                   //배경색 2
+    --po-de : #00F0FF; // 주요색
+    --ft-bk : #464646; // 밝은 배경 글자색
+    --ft-li : #FFFFFF; // 검은 배경 글자색
+    
     }
 `;
 
