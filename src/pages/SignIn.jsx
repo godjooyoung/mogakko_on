@@ -223,6 +223,13 @@ export const Input = styled.input`
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
+    &::placeholder{
+        color: #BEBEBE;
+        font-family: 'Pretendard';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+    }
 `;
 
 

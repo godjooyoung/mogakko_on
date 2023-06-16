@@ -31,6 +31,9 @@ function SignUp() {
         setPassword('')
         setEmailErrorMessage('')
         setPasswordErrorMessage('')
+        setConfirmPassword('')
+        setNickname('')
+        setIsAgreed(false)
         // setIsValidationEmail(false)
         // setIsValidationPassword(false)
     }
@@ -127,8 +130,14 @@ function SignUp() {
     const passwordChangeHandler = (e) => {
         const newPassword = e.target.value;
         setPassword(newPassword);
-        setIsPasswordConfirmed(false);
 
+        if (newPassword !== confirmPassword && confirmPassword.length !== 0){
+            setConfirmPasswordErrorMessage('비밀번호가 일치하지 않습니다.')
+            setIsPasswordConfirmed(false);
+        } else{
+            setConfirmPasswordErrorMessage('');
+            setIsPasswordConfirmed(true);
+        }
     };
     useEffect(() => {
         if (!validatePassword(password)) {
@@ -194,7 +203,7 @@ function SignUp() {
             .catch(error => {
                 // 데이터 전송 중 오류가 발생했을 때 실행할 코드
                 console.error(error);
-                popupOpenHander(error)
+                popupOpenHander(error.response.data.message)
 
             });
     }
@@ -247,7 +256,7 @@ function SignUp() {
         <>
         {
             isOpen?
-            <CommonPopup msg={popMsg} closeHadler={popupCloseHandler} isBtns={false} priMsg={'확인'} priHandler={popupCloseHandler}/>
+            <CommonPopup msg={popMsg} closeHander={popupCloseHandler} isBtns={false} priMsg={'확인'} priHander={popupCloseHandler}/>
             :<></>
         }
 
@@ -455,6 +464,13 @@ export const ShortInput = styled.input`
     font-style: normal;
     font-weight: 400;
     font-size: 16px;
+    &::placeholder{
+        color: #BEBEBE;
+        font-family: 'Pretendard';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+    }
 `;
 
 
@@ -473,6 +489,13 @@ export const Input = styled.input`
     font-weight: 400;
     font-size: 16px;
     margin-bottom: 5px; 
+    &::placeholder{
+        color: #BEBEBE;
+        font-family: 'Pretendard';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+    }
 `;
 
 
