@@ -23,7 +23,7 @@ function ChartTimes(props) {
             height: 187,
             y: { // defining min and max so hiding the dataset does not change scale range
                 min: 0,
-                max: 60
+                max: 10
             }
         },
 
@@ -34,7 +34,7 @@ function ChartTimes(props) {
     const data = {
         labels: labels,
         datasets: [{
-            data: [0.0, 0.0, 0.5, 0.8, 0.0, 0.0, 0.0],
+            data: [10.0, 12.0, 2.5, 0.8, 12.0, 10.0, 10.0],
             backgroundColor: [
                 'rgba(0, 240, 255, 0.2)',
                 'rgba(0, 240, 255, 0.2)',
