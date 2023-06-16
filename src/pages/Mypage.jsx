@@ -12,6 +12,7 @@ import ChartTimes from '../components/ChartTimes';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import ChartWeekly from '../components/ChartWeekly';
+import CommonPopup from '../components/common/CommonPopup'
 
 // // 00:00:00 to 00H00M
 // const formatTime = (timeString) => {
@@ -130,7 +131,6 @@ function Mypage() {
   // hooks
   const navigate = useNavigate()
 
-  const [isTargeting, setIsTargeting] = useState(false)
   const [timer, setTimer] = useState(0)
   // const { isLoading: isSearchUserLoading, isError: isSearchUserError, data: searchUserData, refetch: getSearchUserRefetch } = useQuery("getSearchUser", () => {
   //   friendFindNickName ? searchUser({ searchRequestNickname: findNickNameValue }) : searchUser({ friendCode: findCodeValue })
@@ -155,13 +155,44 @@ function Mypage() {
     }
   })
 
+  // 쪽지 status에 따른 팝업 state
+  const [messageStatus, setMessageStatus] = useState(false)
+  const [mesageStatusresponse, setmesageStatusresponse] = useState('')
+
   // 쪽지 보내기 Mutation
   const postMessageMutation = useMutation(postMessage, {
     onSuccess: (response) => {
       queryClient.invalidateQueries(receiveMessage)
-      console.log("postMessage ", response)
+    },
+    onError: (error) => {
+      popupOpenHander(error.response.data.message)
+      console.log('error.response.data.message', error.response.data.message)
     }
   })
+
+  const popupOpenHander = (msg) => {
+    setmesageStatusresponse((prevMesageStatusresponse) => msg)
+    setMessageStatus(true)
+    console.log('mesageStatusresponse', mesageStatusresponse)
+    console.log('messageStatus', messageStatus)
+  }
+
+  const popupCloseHander = () => {
+    setMessageStatus(false)
+  }
+  const errorPopup = () => {
+    if (mesageStatusresponse === "자신에게는 쪽지를 보낼 수 없습니다.") {
+      return <CommonPopup msg={'자신에게는 쪽지를 보낼 수 없습니다.'} isBtns={false} priMsg={'확인'} priHander={popupCloseHander()} closeHander={popupCloseHander()} />
+    } else if (mesageStatusresponse === "내용을 입력해 주세요.") {
+      return <CommonPopup msg={'내용을 입력해 주세요.'} isBtns={false} priMsg={'확인'} priHander={popupCloseHander()} closeHander={popupCloseHander()} />
+    } else if (mesageStatusresponse === "회원을 찾을 수 없습니다.") {
+      return <CommonPopup msg={'회원을 찾을 수 없습니다.'} isBtns={false} priMsg={'확인'} priHander={popupCloseHander()} closeHander={popupCloseHander()} />
+    }
+  }
+
+  useEffect(() => {
+    // setMessageStatus(true)
+  }, [mesageStatusresponse]);
 
   const postMessageHandler = () => {
     postMessageMutation.mutate({
@@ -352,7 +383,7 @@ function Mypage() {
       console.log(">>> 친구 추가 보내기 성공", response.data.message)
     },
   })
-  
+
   // 친구 추가 핸들러
   const onClickRqFriendshipBtnHandler = (target) => {
     console.log("나랑 친구할래?", target)
@@ -363,6 +394,11 @@ function Mypage() {
   const handleFileChange = (event) => {
     console.log("프로필 이미지 수정 핸들러 실행")
     setFileAttach(event.target.files[0])
+    const maxSize = 2 * 1024 * 1024
+    if (fileAttach.size > maxSize) {
+      alert("이미지 크기를 2MB 아래로 선택해 주시기 바랍니다.")
+      return 
+    } 
     const objectUrl = URL.createObjectURL(event.target.files[0])
     setPreview(objectUrl)
     setIsFileModify(true)
@@ -880,6 +916,10 @@ function Mypage() {
                 </MessageReceiveMypageTitleLeft>
                 <p>날짜</p>
               </MessageReceiveMypageTitleWrap>
+
+              {
+                messageStatus && errorPopup()
+              }
 
               <MessageScroll>
                 {messageSidebar === true && messageBox.receive === true ? (
