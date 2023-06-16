@@ -871,7 +871,7 @@ function Mypage() {
               <MessageScroll>
                 {messageSidebar === true && messageBox.receive === true ? (
                   receiveMessageData && receiveMessageData.data.data?.slice().reverse().map((e, idx) => (
-                    <MakeNoteHandler idx={idx} nickName={e.senderNickname} content={e.content} created={e.createdAt}/>
+                    <MakeNoteHandler idx={idx} nickName={e.senderNickname} content={e.content} createdAt={e.createdAt}/>
                     // <ReceiveMessageWrap
                     //   key={idx}
                     //   onClick={() => {}}
@@ -887,7 +887,7 @@ function Mypage() {
                 {/* 보낸쪽지함 */}
                 {messageSidebar === true && messageBox.send === true ? (
                   sentMessageData && sentMessageData.data.data?.slice().reverse().map((e, idx) => (
-                    <MakeNoteHandler idx={idx} nickName={e.receiverNickname} content={e.content} created={e.createdAt}/>
+                    <MakeNoteHandler idx={idx} nickName={e.receiverNickname} content={e.content} createdAt={e.createdAt}/>
                     // makeNoteHandler(idx, e.receiverNickname, e.content, e.createdAt)
                     // <ReceiveMessageWrap
                     //   key={idx}
@@ -1216,7 +1216,10 @@ const TopContentTitleWrap = styled.div`
 `
 
 const TopContentTitle = styled.p`
-  font-size: 18px;
+font-family: 'Pretendard';
+font-style: normal;
+font-weight: 400;
+font-size: 15px;
   color: var(--po-de);
 `
 
@@ -1232,7 +1235,10 @@ const Status = styled.span`
 `
 
 const TopContentTitleItem = styled.h1`
-  font-size: 32px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 28px;
   color: white;
 `
 
