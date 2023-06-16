@@ -35,7 +35,7 @@ const MakeNoteHandler = ({ idx, nickName, content, createdAt }) => {
     <>
       <ReceiveMessageWrap key={idx} onClick={()=>(toggleChangerHandler(isToggle))} isRead={isToggle}>
         <ReceiveSendNickname>{nickName}</ReceiveSendNickname>
-        <ReceiveContent isRead={isToggle}>{content}</ReceiveContent>
+        <ReceiveContent>{content}</ReceiveContent>
         <ReceiveCreatedAt>{createdAt}</ReceiveCreatedAt>
       </ReceiveMessageWrap>
     </>
@@ -2143,9 +2143,6 @@ const ReceiveContent = styled.p`
   font-weight: 500;
   font-size: 13px;
   color: #FFFFFF;
-  color: ${(props) => {
-    return props.isRead ? 'pink' : '#FFFFFF'
-  }};
 `
 
 const ReceiveCreatedAt = styled.p`

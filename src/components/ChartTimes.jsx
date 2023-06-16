@@ -11,17 +11,26 @@ function ChartTimes(props) {
         responsive: true,
         plugins: {
             legend: {
-                display : false,
+                display: false,
             },
             title: {
                 display: false,
                 text: `Week's Study Time`,
             },
         },
+        scales: {
+            width: 496,
+            height: 187,
+            y: { // defining min and max so hiding the dataset does not change scale range
+                min: 0,
+                max: 60
+            }
+        },
+
     };
-    
+
     const labels = ['월', '화', '수', '목', '금', '토', '일'];
-    
+
     const data = {
         labels: labels,
         datasets: [{
@@ -44,23 +53,33 @@ function ChartTimes(props) {
                 'rgb(0, 240, 255)',
                 'rgb(0, 240, 255)'
             ],
-            borderWidth: 1
+            hoverBackgroundColor: [
+                'rgb(0, 240, 255)',
+                'rgb(0, 240, 255)',
+                'rgb(0, 240, 255)',
+                'rgb(0, 240, 255)',
+                'rgb(0, 240, 255)',
+                'rgb(0, 240, 255)',
+                'rgb(0, 240, 255)'
+            ],                  // 호버시 막대 컬러
+            borderWidth: 1,     // 막대바 테두리
+            barPercentage: 0.7, // 막대바 폭
         }]
     }
 
-    useEffect(()=>{
-        console.log("ChartTimes :: ",props.data)
-        return ()=>{
+    useEffect(() => {
+        console.log("ChartTimes :: ", props.data)
+        return () => {
             //클린
         }
-    },[])
+    }, [])
 
     // 데이터 세팅
-    useEffect(()=>{
-        if(props.data){
-            console.log("ChartTimes2 :: ",props.data)
+    useEffect(() => {
+        if (props.data) {
+            console.log("ChartTimes2 :: ", props.data)
         }
-    },[props])
+    }, [props])
 
 
     return (
