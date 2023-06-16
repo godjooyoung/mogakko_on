@@ -373,7 +373,8 @@ function SignUp() {
                             />
                             <InfoButton htmlFor="checkbox">
                                 개인 위치 정보 제공에 동의합니다.
-                            </InfoButton></div>
+                            </InfoButton>
+                        </div>
                         <div>
                             <Terms onClick={openModalHandler}>전문보기</Terms>
                             {modalOpen &&
@@ -558,7 +559,8 @@ export const Wrapper = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom:10px;
+    /* margin-bottom:10px; */
+    margin-bottom:12px;
 `
 export const InputCheckbox = styled.input`
     width: 18px;
@@ -645,20 +647,20 @@ export const InputCheckbox = styled.input`
 // `
 
 export const InfoButton = styled.label`
-    padding:0.5rem 1rem;
+    /* padding:0.5rem 1rem; */
     background-color:transparent;    
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    text-align: right;
+    /* text-align: right; */
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 400;
     font-size: 14px;
-    line-height: 17px;
+    /* line-height: 17px;
     display: flex;
-    align-items: center;
+    align-items: center; */
 
 `;
 
@@ -670,6 +672,7 @@ export const Terms = styled.span`
     line-height: 17px;
     color: #BEBEBE;
     text-decoration: underline;
+    cursor: pointer;
 `;
 
 export const SignupButton = styled.button`
