@@ -23,6 +23,25 @@ import ChartWeekly from '../components/ChartWeekly';
 //   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
 //   return `${formattedHours}H${formattedMinutes}M`;
 // }
+
+// 쪽지 컴포넌트화
+const MakeNoteHandler = ({ idx, nickName, content, createdAt }) => {
+  const [isToggle, setIsToggle] = useState(false)
+  const toggleChangerHandler = (toggle) => {
+    setIsToggle(!toggle)
+    console.log('토글토글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글,', isToggle)
+  }
+  return (
+    <>
+      <ReceiveMessageWrap key={idx} onClick={()=>(toggleChangerHandler(isToggle))} isRead={isToggle}>
+        <ReceiveSendNickname>{nickName}</ReceiveSendNickname>
+        <ReceiveContent>{content}</ReceiveContent>
+        <ReceiveCreatedAt>{createdAt}</ReceiveCreatedAt>
+      </ReceiveMessageWrap>
+    </>
+  )
+}
+
 function Mypage() {
 
   // AOS init설정
@@ -393,7 +412,8 @@ function Mypage() {
     } catch (error) {
       alert('클립보드 복사에 실패하였습니다.');
     }
-  };
+  }
+
   return (
     <>
       <Header />
@@ -850,34 +870,34 @@ function Mypage() {
 
               <MessageScroll>
                 {messageSidebar === true && messageBox.receive === true ? (
-                  receiveMessageData && receiveMessageData.data.data.slice().reverse().map((e, idx) => (
-                    <ReceiveMessageWrap
-                      key={idx}
-                      onClick={() => {
-                        // onClickReceiveMessageHandler(idx, e.isRead);
-                      }}
-                      isRead={e.isRead}
-                    >
-                      <ReceiveSendNickname>{e.senderNickname}</ReceiveSendNickname>
-                      <ReceiveContent>{e.content}</ReceiveContent>
-                      <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
-                    </ReceiveMessageWrap>
+                  receiveMessageData && receiveMessageData.data.data?.slice().reverse().map((e, idx) => (
+                    <MakeNoteHandler idx={idx} nickName={e.senderNickname} content={e.content} created={e.createdAt}/>
+                    // <ReceiveMessageWrap
+                    //   key={idx}
+                    //   onClick={() => {}}
+                    //   isRead={false}
+                    // >
+                    //   <ReceiveSendNickname>{e.senderNickname}</ReceiveSendNickname>
+                    //   <ReceiveContent>{e.content}</ReceiveContent>
+                    //   <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
+                    // </ReceiveMessageWrap>
                   ))
                 ) : null}
 
+                {/* 보낸쪽지함 */}
                 {messageSidebar === true && messageBox.send === true ? (
-                  sentMessageData && sentMessageData.data.data.slice().reverse().map((e, idx) => (
-                    <ReceiveMessageWrap
-                      key={idx}
-                      onClick={() => {
-                        // onClickSentMessageHandler(idx, e.isRead);
-                      }}
-                      isRead={e.isRead}
-                    >
-                      <ReceiveSendNickname>{e.receiverNickname}</ReceiveSendNickname>
-                      <ReceiveContent>{e.content}</ReceiveContent>
-                      <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
-                    </ReceiveMessageWrap>
+                  sentMessageData && sentMessageData.data.data?.slice().reverse().map((e, idx) => (
+                    <MakeNoteHandler idx={idx} nickName={e.receiverNickname} content={e.content} created={e.createdAt}/>
+                    // makeNoteHandler(idx, e.receiverNickname, e.content, e.createdAt)
+                    // <ReceiveMessageWrap
+                    //   key={idx}
+                    //   onClick={() => {}}
+                    //   isRead={false}
+                    // >
+                    //   <ReceiveSendNickname>{e.receiverNickname}</ReceiveSendNickname>
+                    //   <ReceiveContent>{e.content}</ReceiveContent>
+                    //   <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
+                    // </ReceiveMessageWrap>
                   ))
                 ) : null}
               </MessageScroll>
