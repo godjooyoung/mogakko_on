@@ -20,8 +20,8 @@ function SignUp() {
     const [popMsg, setPopMsg] = useState('')
     // 팝업 오픈 함수
     const popupOpenHander = (msg) => {
-        setPopMsg((prevPopMsg)=>msg)
-        setIsOpen(()=>true)
+        setPopMsg((prevPopMsg) => msg)
+        setIsOpen(() => true)
     }
     // 팝업 클로즈 함수
     const popupCloseHandler = () => {
@@ -131,10 +131,10 @@ function SignUp() {
         const newPassword = e.target.value;
         setPassword(newPassword);
 
-        if (newPassword !== confirmPassword && confirmPassword.length !== 0){
+        if (newPassword !== confirmPassword && confirmPassword.length !== 0) {
             setConfirmPasswordErrorMessage('비밀번호가 일치하지 않습니다.')
             setIsPasswordConfirmed(false);
-        } else{
+        } else {
             setConfirmPasswordErrorMessage('');
             setIsPasswordConfirmed(true);
         }
@@ -185,7 +185,7 @@ function SignUp() {
         if (newNickname.length < 2 || newNickname.length > 8) {
             setNicknameErrorMessage('닉네임은 2~8자 사이여야 합니다.');
             setNicknameChanged(false);
-        } else if(hasWhitespace(newNickname)){
+        } else if (hasWhitespace(newNickname)) {
             setNicknameErrorMessage('닉네임은 빈 칸을 포함할 수 없습니다.')
             setNicknameChanged(false);
         } else {
@@ -261,11 +261,11 @@ function SignUp() {
 
     return (
         <>
-        {
-            isOpen?
-            <CommonPopup msg={popMsg} closeHander={popupCloseHandler} isBtns={false} priMsg={'확인'} priHander={popupCloseHandler}/>
-            :<></>
-        }
+            {
+                isOpen ?
+                    <CommonPopup msg={popMsg} closeHander={popupCloseHandler} isBtns={false} priMsg={'확인'} priHander={popupCloseHandler} />
+                    : <></>
+            }
 
             <FormDiv>
                 <Form>
@@ -364,23 +364,25 @@ function SignUp() {
                     </div>
 
                     <Wrapper>
-
-                        <InputCheckbox
-                            type="checkbox"
-                            checked={isAgreed}
-                            onChange={isAgreedChangeHandler}
-                            id="checkbox"
-                        />
-                        <InfoButton htmlFor="checkbox">
-                            개인 위치 정보 제공에 동의합니다.
-                        </InfoButton>
-                        <span style={{ color: "white" }} onClick={openModalHandler}>(전문보기)</span>
-                        {modalOpen &&
-                            <TermsModal
-                                onClose={closeModalHandler}
-                                onAgree={modalAgree}
+                        <div>
+                            <InputCheckbox
+                                type="checkbox"
+                                checked={isAgreed}
+                                onChange={isAgreedChangeHandler}
+                                id="checkbox"
                             />
-                        }
+                            <InfoButton htmlFor="checkbox">
+                                개인 위치 정보 제공에 동의합니다.
+                            </InfoButton></div>
+                        <div>
+                            <Terms onClick={openModalHandler}>전문보기</Terms>
+                            {modalOpen &&
+                                <TermsModal
+                                    onClose={closeModalHandler}
+                                    onAgree={modalAgree}
+                                />
+                            }
+                        </div>
 
                     </Wrapper>
                     <SignupButton onClick={(e) => {
@@ -549,7 +551,127 @@ export const ErrorMessage = styled.div`
 export const SuccessMessage = styled.div`
     color: #00F0FF;
     font-size: 14px;
+`;
+
+
+export const Wrapper = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom:10px;
 `
+export const InputCheckbox = styled.input`
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    opacity: 0;
+    z-index: -1;
+
+    & + label {
+        position: relative;
+        padding-left: 30px;
+        cursor: pointer;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 18px;
+            height: 18px;
+            border: 1px solid #FFFFFF;
+            border-radius: 2px;
+            background: transparent;
+            transition: all 0.3s;
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: -1px;
+            width: 10px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+    }
+
+    &:checked + label::before {
+        border: none;
+        background: #00EFFF;
+    }
+
+    &:checked + label::after {
+        opacity: 1;
+    }
+`;
+
+// export const InputCheckbox = styled.input`
+//     width:18px;
+//     height:18px;
+//     accent-color:#00F0FF;
+//     border: 1px solid #FFFFFF;
+//     border-radius: 2px; 
+    
+//     overflow: hidden;
+//     clip: rect(1px, 1px, 1px, 1px);
+
+//     & + label {
+//         position: relative;
+//         padding-left: 30px;
+//         cursor: pointer;
+
+//         &:before {
+//             content: '';
+//             position: absolute;
+//             left: 0;
+//             top: 0;
+//             width: 20px;
+//             height: 20px;
+//             border: 1px solid #FFFFFF;
+//             border-radius: 2px;
+//             background: transparent;
+//         }
+//     }
+
+//     &:checked + label:before {
+//         background: #FFFFFF;
+//     }
+//     }
+// `
+
+export const InfoButton = styled.label`
+    padding:0.5rem 1rem;
+    background-color:transparent;    
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: right;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 17px;
+    display: flex;
+    align-items: center;
+
+`;
+
+export const Terms = styled.span`
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 17px;
+    color: #BEBEBE;
+    text-decoration: underline;
+`;
+
 export const SignupButton = styled.button`
     padding: 9px 20px;
     margin-top: 10px;
@@ -585,52 +707,4 @@ export const SignupButton = styled.button`
         font-size: 17px;
         font-weight: 700;
     }
-`
-
-
-export const Wrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom:10px;
-`
-
-export const InfoButton = styled.label`
-    padding:0.5rem 1rem;
-    background-color:transparent;    
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-align: right;
-    font-size:14px;
-`;
-
-export const BottomButton = styled.button`
-    background-color:transparent;    
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-align: right;
-    font-size:14px;
-    height: 28px;
-    border-bottom: 1px solid white;
-    border-radius: 0;
-    text-align: center;
-`;
-export const InputCheckbox = styled.input`
-    width:18px;
-    height:18px;
-    accent-color:#00F0FF;
-`
-export const Term = styled.div`
-    padding:0.5rem 1rem;
-    background-color:transparent;    
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-align: left;
-    font-size:14px;     
 `
