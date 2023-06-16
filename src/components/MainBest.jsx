@@ -66,7 +66,7 @@ function MainBest(props) {
         <BestMemberWrap>
             <BestMemberCardContainer>
                 <TitleWrap>
-                    <BestTitle data-aos="fade-up">오늘의 ON:S</BestTitle>
+                    <BestTitle data-aos="fade-up">오늘의 유저</BestTitle>
                 </TitleWrap>
                 <BestMemberCardWarp>
                     <BestMemberCardGrid>
@@ -81,13 +81,13 @@ function MainBest(props) {
                                         <BestMemberName>{bestMember.member.nickname}</BestMemberName>
                                         <BestMemberCardContentContainer>
                                             <BestMemberCardContent>
-                                                <BestMemberCardContentTitle>코딩 온도</BestMemberCardContentTitle>
+                                                <BestMemberCardContentTitle>ON°</BestMemberCardContentTitle>
                                                 <BestMemberCardContentDetials>
                                                     <span><img src={`${process.env.PUBLIC_URL}/image/mannerTemp.webp`} /></span>
                                                     <ProgressContainer>
                                                         <Progress style={{ width: `${bestMember.member.codingTem}%` }} />
                                                     </ProgressContainer>
-                                                    <span>{bestMember.member.codingTem}</span>
+                                                    <span>{bestMember.member.codingTem}°</span>
                                                 </BestMemberCardContentDetials>
                                             </BestMemberCardContent>
                                             {/* 15px 간격 */}
