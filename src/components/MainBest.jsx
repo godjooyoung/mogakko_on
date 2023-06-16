@@ -98,7 +98,7 @@ function MainBest(props) {
                                                     <ProgressContainer>
                                                         <Progress style={{ width: `${totalStudyTmCalHandler(bestMember.totalTimer.weekTotal)}%` }} />
                                                     </ProgressContainer>
-                                                    <span>{bestMember.totalTimerWeek}</span>
+                                                    <span>{bestMember.totalTimer.weekTotal}</span>
                                                 </BestMemberCardContentDetials>
                                             </BestMemberCardContent>
                                         </BestMemberCardContentContainer>
