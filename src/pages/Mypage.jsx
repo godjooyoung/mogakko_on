@@ -216,7 +216,7 @@ function Mypage() {
     }
   }, [friendRequestListData])
 
-  // 코딩온도 애니메이션 useEffect
+  // MY 코딩온도 애니메이션 useEffect
   useEffect(() => {
     setValue(profileData && profileData.data.data.member.codingTem)
     const interval = setInterval(() => {
@@ -362,30 +362,6 @@ function Mypage() {
     }
     return avataGen
   }
-
-  // 받은메세지 선택 클릭 이벤트
-  // const onClickReceiveMessageHandler = (idx, isRead) => {
-  //   const updateMessage = myReceiveMessage.map((message, index) => {
-  //     if (index === idx) {
-  //       return { ...message, isRead: !isRead }
-  //     } else {
-  //       return { ...message, isRead: false }
-  //     }
-  //   })
-  //   setMyReceiveMessage(updateMessage)
-  // }
-
-  // 보낸메세지 선택 클릭 이벤트
-  // const onClickSentMessageHandler = (idx, isRead) => {
-  //   const updateMessage = mysentMessage.map((message, index) => {
-  //     if (index === idx) {
-  //       return { ...message, isRead: !isRead }
-  //     } else {
-  //       return { ...message, isRead: false }
-  //     }
-  //   })
-  //   setMySentMessage(updateMessage)
-  // }
 
   // 물음표 버튼 hover시 나오는 정보창 (status) 핸들러
   const statusOnMouseHandler = () => {
@@ -656,7 +632,7 @@ function Mypage() {
               <MyPageBottomContentWrap>
                 <FriendListContainer>
                   <DeleteBtnWrap>
-                    <p>친구 목록</p>
+                    <FriendListTitle>친구 목록</FriendListTitle>
                     {friendList.length === 0 ?
                       null :
                       <>
@@ -697,6 +673,17 @@ function Mypage() {
                                   }
                                   <FriendListImage friendListImg={avataGenHandler(friend.member.profileImage, friend.member.nickname)}></FriendListImage>
                                   <FriendListName>{friend.member.nickname}</FriendListName>
+
+                                  <FriendListTemperaturecontainer>
+                                    <FriendListTemperatureTitle>On°</FriendListTemperatureTitle>
+                                    <FriendListTemperatureWrap>
+                                      <img src={`${process.env.PUBLIC_URL}/image/mannerTemp.webp`} />
+                                      <FriendListProgressContainer>
+                                        <FriendListProgress style={{ width: `${friend.member.codingTem}%` }} />
+                                      </FriendListProgressContainer>
+                                      <span>{friend.member.codingTem}°</span>
+                                    </FriendListTemperatureWrap>
+                                  </FriendListTemperaturecontainer>
                                 </FriendList>
                               </>
                             )
@@ -1469,7 +1456,9 @@ const FriendListContainer = styled.div`
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  p{
+`
+
+const FriendListTitle = styled.p`
     color: white;
     font-weight: 500;
     font-size: 18px;
@@ -1478,7 +1467,6 @@ const FriendListContainer = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
 `
 
 const DeleteBtnWrap = styled.div`
@@ -1559,6 +1547,55 @@ const ScrollWrap = styled.div`
       background-clip: padding-box;
   }
 `
+
+const FriendListTemperaturecontainer = styled.div`
+  width: 166px;
+  height: 40px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`
+
+const FriendListTemperatureTitle = styled.p`
+    width: 145px;
+    height: 20px;
+    font-size: 9px;
+    color: var(--po-de);
+    font-weight: 900;
+    text-align: start;
+`
+
+const FriendListTemperatureWrap = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  span {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 7px;
+    color: #FFFFFF;
+  }
+`
+
+const FriendListProgressContainer = styled.div`
+  width: 100px;
+  height: 8px;
+  margin-top: 2px;
+  background:transparent;
+  border-radius: 33px;
+  border: 1px solid white;
+`;
+
+const FriendListProgress = styled.div`
+  height: 100%;
+  border-radius:10px;
+  background: var(--po-de);
+  transition: width 1s ease;
+  border: none;
+`;
 
 const ReqScrollWrap = styled.div`
   width: 281px;
