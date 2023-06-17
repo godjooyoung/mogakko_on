@@ -4,7 +4,7 @@ import { jwtInstance } from "../apiConfig"
 const getProfile = async () => {
   try {
     const response = await jwtInstance.get('/members/mypage')
-    console.log("response : ", response)
+    // console.log("response : ", response)
     return Promise.resolve(response)
   } catch (error) {
     return Promise.reject(error)
@@ -25,7 +25,7 @@ const addProfile = async (file) => {
 const getFriendList = async () => {
   try {
     const response = await jwtInstance.get('/friendship/requests/accepted')
-    console.log("response : ", response)
+    // console.log("response : ", response)
     return Promise.resolve(response)
   } catch (error) {
     return Promise.reject(error)
@@ -36,7 +36,7 @@ const getFriendList = async () => {
 const getFriendRequestList = async () => {
   try {
     const response = await jwtInstance.get('/friendship/requests/pending')
-    console.log("response : ", response)
+    // console.log("response : ", response)
     return Promise.resolve(response)
   } catch (error) {
     return Promise.reject(error)
@@ -46,7 +46,7 @@ const getFriendRequestList = async () => {
 // 친구 신청 수락/거절
 const reciveFriendRequest = async (target) => {
   //{"requestSenderNickname": String,"determineRequest": boolean}
-  console.log("장미의 선택은..?", target)
+  // console.log("장미의 선택은..?", target)
   try {
     const response = await jwtInstance.post('/friendship/requests/determine', target)
     return response
@@ -57,7 +57,7 @@ const reciveFriendRequest = async (target) => {
 
 // 친구 삭제
 const deleteFriend = async (targetFriend) => {
-  console.log("너랑 절교다!!", targetFriend)
+  // console.log("너랑 절교다!!", targetFriend)
   const target = { receiverNickname: targetFriend }
 
   try {
@@ -70,13 +70,13 @@ const deleteFriend = async (targetFriend) => {
 
 // 친구 요청
 const requestFriend = async (targetFriend) => {
-  console.log("친구 요청 보내기. (" + targetFriend + ") 아 나랑 친구할래?")
+  // console.log("친구 요청 보내기. (" + targetFriend + ") 아 나랑 친구할래?")
   const target = { requestReceiverNickname: targetFriend }
 
   try {
     const response = await jwtInstance.post('/friendship/requests', target)
-    console.log("requestFriend response : ", response.data.message)
-    console.log("requestFriend response : ", response.data.data)
+    // console.log("requestFriend response : ", response.data.message)
+    // console.log("requestFriend response : ", response.data.data)
     return response
   } catch (error) {
     console.log(error)
@@ -87,8 +87,8 @@ const requestFriend = async (targetFriend) => {
 const getUserProfile = async (memberId) => {
   try {
     const response = await jwtInstance.get('/members/' + memberId)
-    console.log("getUserProfile response : ", response.data.message)
-    console.log("getUserProfile response : ", response.data.data)
+    // console.log("getUserProfile response : ", response.data.message)
+    // console.log("getUserProfile response : ", response.data.data)
     if (response.data.message === '프로필 조회 성공') {
       return Promise.resolve(response)
     }
@@ -112,10 +112,10 @@ const searchUser = async (param) => {
   const urlMaker = () => {
     let url = '/members/search/'
     if(param.type === 'NAME'){
-      console.log('NAMENAMENAMENAMENAMENAMENAMENAME', param.value)
+      // console.log('NAMENAMENAMENAMENAMENAMENAMENAME', param.value)
       return url + 'nickname?nickname=' +  param.value
     }else if (param.type === 'CODE'){
-      console.log('CODECODECODECODECODECODECODECODE', param.value)
+      // console.log('CODECODECODECODECODECODECODECODE', param.value)
       return url + 'friend-code?friendCode=' + param.value
     }
   }

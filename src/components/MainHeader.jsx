@@ -22,7 +22,7 @@ function MainHeader(props) {
     // 방 생성하기
     const onClickRoomCreateHandler = () => {
         if (isLogin) {
-            console.log("#### userInfo", userInfo)
+            // console.log("#### userInfo", userInfo)
             const state = {
                 mySessionId: '',
                 myUserName: getCookie('nickName'),

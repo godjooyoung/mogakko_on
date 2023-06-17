@@ -31,7 +31,7 @@ const MakeNoteHandler = ({ idx, nickName, content, createdAt }) => {
   const [isToggle, setIsToggle] = useState(false)
   const toggleChangerHandler = (toggle) => {
     setIsToggle(!toggle)
-    console.log('토글토글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글,', isToggle)
+    // console.log('토글토글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글,', isToggle)
   }
   return (
     <>
@@ -52,10 +52,10 @@ function Mypage() {
   })
 
   const getFriendListIsSuccessHandler = () => {
-    console.log('친구목록 조회 성공', friendListData)
+    // console.log('친구목록 조회 성공', friendListData)
   }
   const getFriendListIsErrorHandler = () => {
-    console.log('친구목록 조회 실패', friendListData)
+    // console.log('친구목록 조회 실패', friendListData)
     setFriendList([])
   }
 
@@ -141,21 +141,12 @@ function Mypage() {
   const [timer, setTimer] = useState(0)
 
   const inputRef = useRef()
-  // const { isLoading: isSearchUserLoading, isError: isSearchUserError, data: searchUserData, refetch: getSearchUserRefetch } = useQuery("getSearchUser", () => {
-  //   friendFindNickName ? searchUser({ searchRequestNickname: findNickNameValue }) : searchUser({ friendCode: findCodeValue })
-  // }, {
-  //   enabled: isTargeting,
-  //   onSuccess: () => {
-  //     console.log('searchUserDatasearchUserDatasearchUserData', searchUserData)
-  //   },
-  //   refetch: false
-  // })
 
   const roomListMutation = useMutation(searchUser, {
     onSuccess: (response) => {
-      console.log("searchUser ", response)
-      console.log("searchUser.data 컨텐트 검색 결과 ", response.data)
-      console.log("searchUser.data.data 컨텐트 검색 결과 배열 ", response.data.data)
+      // console.log("searchUser ", response)
+      // console.log("searchUser.data 컨텐트 검색 결과 ", response.data)
+      // console.log("searchUser.data.data 컨텐트 검색 결과 배열 ", response.data.data)
       if (response.data.message === '검색된 멤버가 없습니다.') {
         setSearchFriend([])
       } else {
@@ -175,40 +166,26 @@ function Mypage() {
     },
     onError: (error) => {
       popupOpenHander(error.response.data.message)
-      console.log('error.response.data.message', error.response.data.message)
+      // console.log('error.response.data.message', error.response.data.message)
     }
   })
 
   const popupOpenHander = (msg) => {
-    console.log('쪽지팝업 msg is......0', msg)
+    // console.log('쪽지팝업 msg is......0', msg)
     setMesageStatusresponse(msg)
-    console.log('쪽지팝업 mesageStatusresponse', mesageStatusresponse)
-    console.log('쪽지팝업 messageStatus', messageStatus)
+    // console.log('쪽지팝업 mesageStatusresponse', mesageStatusresponse)
+    // console.log('쪽지팝업 messageStatus', messageStatus)
   }
 
   const popupCloseHander = () => {
     setMessageStatus(false)
     setMesageStatusresponse('')
   }
-  // const errorPopup = () => {
-  //   console.log('쪽지팝업---시작', mesageStatusresponse)
-  //   if(messageStatus){
-  //     if (mesageStatusresponse === "자신에게는 쪽지를 보낼 수 없습니다.") {
-  //       return <CommonPopup msg={'자신에게는 쪽지를 보낼 수 없습니다.'} isBtns={false} priMsg={'확인'} priHander={popupCloseHander()} closeHander={popupCloseHander()} />
-  //     } else if (mesageStatusresponse === "내용을 입력해 주세요.") {
-  //       return <CommonPopup msg={'내용을 입력해 주세요.'} isBtns={false} priMsg={'확인'} priHander={popupCloseHander()} closeHander={popupCloseHander()} />
-  //     } else if (mesageStatusresponse === "회원을 찾을 수 없습니다.") {
-  //       return <CommonPopup msg={'회원을 찾을 수 없습니다.'} isBtns={false} priMsg={'확인'} priHander={popupCloseHander()} closeHander={popupCloseHander()} />
-  //     }
-  //   }else{
-  //     return <></>
-  //   }
-  // }
 
   useEffect(() => {
-    console.log('쪽지팝업', mesageStatusresponse)
+    // console.log('쪽지팝업', mesageStatusresponse)
     if (mesageStatusresponse !== '') {
-      console.log('쪽지팝업 msg is......1', mesageStatusresponse)
+      // console.log('쪽지팝업 msg is......1', mesageStatusresponse)
       setMessageStatus(true)
     } else {
       setMessageStatus(false)
@@ -225,7 +202,7 @@ function Mypage() {
 
   useEffect(() => {
     if (timer) {
-      console.log('clear timer');
+      // console.log('clear timer');
       clearTimeout(timer);
     }
     if (findNickNameValue !== '' || findCodeValue !== '') {
@@ -233,7 +210,7 @@ function Mypage() {
         try {
           await roomListMutationCall()
         } catch (e) {
-          console.error('error', e);
+          // console.error('error', e);
         }
       }, 1000);
 
@@ -255,9 +232,9 @@ function Mypage() {
 
   useEffect(() => {
     if (profileData) {
-      console.log("마이페이지 조회 결과", profileData)
-      console.log("마이페이지 조회 결과-profileImage", profileData.data.data.member.profileImage)
-      console.log("마이페이지 조회 결과-nickname", profileData.data.data.member.nickname)
+      // console.log("마이페이지 조회 결과", profileData)
+      // console.log("마이페이지 조회 결과-profileImage", profileData.data.data.member.profileImage)
+      // console.log("마이페이지 조회 결과-nickname", profileData.data.data.member.nickname)
 
       setCookie('userProfile', profileData.data.data.member.profileImage)
       setPreview(profileData.data.data.member.profileImage)
@@ -270,8 +247,8 @@ function Mypage() {
   // 친구목록 조회 useEffect
   useEffect(() => {
     if (friendListData) {
-      console.log("친구목록 조회 1", friendListData)
-      console.log("친구목록 조회 2", friendListData.data.data)
+      // console.log("친구목록 조회 1", friendListData)
+      // console.log("친구목록 조회 2", friendListData.data.data)
       if (friendListData.data.data) {
         setFriendList(friendListData.data.data)
       } else {
@@ -283,8 +260,8 @@ function Mypage() {
   // 친구요청 목록 조회 useEffect
   useEffect(() => {
     if (friendRequestListData) {
-      console.log("친구요청목록 조회 1", friendRequestListData)
-      console.log("친구요청목록 조회 2", friendRequestListData.data.data)
+      // console.log("친구요청목록 조회 1", friendRequestListData)
+      // console.log("친구요청목록 조회 2", friendRequestListData.data.data)
     }
   }, [friendRequestListData])
 
@@ -304,10 +281,10 @@ function Mypage() {
 
   // 프로필 수정 useEffect
   useEffect(() => {
-    console.log('프로필 이미지 수정 핸들러 실행 0', fileAttach)
+    // console.log('프로필 이미지 수정 핸들러 실행 0', fileAttach)
     if (fileAttach) {
       const maxSize = 2 * 1024 * 1024
-      console.log('프로필 이미지 수정 핸들러 실행 1', fileAttach.size, ",", maxSize)
+      // console.log('프로필 이미지 수정 핸들러 실행 1', fileAttach.size, ",", maxSize)
       if (fileAttach.size > maxSize) {
         setIsFileCommonPopupOpend(true)
         handleClearInput()
@@ -336,11 +313,11 @@ function Mypage() {
     // 프로필 이미지가 기본 이미지일때는 랜덤 프로필 사진 보여줌. 등록했을 경우에는 등록된 이미지 파일 보여줌
     if (preview) {
       if (preview === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
-        console.log("기본 프로필 입니다. 랜덤프로필 작업 필요")
+        // console.log("기본 프로필 입니다. 랜덤프로필 작업 필요")
         const avataGen = `https://source.boringavatars.com/beam/120/${profileData.data.data.member.nickname}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
         setPreview(avataGen)
       } else {
-        console.log("유저가 프로필을 등록한 사용자입니다.", preview)
+        // console.log("유저가 프로필을 등록한 사용자입니다.", preview)
       }
     }
   }, [preview])
@@ -348,7 +325,7 @@ function Mypage() {
   // 친구 삭제 뮤테이션
   const deleteFriendMutation = useMutation(deleteFriend, {
     onSuccess: (response) => {
-      console.log("친구 삭제 성공", response)
+      // console.log("친구 삭제 성공", response)
       queryClient.invalidateQueries(getProfile)
       queryClient.invalidateQueries(getFriendList)
       queryClient.invalidateQueries(getFriendRequestList)
@@ -365,7 +342,7 @@ function Mypage() {
   // 프로필 사진 수정 뮤테이션
   const filemutation = useMutation(addProfile, {
     onSuccess: (response) => {
-      console.log("프로필 사진 수정 성공", response)
+      // console.log("프로필 사진 수정 성공", response)
       queryClient.invalidateQueries(getProfile)
       queryClient.invalidateQueries(getFriendList)
       queryClient.invalidateQueries(getFriendRequestList)
@@ -375,7 +352,7 @@ function Mypage() {
   // 친구 수락/거절
   const reciveFriendMutation = useMutation(reciveFriendRequest, {
     onSuccess: (response) => {
-      console.log("친구 신청 수락/거절", response)
+      // console.log("친구 신청 수락/거절", response)
       queryClient.invalidateQueries(getProfile)
       queryClient.invalidateQueries(getFriendList)
       queryClient.invalidateQueries(getFriendRequestList)
@@ -393,17 +370,17 @@ function Mypage() {
 
   // 친구 요청 수락/취소 버튼 클릭 핸들러
   const onClickRequestFriendButtonHandler = (targetNickName, isAccept) => {
-    console.log("친구 요청을 해준 닉네임", targetNickName)
-    console.log("(친구요청?) 수락 거부", isAccept)
+    // console.log("친구 요청을 해준 닉네임", targetNickName)
+    // console.log("(친구요청?) 수락 거부", isAccept)
     const target = { requestSenderNickname: targetNickName, determineRequest: isAccept }
     reciveFriendMutation.mutate(target)
   }
 
   // 친구 삭제 여러건 선택 핸들러
   const onClickDeleteFriendCheckHandler = (targetNickName, idx, isSelected) => {
-    console.log("삭제하기 위해 선택한 친구 닉네임", targetNickName)
-    console.log("삭제하기 위해 선택한 친구 인덱스", idx)
-    console.log("삭제하기 위해 선택한 친구 선택여부", isSelected)
+    // console.log("삭제하기 위해 선택한 친구 닉네임", targetNickName)
+    // console.log("삭제하기 위해 선택한 친구 인덱스", idx)
+    // console.log("삭제하기 위해 선택한 친구 선택여부", isSelected)
     const updateFriendList = friendList.map((friend, index) => {
       if (index === idx) {
         return { ...friend, selected: !isSelected }
@@ -417,34 +394,27 @@ function Mypage() {
   // 친구 삭제 버튼 클릭 핸들러
   const onClickDeleteFriendButtonHandler = () => {
     const deleteFriendList = friendList.filter((friend) => friend.selected).map((friend) => friend.member.nickname)
-    console.log("삭제할 친구 목록", deleteFriendList)
+    // console.log("삭제할 친구 목록", deleteFriendList)
     deleteFriendMutation.mutate(deleteFriendList)
   }
 
   // 친구 추가 보내기
   const friendRequetMutation = useMutation(requestFriend, {
     onSuccess: (response) => {
-      console.log(">>> 친구 추가 보내기 성공", response.data.message)
+      // console.log(">>> 친구 추가 보내기 성공", response.data.message)
     },
   })
 
   // 친구 추가 핸들러
   const onClickRqFriendshipBtnHandler = (target) => {
-    console.log("나랑 친구할래?", target)
+    // console.log("나랑 친구할래?", target)
     friendRequetMutation.mutate(target)
   }
 
   // 파일 수정 핸들러
   const handleFileChange = (event) => {
-    console.log("프로필 이미지 수정 핸들러 실행 inputChangeHandler", event)
+    // console.log("프로필 이미지 수정 핸들러 실행 inputChangeHandler", event)
     setFileAttach(event.target.files[0])
-    // const maxSize = 2 * 1024 * 1024
-    // console.log("프로필 이미지 수정 핸들러 실행1")
-    // if (fileAttach.size > maxSize) {
-    //   console.log("프로필 이미지 수정 핸들러 실행2")
-    //   alert("이미지 크기를 2MB 아래로 선택해 주시기 바랍니다.")
-    //   //return 
-    // } 
   }
 
   const handleClearInput = () => {
@@ -455,7 +425,7 @@ function Mypage() {
 
   // 프로필 이미지 저장 핸들러 - onchange 랑 onClick이랑 동시에 동작하면 왜 온클릭이 무시될까요? 일단 바꿈 
   const submitImgHandler = () => {
-    console.log("프로필 이미지 전송 핸들러 실행")
+    // console.log("프로필 이미지 전송 핸들러 실행")
     const newFile = new FormData();
     newFile.append("imageFile", fileAttach)
     filemutation.mutate(newFile)

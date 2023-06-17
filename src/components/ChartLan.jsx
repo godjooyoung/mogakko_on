@@ -22,7 +22,7 @@ function ChartLan(props) {
 
     useEffect(() => {
         // 초기
-        console.log("ChartLan :: ", props.data)
+        // console.log("ChartLan :: ", props.data)
         return () => {
             // 클린
         }
@@ -41,7 +41,7 @@ function ChartLan(props) {
 
             // console.log(".............>>>>>", sortedArray)
 
-            console.log("ChartLan2 :: ", props.data);
+            // console.log("ChartLan2 :: ", props.data);
             const dataObject2 = props.data;
             const langs2 = ['JAVA', 'PYTHON', 'JAVASCRIPT', 'C', 'C#', 'C++', 'KOTLIN', 'ETC'];
 
@@ -50,7 +50,7 @@ function ChartLan(props) {
                 return foundData2 ? foundData2.percentage : 0;
             });
 
-            console.log(".............>>>>><<<<<<>>>>>", resultArray2);
+            // console.log(".............>>>>><<<<<<>>>>>", resultArray2);
 
 
             setChartData((prevChartData) => ({

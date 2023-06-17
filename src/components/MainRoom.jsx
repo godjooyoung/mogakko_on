@@ -127,16 +127,16 @@ function MainRoom(props) {
     }, [props.roomList])
 
     const roomOpenCheck = (isOpendRoom) => {
-        console.log("isOpendRoom",isOpendRoom)
+        // console.log("isOpendRoom",isOpendRoom)
         return isOpendRoom
     }
 
     // 방참여하기
     const onClickJoinRoomHandler = (details) => {
-        console.log("방값!!", details)
+        // console.log("방값!!", details)
         if (isLogin) {
             if (details.opened) {
-                console.log("공개방 입장")
+                // console.log("공개방 입장")
                 const state = {
                     mySessionId: details.sessionId,
                     myUserName: getCookie('nickName'),
@@ -152,7 +152,7 @@ function MainRoom(props) {
                 };
                 navigate('/room', { state: state })
             } else {
-                console.log("비공개방 입장", roomEnterPw)
+                // console.log("비공개방 입장", roomEnterPw)
                 if (roomEnterPw.length !== 0) {
                     const state = {
                         mySessionId: details.sessionId,

@@ -22,8 +22,8 @@ function MainContent(props) {
     // TODO 조회요청 서버에 보내서 결과 프롭스로 내려주기
     const roomListMutation = useMutation(getRoomList, {
         onSuccess: (response) => {
-            console.log("메인 컨텐트 검색 결과 ", response)
-            console.log("메인 컨텐트 검색 결과 배열 ", response.data)
+            // console.log("메인 컨텐트 검색 결과 ", response)
+            // console.log("메인 컨텐트 검색 결과 배열 ", response.data)
             if (response.message === '근처에 모각코가 없습니다.') {
                 setRoomList([])
             } else {
@@ -34,7 +34,7 @@ function MainContent(props) {
 
     useEffect(() => {
         if (timer) {
-            console.log('clear timer');
+            // console.log('clear timer');
             clearTimeout(timer);
         }
         const newTimer = setTimeout(async () => {
