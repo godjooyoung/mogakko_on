@@ -1084,14 +1084,21 @@ function Room() {
                   onChange={(e) => setMessage(e.target.value)}
                   cols="30"
                   rows="10"
-                  placeholder='대화를 입력하세요'
+                  placeholder='대화를 입력하세요.'
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      if (!e.shiftKey) {
-                        e.preventDefault();
-                        textPublish(openViduSession ? openViduSession : mySessionId);
-                      }
+                    // 엔터시 한글자모만 두번 쳐지는거 막음
+                    if (e.key === "Enter") {
+                        if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                          e.preventDefault();
+                          textPublish(openViduSession ? openViduSession : mySessionId);
+                        }
                     }
+                    // if (e.key === 'Enter') {
+                    //   if (!e.shiftKey) {
+                    //     e.preventDefault();
+                    //     textPublish(openViduSession ? openViduSession : mySessionId);
+                    //   }
+                    // }
                   }}
                 ></ChatInput>
               </ChatInputWrap>
