@@ -23,7 +23,7 @@ function Stopwatch(props) {
 
     const recordTimerMutation = useMutation(recordTimer, {
         onSuccess: (response) => {
-            console.log("시간기록", response)
+            // console.log("시간기록", response)
         }
     })
 
@@ -103,7 +103,7 @@ function Stopwatch(props) {
     const startStopWatch = () => {
         const satting = () => {
             if (isStarted) {
-                console.log("타이머 일시정지")
+                // console.log("타이머 일시정지")
                 setIsStarted(false)
                 // 전송할 값
                 setSendSeconds((prevSendSeconds) => {
@@ -119,7 +119,7 @@ function Stopwatch(props) {
                     return hours
                 })
             } else {
-                console.log("타이머 재시작")
+                // console.log("타이머 재시작")
                 setIsStarted(true)
             }
         }
@@ -155,7 +155,7 @@ function Stopwatch(props) {
 
                 return hh + ":" + mm + ":" + ss
             }
-            console.log("직전에 보낸 샌드값", settingPrevTimeString())
+            // console.log("직전에 보낸 샌드값", settingPrevTimeString())
 
             const settingTimeString = () => {
                 // 현재 샌드값
@@ -179,7 +179,7 @@ function Stopwatch(props) {
                 }
                 return hh + ":" + mm + ":" + ss
             }
-            console.log("지금 보낸 샌드값", settingTimeString())
+            // console.log("지금 보낸 샌드값", settingTimeString())
 
 
             const calculateTimeDiff = (prevTime, currentTime) => {
@@ -202,7 +202,7 @@ function Stopwatch(props) {
 
             // axios 호출
             recordTimerMutation.mutate(calculateTimeDiff(settingPrevTimeString(), settingTimeString()))
-            console.log("간격, ", calculateTimeDiff(settingPrevTimeString(), settingTimeString()))
+            // console.log("간격, ", calculateTimeDiff(settingPrevTimeString(), settingTimeString()))
         }
 
     }, [sendSeconds])

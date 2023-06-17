@@ -37,7 +37,7 @@ function Header(props) {
 
     useEffect(() => {
         const checkLoginStatus = async () => {
-            console.log("[INFO] 로그인 여부 체크 실행")
+            // console.log("[INFO] 로그인 여부 체크 실행")
             const accessKey = await getCookie('token');
             if (accessKey && !isLogin) {
                 setIsLogin(accessKey ? true : false)
@@ -54,7 +54,7 @@ function Header(props) {
     // 알람 신규로 올때
     useEffect(() => {
 
-        console.log("알람건수:::::::::::::::  ", isNewNotification)
+        // console.log("알람건수:::::::::::::::  ", isNewNotification)
         if (isNewNotification > 1) {
             setIsNewNoti(true)
         } else {
@@ -73,18 +73,18 @@ function Header(props) {
     useEffect(() => {
         // 세션 스토리지에서 SSE 구독 상태를 확인
         const isSubscribed = sessionStorage.getItem('isSubscribed');
-        console.log("[INFO] SSE isSubscribed", isSubscribed)
-        console.log("[INFO] SSE alarmInfo", alarmInfo)
+        // console.log("[INFO] SSE isSubscribed", isSubscribed)
+        // console.log("[INFO] SSE alarmInfo", alarmInfo)
 
         if (isLogin && !isSubscribed) {
             // 로그인 상태일때 최초 한번만 구독 실행
             const subcribeSSE = async () => {
                 const accessKey = await getCookie('token')
-                console.log("[INFO] SSE 구독요청 - accessKey 가져오기", accessKey)
+                // console.log("[INFO] SSE 구독요청 - accessKey 가져오기", accessKey)
 
                 const EventSource = EventSourcePolyfill
                 if (isLogin && accessKey && !isSubscribed) {
-                    console.log("[INFO] SSE 구독요청 ")
+                    // console.log("[INFO] SSE 구독요청 ")
                     eventSourceRef.current = new EventSource(
                         //헤더에 토큰
                         `${process.env.REACT_APP_SERVER_URL}/sse/subscribe`,
@@ -96,24 +96,24 @@ function Header(props) {
                         }
                     )
 
-                    console.log("[INFO] SSE", eventSourceRef.current.withCredentials);
-                    console.log("[INFO] SSE", eventSourceRef.current.readyState);
-                    console.log("[INFO] SSE", eventSourceRef.current.url);
+                    // console.log("[INFO] SSE", eventSourceRef.current.withCredentials);
+                    // console.log("[INFO] SSE", eventSourceRef.current.readyState);
+                    // console.log("[INFO] SSE", eventSourceRef.current.url);
 
                     if (eventSourceRef.current.readyState === 1) {
-                        console.log("[INFO] SSE connection 상태")
+                        // console.log("[INFO] SSE connection 상태")
                     }
 
                     eventSourceRef.current.addEventListener('open', (event) => {
-                        console.log("[INFO] SSE connection opened", event)
+                        // console.log("[INFO] SSE connection opened", event)
                         sessionStorage.setItem('isSubscribed', true);
                     })
 
                     eventSourceRef.current.addEventListener('message', (event) => {
-                        console.log("[INFO] SSE message event", event)
+                        // console.log("[INFO] SSE message event", event)
                         //SSE message event
                         const data = event.data
-                        console.log("[INFO] SSE message data ", data)
+                        // console.log("[INFO] SSE message data ", data)
 
                         setIsNewNotification((prevIsNewNotification) => prevIsNewNotification + 1)
                         // if(data.indexOf('EventStream Created') === -1){
@@ -125,7 +125,7 @@ function Header(props) {
                     })
                     return () => {
                         if (eventSourceRef.current && !isLogin) {
-                            console.log("[INFO] SSE Close :::::::::::: ")
+                            // console.log("[INFO] SSE Close :::::::::::: ")
                             sessionStorage.setItem('isSubscribed', false)
                             dispatcher(__alarmClean())
                             eventSourceRef.current.close() // 로그아웃 시 SSE 연결 종료
@@ -166,8 +166,8 @@ function Header(props) {
         if (pos !== -1) {
             highLightName = content.substr(pos, userNickName.length)
             nonHighLightContnent = content.substr((pos + userNickName.length))
-            console.log("######## highLightContnent ", highLightName)
-            console.log("######## nonHighLightContnent ", nonHighLightContnent)
+            // console.log("######## highLightContnent ", highLightName)
+            // console.log("######## nonHighLightContnent ", nonHighLightContnent)
             return <><span>{highLightName}</span>{nonHighLightContnent}</>
         } else {
             return <>{content}</>
@@ -179,16 +179,7 @@ function Header(props) {
     const renderAlertComponent = () => {
         if (alarmInfo) {
             // 전역 스토어에 저장되어있는 알람 내역
-            console.log("[global] alarmInfo > ", alarmInfo)
-
-            // 알람 테스트를 위한 목 데이터
-            // const alarmInfoTest4 = [
-            //     'EventStream Created. [memberId=8]',
-            //     'EventStream Created. [memberId=8]',
-            //     '{ "id": 7, "senderNickname":"변희준3", "senderProfileUrl":"프로필유알엘", "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }',
-            //     '{ "id": 7, "senderNickname":"변희준3", "senderProfileUrl":"프로필유알엘", "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }',
-            //     '{ "id": 7, "senderNickname":"변희준3", "senderProfileUrl":"프로필유알엘", "content": "변희준3님이 친구요청을 보냈습니다.", "url": "/friend/request/determine", "isRead": false, "senderId": 3, "receiverId": 2, "createdAt": "2023-06-03 18:41:21" }'
-            // ]
+            // console.log("[global] alarmInfo > ", alarmInfo)
 
             // EventStream Created 포함하고 있지 않은 알람만 표현해준다.
             const filterAlarm = alarmInfo.filter((alarm) => {
@@ -265,7 +256,7 @@ function Header(props) {
 
         const logoutReset = async () => {
             dispatcher(__alarmClean())
-            console.log("로그아웃!!!!")
+            // console.log("로그아웃!!!!")
 
         }
 
@@ -322,8 +313,6 @@ function Header(props) {
 
                         <ProfileImgDiv onClick={onClickMyPageHandler}>
                             {
-                                // console.log("profileImg",profileImg)
-                                //profileImg === '' ? <img src={`${process.env.PUBLIC_URL}/image/profileEmpty.svg`} alt="프로필사진" />:<img src='http://www.gravatar.com/avatar/테스트유저1?d=identicon&s=400' alt="프로필사진" />
                                 avataGenHandler()
                             }
                         </ProfileImgDiv>

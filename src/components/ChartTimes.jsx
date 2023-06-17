@@ -90,7 +90,7 @@ function ChartTimes(props) {
     })
 
     useEffect(() => {
-        console.log("ChartTimes :: ", props.data)
+        // console.log("ChartTimes :: ", props.data)
         
         return () => {
             //클린
@@ -100,7 +100,7 @@ function ChartTimes(props) {
     // 데이터 세팅
     useEffect(() => {
         if (props.data) {
-            console.log("ChartTimes2 :: ", props.data)
+            // console.log("ChartTimes2 :: ", props.data)
     
         const dataObject = props.data
         const dataArray = Object.entries(dataObject).sort((a, b) => {
@@ -109,7 +109,7 @@ function ChartTimes(props) {
                 return weekdays.indexOf(a[0]) - weekdays.indexOf(b[0]);
             }).map((entry) => entry[1]).slice(1)
 
-        console.log(".............>",dataArray);
+        // console.log(".............>",dataArray);
 
 
         setChartData((prevChartData) => ({

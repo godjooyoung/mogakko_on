@@ -45,8 +45,8 @@ function MemberPage() {
   // 친구 요청 보내기
   const friendRequetMutation = useMutation(requestFriend, {
     onSuccess: (response) => {
-      console.log(">>> 친구 요청 보내기 성공", response)
-      console.log(">>> 친구 요청 보내기 성공", response.data.data)
+      // console.log(">>> 친구 요청 보내기 성공", response)
+      // console.log(">>> 친구 요청 보내기 성공", response.data.data)
       navigate('/')
     },
   })
@@ -55,13 +55,13 @@ function MemberPage() {
 
   useEffect(() => {
     if (isLoading) {
-      console.log("조회결과 loading")
+      // console.log("조회결과 loading")
     }
     if (isError) {
-      console.log("조회결과 error")
+      // console.log("조회결과 error")
     }
     if (data) {
-      console.log("조회결과 data", data)
+      // console.log("조회결과 data", data)
       setPreview(data.data.data.member.profileImage)
       setuserGitHubId(data && data.data.data.member.githubId)
     }
@@ -81,7 +81,7 @@ function MemberPage() {
 
   // 친구요청 
   const onClickRqFriendshipBtnHandler = (target) => {
-    console.log("나랑 친구할래?", target)
+    // console.log("나랑 친구할래?", target)
     friendRequetMutation.mutate(target)
   }
 

@@ -1,7 +1,7 @@
 import { jwtInstance } from "../apiConfig";
 
 const leaveChatRoom = async (sessionId) => {
-  console.log("[INFO] leaveChatRoom" , sessionId)
+  // console.log("[INFO] leaveChatRoom" , sessionId)
   try {
     const response = await jwtInstance.delete(`/mogakko/${sessionId}`)
     return response
@@ -11,7 +11,7 @@ const leaveChatRoom = async (sessionId) => {
 }
 
 const recordTimer = async (diffTime) => {
-  console.log("[INFO] recordTimer" , diffTime)
+  // console.log("[INFO] recordTimer" , diffTime)
   const objDiffTime = { "mogakkoTimer" : diffTime }
   try {
     const response = await jwtInstance.put(`/mogakko/timer`, objDiffTime)

@@ -67,7 +67,7 @@ function SignUp() {
         emailAuth: '',
         role: "ROLE_USER",
     }
-    console.log(sendData);
+    // console.log(sendData);
 
     const validateEmail = (email) => {
         // 이메일 유효성 검사를 수행합니다.
@@ -107,7 +107,7 @@ function SignUp() {
         axios.get(process.env.REACT_APP_SERVER_URL + `/members/signup/checkEmail?email=${email}`, { withCredentials: true })
             .then((response) => {
                 const data = response.data;
-                console.log(data);
+                // console.log(data);
                 if (data.message === "중복 확인 성공") {
                     setEmailErrorMessage('사용할 수 있는 이메일입니다.');
                     setIsEmailValid(true);
@@ -123,7 +123,7 @@ function SignUp() {
                 } else {
                     // 오류 처리
                     setEmailErrorMessage('이메일 중복 체크에 실패했습니다.');
-                    console.error('이메일 중복 체크 요청에 실패했습니다:', error);
+                    // console.error('이메일 중복 체크 요청에 실패했습니다:', error);
                 }
             });
     };
@@ -196,11 +196,11 @@ function SignUp() {
     };
 
     const sendHandler = async (sendData) => {
-        console.log("sendData:", sendData);
+        // console.log("sendData:", sendData);
         await axios.post(process.env.REACT_APP_SERVER_URL + `/members/signup`, sendData, { withCredentials: true })
             .then(response => {
                 const data = response.data;
-                console.log(data);
+                // console.log(data);
                 if (data.message === "회원 가입 성공") {
                     navigate("/done");
                 } else {
@@ -209,7 +209,7 @@ function SignUp() {
             })
             .catch(error => {
                 // 데이터 전송 중 오류가 발생했을 때 실행할 코드
-                console.error(error);
+                // console.error(error);
                 popupOpenHander(error.response.data.message)
 
             });
@@ -221,9 +221,9 @@ function SignUp() {
         axios.get(process.env.REACT_APP_SERVER_URL + `/members/signup/checkNickname?nickname=${nickname}`, { withCredentials: true })
             .then((response) => {
                 const data = response.data;
-                console.log(data);
+                // console.log(data);
                 if (data.message === '중복 확인 성공') {
-                    console.log(data.message);
+                    // console.log(data.message);
                     setNicknameErrorMessage('사용할 수 있는 닉네임입니다.');
                     setIsNicknameAvailable(true);
                     setNicknameChanged(false);
@@ -238,7 +238,7 @@ function SignUp() {
             .catch((error) => {
                 setNicknameErrorMessage('닉네임 중복 체크에 실패했습니다.');
                 setIsNicknameAvailable(false);
-                console.error('닉네임 중복 체크 요청에 실패했습니다:', error);
+                // console.error('닉네임 중복 체크 요청에 실패했습니다:', error);
             });
     };
 
