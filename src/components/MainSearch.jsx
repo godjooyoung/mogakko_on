@@ -35,7 +35,7 @@ function MainSearch(props) {
     const { isLoading, isError, data } = useQuery("getHotTowns", getHotTowns)
     
     useEffect(()=>{
-        console.log("getHotTowns 조회결과 ", data)
+        // console.log("getHotTowns 조회결과 ", data)
         if(!data || data.length === 0){
             setTownList([
                 {count: 14, neighborhood: '서울특별시 강서구 염창동', isSelected:false},
@@ -113,7 +113,7 @@ function MainSearch(props) {
     useEffect(() => {
         // 카카오 api 에서 위도 경도를 반대로 줘서 반대로 일단 받음. 
         if (getLatLngQuery.isSuccess) {
-            console.log("[INFO] 좌표 요청 결과 (", getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x, ")")
+            // console.log("[INFO] 좌표 요청 결과 (", getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x, ")")
             dispatcher(fetchUserLocation({ latitude: getLatLngQuery.data.documents[0].y, longitude: getLatLngQuery.data.documents[0].x }))
             dispatcher(__searchLocation({ latitude: getLatLngQuery.data.documents[0].y, longitude: getLatLngQuery.data.documents[0].x }))
             // // 데이터 조회하기

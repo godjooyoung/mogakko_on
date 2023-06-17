@@ -43,8 +43,8 @@ function MainBest(props) {
         let totTime = Number(hh) * 60
         totTime = Number(totTime) + Number(mm)
 
-        console.log("::순공 분으로 계산한거 ", Number(totTime))
-        console.log("::퍼센트계산 ", ((Number(totTime) / 420) * 100))
+        // console.log("::순공 분으로 계산한거 ", Number(totTime))
+        // console.log("::퍼센트계산 ", ((Number(totTime) / 420) * 100))
 
         if (((Number(totTime) / 420) * 100) > 100) {
             return 100

@@ -6,7 +6,7 @@ function ChartWeekly(props) {
     const [wkTotTm, setWkTotTm] = useState('00H00M')
     useEffect(() => {
         // 초기화
-        console.log("ChartWeekly :: ", props.data)
+        // console.log("ChartWeekly :: ", props.data)
         return () => {
             // 클린
         }
@@ -14,7 +14,7 @@ function ChartWeekly(props) {
 
     useEffect(() => {
         if (props.data) {
-            console.log("ChartWeekly2 :: ", props.data)
+            // console.log("ChartWeekly2 :: ", props.data)
 
             const dataObject = props.data
             const dataArray = Object.entries(dataObject).sort((a, b) => {
@@ -23,7 +23,7 @@ function ChartWeekly(props) {
                 return weekdays.indexOf(a[0]) - weekdays.indexOf(b[0]);
             }).map((entry) => entry[1]).slice(1)
 
-            console.log(".............>>", dataArray);
+            // console.log(".............>>", dataArray);
             setWeeklyAttend((prevWeeklyAttend)=>dataArray)
             setWkTotTm(props.data.weekTotal)
         }
@@ -58,7 +58,7 @@ function ChartWeekly(props) {
     }
 
     return (
-        <div>
+        <Wrap>
             <ChartWeelkyWrap>
                 <AttendancesWrap>
                     {weeklyAttend.map((dayWk, idx) => {
@@ -76,16 +76,21 @@ function ChartWeekly(props) {
 
                 </AttendancesWrap>
             </ChartWeelkyWrap>
-        </div>
+        </Wrap>
     );
 }
 
+export const Wrap = styled.div`
+    display: flex;
+    justify-content: center;    
+`
 export const ChartWeelkyWrap = styled.div`
     display: flex;
     gap: 26px;
     align-items: center;
     width: 446px;
     height: 118px;
+
 `
 export const WkTotWrap = styled.div`
     display: flex;

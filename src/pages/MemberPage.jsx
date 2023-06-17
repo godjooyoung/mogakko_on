@@ -45,8 +45,8 @@ function MemberPage() {
   // 친구 요청 보내기
   const friendRequetMutation = useMutation(requestFriend, {
     onSuccess: (response) => {
-      console.log(">>> 친구 요청 보내기 성공", response)
-      console.log(">>> 친구 요청 보내기 성공", response.data.data)
+      // console.log(">>> 친구 요청 보내기 성공", response)
+      // console.log(">>> 친구 요청 보내기 성공", response.data.data)
       navigate('/')
     },
   })
@@ -55,13 +55,13 @@ function MemberPage() {
 
   useEffect(() => {
     if (isLoading) {
-      console.log("조회결과 loading")
+      // console.log("조회결과 loading")
     }
     if (isError) {
-      console.log("조회결과 error")
+      // console.log("조회결과 error")
     }
     if (data) {
-      console.log("조회결과 data", data)
+      // console.log("조회결과 data", data)
       setPreview(data.data.data.member.profileImage)
       setuserGitHubId(data && data.data.data.member.githubId)
     }
@@ -81,7 +81,7 @@ function MemberPage() {
 
   // 친구요청 
   const onClickRqFriendshipBtnHandler = (target) => {
-    console.log("나랑 친구할래?", target)
+    // console.log("나랑 친구할래?", target)
     friendRequetMutation.mutate(target)
   }
 
@@ -682,8 +682,8 @@ const AttendanceCheckWrap = styled.div`
   width: 486px;
   height: 126px;
   background-color: var(--bg-li);
-  /* background-color: transparent; */
-  margin-bottom: 18px;
+  /* background-color: transparent;
+  margin-bottom: 18px; */
 `
 
 const StudyTime = styled.div`
@@ -695,6 +695,7 @@ const StudyTime = styled.div`
   background-color: var(--bg-li);
   /* background-color: transparent; */
   padding-bottom: 10px;
+  height: 201px;
 `
 
 const TotalLanguageWrap = styled.div`
