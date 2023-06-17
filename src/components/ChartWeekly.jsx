@@ -21,9 +21,9 @@ function ChartWeekly(props) {
                 // 주어진 요일 순서대로 정렬하기 위해 숫자로 변환하여 비교
                 const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
                 return weekdays.indexOf(a[0]) - weekdays.indexOf(b[0]);
-            }).map((entry) => entry[1]).slice(1)
+            }).map((entry) => entry[1]).slice(2)
 
-            // console.log(".............>>", dataArray);
+            //console.log("ChartWeekly2.............", dataArray);
             setWeeklyAttend((prevWeeklyAttend)=>dataArray)
             setWkTotTm(props.data.weekTotal)
         }

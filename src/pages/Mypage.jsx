@@ -145,8 +145,8 @@ function Mypage() {
   const roomListMutation = useMutation(searchUser, {
     onSuccess: (response) => {
       // console.log("searchUser ", response)
-      // console.log("searchUser.data 컨텐트 검색 결과 ", response.data)
-      // console.log("searchUser.data.data 컨텐트 검색 결과 배열 ", response.data.data)
+      console.log("searchUser.data 컨텐트 검색 결과 ", response.data)
+      console.log("searchUser.data.data 컨텐트 검색 결과 배열 ", response.data.data)
       if (response.data.message === '검색된 멤버가 없습니다.') {
         setSearchFriend([])
       } else {
@@ -248,7 +248,7 @@ function Mypage() {
   useEffect(() => {
     if (friendListData) {
       // console.log("친구목록 조회 1", friendListData)
-      // console.log("친구목록 조회 2", friendListData.data.data)
+      console.log("친구목록 조회 2", friendListData.data.data)
       if (friendListData.data.data) {
         setFriendList(friendListData.data.data)
       } else {
@@ -261,7 +261,7 @@ function Mypage() {
   useEffect(() => {
     if (friendRequestListData) {
       // console.log("친구요청목록 조회 1", friendRequestListData)
-      // console.log("친구요청목록 조회 2", friendRequestListData.data.data)
+      console.log("친구요청목록 조회 2", friendRequestListData.data.data)
     }
   }, [friendRequestListData])
 
@@ -594,9 +594,9 @@ function Mypage() {
 
                     <TotalTimewrap>
                       <TopContentTitle>오늘 공부시간</TopContentTitle>
-                      <TopContentTitleItem>{profileData && profileData.data.data.totalTimer}</TopContentTitleItem>
+                      <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.today}</TopContentTitleItem>
                     </TotalTimewrap>
-
+                    
                     <WeeklyTimeWrap>
                       <TopContentTitle>총 공부 시간</TopContentTitle>
                       <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>

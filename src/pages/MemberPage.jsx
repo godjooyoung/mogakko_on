@@ -169,7 +169,7 @@ function MemberPage() {
 
                   <TotalTimewrap>
                     <TopContentTitle>오늘 공부시간</TopContentTitle>
-                    <TopContentTitleItem>{data && data.data.data.totalTimer}</TopContentTitleItem>
+                    <TopContentTitleItem>{data && data.data.data.timeOfWeek.today}</TopContentTitleItem>
                   </TotalTimewrap>
 
                   <WeeklyTimeWrap>
