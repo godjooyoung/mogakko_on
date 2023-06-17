@@ -45,9 +45,10 @@ function MemberPage() {
   // 친구 요청 보내기
   const friendRequetMutation = useMutation(requestFriend, {
     onSuccess: (response) => {
-      // console.log(">>> 친구 요청 보내기 성공", response)
-      // console.log(">>> 친구 요청 보내기 성공", response.data.data)
-      navigate('/')
+      //console.log(">>> 친구 요청 보내기 성공", response)
+      //console.log(">>> 친구 요청 보내기 성공", response.data.data)
+      //TODO 에러 메세지 처리
+      //navigate('/')
     },
   })
 
