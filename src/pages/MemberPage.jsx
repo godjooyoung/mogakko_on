@@ -10,6 +10,8 @@ import ChartTimes from '../components/ChartTimes';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import ChartWeekly from '../components/ChartWeekly';
+import CommonPopup from '../components/common/CommonPopup'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 function MemberPage() {
 
@@ -24,6 +26,8 @@ function MemberPage() {
   const [temponMouse, setTempOnMouse] = useState(false)
   const navigate = useNavigate();
 
+  // 친구 요청 성공 모달
+  const [friendReqSuc, setFriendReqSuc] = useState(false)
   // 온도 프로그레스 애니메이션
   useEffect(() => {
     setValue(data && data.data.data.member.codingTem);
@@ -114,14 +118,7 @@ function MemberPage() {
   }
 
   // 코드 복사 
-  const handleCopyClipBoard = (code) => {
-    try {
-      navigator.clipboard.writeText(code);
-      alert('클립보드에 복사되었습니다.');
-    } catch (error) {
-      alert('클립보드 복사에 실패하였습니다.');
-    }
-  }
+  const myCode = data && data.data.data.member.friendCode
   return (
     <>
       <Header />
@@ -136,15 +133,33 @@ function MemberPage() {
 
               <MyCodeWrap>
                 <MyCode>나의 코드: {data && data.data.data.member.friendCode}</MyCode>
-                <CopyBtn onClick={() => handleCopyClipBoard(data && data.data.data.member.friendCode)}
+                {/* <CopyBtn  onClick={() => handleCopyClipBoard(data && data.data.data.member.friendCode)}
                   imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
-                >COPY</CopyBtn>
+                >COPY</CopyBtn> */}
+                <CopyToClipboard text={myCode} onCopy={() => alert("클립보드에 복사되었습니다.")}>
+                  <CopyBtn
+                    imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
+                  ></CopyBtn>
+                </CopyToClipboard>
               </MyCodeWrap>
               {
                 data && data.data.data.friend === false ?
                   <FriendReqBtn
-                    onClick={() => (onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname))
-                    }>친구요청</FriendReqBtn> : null
+                    onClick={() => {
+                      onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname)
+                      setFriendReqSuc(!friendReqSuc)
+                    }
+                    }>친구신청</FriendReqBtn> : null
+              }
+
+              {
+                friendReqSuc && <CommonPopup
+                  msg={'친구신청 완료!!'}
+                  secondMsg={'친구 수락을 기다려주세요.'}
+                  isBtns={false}
+                  priMsg={'확인'}
+                  priHander={() => setFriendReqSuc(!friendReqSuc)}
+                  closeHander={() => setFriendReqSuc(!friendReqSuc)} />
               }
             </MypageNavbar>
             <WidthBox>
@@ -239,17 +254,17 @@ function MemberPage() {
               </ChartWrap>
 
               <MyPageMiddleContentWrap>
-            <GithubTitle>GitHub</GithubTitle>
-            {
-              userGitHubId === null || userGitHubId === '' ?
-                <NullGithubBox>
-                  <NullGithubBoxText>등록된 깃허브 잔디가 없습니다</NullGithubBoxText>
-                </NullGithubBox> :
-                <MyPageMiddleContent>
-                  <GitHubImage src={`https://ghchart.rshah.org/394254/${userGitHubId}`} />
-                </MyPageMiddleContent>
-            }
-          </MyPageMiddleContentWrap>
+                <GithubTitle>GitHub</GithubTitle>
+                {
+                  userGitHubId === null || userGitHubId === '' ?
+                    <NullGithubBox>
+                      <NullGithubBoxText>등록된 깃허브 잔디가 없습니다</NullGithubBoxText>
+                    </NullGithubBox> :
+                    <MyPageMiddleContent>
+                      <GitHubImage src={`https://ghchart.rshah.org/394254/${userGitHubId}`} />
+                    </MyPageMiddleContent>
+                }
+              </MyPageMiddleContentWrap>
             </WidthBox>
           </MypageWrap>
         </div>
@@ -353,7 +368,7 @@ const TopContentTitleItem = styled.h1`
   font-style: normal;
   font-weight: 400;
   font-size: 28px;
-  color: var(--po-de);
+  color: #FFFFFF;
 `
 
 const MouseHoverBox = styled.div`
@@ -388,7 +403,6 @@ const Temperaturecontainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
   gap: 10px;
 `
 
@@ -406,6 +420,7 @@ const TemperatureTitle = styled.p`
 const TemperatureMouseHoverBox = styled.div`
   position: absolute;
   top: 60px;
+    right: -65px;
   width: 250px;
   height: 80px;
   background-color: #F9F9FA;
@@ -579,7 +594,6 @@ const TotalTimewrap = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
 `
 
 const WeeklyTimeWrap = styled.div`
@@ -588,7 +602,6 @@ const WeeklyTimeWrap = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
 `
 
 const StatusWrap = styled.div`
@@ -597,7 +610,6 @@ const StatusWrap = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
 `
 
 const TopContentTitleWrap = styled.div`
@@ -620,7 +632,7 @@ const Status = styled.span`
 
 const StatusMouseHoverBox = styled.div`
   position: absolute;
-  right: -65px;
+  right: 0px;
   bottom: -170px;
   width: 215px;
   height: 160px;
