@@ -493,7 +493,8 @@ function Mypage() {
               }}
                 closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
               ></CloseBtn>
-              <h1>깃허브 아이디</h1>
+              <h1>깃허브 닉네임</h1>
+              <p>깃허브 닉네임을 등록해주세요.</p>
               <input type="text" placeholder='아이디' value={githubValue} onChange={onChangeGithubValue} />
               <GitHubBtn onClick={() => {
                 setGitHub(!gitHub)
@@ -1037,7 +1038,14 @@ const PopUp = styled.div`
     color: white;
     text-align: start;
     padding-left: 35px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+  }
+  p {
+    font-weight: 400;
+    font-size: 14px;
+    color: white;
+    text-align: center;
+    margin-bottom: 10px;
   }
 
   input {
