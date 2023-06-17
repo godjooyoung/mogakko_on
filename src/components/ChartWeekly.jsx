@@ -58,7 +58,7 @@ function ChartWeekly(props) {
     }
 
     return (
-        <div>
+        <Wrap>
             <ChartWeelkyWrap>
                 <AttendancesWrap>
                     {weeklyAttend.map((dayWk, idx) => {
@@ -76,16 +76,21 @@ function ChartWeekly(props) {
 
                 </AttendancesWrap>
             </ChartWeelkyWrap>
-        </div>
+        </Wrap>
     );
 }
 
+export const Wrap = styled.div`
+    display: flex;
+    justify-content: center;    
+`
 export const ChartWeelkyWrap = styled.div`
     display: flex;
     gap: 26px;
     align-items: center;
     width: 446px;
     height: 118px;
+
 `
 export const WkTotWrap = styled.div`
     display: flex;

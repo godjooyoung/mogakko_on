@@ -2028,8 +2028,9 @@ const WeeklyStudyTimewrap = styled.div`
 const AttendanceCheckWrap = styled.div`
   width: 486px;
   height: 126px;
-  /* background-color: var(--bg-li); */
-  background-color: transparent;
+  background-color: var(--bg-li);
+  
+  /* background-color: transparent; */
   /* margin-bottom: 18px; */
 `
 
@@ -2037,11 +2038,12 @@ const StudyTime = styled.div`
   width: 486px;
   height: 183px;
   display: flex;
-  /* justify-content: center; */
+  justify-content: center;
   align-items: center;
-  /* background-color: var(--bg-li); */
-  background-color: transparent;
+  background-color: var(--bg-li);
+  /* background-color: transparent; */
   padding-bottom: 10px;
+  height: 201px;
 `
 
 const TotalLanguageWrap = styled.div`
@@ -2060,8 +2062,8 @@ const TotalLanguageWrap = styled.div`
 const TotalLanguage = styled.div`
   width: 384px;
   height: 327px;
-  /* background-color: var(--bg-li); */
-  background-color: transparent;
+  background-color: var(--bg-li);
+  /* background-color: transparent; */
 `
 
 const FriendMypageWrap = styled.div`
