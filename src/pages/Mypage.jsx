@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost, searchUser, receiveMessage, postMessage, sentMessage, requestFriend } from '../axios/api/mypage'
 import styled from 'styled-components';
@@ -125,6 +125,9 @@ function Mypage() {
   // 쪽지 모달 on/off
   const [postPopup, setPostPopup] = useState(false)
 
+  // 파일 업로드 에러 팝업 오픈
+  const [isFileCommonPopupOpend, setIsFileCommonPopupOpend] = useState(false)
+
   const [receiveUserValue, onChangeReceiveUser, receiveUserReset] = useInput('')
   const [receiveContentValue, onChangeReceiveContent, receiveContentReset] = useInput('')
 
@@ -132,6 +135,8 @@ function Mypage() {
   const navigate = useNavigate()
 
   const [timer, setTimer] = useState(0)
+
+  const inputRef = useRef()
   // const { isLoading: isSearchUserLoading, isError: isSearchUserError, data: searchUserData, refetch: getSearchUserRefetch } = useQuery("getSearchUser", () => {
   //   friendFindNickName ? searchUser({ searchRequestNickname: findNickNameValue }) : searchUser({ friendCode: findCodeValue })
   // }, {
@@ -157,7 +162,7 @@ function Mypage() {
 
   // 쪽지 status에 따른 팝업 state
   const [messageStatus, setMessageStatus] = useState(false)
-  const [mesageStatusresponse, setmesageStatusresponse] = useState('')
+  const [mesageStatusresponse, setMesageStatusresponse] = useState('')
 
   // 쪽지 보내기 Mutation
   const postMessageMutation = useMutation(postMessage, {
@@ -171,28 +176,41 @@ function Mypage() {
   })
 
   const popupOpenHander = (msg) => {
-    setmesageStatusresponse((prevMesageStatusresponse) => msg)
-    setMessageStatus(true)
-    console.log('mesageStatusresponse', mesageStatusresponse)
-    console.log('messageStatus', messageStatus)
+    console.log('쪽지팝업 msg is......0', msg)
+    setMesageStatusresponse(msg)
+    console.log('쪽지팝업 mesageStatusresponse', mesageStatusresponse)
+    console.log('쪽지팝업 messageStatus', messageStatus)
   }
 
   const popupCloseHander = () => {
     setMessageStatus(false)
+    setMesageStatusresponse('')
   }
-  const errorPopup = () => {
-    if (mesageStatusresponse === "자신에게는 쪽지를 보낼 수 없습니다.") {
-      return <CommonPopup msg={'자신에게는 쪽지를 보낼 수 없습니다.'} isBtns={false} priMsg={'확인'} priHander={popupCloseHander()} closeHander={popupCloseHander()} />
-    } else if (mesageStatusresponse === "내용을 입력해 주세요.") {
-      return <CommonPopup msg={'내용을 입력해 주세요.'} isBtns={false} priMsg={'확인'} priHander={popupCloseHander()} closeHander={popupCloseHander()} />
-    } else if (mesageStatusresponse === "회원을 찾을 수 없습니다.") {
-      return <CommonPopup msg={'회원을 찾을 수 없습니다.'} isBtns={false} priMsg={'확인'} priHander={popupCloseHander()} closeHander={popupCloseHander()} />
-    }
-  }
+  // const errorPopup = () => {
+  //   console.log('쪽지팝업---시작', mesageStatusresponse)
+  //   if(messageStatus){
+  //     if (mesageStatusresponse === "자신에게는 쪽지를 보낼 수 없습니다.") {
+  //       return <CommonPopup msg={'자신에게는 쪽지를 보낼 수 없습니다.'} isBtns={false} priMsg={'확인'} priHander={popupCloseHander()} closeHander={popupCloseHander()} />
+  //     } else if (mesageStatusresponse === "내용을 입력해 주세요.") {
+  //       return <CommonPopup msg={'내용을 입력해 주세요.'} isBtns={false} priMsg={'확인'} priHander={popupCloseHander()} closeHander={popupCloseHander()} />
+  //     } else if (mesageStatusresponse === "회원을 찾을 수 없습니다.") {
+  //       return <CommonPopup msg={'회원을 찾을 수 없습니다.'} isBtns={false} priMsg={'확인'} priHander={popupCloseHander()} closeHander={popupCloseHander()} />
+  //     }
+  //   }else{
+  //     return <></>
+  //   }
+  // }
 
   useEffect(() => {
-    // setMessageStatus(true)
+    console.log('쪽지팝업', mesageStatusresponse)
+    if(mesageStatusresponse !== ''){
+      console.log('쪽지팝업 msg is......1', mesageStatusresponse)
+      setMessageStatus(true)
+    }else{
+      setMessageStatus(false)
+    }
   }, [mesageStatusresponse]);
+
 
   const postMessageHandler = () => {
     postMessageMutation.mutate({
@@ -282,10 +300,32 @@ function Mypage() {
 
   // 프로필 수정 useEffect
   useEffect(() => {
-    if (isFileModify) {
-      submitImgHandler()
+    console.log('프로필 이미지 수정 핸들러 실행 0' , fileAttach)
+    if(fileAttach){
+      const maxSize = 2 * 1024 * 1024
+      console.log('프로필 이미지 수정 핸들러 실행 1', fileAttach.size, ",", maxSize)
+      if(fileAttach.size > maxSize){
+        setIsFileCommonPopupOpend(true)
+        handleClearInput()
+        setFileAttach('')
+      }else{
+        const objectUrl = URL.createObjectURL(fileAttach)
+        setPreview(objectUrl)
+        setIsFileModify(true)
+        setIsFileCommonPopupOpend(false)
+      }
     }
   }, [fileAttach])
+
+
+  // 수정이 완료되면
+  useEffect(()=>{
+    if(isFileModify){
+      submitImgHandler()
+    }else{
+      setFileAttach('')
+    }
+  },[isFileModify])
 
   // 프로필 썸네일 useEffect
   useEffect(() => {
@@ -392,17 +432,22 @@ function Mypage() {
 
   // 파일 수정 핸들러
   const handleFileChange = (event) => {
-    console.log("프로필 이미지 수정 핸들러 실행")
+    console.log("프로필 이미지 수정 핸들러 실행 inputChangeHandler", event)
     setFileAttach(event.target.files[0])
-    const maxSize = 2 * 1024 * 1024
-    if (fileAttach.size > maxSize) {
-      alert("이미지 크기를 2MB 아래로 선택해 주시기 바랍니다.")
-      return 
-    } 
-    const objectUrl = URL.createObjectURL(event.target.files[0])
-    setPreview(objectUrl)
-    setIsFileModify(true)
+    // const maxSize = 2 * 1024 * 1024
+    // console.log("프로필 이미지 수정 핸들러 실행1")
+    // if (fileAttach.size > maxSize) {
+    //   console.log("프로필 이미지 수정 핸들러 실행2")
+    //   alert("이미지 크기를 2MB 아래로 선택해 주시기 바랍니다.")
+    //   //return 
+    // } 
   }
+
+  const handleClearInput = () => {
+    inputRef.current.value = ''
+  }
+
+
 
   // 프로필 이미지 저장 핸들러 - onchange 랑 onClick이랑 동시에 동작하면 왜 온클릭이 무시될까요? 일단 바꿈 
   const submitImgHandler = () => {
@@ -465,6 +510,11 @@ function Mypage() {
 
   return (
     <>
+    {
+      isFileCommonPopupOpend?
+      <><CommonPopup msg={'크기가 2MB 이하인 이미지'}  secondMsg={'파일을 선택해 주시기 바랍니다.'} isBtns={false} priMsg={'닫기'} priHander={()=>(setIsFileCommonPopupOpend(false))} closeHander={()=>(setIsFileCommonPopupOpend(false))}/></>:<></>
+    }
+    <>
       <Header />
       {
         gitHub &&
@@ -497,7 +547,7 @@ function Mypage() {
                   modify={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`}
                   modifyClick={`${process.env.PUBLIC_URL}/image/modifyClickBtn.webp`}
                 ></FileButton>
-                <FileInput type="file" id="file" onChange={handleFileChange} />
+                <FileInput type="file" id="file" onChange={handleFileChange} ref={inputRef} accept="image/*"/>
               </div>
             </ProfileModifyContent>
             <MyPageUserName>{profileData && profileData.data.data.member.nickname}</MyPageUserName>
@@ -918,7 +968,9 @@ function Mypage() {
               </MessageReceiveMypageTitleWrap>
 
               {
-                messageStatus && errorPopup()
+                messageStatus?
+                <CommonPopup msg={mesageStatusresponse} isBtns={false} priMsg={'확인'} priHander={popupCloseHander} closeHander={popupCloseHander} />
+                :<></>
               }
 
               <MessageScroll>
@@ -958,6 +1010,7 @@ function Mypage() {
           }
         </MypageWrap>
       </FlexBox>
+    </>
     </>
   )
 }
