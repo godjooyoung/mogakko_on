@@ -133,8 +133,8 @@ function ChartLan(props) {
 }
 
 const ChartWrap = styled.div`
-    width: 384px;
-    height: 300px;
+    width: 367px;
+    height: 331px;
     display: flex;
     justify-content: center;
     align-items: center;
