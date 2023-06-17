@@ -79,8 +79,8 @@ function SignUp() {
 
     const validatePassword = (password) => {
         // 비밀번호 유효성 검사를 수행합니다.
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
-
+        // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%^&*()_\-+=<>,?/:\;'"[\]{}\\])[A-Za-z\d~!@#$%^&*()_\-+=<>,?/:\;'"[\]{}\\]{8,16}$/;
         return passwordRegex.test(password);
     };
 

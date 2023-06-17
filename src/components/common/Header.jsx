@@ -54,8 +54,8 @@ function Header(props) {
     // 알람 신규로 올때
     useEffect(() => {
 
-        // console.log("알람건수:::::::::::::::  ", isNewNotification)
-        if (isNewNotification > 1) {
+        console.debug("[INFO] 발생 알람 건  ", isNewNotification)
+        if (isNewNotification >= 1) {
             setIsNewNoti(true)
         } else {
             setIsNewNoti(false)
@@ -65,7 +65,8 @@ function Header(props) {
     // 알람 창을 열었으면 신규 알람 아이콘 없앤다.
     useEffect(() => {
         if (isAlarmWindowOpen) {
-            setIsNewNoti(false)
+            setIsNewNoti((prevIsNewNoti)=>false)
+            setIsNewNotification((prevIsNewNotification)=>0)
         }
     }, [isAlarmWindowOpen])
 
@@ -114,14 +115,12 @@ function Header(props) {
                         //SSE message event
                         const data = event.data
                         // console.log("[INFO] SSE message data ", data)
-
-                        setIsNewNotification((prevIsNewNotification) => prevIsNewNotification + 1)
-                        // if(data.indexOf('EventStream Created') === -1){
-                        //     console.log('최초 연결 알람이 아닌 추가 알라밍 발생했습니다!!!!!!!!!!!', data)
-                        //     setIsNewNotification((prevIsNewNotification)=>prevIsNewNotification+1)
-                        // }
-
-                        dispatcher(__alarmSender(data))
+                        // setIsNewNotification((prevIsNewNotification) => prevIsNewNotification + 1)
+                        if(data.indexOf('EventStream Created') === -1){
+                            console.debug('[INFO] SSE 추가 알람 발생했습니다!', data)
+                            setIsNewNotification((prevIsNewNotification)=>prevIsNewNotification+1)
+                            dispatcher(__alarmSender(data))
+                        }
                     })
                     return () => {
                         if (eventSourceRef.current && !isLogin) {
