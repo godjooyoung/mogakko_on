@@ -13,6 +13,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import ChartWeekly from '../components/ChartWeekly';
 import CommonPopup from '../components/common/CommonPopup'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 // // 00:00:00 to 00H00M
 // const formatTime = (timeString) => {
@@ -127,6 +128,9 @@ function Mypage() {
 
   const [receiveUserValue, onChangeReceiveUser, receiveUserReset] = useInput('')
   const [receiveContentValue, onChangeReceiveContent, receiveContentReset] = useInput('')
+
+  // 친구 요청 성공 모달
+  const [friendReqSuc, setFriendReqSuc] = useState(false)
 
   // hooks
   const navigate = useNavigate()
@@ -454,14 +458,7 @@ function Mypage() {
 
 
   // 코드 복사 
-  const handleCopyClipBoard = (code) => {
-    try {
-      navigator.clipboard.writeText(code);
-      alert('클립보드에 복사되었습니다.');
-    } catch (error) {
-      alert('클립보드 복사에 실패하였습니다.');
-    }
-  }
+  const myCode = profileData && profileData.data.data.member.friendCode
 
   return (
     <>
@@ -504,9 +501,11 @@ function Mypage() {
 
             <MyCodeWrap>
               <MyCode>나의 코드: {profileData && profileData.data.data.member.friendCode}</MyCode>
-              <CopyBtn onClick={() => handleCopyClipBoard(profileData.data.data.member.friendCode)}
-                imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
-              >COPY</CopyBtn>
+              <CopyToClipboard text={myCode} onCopy={() => alert("클립보드에 복사되었습니다.")}>
+                  <CopyBtn
+                    imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
+                  ></CopyBtn>
+                </CopyToClipboard>
             </MyCodeWrap>
 
             <NavberCategory>
@@ -722,7 +721,9 @@ function Mypage() {
                   {
                     friendList.length === 0 ?
                       <NullFriendList>
-                        <h1>추가한 친구가 없습니다</h1>
+                        <img src={`${process.env.PUBLIC_URL}/image/emptyFriendList.webp`} alt="텅빈 리스트" />
+                        <p>추가한 친구가 없습니다</p>
+                        <p>닉네임이나 친구코드를 검색해 친구를 찾아보세요</p>
                       </NullFriendList> :
                       <ScrollWrap>
                         <FriendListWrap>
@@ -843,6 +844,7 @@ function Mypage() {
                             </FriendSearchContentWrap>
                             {e.friend === false ? <FriendSearchBtn onClick={() => {
                               onClickRqFriendshipBtnHandler(e.nickname)
+                              setFriendReqSuc(!friendReqSuc)
                             }}>친구신청</FriendSearchBtn> : null}
                           </FriendWrap>
                         )
@@ -850,7 +852,15 @@ function Mypage() {
                       }
                     </SearchScrollWrap>
                   </FriendFindwrap>
-
+                  {
+                    friendReqSuc && <CommonPopup 
+                    msg={'친구신청 완료!!'} 
+                    secondMsg={'친구 수락을 기다려주세요.'} 
+                    isBtns={false} 
+                    priMsg={'확인'} 
+                    priHander={() => setFriendReqSuc(!friendReqSuc)} 
+                    closeHander={() => setFriendReqSuc(!friendReqSuc)}/>
+                  }
                 </FriendMypageReqWrap>
               </MyPageBottomContentWrap >
             </FriendMypageWrap>
@@ -1105,7 +1115,6 @@ const Temperaturecontainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
   gap: 10px;
 `
 
@@ -1124,7 +1133,7 @@ const TemperatureTitle = styled.p`
 const TemperatureMouseHoverBox = styled.div`
   position: absolute;
   top: 60px;
-  
+  right: -20px;
   width: 250px;
   height: 80px;
   background-color: #F9F9FA;
@@ -1240,7 +1249,6 @@ const TotalTimewrap = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
 `
 
 const WeeklyTimeWrap = styled.div`
@@ -1249,7 +1257,6 @@ const WeeklyTimeWrap = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
 `
 
 const StatusWrap = styled.div`
@@ -1258,7 +1265,6 @@ const StatusWrap = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
 `
 
 const TopContentTitleWrap = styled.div`
@@ -1297,7 +1303,7 @@ const TopContentTitleItem = styled.h1`
 
 const StatusMouseHoverBox = styled.div`
   position: absolute;
-  right: -65px;
+  right: 0px;
   bottom: -170px;
   width: 215px;
   height: 160px;
@@ -1715,14 +1721,20 @@ const NullFriendList = styled.div`
   background: var(--bg-li);
   border-radius: 10px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 
-  h1 {
+  img {
+    margin-bottom: 16px;
+  }
+
+  p {
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 400;
     font-size: 17px;
+    line-height: 31px;
     color: #BEBEBE;
   }
 `
