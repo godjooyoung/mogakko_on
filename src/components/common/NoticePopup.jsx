@@ -59,6 +59,11 @@ function NoticePopup(props) {
           type: 'Change',
           content: '유저 검색 기능 개선 - 검색 성능 향상 및 친구신청 대기 상태 표시'
         },
+        {
+          color : '#F4AA33',
+          type: 'Change',
+          content: '방 생성 기능 개선'
+        },
       ]
     }
   ]
