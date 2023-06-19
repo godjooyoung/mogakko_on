@@ -181,17 +181,21 @@ function Mypage() {
 
   const [messageBlock, setmessageBlock] = useState(false)
 
+
   // 쪽지 보내기 Mutation
   const postMessageMutation = useMutation(postMessage, {
     onSuccess: (response) => {
       queryClient.invalidateQueries(receiveMessage)
     },
     onError: (error) => {
+      console.log("po", error)
       popupOpenHander(error.response.data.message)
+      setPostPopup(true)
       // console.log('error.response.data.message', error.response.data.message)
     }
   })
 
+   // 요청 응답 공통 팝업 오픈
   const popupOpenHander = (msg) => {
     // console.log('쪽지팝업 msg is......0', msg)
     setMesageStatusresponse(msg)
@@ -199,6 +203,7 @@ function Mypage() {
     // console.log('쪽지팝업 messageStatus', messageStatus)
   }
 
+  // 요청 응답 공통 팝업 클로즈
   const popupCloseHander = () => {
     setMessageStatus(false)
     setMesageStatusresponse('')
@@ -207,9 +212,12 @@ function Mypage() {
   useEffect(() => {
     // console.log('쪽지팝업', mesageStatusresponse)
     if (mesageStatusresponse !== '') {
-      // console.log('쪽지팝업 msg is......1', mesageStatusresponse)
-      setMessageStatus(true)
-    } else {
+      //console.log('쪽지팝업 msg is......1', mesageStatusresponse)
+      if(mesageStatusresponse !== 'AccessToken Expired.'){
+        setMessageStatus(true)
+      }
+    }else {
+      
       setMessageStatus(false)
     }
   }, [mesageStatusresponse]);
@@ -220,6 +228,7 @@ function Mypage() {
       messageReceiverNickname: receiveUserValue,
       content: receiveContentValue
     })
+
   }
 
   //유저검색 내용 입력 useEffect
