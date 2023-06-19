@@ -109,20 +109,24 @@ const githubIdPost = async (id) => {
 
 // 친구 찾기
 const searchUser = async (param) => {
+  console.log("param",param)
   const urlMaker = () => {
     let url = '/members/search/'
     if(param.type === 'NAME'){
-      // console.log('NAMENAMENAMENAMENAMENAMENAMENAME', param.value)
       return url + 'nickname?nickname=' +  param.value
     }else if (param.type === 'CODE'){
-      // console.log('CODECODECODECODECODECODECODECODE', param.value)
       return url + 'friend-code?friendCode=' + param.value
     }
   }
 
   try {
     const response = await jwtInstance.get(urlMaker())
-    return Promise.resolve(response)
+    //console.log('사용자 조회 결과',response.data)
+    if (response.data.message === '멤버 검색 성공') {
+      return Promise.resolve(response)
+    }else{
+      return Promise.reject(response)
+    }
   } catch (error) {
     return Promise.reject(error)
   }
