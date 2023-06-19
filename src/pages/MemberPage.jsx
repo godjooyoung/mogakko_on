@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useMutation, useQuery } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { getUserProfile, requestFriend } from '../axios/api/mypage'
 import styled from 'styled-components'
 import Header from "../components/common/Header";
@@ -18,9 +18,13 @@ function MemberPage() {
   useEffect(() => {
     AOS.init();
   })
-
+  const queryClient = useQueryClient()
   const { id } = useParams();
-  const { isLoading, isError, data } = useQuery("getUserProfile", () => getUserProfile(id))
+  const { isLoading, isError, data } = useQuery("getUserProfile", () => getUserProfile(id) , {
+    onSuccess: () => {
+      queryClient.invalidateQueries(getUserProfile)
+    }
+  })
   const [value, setValue] = useState(0)
   const [statusonMouse, setStatusOnMouse] = useState(false)
   const [temponMouse, setTempOnMouse] = useState(false)
@@ -50,6 +54,9 @@ function MemberPage() {
       //TODO 에러 메세지 처리
       //navigate('/')
     },
+    onError: (error) => {
+      console.log('error.response.data.messageerror.response.data.messageerror.response.data.message', error.response.data.message)
+    }
   })
 
   const [userGitHubId, setuserGitHubId] = useState(null)
@@ -120,6 +127,7 @@ function MemberPage() {
 
   // 코드 복사 
   const myCode = data && data.data.data.member.friendCode
+
   return (
     <>
       <Header />
@@ -144,13 +152,18 @@ function MemberPage() {
                 </CopyToClipboard>
               </MyCodeWrap>
               {
-                data && data.data.data.friend === false ?
-                  <FriendReqBtn
-                    onClick={() => {
-                      onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname)
-                      setFriendReqSuc(!friendReqSuc)
-                    }
-                    }>친구신청</FriendReqBtn> : null
+                // data && data.data.data.friend === false ?
+                //   <FriendReqBtn
+                //     onClick={() => {
+                //       onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname)
+                //       setFriendReqSuc(!friendReqSuc)
+                //     }
+                //     }>친구신청</FriendReqBtn> : null
+
+                data && data.data.data.friend === true ? null : data && !data.data.data.pending ? <FriendReqBtn onClick={() => {
+                  onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname)
+                  setFriendReqSuc(!friendReqSuc)
+                }}>친구신청</FriendReqBtn> : <FriendReqWaitBtn>대기중</FriendReqWaitBtn>
               }
 
               {
@@ -306,6 +319,8 @@ const ProfileModifyContent = styled.form`
 `
 
 const FriendReqBtn = styled.button`
+  width: 92px;
+  height: 34px;
   font-family: 'Pretendard';
   font-style: normal;
   font-weight: 700;
@@ -314,7 +329,6 @@ const FriendReqBtn = styled.button`
   border-radius: 24.7692px;
   color: #464646;
   border: none;
-  padding: 7px 15px;
   transition: all 0.3s;
   &:hover {
     transition: 0.2s;
@@ -421,7 +435,7 @@ const TemperatureTitle = styled.p`
 const TemperatureMouseHoverBox = styled.div`
   position: absolute;
   top: 60px;
-    right: -65px;
+  right: -20px;
   width: 250px;
   height: 80px;
   background-color: #F9F9FA;
@@ -718,5 +732,37 @@ const TotalLanguage = styled.div`
   background-color: var(--bg-li);
   /* background-color: transparent; */
 `
+const FriendSearchBtn = styled.button`
+  width: 62.76px;
+  height: 23.77px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
+  background: var(--po-de);
+  border-radius: 13.3117px;
+  color: #464646;
+  border: none;
+  transition: all 0.2s;
+  &:hover {
+    background: #00C5D1;
+  }
+`
 
+
+const FriendReqWaitBtn = styled.p`
+  width: 92px;
+  height: 34px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 15px;
+  /* background: var(--po-de); */
+  border-radius: 24.7692px;
+  color: var(--po-de);
+  border: 1px solid var(--po-de);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
 export default MemberPage

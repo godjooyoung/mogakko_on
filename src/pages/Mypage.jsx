@@ -132,6 +132,10 @@ function Mypage() {
   const [receiveUserValue, onChangeReceiveUser, receiveUserReset] = useInput('')
   const [receiveContentValue, onChangeReceiveContent, receiveContentReset] = useInput('')
 
+
+  // 친구요청 대기중 버튼 
+  const [friendRequestPendingList, setFriendRequestPendingList] = useState([]);
+
   // 친구 요청 성공 모달
   const [friendReqSuc, setFriendReqSuc] = useState(false)
 
@@ -158,6 +162,10 @@ function Mypage() {
   // 쪽지 status에 따른 팝업 state
   const [messageStatus, setMessageStatus] = useState(false)
   const [mesageStatusresponse, setMesageStatusresponse] = useState('')
+
+  // 쪽지 200자 초과 막기 팝업 
+
+  const [messageBlock, setmessageBlock] = useState(false)
 
   // 쪽지 보내기 Mutation
   const postMessageMutation = useMutation(postMessage, {
@@ -406,9 +414,10 @@ function Mypage() {
   })
 
   // 친구 추가 핸들러
-  const onClickRqFriendshipBtnHandler = (target) => {
+  const onClickRqFriendshipBtnHandler = (target, idx) => {
     // console.log("나랑 친구할래?", target)
     friendRequetMutation.mutate(target)
+    setFriendRequestPendingList((prevList) => [...prevList, idx])
   }
 
   // 파일 수정 핸들러
@@ -474,6 +483,23 @@ function Mypage() {
 
   // 코드 복사 
   const myCode = profileData && profileData.data.data.member.friendCode
+
+  const messageBlockHandler = () => {
+    if (receiveContentValue.length <= 200) {
+      postMessageHandler()
+      receiveUserReset()
+      receiveContentReset()
+      setPostPopup(!postPopup)
+    } else if (receiveContentValue.length > 200) {
+      setmessageBlock(true)
+    } else {
+      setMessageStatus(true)
+    }
+  }
+
+  const messageBlockCloseHandler = () => {
+    setmessageBlock(false)
+  }
 
   return (
     <>
@@ -597,7 +623,7 @@ function Mypage() {
                       <TopContentTitle>오늘 공부시간</TopContentTitle>
                       <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.today}</TopContentTitleItem>
                     </TotalTimewrap>
-                    
+
                     <WeeklyTimeWrap>
                       <TopContentTitle>총 공부 시간</TopContentTitle>
                       <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
@@ -867,10 +893,16 @@ function Mypage() {
                                 <FriendProfile friendRequestImg={avataGenHandler(e.profileImage, e.nickname)}></FriendProfile>
                                 <FriendRequestNickname>{e.nickname}</FriendRequestNickname>
                               </FriendSearchContentWrap>
-                              {e.friend === false ? <FriendSearchBtn onClick={() => {
-                                onClickRqFriendshipBtnHandler(e.nickname)
+                              {/* {e.friend === false ? <FriendSearchBtn onClick={() => {
+                                onClickRqFriendshipBtnHandler(e.nickname, idx)
                                 setFriendReqSuc(!friendReqSuc)
-                              }}>친구신청</FriendSearchBtn> : null}
+                              }}>{isFriendRequestPending ? '대기중' : '친구신청'}</FriendSearchBtn> : null} */}
+                              {
+                                e.friend === true ? null : !e.pending ? <FriendSearchBtn onClick={() => {
+                                  onClickRqFriendshipBtnHandler(e.nickname, idx)
+                                  setFriendReqSuc(!friendReqSuc)
+                                }}>친구신청</FriendSearchBtn> : <FriendReqWaitBtn>대기중</FriendReqWaitBtn>
+                              }
                             </FriendWrap>
                           )
                         })
@@ -919,16 +951,13 @@ function Mypage() {
                     onChange={(e) => {
                       onChangeReceiveContent(e)
                     }}
-                    maxLength={200}
+                    maxLength={199}
                   />
 
                   <MessagePopupBtnWrap>
-                    <p>{receiveContentValue.length} / 200자</p>
+                    <MessagePopupTextLength textLength={receiveContentValue.length}>{receiveContentValue.length} / 200자</MessagePopupTextLength>
                     <button onClick={() => {
-                      postMessageHandler()
-                      receiveUserReset()
-                      receiveContentReset()
-                      setPostPopup(!postPopup)
+                      messageBlockHandler()
                     }}>보내기</button>
                   </MessagePopupBtnWrap>
                 </MessagePopup>
@@ -957,7 +986,11 @@ function Mypage() {
                     <CommonPopup msg={mesageStatusresponse} isBtns={false} priMsg={'확인'} priHander={popupCloseHander} closeHander={popupCloseHander} />
                     : <></>
                 }
-
+                {
+                  messageBlock ?
+                    <CommonPopup msg={'200자가 초과되어'} secondMsg={'쪽지 전송에 실패하였습니다.'} isBtns={false} priMsg={'확인'} priHander={messageBlockCloseHandler} closeHander={messageBlockCloseHandler} />
+                    : <></>
+                }
                 <MessageScroll>
                   {messageSidebar === true && messageBox.receive === true ? (
                     receiveMessageData && receiveMessageData.data.data?.slice().reverse().map((e, idx) => (
@@ -2168,7 +2201,7 @@ const MessageReceiveMypageHeaderWrap = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-inline: 20px;
+  padding-right: 40px;
 
   p {
     font-family: 'Pretendard';
@@ -2288,6 +2321,7 @@ const ReceiveContent = styled.p`
   font-weight: 500;
   font-size: 13px;
   color: #FFFFFF;
+  word-break: break-all;
   white-space: ${(props) => {
     return props.isRead ? 'normal' : 'nowrap'
   }};
@@ -2296,7 +2330,7 @@ const ReceiveContent = styled.p`
   }};
   text-overflow: ${(props) => {
     return props.isRead ? 'clip' : 'ellipsis'
-  }}
+  }};
 `
 
 const ReceiveCreatedAt = styled.p`
@@ -2383,21 +2417,23 @@ const MessagePopup = styled.div`
   }
 `
 
+const MessagePopupTextLength = styled.p`
+  width: 94px;
+  height: 22px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 11px;
+  color: ${(props) => {
+    return props.textLength > 200 ? '#FF0000' : '#BEBEBE';
+  }};
+`
+
 const MessagePopupBtnWrap = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 14px;
-
-  p {
-    width: 94px;
-    height: 22px;
-    font-family: 'Pretendard';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 11px;
-    color: #BEBEBE;
-  }
 
   button {
     width: 74px;
@@ -2463,5 +2499,21 @@ const FriendSearchBtn = styled.button`
   &:hover {
     background: #00C5D1;
   }
+`
+
+const FriendReqWaitBtn = styled.p`
+  width: 62.76px;
+  height: 23.77px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
+  /* background: var(--po-de); */
+  border-radius: 13.3117px;
+  color: var(--po-de);
+  border: 1px solid var(--po-de);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `
 export default Mypage
