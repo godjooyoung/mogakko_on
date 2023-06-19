@@ -31,22 +31,22 @@ function MainMap(props) {
 
         const settingDefaultSearch = () => {
             if (!isLogin) {
-                console.log("[INFO] 로그인을 하지 않은 사용자 입니다. 기본 조회위치로 지정합니다. (", isLogin, ")")
+                // console.log("[INFO] 로그인을 하지 않은 사용자 입니다. 기본 조회위치로 지정합니다. (", isLogin, ")")
             } else {
-                console.log("[INFO] 로그인한 사용자 입니다.(", isLogin, ")")
+                // console.log("[INFO] 로그인한 사용자 입니다.(", isLogin, ")")
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
                         position => {
-                            console.log("[INFO] 현재 접속된 위치로 조회위치를 변경합니다.")
+                            // console.log("[INFO] 현재 접속된 위치로 조회위치를 변경합니다.")
                             dispatcher(fetchUserLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude }))
                             dispatcher(__searchLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude }))
                         },
                         error => {
-                            console.log("[INFO] 현재 접속된 위치를 받아올 수 없습니다. 기본 조회위치로 지정합니다.")
-                            console.log("[ERROR]", error)
+                            // console.log("[INFO] 현재 접속된 위치를 받아올 수 없습니다. 기본 조회위치로 지정합니다.")
+                            // console.log("[ERROR]", error)
                         })
                 } else {
-                    console.log('[INFO] Geoloaction이 지원되지 않는 브라우저 입니다. 기본 조회위치로 지정합니다.')
+                    // console.log('[INFO] Geoloaction이 지원되지 않는 브라우저 입니다. 기본 조회위치로 지정합니다.')
                 }
             }
         }
@@ -64,7 +64,7 @@ function MainMap(props) {
             center: new kakao.maps.LatLng(searchInfo.searchLatitude, searchInfo.searchLongitude),
         }
         const map = new kakao.maps.Map(mapContainer.current, options)
-        map.setZoomable(false)
+        //map.setZoomable(false)
         const bounds = new kakao.maps.LatLngBounds();
 
         const getPinImg = (lang) => {
@@ -150,18 +150,18 @@ function MainMap(props) {
 
             // 마커에 클릭 이벤트를 등록한다 (우클릭 : rightclick)
             kakao.maps.event.addListener(marker, 'click', function () {
-                console.log('마커를 클릭했습니다!');
+                // console.log('마커를 클릭했습니다!');
             });
 
             // 마커에 mouseover 이벤트를 등록하고 마우스 오버 시 
             kakao.maps.event.addListener(marker, 'mouseover', function () {
-                console.log('마커에 mouseover 이벤트가 발생했습니다!');
+                // console.log('마커에 mouseover 이벤트가 발생했습니다!');
                 marker.setImage(getPinBigImg(room.mogakkoRoom.language));
             });
 
             // 마커에 mouseout 이벤트를 등록하고 마우스 아웃 시 
             kakao.maps.event.addListener(marker, 'mouseout', function () {
-                console.log('마커에 mouseover 이벤트가 발생했습니다!');
+                // console.log('마커에 mouseover 이벤트가 발생했습니다!');
                 marker.setImage(getPinImg(room.mogakkoRoom.language));
             });
 
@@ -181,7 +181,7 @@ function MainMap(props) {
 
             // 변경된 중심좌표를 전역상태로 반영
             const setMapCenterDragend = (latlng) => {
-                console.log("[INFO] getMapCenterDragend ", latlng.getLat(), latlng.getLng())
+                // console.log("[INFO] getMapCenterDragend ", latlng.getLat(), latlng.getLng())
                 dispatcher(fetchUserLocation({ latitude: latlng.getLat(), longitude: latlng.getLng() }))
                 dispatcher(__searchLocation({ latitude: latlng.getLat(), longitude: latlng.getLng() }))
             }

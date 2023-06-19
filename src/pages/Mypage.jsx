@@ -1,7 +1,7 @@
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost, searchUser, receiveMessage, postMessage, sentMessage } from '../axios/api/mypage'
+import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost, searchUser, receiveMessage, postMessage, sentMessage, requestFriend } from '../axios/api/mypage'
 import styled from 'styled-components';
 import Header from "../components/common/Header";
 import useInput from '../hooks/useInput'
@@ -12,6 +12,8 @@ import ChartTimes from '../components/ChartTimes';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import ChartWeekly from '../components/ChartWeekly';
+import CommonPopup from '../components/common/CommonPopup'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 // // 00:00:00 to 00H00M
 // const formatTime = (timeString) => {
@@ -29,13 +31,13 @@ const MakeNoteHandler = ({ idx, nickName, content, createdAt }) => {
   const [isToggle, setIsToggle] = useState(false)
   const toggleChangerHandler = (toggle) => {
     setIsToggle(!toggle)
-    console.log('토글토글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글,', isToggle)
+    // console.log('토글토글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글,', isToggle)
   }
   return (
     <>
-      <ReceiveMessageWrap key={idx} onClick={()=>(toggleChangerHandler(isToggle))} isRead={isToggle}>
+      <ReceiveMessageWrap key={idx} onClick={() => (toggleChangerHandler(isToggle))} isRead={isToggle}>
         <ReceiveSendNickname>{nickName}</ReceiveSendNickname>
-        <ReceiveContent>{content}</ReceiveContent>
+        <ReceiveContent isRead={isToggle}>{content}</ReceiveContent>
         <ReceiveCreatedAt>{createdAt}</ReceiveCreatedAt>
       </ReceiveMessageWrap>
     </>
@@ -50,10 +52,10 @@ function Mypage() {
   })
 
   const getFriendListIsSuccessHandler = () => {
-    console.log('친구목록 조회 성공', friendListData)
+    // console.log('친구목록 조회 성공', friendListData)
   }
   const getFriendListIsErrorHandler = () => {
-    console.log('친구목록 조회 실패', friendListData)
+    // console.log('친구목록 조회 실패', friendListData)
     setFriendList([])
   }
 
@@ -124,27 +126,25 @@ function Mypage() {
   // 쪽지 모달 on/off
   const [postPopup, setPostPopup] = useState(false)
 
+  // 파일 업로드 에러 팝업 오픈
+  const [isFileCommonPopupOpend, setIsFileCommonPopupOpend] = useState(false)
+
   const [receiveUserValue, onChangeReceiveUser, receiveUserReset] = useInput('')
   const [receiveContentValue, onChangeReceiveContent, receiveContentReset] = useInput('')
+
+  // 친구 요청 성공 모달
+  const [friendReqSuc, setFriendReqSuc] = useState(false)
 
   // hooks
   const navigate = useNavigate()
 
-  const [isTargeting, setIsTargeting] = useState(false)
   const [timer, setTimer] = useState(0)
-  // const { isLoading: isSearchUserLoading, isError: isSearchUserError, data: searchUserData, refetch: getSearchUserRefetch } = useQuery("getSearchUser", () => {
-  //   friendFindNickName ? searchUser({ searchRequestNickname: findNickNameValue }) : searchUser({ friendCode: findCodeValue })
-  // }, {
-  //   enabled: isTargeting,
-  //   onSuccess: () => {
-  //     console.log('searchUserDatasearchUserDatasearchUserData', searchUserData)
-  //   },
-  //   refetch: false
-  // })
+
+  const inputRef = useRef()
 
   const roomListMutation = useMutation(searchUser, {
     onSuccess: (response) => {
-      console.log("searchUser ", response)
+      // console.log("searchUser ", response)
       console.log("searchUser.data 컨텐트 검색 결과 ", response.data)
       console.log("searchUser.data.data 컨텐트 검색 결과 배열 ", response.data.data)
       if (response.data.message === '검색된 멤버가 없습니다.') {
@@ -155,13 +155,43 @@ function Mypage() {
     }
   })
 
+  // 쪽지 status에 따른 팝업 state
+  const [messageStatus, setMessageStatus] = useState(false)
+  const [mesageStatusresponse, setMesageStatusresponse] = useState('')
+
   // 쪽지 보내기 Mutation
   const postMessageMutation = useMutation(postMessage, {
     onSuccess: (response) => {
       queryClient.invalidateQueries(receiveMessage)
-      console.log("postMessage ", response)
+    },
+    onError: (error) => {
+      popupOpenHander(error.response.data.message)
+      // console.log('error.response.data.message', error.response.data.message)
     }
   })
+
+  const popupOpenHander = (msg) => {
+    // console.log('쪽지팝업 msg is......0', msg)
+    setMesageStatusresponse(msg)
+    // console.log('쪽지팝업 mesageStatusresponse', mesageStatusresponse)
+    // console.log('쪽지팝업 messageStatus', messageStatus)
+  }
+
+  const popupCloseHander = () => {
+    setMessageStatus(false)
+    setMesageStatusresponse('')
+  }
+
+  useEffect(() => {
+    // console.log('쪽지팝업', mesageStatusresponse)
+    if (mesageStatusresponse !== '') {
+      // console.log('쪽지팝업 msg is......1', mesageStatusresponse)
+      setMessageStatus(true)
+    } else {
+      setMessageStatus(false)
+    }
+  }, [mesageStatusresponse]);
+
 
   const postMessageHandler = () => {
     postMessageMutation.mutate({
@@ -172,7 +202,7 @@ function Mypage() {
 
   useEffect(() => {
     if (timer) {
-      console.log('clear timer');
+      // console.log('clear timer');
       clearTimeout(timer);
     }
     if (findNickNameValue !== '' || findCodeValue !== '') {
@@ -180,7 +210,7 @@ function Mypage() {
         try {
           await roomListMutationCall()
         } catch (e) {
-          console.error('error', e);
+          // console.error('error', e);
         }
       }, 1000);
 
@@ -202,9 +232,9 @@ function Mypage() {
 
   useEffect(() => {
     if (profileData) {
-      console.log("마이페이지 조회 결과", profileData)
-      console.log("마이페이지 조회 결과-profileImage", profileData.data.data.member.profileImage)
-      console.log("마이페이지 조회 결과-nickname", profileData.data.data.member.nickname)
+      // console.log("마이페이지 조회 결과", profileData)
+      // console.log("마이페이지 조회 결과-profileImage", profileData.data.data.member.profileImage)
+      // console.log("마이페이지 조회 결과-nickname", profileData.data.data.member.nickname)
 
       setCookie('userProfile', profileData.data.data.member.profileImage)
       setPreview(profileData.data.data.member.profileImage)
@@ -217,7 +247,7 @@ function Mypage() {
   // 친구목록 조회 useEffect
   useEffect(() => {
     if (friendListData) {
-      console.log("친구목록 조회 1", friendListData)
+      // console.log("친구목록 조회 1", friendListData)
       console.log("친구목록 조회 2", friendListData.data.data)
       if (friendListData.data.data) {
         setFriendList(friendListData.data.data)
@@ -230,7 +260,7 @@ function Mypage() {
   // 친구요청 목록 조회 useEffect
   useEffect(() => {
     if (friendRequestListData) {
-      console.log("친구요청목록 조회 1", friendRequestListData)
+      // console.log("친구요청목록 조회 1", friendRequestListData)
       console.log("친구요청목록 조회 2", friendRequestListData.data.data)
     }
   }, [friendRequestListData])
@@ -251,21 +281,43 @@ function Mypage() {
 
   // 프로필 수정 useEffect
   useEffect(() => {
-    if (isFileModify) {
-      submitImgHandler()
+    // console.log('프로필 이미지 수정 핸들러 실행 0', fileAttach)
+    if (fileAttach) {
+      const maxSize = 2 * 1024 * 1024
+      // console.log('프로필 이미지 수정 핸들러 실행 1', fileAttach.size, ",", maxSize)
+      if (fileAttach.size > maxSize) {
+        setIsFileCommonPopupOpend(true)
+        handleClearInput()
+        setFileAttach('')
+      } else {
+        const objectUrl = URL.createObjectURL(fileAttach)
+        setPreview(objectUrl)
+        setIsFileModify(true)
+        setIsFileCommonPopupOpend(false)
+      }
     }
   }, [fileAttach])
+
+
+  // 수정이 완료되면
+  useEffect(() => {
+    if (isFileModify) {
+      submitImgHandler()
+    } else {
+      setFileAttach('')
+    }
+  }, [isFileModify])
 
   // 프로필 썸네일 useEffect
   useEffect(() => {
     // 프로필 이미지가 기본 이미지일때는 랜덤 프로필 사진 보여줌. 등록했을 경우에는 등록된 이미지 파일 보여줌
     if (preview) {
       if (preview === 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtArY0iIz1b6rGdZ6xkSegyALtWQKBjupKJQ&usqp=CAU') {
-        console.log("기본 프로필 입니다. 랜덤프로필 작업 필요")
+        // console.log("기본 프로필 입니다. 랜덤프로필 작업 필요")
         const avataGen = `https://source.boringavatars.com/beam/120/${profileData.data.data.member.nickname}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
         setPreview(avataGen)
       } else {
-        console.log("유저가 프로필을 등록한 사용자입니다.", preview)
+        // console.log("유저가 프로필을 등록한 사용자입니다.", preview)
       }
     }
   }, [preview])
@@ -273,7 +325,7 @@ function Mypage() {
   // 친구 삭제 뮤테이션
   const deleteFriendMutation = useMutation(deleteFriend, {
     onSuccess: (response) => {
-      console.log("친구 삭제 성공", response)
+      // console.log("친구 삭제 성공", response)
       queryClient.invalidateQueries(getProfile)
       queryClient.invalidateQueries(getFriendList)
       queryClient.invalidateQueries(getFriendRequestList)
@@ -290,7 +342,7 @@ function Mypage() {
   // 프로필 사진 수정 뮤테이션
   const filemutation = useMutation(addProfile, {
     onSuccess: (response) => {
-      console.log("프로필 사진 수정 성공", response)
+      // console.log("프로필 사진 수정 성공", response)
       queryClient.invalidateQueries(getProfile)
       queryClient.invalidateQueries(getFriendList)
       queryClient.invalidateQueries(getFriendRequestList)
@@ -300,7 +352,7 @@ function Mypage() {
   // 친구 수락/거절
   const reciveFriendMutation = useMutation(reciveFriendRequest, {
     onSuccess: (response) => {
-      console.log("친구 신청 수락/거절", response)
+      // console.log("친구 신청 수락/거절", response)
       queryClient.invalidateQueries(getProfile)
       queryClient.invalidateQueries(getFriendList)
       queryClient.invalidateQueries(getFriendRequestList)
@@ -318,17 +370,17 @@ function Mypage() {
 
   // 친구 요청 수락/취소 버튼 클릭 핸들러
   const onClickRequestFriendButtonHandler = (targetNickName, isAccept) => {
-    console.log("친구 요청을 해준 닉네임", targetNickName)
-    console.log("(친구요청?) 수락 거부", isAccept)
+    // console.log("친구 요청을 해준 닉네임", targetNickName)
+    // console.log("(친구요청?) 수락 거부", isAccept)
     const target = { requestSenderNickname: targetNickName, determineRequest: isAccept }
     reciveFriendMutation.mutate(target)
   }
 
   // 친구 삭제 여러건 선택 핸들러
   const onClickDeleteFriendCheckHandler = (targetNickName, idx, isSelected) => {
-    console.log("삭제하기 위해 선택한 친구 닉네임", targetNickName)
-    console.log("삭제하기 위해 선택한 친구 인덱스", idx)
-    console.log("삭제하기 위해 선택한 친구 선택여부", isSelected)
+    // console.log("삭제하기 위해 선택한 친구 닉네임", targetNickName)
+    // console.log("삭제하기 위해 선택한 친구 인덱스", idx)
+    // console.log("삭제하기 위해 선택한 친구 선택여부", isSelected)
     const updateFriendList = friendList.map((friend, index) => {
       if (index === idx) {
         return { ...friend, selected: !isSelected }
@@ -342,22 +394,38 @@ function Mypage() {
   // 친구 삭제 버튼 클릭 핸들러
   const onClickDeleteFriendButtonHandler = () => {
     const deleteFriendList = friendList.filter((friend) => friend.selected).map((friend) => friend.member.nickname)
-    console.log("삭제할 친구 목록", deleteFriendList)
+    // console.log("삭제할 친구 목록", deleteFriendList)
     deleteFriendMutation.mutate(deleteFriendList)
+  }
+
+  // 친구 추가 보내기
+  const friendRequetMutation = useMutation(requestFriend, {
+    onSuccess: (response) => {
+      // console.log(">>> 친구 추가 보내기 성공", response.data.message)
+    },
+  })
+
+  // 친구 추가 핸들러
+  const onClickRqFriendshipBtnHandler = (target) => {
+    // console.log("나랑 친구할래?", target)
+    friendRequetMutation.mutate(target)
   }
 
   // 파일 수정 핸들러
   const handleFileChange = (event) => {
-    console.log("프로필 이미지 수정 핸들러 실행")
+    // console.log("프로필 이미지 수정 핸들러 실행 inputChangeHandler", event)
     setFileAttach(event.target.files[0])
-    const objectUrl = URL.createObjectURL(event.target.files[0])
-    setPreview(objectUrl)
-    setIsFileModify(true)
   }
+
+  const handleClearInput = () => {
+    inputRef.current.value = ''
+  }
+
+
 
   // 프로필 이미지 저장 핸들러 - onchange 랑 onClick이랑 동시에 동작하면 왜 온클릭이 무시될까요? 일단 바꿈 
   const submitImgHandler = () => {
-    console.log("프로필 이미지 전송 핸들러 실행")
+    // console.log("프로필 이미지 전송 핸들러 실행")
     const newFile = new FormData();
     newFile.append("imageFile", fileAttach)
     filemutation.mutate(newFile)
@@ -405,506 +473,529 @@ function Mypage() {
 
 
   // 코드 복사 
-  const handleCopyClipBoard = (code) => {
-    try {
-      navigator.clipboard.writeText(code);
-      alert('클립보드에 복사되었습니다.');
-    } catch (error) {
-      alert('클립보드 복사에 실패하였습니다.');
-    }
-  }
+  const myCode = profileData && profileData.data.data.member.friendCode
 
   return (
     <>
-      <Header />
       {
-        gitHub &&
-        <Dark>
-          <PopUp>
-            <CloseBtn onClick={() => {
-              setGitHub(!gitHub)
-              githubInputValueReset()
-            }}
-              closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
-            ></CloseBtn>
-            <h1>깃허브 아이디</h1>
-            <input type="text" placeholder='아이디' value={githubValue} onChange={onChangeGithubValue} />
-            <GitHubBtn onClick={() => {
-              setGitHub(!gitHub)
-              // setuserGitHubId(githubValue)
-              githubIdHandler()
-              githubInputValueReset()
-            }}>확인</GitHubBtn>
-          </PopUp>
-        </Dark>
+        isFileCommonPopupOpend ?
+          <><CommonPopup msg={'크기가 2MB 이하인 이미지'} secondMsg={'파일을 선택해 주시기 바랍니다.'} isBtns={false} priMsg={'닫기'} priHander={() => (setIsFileCommonPopupOpend(false))} closeHander={() => (setIsFileCommonPopupOpend(false))} /></> : <></>
       }
-      <FlexBox>
-        <MypageWrap>
-          <MypageNavbar>
-            <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
-              <ImageWrap BgImg={preview} width='155px' height='155px' />
-              <div>
-                <FileButton htmlFor="file"
-                  modify={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`}
-                  modifyClick={`${process.env.PUBLIC_URL}/image/modifyClickBtn.webp`}
-                ></FileButton>
-                <FileInput type="file" id="file" onChange={handleFileChange} />
-              </div>
-            </ProfileModifyContent>
-            <MyPageUserName>{profileData && profileData.data.data.member.nickname}</MyPageUserName>
+      <>
+        <Header />
+        {
+          gitHub &&
+          <Dark>
+            <PopUp>
+              <CloseBtn onClick={() => {
+                setGitHub(!gitHub)
+                githubInputValueReset()
+              }}
+                closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
+              ></CloseBtn>
+              <h1>깃허브 닉네임</h1>
+              <p>깃허브 닉네임을 등록해주세요.</p>
+              <input type="text" placeholder='아이디' value={githubValue} onChange={onChangeGithubValue} />
+              <GitHubBtn onClick={() => {
+                setGitHub(!gitHub)
+                // setuserGitHubId(githubValue)
+                githubIdHandler()
+                githubInputValueReset()
+              }}>확인</GitHubBtn>
+            </PopUp>
+          </Dark>
+        }
+        <FlexBox>
+          <MypageWrap>
+            <MypageNavbar>
+              <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
+                <ImageWrap BgImg={preview} width='155px' height='155px' />
+                <div>
+                  <FileButton htmlFor="file"
+                    modify={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`}
+                    modifyClick={`${process.env.PUBLIC_URL}/image/modifyClickBtn.webp`}
+                  ></FileButton>
+                  <FileInput type="file" id="file" onChange={handleFileChange} ref={inputRef} accept="image/*" />
+                </div>
+              </ProfileModifyContent>
+              <MyPageUserName>{profileData && profileData.data.data.member.nickname}</MyPageUserName>
 
-            <MyCodeWrap>
-              <MyCode>나의 코드: {profileData && profileData.data.data.member.friendCode}</MyCode>
-              <CopyBtn onClick={() => handleCopyClipBoard(profileData.data.data.member.friendCode)}
-                imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
-              >COPY</CopyBtn>
-            </MyCodeWrap>
+              <MyCodeWrap>
+                <MyCode>나의 코드: {profileData && profileData.data.data.member.friendCode}</MyCode>
+                <CopyToClipboard text={myCode} onCopy={() => alert("클립보드에 복사되었습니다.")}>
+                  <CopyBtn
+                    imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
+                  ></CopyBtn>
+                </CopyToClipboard>
+              </MyCodeWrap>
 
-            <NavberCategory>
-              <DataCategory mogakkoData={mogakkoData}
-                onClick={() => {
-                  setmogakkoData(true)
-                  setFriendSidebar(false)
-                  setMessageSidebar(false)
-                  setMessageBox({
-                    receive: true,
-                    send: false
-                  })
-                }}
-              >모각코 데이터</DataCategory>
-              <FriendCategory friendSidebar={friendSidebar}
-                onClick={() => {
-                  setmogakkoData(false)
-                  setFriendSidebar(true)
-                  setMessageSidebar(false)
-                  setMessageBox({
-                    receive: true,
-                    send: false
-                  })
-                }}
-              >친구</FriendCategory>
-              <Message messageSidebar={messageSidebar}
-                onClick={() => {
-                  setmogakkoData(false)
-                  setFriendSidebar(false)
-                  setMessageSidebar(true)
-                }}
-              >쪽지</Message>
-              {messageSidebar &&
-                <ul>
-                  <ReceiveBox
-                    receive={messageBox.receive}
-                    data-aos="slide-down"
-                    onClick={() => {
-                      setMessageBox({
-                        receive: true,
-                        send: false
-                      })
-                    }}
-                  >받은 쪽지함</ReceiveBox>
-                  <SendBox
-                    send={messageBox.send}
-                    data-aos="slide-down"
-                    data-aos-delay="100"
-                    onClick={() => {
-                      setMessageBox({
-                        receive: false,
-                        send: true
-                      })
-                    }}
-                  >보낸 쪽지함</SendBox>
-                </ul>
-              }
-            </NavberCategory>
-
-          </MypageNavbar>
-          {mogakkoData &&
-            <WidthBox>
-              <MyPageTopContentWrap>
-                <MogakkoTitle>모각코 데이터</MogakkoTitle>
-                <ProfileModifyWrap>
-
-                  <TotalTimewrap>
-                    <TopContentTitle>오늘 공부시간</TopContentTitle>
-                    <TopContentTitleItem>{profileData && profileData.data.data.totalTimer}</TopContentTitleItem>
-                  </TotalTimewrap>
-
-                  <WeeklyTimeWrap>
-                    <TopContentTitle>총 공부 시간</TopContentTitle>
-                    <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
-                  </WeeklyTimeWrap>
-                  <Temperaturecontainer>
-                    <TemperatureTitle>On°
-                      <img
-                        src={`${process.env.PUBLIC_URL}/image/status.webp`}
-                        onMouseEnter={() => {
-                          tempOnMouseHandler()
-                        }}
-                        onMouseLeave={() => {
-                          tempOffMouseHandler()
-                        }}
-                      ></img>
-                    </TemperatureTitle>
-                    {
-                      temponMouse &&
-                      <TemperatureMouseHoverBox>
-                        <TemperatureMouseHoverBoxdesc>
-                          당신의 코딩온도는 몇도인가요?<br />
-                          공부 시간이 늘어날수록<br />
-                          코딩 온도도 올라가요! ( 10M <img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /> 0.01)
-                        </TemperatureMouseHoverBoxdesc>
-                      </TemperatureMouseHoverBox>
-                    }
-                    <TemperatureWrap>
-                      <ProgressContainer>
-                        <Progress style={{ width: `${value}%` }} />
-                      </ProgressContainer>
-                      <span>{profileData && profileData.data.data.member.codingTem}°</span>
-                    </TemperatureWrap>
-                  </Temperaturecontainer>
-
-                  <StatusWrap>
-                    <TopContentTitleWrap>
-                      <TopContentTitle>STATUS</TopContentTitle>
-                      <Status
-                        statusImg={`${process.env.PUBLIC_URL}/image/status.webp`}
-                        onMouseEnter={() => {
-                          statusOnMouseHandler()
-                        }}
-                        onMouseLeave={() => {
-                          statusOffMouseHandler()
-                        }}
-                      ></Status>
-                      {
-                        statusonMouse &&
-                        <StatusMouseHoverBox>
-                          <p>102 : <span>회원가입 시 기본값</span></p>
-                          <p>200 : <span>처음 프로필 등록시 변경</span></p>
-                          <p>400 : <span>신고 1회</span></p>
-                          <p>401 : <span>신고 2회</span></p>
-                          <p>404 : <span>신고 3회</span></p>
-                          <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
-                          <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
-                          <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
-                          <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
-                        </StatusMouseHoverBox>
-                      }
-                    </TopContentTitleWrap>
-                    <TopContentTitleItem>{profileData && profileData.data.data.member.memberStatusCode}</TopContentTitleItem>
-                  </StatusWrap>
-                </ProfileModifyWrap>
-              </MyPageTopContentWrap>
-
-              <ChartWrap>
-                <WeeklyStudyTimewrap>
-                  <p>이번 주 공부시간</p>
-                  <AttendanceCheckWrap data-aos="fade-down" data-aos-duration="1000">
-                    <ChartWeekly data={profileData && profileData.data.data.timeOfWeek} />
-                  </AttendanceCheckWrap>
-                  <StudyTime data-aos="fade-right" data-aos-duration="1000">
-                    <ChartTimes data={profileData && profileData.data.data.timeOfWeek} />
-                  </StudyTime>
-                </WeeklyStudyTimewrap>
-                <TotalLanguageWrap>
-                  <p>통합 선택 언어</p>
-                  <TotalLanguage data-aos="fade-left" data-aos-duration="1000">
-                    <ChartLan data={profileData && profileData.data.data.languageList} />
-                  </TotalLanguage>
-                </TotalLanguageWrap>
-              </ChartWrap>
-
-              <MyPageMiddleContentWrap>
-                {/* <div><p>깃허브 잔디</p><img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /></div> */}
-                <GithubTitleWrap userGitHubId={userGitHubId}>
-                  <p>깃허브 잔디</p>
-                  {userGitHubId === null || userGitHubId === undefined || userGitHubId === ' ' ?
-                    null :
-                    <GithubModifyImg
-                      modify={`${process.env.PUBLIC_URL}/image/gitHubEdit.png`}
-                      modifyHo={`${process.env.PUBLIC_URL}/image/gitHubEdit.pngp`}
-                      modifyClcik={`${process.env.PUBLIC_URL}/image/gitHubEdit.png`}
+              <NavberCategory>
+                <DataCategory mogakkoData={mogakkoData}
+                  onClick={() => {
+                    setmogakkoData(true)
+                    setFriendSidebar(false)
+                    setMessageSidebar(false)
+                    setMessageBox({
+                      receive: true,
+                      send: false
+                    })
+                  }}
+                >모각코 데이터</DataCategory>
+                <FriendCategory friendSidebar={friendSidebar}
+                  onClick={() => {
+                    setmogakkoData(false)
+                    setFriendSidebar(true)
+                    setMessageSidebar(false)
+                    setMessageBox({
+                      receive: true,
+                      send: false
+                    })
+                  }}
+                >친구</FriendCategory>
+                <Message messageSidebar={messageSidebar}
+                  onClick={() => {
+                    setmogakkoData(false)
+                    setFriendSidebar(false)
+                    setMessageSidebar(true)
+                  }}
+                >쪽지</Message>
+                {messageSidebar &&
+                  <ul>
+                    <ReceiveBox
+                      receive={messageBox.receive}
+                      data-aos="slide-down"
                       onClick={() => {
-                        setGitHub(!gitHub)
+                        setMessageBox({
+                          receive: true,
+                          send: false
+                        })
                       }}
-                    >
-                    </GithubModifyImg>
-                  }
-                </GithubTitleWrap>
-
-                {
-                  userGitHubId ?
-                    <MyPageMiddleContent>
-                      <GitHubImage src={`https://ghchart.rshah.org/232B3D/${userGitHubId}`} />
-                    </MyPageMiddleContent> :
-                    <NoGithubIdWrap onClick={() => {
-                      setGitHub(!gitHub)
-                    }}>
-                      <div><img src={`${process.env.PUBLIC_URL}/image/addSquare.png`} alt="깃허브잔디등록버튼" /></div>
-                      <p>깃허브 잔디를 등록해보세요</p>
-                    </NoGithubIdWrap>
+                    >받은 쪽지함</ReceiveBox>
+                    <SendBox
+                      send={messageBox.send}
+                      data-aos="slide-down"
+                      data-aos-delay="100"
+                      onClick={() => {
+                        setMessageBox({
+                          receive: false,
+                          send: true
+                        })
+                      }}
+                    >보낸 쪽지함</SendBox>
+                  </ul>
                 }
-              </MyPageMiddleContentWrap>
-            </WidthBox>
-          }
+              </NavberCategory>
 
-          {friendSidebar &&
-            <FriendMypageWrap>
-              <MyPageBottomContentWrap>
-                <FriendListContainer>
-                  <DeleteBtnWrap>
-                    <FriendListTitle>친구 목록</FriendListTitle>
-                    {friendList.length === 0 ?
-                      null :
-                      <>
+            </MypageNavbar>
+            {mogakkoData &&
+              <WidthBox>
+                <MyPageTopContentWrap>
+                  <MogakkoTitle>모각코 데이터</MogakkoTitle>
+                  <ProfileModifyWrap>
+
+                    <TotalTimewrap>
+                      <TopContentTitle>오늘 공부시간</TopContentTitle>
+                      <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.today}</TopContentTitleItem>
+                    </TotalTimewrap>
+                    
+                    <WeeklyTimeWrap>
+                      <TopContentTitle>총 공부 시간</TopContentTitle>
+                      <TopContentTitleItem>{profileData && profileData.data.data.timeOfWeek.weekTotal}</TopContentTitleItem>
+                    </WeeklyTimeWrap>
+                    <Temperaturecontainer>
+                      <TemperatureTitle>ON°
+                        <img
+                          src={`${process.env.PUBLIC_URL}/image/status.webp`}
+                          onMouseEnter={() => {
+                            tempOnMouseHandler()
+                          }}
+                          onMouseLeave={() => {
+                            tempOffMouseHandler()
+                          }}
+                        ></img>
+                      </TemperatureTitle>
+                      {
+                        temponMouse &&
+                        <TemperatureMouseHoverBox>
+                          <TemperatureMouseHoverBoxdesc>
+                            당신의 코딩온도는 몇도인가요?<br />
+                            공부 시간이 늘어날수록<br />
+                            코딩 온도도 올라가요! ( 10M <img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /> 0.01)
+                          </TemperatureMouseHoverBoxdesc>
+                        </TemperatureMouseHoverBox>
+                      }
+                      <TemperatureWrap>
+                        <ProgressContainer>
+                          <Progress style={{ width: `${value}%` }} />
+                        </ProgressContainer>
+                        <span>{profileData && profileData.data.data.member.codingTem}°</span>
+                      </TemperatureWrap>
+                    </Temperaturecontainer>
+
+                    <StatusWrap>
+                      <TopContentTitleWrap>
+                        <TopContentTitle>상태코드</TopContentTitle>
+                        <Status
+                          statusImg={`${process.env.PUBLIC_URL}/image/status.webp`}
+                          onMouseEnter={() => {
+                            statusOnMouseHandler()
+                          }}
+                          onMouseLeave={() => {
+                            statusOffMouseHandler()
+                          }}
+                        ></Status>
                         {
-                          !friendListDelete ? <FriendListDeleteBtn onClick={() => {
-                            friendListDeleteHandler()
-                          }}>삭제 하기</FriendListDeleteBtn> :
-                            <FriendListCancleBtnWrap>
-                              <FriendListCancleBtn onClick={() => {
-                                friendListDeleteHandler()
-                              }}
-                                color={'cancle'}
-                              >취소</FriendListCancleBtn>
-                              <FriendListCancleBtn onClick={onClickDeleteFriendButtonHandler}>삭제</FriendListCancleBtn>
-                            </FriendListCancleBtnWrap>
+                          statusonMouse &&
+                          <StatusMouseHoverBox>
+                            <p>102 : <span>회원가입 시 기본값</span></p>
+                            <p>200 : <span>처음 프로필 등록시 변경</span></p>
+                            <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
+                            <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
+                            <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
+                            <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
+                          </StatusMouseHoverBox>
                         }
-                      </>
+                      </TopContentTitleWrap>
+                      <TopContentTitleItem>{profileData && profileData.data.data.member.memberStatusCode}</TopContentTitleItem>
+                    </StatusWrap>
+                  </ProfileModifyWrap>
+                </MyPageTopContentWrap>
+
+                <ChartWrap>
+                  <WeeklyStudyTimewrap>
+                    <p>이번 주 공부시간</p>
+                    <AttendanceCheckWrap data-aos="fade-down" data-aos-duration="1000">
+                      <ChartWeekly data={profileData && profileData.data.data.timeOfWeek} />
+                    </AttendanceCheckWrap>
+                    <StudyTime data-aos="fade-right" data-aos-duration="1000">
+                      <ChartTimes data={profileData && profileData.data.data.timeOfWeek} />
+                    </StudyTime>
+                  </WeeklyStudyTimewrap>
+                  <TotalLanguageWrap>
+                    <p>통합 선택 언어</p>
+                    <TotalLanguage data-aos="fade-left" data-aos-duration="1000">
+                      <ChartLan data={profileData && profileData.data.data.languageList} />
+                    </TotalLanguage>
+                  </TotalLanguageWrap>
+                </ChartWrap>
+
+                <MyPageMiddleContentWrap>
+                  {/* <div><p>깃허브 잔디</p><img src={`${process.env.PUBLIC_URL}/image/enterArrow.webp`} alt="화살표 아이콘" /></div> */}
+                  <GithubTitleWrap userGitHubId={userGitHubId}>
+                    <p>GitHub</p>
+                    {userGitHubId === null || userGitHubId === undefined || userGitHubId === ' ' ?
+                      null :
+                      <GithubModifyImg
+                        modify={`${process.env.PUBLIC_URL}/image/gitHubEdit.png`}
+                        modifyHo={`${process.env.PUBLIC_URL}/image/gitHubEdit.pngp`}
+                        modifyClcik={`${process.env.PUBLIC_URL}/image/gitHubEdit.png`}
+                        onClick={() => {
+                          setGitHub(!gitHub)
+                        }}
+                      >
+                      </GithubModifyImg>
                     }
-                  </DeleteBtnWrap>
+                  </GithubTitleWrap>
 
                   {
-                    friendList.length === 0 ?
-                      <NullFriendList>
-                        <h1>추가한 친구가 없습니다</h1>
-                      </NullFriendList> :
-                      <ScrollWrap>
-                        <FriendListWrap>
-                          {friendList && friendList.map((friend, idx) => {
-                            return (
-                              <>
-                                <FriendList onClick={() => {
-                                  onClickDeleteFriendCheckHandler(friend.member.nickname, idx, friend.selected)
-                                  !friendListDelete && userProfileHandler(friend.member.id)
-                                }}>
-                                  {
-                                    friendListDelete &&
-                                    <DeleteSelectedBtn selected={friend.selected}></DeleteSelectedBtn>
-                                  }
-                                  <FriendListImage friendListImg={avataGenHandler(friend.member.profileImage, friend.member.nickname)}></FriendListImage>
-                                  <FriendListName>{friend.member.nickname}</FriendListName>
-
-                                  <FriendListTemperaturecontainer>
-                                    <FriendListTemperatureTitle>On°</FriendListTemperatureTitle>
-                                    <FriendListTemperatureWrap>
-                                      <img src={`${process.env.PUBLIC_URL}/image/mannerTemp.webp`} />
-                                      <FriendListProgressContainer>
-                                        <FriendListProgress style={{ width: `${friend.member.codingTem}%` }} />
-                                      </FriendListProgressContainer>
-                                      <span>{friend.member.codingTem}°</span>
-                                    </FriendListTemperatureWrap>
-                                  </FriendListTemperaturecontainer>
-                                </FriendList>
-                              </>
-                            )
-                          })}
-                        </FriendListWrap>
-                      </ScrollWrap>
+                    userGitHubId ?
+                      <MyPageMiddleContent>
+                        <GitHubImage src={`https://ghchart.rshah.org/232B3D/${userGitHubId}`} />
+                      </MyPageMiddleContent> :
+                      <NoGithubIdWrap onClick={() => {
+                        setGitHub(!gitHub)
+                      }}>
+                        <div><img src={`${process.env.PUBLIC_URL}/image/addSquare.png`} alt="깃허브잔디등록버튼" /></div>
+                        <p>깃허브 잔디를 등록해보세요</p>
+                      </NoGithubIdWrap>
                   }
-                </FriendListContainer>
-                <FriendMypageReqWrap>
-                  <FriendRequestWrap>
-                    <FriendRequestTitle>친구 요청</FriendRequestTitle>
-                    {
-                      friendRequestListData && !friendRequestListData.data.data ?
-                        <NullFriendRequestList>
-                          <h1>아직 친구 요청이 없습니다.</h1>
-                        </NullFriendRequestList> :
-                        <ReqScrollWrap>
-                          {friendRequestListData && friendRequestListData.data.data.map((friend, idx) => {
-                            return (
-                              <>
-                                <FriendWrap>
-                                  <FriendLeftContent>
-                                    <FriendProfile friendRequestImg={avataGenHandler(friend.profileImage, friend.nickname)}></FriendProfile>
-                                    <FriendRequestNickname>{friend.nickname}</FriendRequestNickname>
-                                  </FriendLeftContent>
-                                  <ButtonWrap>
-                                    <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, true) }} color={'allow'}>수락</AllowBtn>
-                                    <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, false) }}>거절</AllowBtn>
-                                  </ButtonWrap>
-                                </FriendWrap>
-                              </>
-                            )
+                </MyPageMiddleContentWrap>
+              </WidthBox>
+            }
 
-                          })
+            {friendSidebar &&
+              <FriendMypageWrap>
+                <MyPageBottomContentWrap>
+                  <FriendListContainer>
+                    <DeleteBtnWrap>
+                      <FriendListTitle>친구 목록</FriendListTitle>
+                      {friendList.length === 0 ?
+                        null :
+                        <>
+                          {
+                            !friendListDelete ? <FriendListDeleteBtn onClick={() => {
+                              friendListDeleteHandler()
+                            }}>삭제 하기</FriendListDeleteBtn> :
+                              <FriendListCancleBtnWrap>
+                                <FriendListCancleBtn onClick={() => {
+                                  friendListDeleteHandler()
+                                }}
+                                  color={'cancle'}
+                                >취소</FriendListCancleBtn>
+                                <FriendListCancleBtn onClick={onClickDeleteFriendButtonHandler}>삭제</FriendListCancleBtn>
+                              </FriendListCancleBtnWrap>
                           }
-                        </ReqScrollWrap>
+                        </>
+                      }
+                    </DeleteBtnWrap>
+
+                    {
+                      friendList.length === 0 ?
+                        <NullFriendList>
+                          <img src={`${process.env.PUBLIC_URL}/image/emptyFriendList.webp`} alt="텅빈 리스트" />
+                          <p>추가한 친구가 없습니다</p>
+                          <p>닉네임이나 친구코드를 검색해 친구를 찾아보세요</p>
+                        </NullFriendList> :
+                        <ScrollWrap>
+                          <FriendListWrap>
+                            {friendList && friendList.map((friend, idx) => {
+                              return (
+                                <>
+                                  <FriendList onClick={() => {
+                                    onClickDeleteFriendCheckHandler(friend.member.nickname, idx, friend.selected)
+                                    !friendListDelete && userProfileHandler(friend.member.id)
+                                  }}>
+                                    {
+                                      friendListDelete &&
+                                      <DeleteSelectedBtn selected={friend.selected}></DeleteSelectedBtn>
+                                    }
+                                    <FriendListImage friendListImg={avataGenHandler(friend.member.profileImage, friend.member.nickname)}></FriendListImage>
+                                    <FriendListName>{friend.member.nickname}</FriendListName>
+
+                                    <FriendListTemperaturecontainer>
+                                      <FriendListTemperatureTitle>ON°</FriendListTemperatureTitle>
+                                      <FriendListTemperatureWrap>
+                                        <img src={`${process.env.PUBLIC_URL}/image/mannerTemp.webp`} />
+                                        <FriendListProgressContainer>
+                                          <FriendListProgress style={{ width: `${friend.member.codingTem}%` }} />
+                                        </FriendListProgressContainer>
+                                        <span>{friend.member.codingTem}°</span>
+                                      </FriendListTemperatureWrap>
+                                    </FriendListTemperaturecontainer>
+                                  </FriendList>
+                                </>
+                              )
+                            })}
+                          </FriendListWrap>
+                        </ScrollWrap>
                     }
-                  </FriendRequestWrap>
+                  </FriendListContainer>
+                  <FriendMypageReqWrap>
+                    <FriendRequestWrap>
+                      <FriendRequestTitle>친구 요청</FriendRequestTitle>
+                      {
+                        friendRequestListData && !friendRequestListData.data.data ?
+                          <NullFriendRequestList>
+                            <h1>아직 친구 요청이 없습니다.</h1>
+                          </NullFriendRequestList> :
+                          <ReqScrollWrap>
+                            {friendRequestListData && friendRequestListData.data.data.map((friend, idx) => {
+                              return (
+                                <>
+                                  <FriendWrap>
+                                    <FriendLeftContent onClick={() => {
+                                      navigate('/profile/' + friend.id)
+                                    }}>
+                                      <FriendProfile friendRequestImg={avataGenHandler(friend.profileImage, friend.nickname)}></FriendProfile>
+                                      <FriendRequestNickname>{friend.nickname}</FriendRequestNickname>
+                                    </FriendLeftContent>
+                                    <ButtonWrap>
+                                      <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, true) }} color={'allow'}>수락</AllowBtn>
+                                      <AllowBtn onClick={() => { onClickRequestFriendButtonHandler(friend.nickname, false) }}>거절</AllowBtn>
+                                    </ButtonWrap>
+                                  </FriendWrap>
+                                </>
+                              )
 
-                  <FriendFindwrap>
-                    <FriendFindTitleWrap>
-                      <FriendFindTitle>친구 찾기</FriendFindTitle>
-                      <FriendFindBtnWrap>
-                        <FriendFindNickNameBtn
-                          friendFindNickName={friendFindNickName}
-                          onClick={() => {
-                            setFriendFindNickName(true)
-                            setFriendFindCode(false)
-                          }}
-                        >닉네임</FriendFindNickNameBtn>
-                        <FriendFindCodeBtn
-                          friendFindCode={friendFindCode}
-                          onClick={() => {
-                            setFriendFindNickName(false)
-                            setFriendFindCode(true)
-                          }}
-                        >친구코드</FriendFindCodeBtn>
-                      </FriendFindBtnWrap>
-
-                    </FriendFindTitleWrap>
-                    <FriendFindCodeInputWrap>
-                      <img src={`${process.env.PUBLIC_URL}/image/zoomIcon.webp`} alt="" />
-                      {friendFindNickName ?
-                        <FriendFindNickNameInput
-                          type="text"
-                          placeholder='닉네임 입력'
-                          value={findNickNameValue}
-                          onChange={(e) => {
-                            onChangeFindNickNameValue(e)
-                          }}
-                        /> :
-
-                        <FriendFindCodeInput
-                          type="text"
-                          placeholder='친구코드 입력'
-                          value={findCodeValue}
-                          onChange={(e) => {
-                            onChangeFindCodeValue(e)
-                          }}
-                        />
+                            })
+                            }
+                          </ReqScrollWrap>
                       }
-                    </FriendFindCodeInputWrap>
+                    </FriendRequestWrap>
 
-                    <SearchScrollWrap>
-                      {searchFriend && searchFriend?.map((e, idx) => {
-                        return (
-                          <FriendWrap>
-                            <FriendSearchContentWrap>
-                              <FriendProfile friendRequestImg={avataGenHandler(e.profileImage, e.nickname)}></FriendProfile>
-                              <FriendRequestNickname>{e.nickname}</FriendRequestNickname>
-                            </FriendSearchContentWrap>
-                            {e.friend === false ? <FriendSearchBtn>친구신청</FriendSearchBtn> : null}
-                          </FriendWrap>
-                        )
-                      })
-                      }
-                    </SearchScrollWrap>
-                  </FriendFindwrap>
+                    <FriendFindwrap>
+                      <FriendFindTitleWrap>
+                        <FriendFindTitle>친구 찾기</FriendFindTitle>
+                        <FriendFindBtnWrap>
+                          <FriendFindNickNameBtn
+                            friendFindNickName={friendFindNickName}
+                            onClick={() => {
+                              setFriendFindNickName(true)
+                              setFriendFindCode(false)
+                            }}
+                          >닉네임</FriendFindNickNameBtn>
+                          <FriendFindCodeBtn
+                            friendFindCode={friendFindCode}
+                            onClick={() => {
+                              setFriendFindNickName(false)
+                              setFriendFindCode(true)
+                            }}
+                          >친구코드</FriendFindCodeBtn>
+                        </FriendFindBtnWrap>
 
-                </FriendMypageReqWrap>
-              </MyPageBottomContentWrap >
-            </FriendMypageWrap>
-          }
+                      </FriendFindTitleWrap>
+                      <FriendFindCodeInputWrap>
+                        <img src={`${process.env.PUBLIC_URL}/image/zoomIcon.webp`} alt="" />
+                        {friendFindNickName ?
+                          <FriendFindNickNameInput
+                            type="text"
+                            placeholder='닉네임 입력'
+                            value={findNickNameValue}
+                            onChange={(e) => {
+                              onChangeFindNickNameValue(e)
+                            }}
+                          /> :
 
-          {
-            postPopup &&
-            <Dark>
-              <MessagePopup>
-                <CloseBtn onClick={() => {
-                  receiveUserReset()
-                  receiveContentReset()
-                  setPostPopup(!postPopup)
-                }}
-                  closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
-                ></CloseBtn>
-                <h1>쪽지 쓰기</h1>
-                <h2>받는 사람</h2>
-                <input
-                  type="text"
-                  placeholder='닉네임 혹은 코드 입력'
-                  value={receiveUserValue}
-                  onChange={(e) => {
-                    onChangeReceiveUser(e)
-                  }}
-                />
-                <textarea
-                  cols="30"
-                  rows="10"
-                  value={receiveContentValue}
-                  onChange={(e) => {
-                    onChangeReceiveContent(e)
-                  }}
-                />
+                          <FriendFindCodeInput
+                            type="text"
+                            placeholder='친구코드 입력'
+                            value={findCodeValue}
+                            onChange={(e) => {
+                              onChangeFindCodeValue(e)
+                            }}
+                          />
+                        }
+                      </FriendFindCodeInputWrap>
 
-                <MessagePopupBtnWrap>
-                  <p>{receiveContentValue.length} / 1000자</p>
-                  <button onClick={() => {
-                    postMessageHandler()
+                      <SearchScrollWrap>
+                        {searchFriend && searchFriend?.map((e, idx) => {
+                          return (
+                            <FriendWrap>
+                              <FriendSearchContentWrap onClick={() => {
+                                navigate('/profile/' + e.id)
+                              }}>
+                                <FriendProfile friendRequestImg={avataGenHandler(e.profileImage, e.nickname)}></FriendProfile>
+                                <FriendRequestNickname>{e.nickname}</FriendRequestNickname>
+                              </FriendSearchContentWrap>
+                              {e.friend === false ? <FriendSearchBtn onClick={() => {
+                                onClickRqFriendshipBtnHandler(e.nickname)
+                                setFriendReqSuc(!friendReqSuc)
+                              }}>친구신청</FriendSearchBtn> : null}
+                            </FriendWrap>
+                          )
+                        })
+                        }
+                      </SearchScrollWrap>
+                    </FriendFindwrap>
+                    {
+                      friendReqSuc && <CommonPopup
+                        msg={'친구신청 완료!!'}
+                        secondMsg={'친구 수락을 기다려주세요.'}
+                        isBtns={false}
+                        priMsg={'확인'}
+                        priHander={() => setFriendReqSuc(!friendReqSuc)}
+                        closeHander={() => setFriendReqSuc(!friendReqSuc)} />
+                    }
+                  </FriendMypageReqWrap>
+                </MyPageBottomContentWrap >
+              </FriendMypageWrap>
+            }
+
+            {
+              postPopup &&
+              <Dark>
+                <MessagePopup>
+                  <CloseBtn onClick={() => {
                     receiveUserReset()
                     receiveContentReset()
                     setPostPopup(!postPopup)
-                  }}>보내기</button>
-                </MessagePopupBtnWrap>
-              </MessagePopup>
-            </Dark>
-          }
+                  }}
+                    closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
+                  ></CloseBtn>
+                  <h1>쪽지 쓰기</h1>
+                  <h2>받는 사람</h2>
+                  <input
+                    type="text"
+                    placeholder='닉네임 혹은 코드 입력'
+                    value={receiveUserValue}
+                    onChange={(e) => {
+                      onChangeReceiveUser(e)
+                    }}
+                  />
+                  <textarea
+                    cols="30"
+                    rows="10"
+                    value={receiveContentValue}
+                    onChange={(e) => {
+                      onChangeReceiveContent(e)
+                    }}
+                    maxLength={200}
+                  />
 
-          {messageSidebar &&
-            <MessageReceiveMypageWrap>
-              <MessageReceiveMypageHeaderWrap>
-                <p>{messageBox.receive ? '받은 쪽지함' : '보낸 쪽지함'}</p>
-                <button onClick={() => {
-                  setPostPopup(!postPopup)
-                }}>쪽지쓰기</button>
-              </MessageReceiveMypageHeaderWrap>
+                  <MessagePopupBtnWrap>
+                    <p>{receiveContentValue.length} / 200자</p>
+                    <button onClick={() => {
+                      postMessageHandler()
+                      receiveUserReset()
+                      receiveContentReset()
+                      setPostPopup(!postPopup)
+                    }}>보내기</button>
+                  </MessagePopupBtnWrap>
+                </MessagePopup>
+              </Dark>
+            }
 
-              <MessageReceiveMypageTitleWrap>
-                <MessageReceiveMypageTitleLeft>
-                  <p>{messageBox.send ? '받는 사람' : '보낸 사람'}</p>
-                  <p>내용</p>
-                </MessageReceiveMypageTitleLeft>
-                <p>날짜</p>
-              </MessageReceiveMypageTitleWrap>
+            {messageSidebar &&
+              <MessageReceiveMypageWrap>
+                <MessageReceiveMypageHeaderWrap>
+                  <p>{messageBox.receive ? '받은 쪽지함' : '보낸 쪽지함'}</p>
+                  <button onClick={() => {
+                    setPostPopup(!postPopup)
+                  }}>쪽지쓰기</button>
+                </MessageReceiveMypageHeaderWrap>
 
-              <MessageScroll>
-                {messageSidebar === true && messageBox.receive === true ? (
-                  receiveMessageData && receiveMessageData.data.data?.slice().reverse().map((e, idx) => (
-                    <MakeNoteHandler idx={idx} nickName={e.senderNickname} content={e.content} createdAt={e.createdAt}/>
-                    // <ReceiveMessageWrap
-                    //   key={idx}
-                    //   onClick={() => {}}
-                    //   isRead={false}
-                    // >
-                    //   <ReceiveSendNickname>{e.senderNickname}</ReceiveSendNickname>
-                    //   <ReceiveContent>{e.content}</ReceiveContent>
-                    //   <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
-                    // </ReceiveMessageWrap>
-                  ))
-                ) : null}
+                <MessageReceiveMypageTitleWrap>
+                  <MessageReceiveMypageTitleLeft>
+                    <p>{messageBox.send ? '받는 사람' : '보낸 사람'}</p>
+                    <p>내용</p>
+                  </MessageReceiveMypageTitleLeft>
+                  <p>날짜</p>
+                </MessageReceiveMypageTitleWrap>
 
-                {/* 보낸쪽지함 */}
-                {messageSidebar === true && messageBox.send === true ? (
-                  sentMessageData && sentMessageData.data.data?.slice().reverse().map((e, idx) => (
-                    <MakeNoteHandler idx={idx} nickName={e.receiverNickname} content={e.content} createdAt={e.createdAt}/>
-                    // makeNoteHandler(idx, e.receiverNickname, e.content, e.createdAt)
-                    // <ReceiveMessageWrap
-                    //   key={idx}
-                    //   onClick={() => {}}
-                    //   isRead={false}
-                    // >
-                    //   <ReceiveSendNickname>{e.receiverNickname}</ReceiveSendNickname>
-                    //   <ReceiveContent>{e.content}</ReceiveContent>
-                    //   <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
-                    // </ReceiveMessageWrap>
-                  ))
-                ) : null}
-              </MessageScroll>
-            </MessageReceiveMypageWrap>
-          }
-        </MypageWrap>
-      </FlexBox>
+                {
+                  messageStatus ?
+                    <CommonPopup msg={mesageStatusresponse} isBtns={false} priMsg={'확인'} priHander={popupCloseHander} closeHander={popupCloseHander} />
+                    : <></>
+                }
+
+                <MessageScroll>
+                  {messageSidebar === true && messageBox.receive === true ? (
+                    receiveMessageData && receiveMessageData.data.data?.slice().reverse().map((e, idx) => (
+                      <MakeNoteHandler idx={idx} nickName={e.senderNickname} content={e.content} createdAt={e.createdAt} />
+                      // <ReceiveMessageWrap
+                      //   key={idx}
+                      //   onClick={() => {}}
+                      //   isRead={false}
+                      // >
+                      //   <ReceiveSendNickname>{e.senderNickname}</ReceiveSendNickname>
+                      //   <ReceiveContent>{e.content}</ReceiveContent>
+                      //   <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
+                      // </ReceiveMessageWrap>
+                    ))
+                  ) : null}
+
+                  {/* 보낸쪽지함 */}
+                  {messageSidebar === true && messageBox.send === true ? (
+                    sentMessageData && sentMessageData.data.data?.slice().reverse().map((e, idx) => (
+                      <MakeNoteHandler idx={idx} nickName={e.receiverNickname} content={e.content} createdAt={e.createdAt} />
+                      // makeNoteHandler(idx, e.receiverNickname, e.content, e.createdAt)
+                      // <ReceiveMessageWrap
+                      //   key={idx}
+                      //   onClick={() => {}}
+                      //   isRead={false}
+                      // >
+                      //   <ReceiveSendNickname>{e.receiverNickname}</ReceiveSendNickname>
+                      //   <ReceiveContent>{e.content}</ReceiveContent>
+                      //   <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
+                      // </ReceiveMessageWrap>
+                    ))
+                  ) : null}
+                </MessageScroll>
+              </MessageReceiveMypageWrap>
+            }
+          </MypageWrap>
+        </FlexBox>
+      </>
     </>
   )
 }
@@ -947,7 +1038,14 @@ const PopUp = styled.div`
     color: white;
     text-align: start;
     padding-left: 35px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+  }
+  p {
+    font-weight: 400;
+    font-size: 14px;
+    color: white;
+    text-align: center;
+    margin-bottom: 10px;
   }
 
   input {
@@ -1052,7 +1150,6 @@ const Temperaturecontainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
   gap: 10px;
 `
 
@@ -1071,7 +1168,7 @@ const TemperatureTitle = styled.p`
 const TemperatureMouseHoverBox = styled.div`
   position: absolute;
   top: 60px;
-  
+  right: -20px;
   width: 250px;
   height: 80px;
   background-color: #F9F9FA;
@@ -1187,7 +1284,6 @@ const TotalTimewrap = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
 `
 
 const WeeklyTimeWrap = styled.div`
@@ -1196,7 +1292,6 @@ const WeeklyTimeWrap = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
 `
 
 const StatusWrap = styled.div`
@@ -1205,7 +1300,6 @@ const StatusWrap = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
 `
 
 const TopContentTitleWrap = styled.div`
@@ -1244,10 +1338,10 @@ const TopContentTitleItem = styled.h1`
 
 const StatusMouseHoverBox = styled.div`
   position: absolute;
-  right: -65px;
-  bottom: -235px;
+  right: 0px;
+  bottom: -170px;
   width: 215px;
-  height: 229px;
+  height: 160px;
   background: #F9F9FA;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
@@ -1662,14 +1756,20 @@ const NullFriendList = styled.div`
   background: var(--bg-li);
   border-radius: 10px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 
-  h1 {
+  img {
+    margin-bottom: 16px;
+  }
+
+  p {
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 400;
     font-size: 17px;
+    line-height: 31px;
     color: #BEBEBE;
   }
 `
@@ -1885,7 +1985,7 @@ const ChartWrap = styled.div`
   height: 376px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  /* align-items: center; */
   margin-bottom: 24px;
 `
 
@@ -1907,8 +2007,9 @@ const AttendanceCheckWrap = styled.div`
   width: 486px;
   height: 126px;
   background-color: var(--bg-li);
+  
   /* background-color: transparent; */
-  margin-bottom: 18px;
+  /* margin-bottom: 18px; */
 `
 
 const StudyTime = styled.div`
@@ -1920,6 +2021,7 @@ const StudyTime = styled.div`
   background-color: var(--bg-li);
   /* background-color: transparent; */
   padding-bottom: 10px;
+  height: 201px;
 `
 
 const TotalLanguageWrap = styled.div`
@@ -2186,6 +2288,15 @@ const ReceiveContent = styled.p`
   font-weight: 500;
   font-size: 13px;
   color: #FFFFFF;
+  white-space: ${(props) => {
+    return props.isRead ? 'normal' : 'nowrap'
+  }};
+  overflow: ${(props) => {
+    return props.isRead ? 'visible' : 'hidden'
+  }};
+  text-overflow: ${(props) => {
+    return props.isRead ? 'clip' : 'ellipsis'
+  }}
 `
 
 const ReceiveCreatedAt = styled.p`
@@ -2262,6 +2373,13 @@ const MessagePopup = styled.div`
     font-size: 11px;
     line-height: 23px;
     letter-spacing: 1.5px;
+    overflow-y: scroll;
+    resize: none;
+    &::-webkit-scrollbar{
+      width: 7px;
+      background-color: transparent;
+      border-radius: 8px;
+    }
   }
 `
 
@@ -2327,6 +2445,7 @@ const FriendSearchContentWrap = styled.div`
   justify-content: center;
   align-items: center;
   gap: 10px;
+  cursor: pointer;
 `
 
 const FriendSearchBtn = styled.button`

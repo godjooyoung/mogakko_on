@@ -51,23 +51,23 @@ function CreateRoom() {
 
     //세션 내에서 예외가 발생했을 때 콘솔에 경고메세지
     mySession.on('exception', (exception) => {
-      console.warn(exception);
+      // console.warn(exception);
     });
 
     setSession(mySession);
-    console.log('session!!!!!!!!', session)
+    // console.log('session!!!!!!!!', session)
 
   }, [mySessionId, deleteSubscriber, navigate, session, myUserName, subscribers]);
 
   useEffect(() => {
     
     if (session) {
-      console.log('전달할 상태 값:', {
-        mySessionId,
-        myUserName,
-        session,
-        subscribers,
-      });
+      // console.log('전달할 상태 값:', {
+      //   mySessionId,
+      //   myUserName,
+      //   session,
+      //   subscribers,
+      // });
       
       navigate(`/room/${mySessionId}`, {
         state: {

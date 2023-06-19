@@ -17,7 +17,7 @@ function Main() {
     }
 
     const goToTopHandler = () => {
-        console.log("위로 고고")
+        // console.log("위로 고고")
         window.scroll({
             top : 0,
             behavior : 'smooth'

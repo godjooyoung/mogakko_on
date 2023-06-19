@@ -127,16 +127,16 @@ function MainRoom(props) {
     }, [props.roomList])
 
     const roomOpenCheck = (isOpendRoom) => {
-        console.log("isOpendRoom",isOpendRoom)
+        // console.log("isOpendRoom",isOpendRoom)
         return isOpendRoom
     }
 
     // 방참여하기
     const onClickJoinRoomHandler = (details) => {
-        console.log("방값!!", details)
+        // console.log("방값!!", details)
         if (isLogin) {
             if (details.opened) {
-                console.log("공개방 입장")
+                // console.log("공개방 입장")
                 const state = {
                     mySessionId: details.sessionId,
                     myUserName: getCookie('nickName'),
@@ -152,7 +152,7 @@ function MainRoom(props) {
                 };
                 navigate('/room', { state: state })
             } else {
-                console.log("비공개방 입장", roomEnterPw)
+                // console.log("비공개방 입장", roomEnterPw)
                 if (roomEnterPw.length !== 0) {
                     const state = {
                         mySessionId: details.sessionId,
@@ -493,6 +493,7 @@ export const RoomDetailsDesc = styled.div`
     flex-direction: column;
     row-gap : 17px;
     margin-left: 48px;
+    margin-top: 46px;
     
 `
 
@@ -513,6 +514,7 @@ export const RoomDetailsEnter = styled.div`
     margin:12px auto 0px;
     display: flex;
     justify-content: space-between;
+    margin-bottom: 39px;
     
 `
 export const RoomDetailsTop = styled.div`
@@ -520,6 +522,9 @@ export const RoomDetailsTop = styled.div`
     height: 120px;
 `
 export const RoomDetailsBottom = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     flex : 1;
     width: 100%;
     gap: 10px;

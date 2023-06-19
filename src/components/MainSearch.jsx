@@ -35,7 +35,7 @@ function MainSearch(props) {
     const { isLoading, isError, data } = useQuery("getHotTowns", getHotTowns)
     
     useEffect(()=>{
-        console.log("getHotTowns 조회결과 ", data)
+        // console.log("getHotTowns 조회결과 ", data)
         if(!data || data.length === 0){
             setTownList([
                 {count: 14, neighborhood: '서울특별시 강서구 염창동', isSelected:false},
@@ -113,7 +113,7 @@ function MainSearch(props) {
     useEffect(() => {
         // 카카오 api 에서 위도 경도를 반대로 줘서 반대로 일단 받음. 
         if (getLatLngQuery.isSuccess) {
-            console.log("[INFO] 좌표 요청 결과 (", getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x, ")")
+            // console.log("[INFO] 좌표 요청 결과 (", getLatLngQuery.data.documents[0].y, getLatLngQuery.data.documents[0].x, ")")
             dispatcher(fetchUserLocation({ latitude: getLatLngQuery.data.documents[0].y, longitude: getLatLngQuery.data.documents[0].x }))
             dispatcher(__searchLocation({ latitude: getLatLngQuery.data.documents[0].y, longitude: getLatLngQuery.data.documents[0].x }))
             // // 데이터 조회하기
@@ -172,7 +172,7 @@ function MainSearch(props) {
             </div>
             
             <div>
-                <SearcFilterTitle>기술</SearcFilterTitle>
+                <SearcFilterTitle>언어</SearcFilterTitle>
                 <SearchLanguageBtnWrap>
                     {languageList.map((language, idx) => {
                         return <SearchLanguageBtn isSelected={language.isSelected} onClick={() => (onClickLanguageHandler(idx, language.isSelected))}>{language.desc}</SearchLanguageBtn>
@@ -192,13 +192,15 @@ export const SearchContaniner = styled.div`
     display: flex;
     flex-direction: column;
     row-gap: 27px;
+    justify-content: space-between;
 `
 export const SearchLanguageBtnWrap = styled.div`
 `
 export const SearchLanguageBtn = styled.button`
     padding: 9px 20px;
     margin-right: 9px;
-    margin-bottom: 12px;
+    margin-top: 12px;
+    /* margin-bottom: 12px; */
     min-width: 72px;
     height: 42px;
     /* border: 0.5px solid #FFFFFF; */
@@ -290,9 +292,9 @@ export const SearcFilterTitle = styled.h2`
     font-weight: 700;
     font-size: 22px;
     /* line-height: 24px; */
-    line-height : 109%;
+    /* line-height : 109%; */
     color: #FFFFFF;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
 `
 export const SearchBar = styled.div`
     width: 470px;

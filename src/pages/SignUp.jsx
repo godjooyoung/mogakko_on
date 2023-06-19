@@ -67,7 +67,7 @@ function SignUp() {
         emailAuth: '',
         role: "ROLE_USER",
     }
-    console.log(sendData);
+    // console.log(sendData);
 
     const validateEmail = (email) => {
         // 이메일 유효성 검사를 수행합니다.
@@ -79,8 +79,11 @@ function SignUp() {
 
     const validatePassword = (password) => {
         // 비밀번호 유효성 검사를 수행합니다.
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+        // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+        // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%^&*()_\-+=<>,?/:\;'"[\]{}\\])[A-Za-z\d~!@#$%^&*()_\-+=<>,?/:\;'"[\]{}\\]{8,16}$/;
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d~!@#$%^&*()_\-+=<>,?/:\;'"[\]{}\\]{6,18}$/;
 
+        // const passwordRegex = /^[A-Za-z\d]{6,18}$/; 영,숫
         return passwordRegex.test(password);
     };
 
@@ -107,7 +110,7 @@ function SignUp() {
         axios.get(process.env.REACT_APP_SERVER_URL + `/members/signup/checkEmail?email=${email}`, { withCredentials: true })
             .then((response) => {
                 const data = response.data;
-                console.log(data);
+                // console.log(data);
                 if (data.message === "중복 확인 성공") {
                     setEmailErrorMessage('사용할 수 있는 이메일입니다.');
                     setIsEmailValid(true);
@@ -123,7 +126,7 @@ function SignUp() {
                 } else {
                     // 오류 처리
                     setEmailErrorMessage('이메일 중복 체크에 실패했습니다.');
-                    console.error('이메일 중복 체크 요청에 실패했습니다:', error);
+                    // console.error('이메일 중복 체크 요청에 실패했습니다:', error);
                 }
             });
     };
@@ -145,7 +148,7 @@ function SignUp() {
                 setPasswordErrorMessage('')
                 setIsPasswordValid(false);
             } else {
-                setPasswordErrorMessage('대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.')
+                setPasswordErrorMessage('영문자, 숫자를 포함한 6~18자리여야 합니다.')
                 setIsPasswordValid(false);
             };
         } else {
@@ -196,11 +199,11 @@ function SignUp() {
     };
 
     const sendHandler = async (sendData) => {
-        console.log("sendData:", sendData);
+        // console.log("sendData:", sendData);
         await axios.post(process.env.REACT_APP_SERVER_URL + `/members/signup`, sendData, { withCredentials: true })
             .then(response => {
                 const data = response.data;
-                console.log(data);
+                // console.log(data);
                 if (data.message === "회원 가입 성공") {
                     navigate("/done");
                 } else {
@@ -209,7 +212,7 @@ function SignUp() {
             })
             .catch(error => {
                 // 데이터 전송 중 오류가 발생했을 때 실행할 코드
-                console.error(error);
+                // console.error(error);
                 popupOpenHander(error.response.data.message)
 
             });
@@ -221,9 +224,9 @@ function SignUp() {
         axios.get(process.env.REACT_APP_SERVER_URL + `/members/signup/checkNickname?nickname=${nickname}`, { withCredentials: true })
             .then((response) => {
                 const data = response.data;
-                console.log(data);
+                // console.log(data);
                 if (data.message === '중복 확인 성공') {
-                    console.log(data.message);
+                    // console.log(data.message);
                     setNicknameErrorMessage('사용할 수 있는 닉네임입니다.');
                     setIsNicknameAvailable(true);
                     setNicknameChanged(false);
@@ -238,7 +241,7 @@ function SignUp() {
             .catch((error) => {
                 setNicknameErrorMessage('닉네임 중복 체크에 실패했습니다.');
                 setIsNicknameAvailable(false);
-                console.error('닉네임 중복 체크 요청에 실패했습니다:', error);
+                // console.error('닉네임 중복 체크 요청에 실패했습니다:', error);
             });
     };
 
@@ -373,7 +376,8 @@ function SignUp() {
                             />
                             <InfoButton htmlFor="checkbox">
                                 개인 위치 정보 제공에 동의합니다.
-                            </InfoButton></div>
+                            </InfoButton>
+                        </div>
                         <div>
                             <Terms onClick={openModalHandler}>전문보기</Terms>
                             {modalOpen &&
@@ -558,7 +562,8 @@ export const Wrapper = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom:10px;
+    /* margin-bottom:10px; */
+    margin-bottom:12px;
 `
 export const InputCheckbox = styled.input`
     width: 18px;
@@ -645,20 +650,20 @@ export const InputCheckbox = styled.input`
 // `
 
 export const InfoButton = styled.label`
-    padding:0.5rem 1rem;
+    /* padding:0.5rem 1rem; */
     background-color:transparent;    
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    text-align: right;
+    /* text-align: right; */
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 400;
     font-size: 14px;
-    line-height: 17px;
+    /* line-height: 17px;
     display: flex;
-    align-items: center;
+    align-items: center; */
 
 `;
 
@@ -670,6 +675,7 @@ export const Terms = styled.span`
     line-height: 17px;
     color: #BEBEBE;
     text-decoration: underline;
+    cursor: pointer;
 `;
 
 export const SignupButton = styled.button`

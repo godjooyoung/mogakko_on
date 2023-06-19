@@ -54,17 +54,21 @@ function Room() {
   // 네비게이트 선언
   const navigate = useNavigate()
 
-  // 뒤로 가기 막기
+  // 뒤로 가기 막기 팝업 활성 여부
   const [isblocked, setIsblocked] = useState(false)
+
+  // 나가기 팝업 창 활성 여부
+  const [isBeforeLeave, setIsBeforeLeave] = useState(false) 
+
   // 뒤로가기 동작 감지
   const preventGoBack = () => {
-      console.log('//////////////////////////////// 뒤로가기 동작 감지')
+      // console.log('//////////////////////////////// 뒤로가기 동작 감지')
       window.history.pushState(null, "", location.href);
       setIsblocked(true)
   };
 
   useEffect(() => {
-    console.log('//////////////////////////////// popstate 이벤트 추가')
+    // console.log('//////////////////////////////// popstate 이벤트 추가')
     window.history.pushState(null, "", location.href);
     window.addEventListener("popstate", preventGoBack);
 
@@ -73,15 +77,25 @@ function Room() {
     };
   }, []);
 
+  // 나가기 버튼클릭 시 팝업 띄우기 위해서 동작하는 함수
+  const leavePopOpenHandler = () => {
+      // console.log('나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름')
+      setIsBeforeLeave(true)
+  }
+
+  useEffect(()=>{
+    // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> 나가려고?", isBeforeLeave)
+  },[isBeforeLeave])
+
   // 리브세션 서버 요청
   const leaveSessionMutation = useMutation(leaveChatRoom, {
     onSuccess: (response) => {
-      console.log("나가기 성공")
-      console.log("leaveSessionMutation", response)
+      // console.log("나가기 성공")
+      // console.log("leaveSessionMutation", response)
       setIsLeaved(true)
     },
     onError: (error) => {
-      console.log("나가기 오류")
+      // console.log("나가기 오류")
       setIsLeaved(true)
     }
   })
@@ -196,55 +210,21 @@ function Room() {
     }
   }, [mainStreamManager])
 
-  // 세션 만들기
-  // 세션은 영상 및 음성 통신에 대한 컨테이너 역할(Room)
-  // const joinSession = useCallback(async () => {
-  //   // 내 세션 생성
-  //   const mySession = OV.current.initSession()
-  //   // 내 세션을 셋해둔다.
-  //   setSession(mySession)
-
-  //   mySession.on('streamCreated', (event) => {
-  //     console.log("subscribers 확인 처음!@@ subscribers ::: ", subscribers);
-  //     // 접속한 사람마다 subscriber를 만든다.
-  //     const subscriber = mySession.subscribe(event.stream, undefined)
-
-  //     const newSubscribers = subscribers;
-  //     newSubscribers.push(subscriber)
-  //     setSubscribers([...newSubscribers])
-
-  //     console.log("subscribers 확인 1 현재 접속시도자 subscriber ::: ", subscriber);
-  //     console.log("subscribers 확인 2 newSubscribers ::: ", newSubscribers);
-  //     console.log("subscribers 확인 3 subscribers ::: ", subscribers);
-  //   })
-
-  //   mySession.on('streamDestroyed', (event) => {
-  //     deleteSubscriber(event.stream.streamManager)
-  //   })
-
-  //   //세션 내에서 예외가 발생했을 때 콘솔에 경고메세지
-  //   mySession.on('exception', (exception) => {
-  //     console.warn(exception)
-  //   })
-
-  //   // setSession(mySession)
-  // }, [])
-
   const joinSession = () => {
     OV.current = new OpenVidu();
     const mySession = OV.current.initSession();
-    console.log("subscribers 확인 처음!@@ subscribers ::: ", subscribers);
+    // console.log("subscribers 확인 처음!@@ subscribers ::: ", subscribers);
     mySession.on('streamCreated', (event) => {
       const subscriber = mySession.subscribe(event.stream, undefined);
       setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber])
 
-      console.log("subscribers 확인 1 현재 접속시도자 subscriber ::: ", subscriber);
-      console.log("subscribers 확인 2 subscribers ::: ", subscribers);
+      // console.log("subscribers 확인 1 현재 접속시도자 subscriber ::: ", subscriber);
+      // console.log("subscribers 확인 2 subscribers ::: ", subscribers);
     });
 
     mySession.on('streamPropertyChanged', (event)=>{
-      console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@1',event)
-      console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2',event.changedProperty)
+      // console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@1',event)
+      // console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2',event.changedProperty)
       setIsChangedProperty((prevIsChangedProperty)=>(!prevIsChangedProperty))
     })
 
@@ -253,7 +233,7 @@ function Room() {
     });
 
     mySession.on('exception', (exception) => {
-      console.warn(exception);
+      // console.warn(exception);
     });
 
     setSession(mySession)
@@ -262,21 +242,21 @@ function Room() {
   const [isFisrstSubscribe, setIsFisrstSubscribe] = useState(false)
   const [isGuest, setIsGuest] = useState(false)
   useEffect(() => {
-    console.log("*************** 이전에 구독을 성공한 적이 있는가?", isFisrstSubscribe)
-    console.log("*************** 방장일때, 방장이닐때 값 비교 1", openViduSession)
-    console.log("*************** 방장일때, 방장이닐때 값 비교 2", mySessionId)
+    // console.log("*************** 이전에 구독을 성공한 적이 있는가?", isFisrstSubscribe)
+    // console.log("*************** 방장일때, 방장이닐때 값 비교 1", openViduSession)
+    // console.log("*************** 방장일때, 방장이닐때 값 비교 2", mySessionId)
 
     if (!isGuest || openViduSession) { // !false || undifind
-      console.log("게스트여서 커넥트됬니?", isGuest)
-      console.log("방장이여서 재시도 하니?", !openViduSession ? 'true' : 'false')
+      // console.log("게스트여서 커넥트됬니?", isGuest)
+      // console.log("방장이여서 재시도 하니?", !openViduSession ? 'true' : 'false')
       if (!isFisrstSubscribe) { // !false => true
-        console.log("*************** 1")
+        // console.log("*************** 1")
         if (openViduSession) {
-          console.log("*************** 2")
+          // console.log("*************** 2")
           connect(openViduSession) // isFisrstSubscribe = false
         } else {
           // 방장 아닌사람은 3일때 커넥션 하고 다시 또 커넥션 시키지 않는다.
-          console.log("*************** 3")
+          // console.log("*************** 3")
           connect(mySessionId)
           setIsGuest(true)
           setIsFisrstSubscribe(true)
@@ -325,11 +305,9 @@ function Room() {
   }, [data])
 
   useEffect(() => {
-    console.log("old subscribers ...................................... ", subscribers)
-    console.log("publisher............................................. ", publisher)
-    // setSubscribers((prevSubscribers) => [...prevSubscribers])
+    // console.log("old subscribers ...................................... ", subscribers)
+    // console.log("publisher............................................. ", publisher)
     const updateSubscribers = [...subscribers]
-    //setSubscribers((prevSubscribers)=>[...subscribers])
     setSubscribers((prevSubscribers)=>updateSubscribers)
 
   }, [publisher, audioEnabled, isChangedProperty])
@@ -353,7 +331,6 @@ function Room() {
 
   const AudioTogglehandler = () => {
     setAudioEnabled((prevValue) => !prevValue)
-    // publisher.publishAudio(!audioEnabled)
     publisher.publishAudio(!audioEnabled)
   }
 
@@ -381,12 +358,12 @@ function Room() {
       setPublisher(cameraPublisher)
       setIsScreenSharing(false)
     } catch (error) {
-      console.log('Error starting camera sharing:', error.message)
+      // console.log('Error starting camera sharing:', error.message)
     }
   }, [currentVideoDevice, session, audioEnabled])
 
   const startScreenSharing = useCallback(async (originPublish) => {
-    console.log("여기까지 오니? 0")
+    // console.log("여기까지 오니? 0")
     try {
       // 화면 공유용 퍼블리셔 초기화
       const screenSharingPublisher = OV.current.initPublisher(undefined, {
@@ -417,7 +394,7 @@ function Room() {
       // })
 
     } catch (error) {
-      console.log('Error starting screen sharing:', error.message)
+      // console.log('Error starting screen sharing:', error.message)
     }
   }, [session])
 
@@ -436,20 +413,19 @@ function Room() {
     // 세션이 있으면 그 세션에 publish해라 
     if (sessionInfo) {
       if (sessionInfo.isDirect) {
-        console.log("게스트", sessionInfo)
+        // console.log("게스트", sessionInfo)
       }
     } else {
-      console.log("방장")
+      // console.log("방장")
     }
-    console.log("세션있으면 퍼블리시 하기, 세션 객체의 connect 메소드를 찾아보자.", session)
+    // console.log("세션있으면 퍼블리시 하기, 세션 객체의 connect 메소드를 찾아보자.", session)
     if (session) {
       // 토큰받아오기
       getToken().then(async (response) => {
-        console.log("after getToken 001", response)
+        // console.log("after getToken 001", response)
         try {
-          console.log("after getToken 002 ", response)
-          console.log("after getToken 003", response.data)
-          // await session.connect(response.data, { clientData: getCookie('nickName')})
+          // console.log("after getToken 002 ", response)
+          // console.log("after getToken 003", response.data)
           await session.connect(response.data)
 
           // stream만들기 initPublisherAsync() 메소드는 스트림 생성 및 전송 담당를 초기화
@@ -474,7 +450,7 @@ function Room() {
           setPublisher(publisher)
           setCurrentVideoDevice(currentVideoDevice)
         } catch (error) {
-          console.log('There was an error connecting to the session:', error.code, error.message)
+          // console.log('There was an error connecting to the session:', error.code, error.message)
         }
       });
     }
@@ -485,16 +461,17 @@ function Room() {
   const leaveSession = useCallback(() => {
     // TODO 방 떠났다는 요청 서버에 보내기
     const leaveSessionMutationCall = () => {
-      console.log("방나가기..... ", session)
+      // console.log("방나가기..... ", session)
+      // console.log("방나가기.....방장인가?", sessionInfo.isDirect)
       if (sessionInfo.isDirect) {
-        console.log("방나가기.....방장아님1 ", openViduSession)
-        console.log("방나가기.....방장아님2 ", mySessionId)
-        console.log("방나가기.....방장아님3 ", session)
+        // console.log("방나가기.....방장아님1 ", openViduSession) //있음
+        // console.log("방나가기.....방장아님2 ", mySessionId)     //있음
+        // console.log("방나가기.....방장아님3 ", session)
         leaveSessionMutation.mutate(openViduSession)
       } else {
-        console.log("방나가기.....방장임1 ", openViduSession)
-        console.log("방나가기.....방장임2 ", mySessionId)
-        console.log("방나가기.....방장임3 ", session.options.sessionId)
+        // console.log("방나가기.....방장임1 ", openViduSession)
+        // console.log("방나가기.....방장임2 ", mySessionId)
+        // console.log("방나가기.....방장임3 ", session.options.sessionId) //있음
         leaveSessionMutation.mutate(session.options.sessionId)
       }
     }
@@ -551,9 +528,9 @@ function Room() {
   }, [leaveSession])
 
   const getToken = useCallback(async () => {
-    console.log("########### getToken")
-    console.log("########### sessionInfo.mySessionId", sessionInfo.mySessionId)
-    console.log("########### sessionInfo.isDirect", sessionInfo.isDirect)
+    // console.log("########### getToken")
+    // console.log("########### sessionInfo.mySessionId", sessionInfo.mySessionId)
+    // console.log("########### sessionInfo.isDirect", sessionInfo.isDirect)
     if (sessionInfo.isDirect) {
       return createToken(sessionInfo.mySessionId)
     } else {
@@ -564,24 +541,24 @@ function Room() {
   }, [data])
 
   const createSession = async (data) => {
-    console.log("##### createSession", data)
+    // console.log("##### createSession", data)
     const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko', data, {
       headers: { ACCESS_KEY: getCookie('token') },
     })
-    console.log("##### sessionId", response.data.data.sessionId)
+    // console.log("##### sessionId", response.data.data.sessionId)
     setMySessionId(response.data.data.sessionId)
     setOpenViduSession(response.data.data.sessionId)
     return response.data.data.sessionId // The sessionId
   };
 
   const createToken = async (sessionId) => {
-    console.log("##### createToken", sessionId)
+    // console.log("##### createToken", sessionId)
     if (sessionInfo) {
       if (sessionInfo.isDirect) {
-        console.log("토큰만들기 - 게스트")
+        // console.log("토큰만들기 - 게스트")
       }
     } else {
-      console.log("토큰만들기 - 방장")
+      // console.log("토큰만들기 - 방장")
     }
 
     if (sessionInfo) {
@@ -629,8 +606,6 @@ function Room() {
       },
     })
     return response.data // The token
-
-
   };
 
 
@@ -643,24 +618,15 @@ function Room() {
   ///////////////////////////////////////////////////////////////////////////////
 
   const connect = (params) => {
-    console.log("(매개) 실시간 채팅 커넥트 시도 ::::", params)
-    console.log("(전역) 실시간 채팅 커넥트 시도 ::::", openViduSession)
-    console.log("(전역) 실시간 채팅 커넥트 시도 ::::", mySessionId)
-    // console.log('mySession >>>>>>>>>>>', sessionId)
-    // SockJS같은 별도의 솔루션을 이용하고자 하면 over 메소드를, 그렇지 않다면 Client 메소드를 사용해주면 되는 듯.
+    // console.log("(매개) 실시간 채팅 커넥트 시도 ::::", params)
+    // console.log("(전역) 실시간 채팅 커넥트 시도 ::::", openViduSession)
+    // console.log("(전역) 실시간 채팅 커넥트 시도 ::::", mySessionId)
     stompClient.current = new Client({
-      // brokerURL이 http 일경우 ws를 https일 경우 wss를 붙여서 사용하시면 됩니다!
-      // brokerURL: "ws://localhost:8080/ws-stomp/websocket", // 웹소켓 서버로 직접 접속
-      // brokerURL: `${process.env.REACT_APP_WEB_SOCKET_SERVER}/room`, // 웹소켓 서버로 직접 접속
-
-      /* ws://15.164.159.168:8080/ws-stomp */
-      // brokerURL: `${process.env.REACT_APP_WEB_SOCKET_SERVER}`, // 웹소켓 서버로 직접 접속
-      // connectHeaders: An object containing custom headers to send during the connection handshake.
       connectHeaders: {
         ACCESS_KEY: `${getCookie('token')}`
       },
       debug: (debug) => {
-        console.log("debug : ", debug)
+        // console.log("debug : ", debug)
       },
       reconnectDelay: 0,
 
@@ -683,23 +649,23 @@ function Room() {
 
       // 검증이 돼서 Room을 열어주는 서버랑 연결이 되면
       onConnect: (response) => {
-        console.log("실시간 채팅 커넥트 성공 ::::", response)
-        console.log("Connected to the broker. Initiate subscribing.")
+        // console.log("실시간 채팅 커넥트 성공 ::::", response)
+        // console.log("Connected to the broker. Initiate subscribing.")
         isConnected.current = true
         subscribe(params)
         publish(params)
       },
 
       onStompError: (frame) => {
-        console.log(frame)
-        console.log("Broker reported error: " + frame.headers["message"])
-        console.log("Additional details: " + frame.body)
+        // console.log(frame)
+        // console.log("Broker reported error: " + frame.headers["message"])
+        // console.log("Additional details: " + frame.body)
       },
       onWebSocketError: (frame) => {
-        console.log(frame)
+        // console.log(frame)
       },
       onWebSocketClose: () => {
-        console.log("web socket closed")
+        // console.log("web socket closed")
       },
     })
     stompClient.current.activate()
@@ -707,15 +673,15 @@ function Room() {
 
 
   const subscribe = (params) => {
-    console.log("(매개) 실시간 채팅 subscribe 시도 ::::", params)
-    console.log("(전역) 실시간 채팅 subscribe 시도 ::::", openViduSession)
-    console.log("(전역) 실시간 채팅 subscribe 시도 ::::", mySessionId)
-    console.log("url", `/sub/chat/room/${params}`)
+    // console.log("(매개) 실시간 채팅 subscribe 시도 ::::", params)
+    // console.log("(전역) 실시간 채팅 subscribe 시도 ::::", openViduSession)
+    // console.log("(전역) 실시간 채팅 subscribe 시도 ::::", mySessionId)
+    // console.log("url", `/sub/chat/room/${params}`)
     if (params) {
       stompClient.current.subscribe(
         `/sub/chat/room/${params}`,
         (data) => {
-          console.log(" 구독됨", JSON.parse(data.body))
+          // console.log(" 구독됨", JSON.parse(data.body))
           const response = JSON.parse(data.body)
           if (response.type === 'TALK') {
             chatMessages.push(response)
@@ -732,15 +698,15 @@ function Room() {
 
   // chatMessages 어떻게 담기는지 찍을 꺼임 콘솔 찍기용이므로 추후 삭제
   useEffect(() => {
-    console.log("chatMessages", chatMessages)
+    // console.log("chatMessages", chatMessages)
   }, [chatMessages])
 
   const publish = async (openViduSession) => {
     if (!stompClient.current.connected) {
       return
     }
-    console.log("publish 시작")
-    console.log('sessionID>>>>>>>>>', openViduSession)
+    // console.log("publish 시작")
+    // console.log('sessionID>>>>>>>>>', openViduSession)
     await stompClient.current.publish({
       destination: "/pub/chat/room",
       body: JSON.stringify({
@@ -751,18 +717,18 @@ function Room() {
       }),
       headers: { ACCESS_KEY: `${getCookie('token')}` },
     });
-    console.log(getCookie('token'))
-    console.log("publish 끝")
+    // console.log(getCookie('token'))
+    // console.log("publish 끝")
     setIsLoading(false)
   };
 
   const textPublish = (params) => {
-    console.log("텍스트퍼블리셔, 세션어디서1 >>>>>>>>>>>>>>>>>>>>>>", openViduSession)
-    console.log("텍스트퍼블리셔, 세션어디서2 >>>>>>>>>>>>>>>>>>>>>>", params)
-    console.log("텍스트퍼블리셔, 세션어디서3 >>>>>>>>>>>>>>>>>>>>>>", mySessionId)
-    console.log("textPublish Start")
+    // console.log("텍스트퍼블리셔, 세션어디서1 >>>>>>>>>>>>>>>>>>>>>>", openViduSession)
+    // console.log("텍스트퍼블리셔, 세션어디서2 >>>>>>>>>>>>>>>>>>>>>>", params)
+    // console.log("텍스트퍼블리셔, 세션어디서3 >>>>>>>>>>>>>>>>>>>>>>", mySessionId)
+    // console.log("textPublish Start")
     if (message !== "") {
-      console.log("텍스트퍼블리셔, 보낼 메새지", message)
+      // console.log("텍스트퍼블리셔, 보낼 메새지", message)
       stompClient.current.publish({
         destination: "/pub/chat/room",
         body: JSON.stringify({
@@ -773,7 +739,7 @@ function Room() {
         }),
         headers: { ACCESS_KEY: `${getCookie('token')}` }
       })
-      console.log("textPublish End")
+      // console.log("textPublish End")
       setMessage("")
     }
   };
@@ -808,21 +774,20 @@ function Room() {
   const [position, setPosition] = useState(0);
   const [count, setCount] = useState(0)
   const scrollLeft = () => {
-    console.log("왼쪽으로 가기!!!!!")
+    // console.log("왼쪽으로 가기!!!!!")
     setPosition((prevPosition) => prevPosition + 1045); // 왼쪽으로 1045px 이동
     const newCount = count
     setCount(newCount - 1)
   };
 
   const scrollRight = () => {
-    console.log("오른쪽으로 가기!!!!!")
+    // console.log("오른쪽으로 가기!!!!!")
     setPosition((prevPosition) => prevPosition - 1045); // 오른쪽으로 1045px 이동
     const newCount = count
     setCount(newCount + 1)
   };
 
-
-  console.log('subscriberssubscribers', subscribers[0])
+  // console.log('subscriberssubscribers', subscribers[0])
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -977,19 +942,41 @@ function Room() {
             // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
             // closeHander : 닫기 함수
             <CommonPopup msg={`뒤로가기 하시겠습니까?`} 
-              secondMsg={'공부시간이 기록되지 않을 수 있습니다.'}
+              secondMsg={'모각코 참여 시간을 기록하지'}
+              thrMsg={'않으면 저장되지 않습니다.'}
               isBtns={true} 
-              priMsg='확인' 
-              secMsg='취소' 
+              priMsg='나가기' 
+              secMsg='머무르기' 
               priHander={()=>{leaveSession()}} 
               secHandler={()=>(setIsblocked(false))} 
               closeHander={()=>(setIsblocked(false))}/>
           }
+          {
+            isBeforeLeave &&
+            // msg : 화면에 표시되는 메세지
+            // isBtns : boolean
+            // priMsg  'primery 버튼 내용'
+            // secMsg  'second 버튼 내용'
+            // priHander : 'primery 버튼 클릭시 동작하는 함수'
+            // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
+            // closeHander : 닫기 함수
+            <CommonPopup msg={`나가시겠습니까?`} 
+              secondMsg={'모각코 참여 시간을 기록하지'}
+              thrMsg={'않으면 저장되지 않습니다.'}
+              isBtns={true} 
+              priMsg='나가기' 
+              secMsg='머무르기' 
+              priHander={()=>{leaveSession()}} 
+              secHandler={()=>(setIsBeforeLeave(false))} 
+              closeHander={()=>(setIsBeforeLeave(false))}/>
+          }
+
           <RoomInHeader>
             <span>{roomTitle}</span>
             <div>
               <LeaveBtn
-                onClick={leaveSession}
+                onClick={()=>(leavePopOpenHandler())}
+                //onClick={leaveSession}
                 LeaveBtnImg={`${process.env.PUBLIC_URL}/image/roomLeaveBtn.webp`}
                 LeaveBtnHoverImg={`${process.env.PUBLIC_URL}/image/leaveHover.webp`}
               />
@@ -1099,14 +1086,21 @@ function Room() {
                   onChange={(e) => setMessage(e.target.value)}
                   cols="30"
                   rows="10"
-                  placeholder='대화를 입력하세요'
+                  placeholder='대화를 입력하세요.'
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      if (!e.shiftKey) {
-                        e.preventDefault();
-                        textPublish(openViduSession ? openViduSession : mySessionId);
-                      }
+                    // 엔터시 한글자모만 두번 쳐지는거 막음
+                    if (e.key === "Enter") {
+                        if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                          e.preventDefault();
+                          textPublish(openViduSession ? openViduSession : mySessionId);
+                        }
                     }
+                    // if (e.key === 'Enter') {
+                    //   if (!e.shiftKey) {
+                    //     e.preventDefault();
+                    //     textPublish(openViduSession ? openViduSession : mySessionId);
+                    //   }
+                    // }
                   }}
                 ></ChatInput>
               </ChatInputWrap>
@@ -1163,6 +1157,7 @@ const PopUp = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   h1 {
     width: 100%;
     font-family: 'Pretendard';
@@ -1222,6 +1217,7 @@ const ParticipationBtn = styled.button`
   &:hover {
     background: #00C5D1;
   }
+  margin-bottom: 34px;
 `
 
 export const FlexCenter = styled.div`
@@ -1376,13 +1372,13 @@ export const MaxMembersBtn = styled.button`
   color: ${(props) => {
     return props.isSelected ? '#464646' : '#FFFFFF';
   }};
-  border: 2px solid white;
+  border: 1px solid white;
 
   font-family: 'Pretendard';
   font-style: normal;
   font-weight: 700;
   font-size: 16px;
-  line-height: 150%;
+  //0617주석 line-height: 150%;
 `
 
 
@@ -1423,7 +1419,7 @@ export const PublicBtn = styled.button`
   font-style: normal;
   font-weight: 700;
   font-size: 16px;
-  line-height: 150%;
+  //0617주석 line-height: 150%;
   text-align: center;
 `
 
@@ -1446,7 +1442,7 @@ export const ClosedBtn = styled.button`
   font-style: normal;
   font-weight: 700;
   font-size: 16px;
-  line-height: 150%;
+  //0617주석 line-height: 150%;
   text-align: center;
 `
 
@@ -1502,7 +1498,7 @@ export const JoinBtn = styled.input`
   border: none;
   cursor: pointer;
   
-  line-height: 73%;
+  //0617주석 line-height: 73%;
   font-family: 'Pretendard';
   font-style: normal;
 `
@@ -1758,7 +1754,7 @@ export const ChattingWrap = styled.div`
 export const ChattingHeader = styled.p`
   font-size: 20px;
   height: 50px;
-  line-height: 30px;
+  //0617주석 line-height: 30px;
   padding: 10px;
   box-sizing: border-box;
   color:white;

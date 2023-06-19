@@ -2,14 +2,14 @@ import { kakaoInstance } from '../apiConfig'
 
 // 주소 to 좌표
 export const getLatLng = async (adress) => {
-    console.log("address : ", adress)
+    // console.log("address : ", adress)
 
     const response = await kakaoInstance.get('/v2/local/search/address.json', {
         params: {
             query: adress
         }
     })
-    console.log("response : ", response)
+    // console.log("response : ", response)
 
     return response.data
 }
