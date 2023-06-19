@@ -95,7 +95,7 @@ export const ChartWeelkyWrap = styled.div`
 export const WkTotWrap = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     width: 113px;
     height: 46px;
 `
@@ -112,6 +112,8 @@ export const WkTotTm = styled.h2`
     font-weight: 400;
     font-size: 28px;
     color: #FFFFFF;
+    // 지우면 안되는 line-height 입니다.
+    line-height: 50%;
 `
 export const AttendancesWrap = styled.div`
     display: flex;

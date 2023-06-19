@@ -539,6 +539,8 @@ export const NoneMessage = styled.p`
     line-height: 160%;
     text-align: center;
     color: #BEBEBE;
+    // 스크롤바 너비만큼 마진 줘서 가운데 가운데 정렬함.
+    margin-left: 7px;
 `
 
 export const Logo = styled.img`
