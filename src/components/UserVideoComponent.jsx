@@ -8,7 +8,7 @@ function UserVideoComponent(props) {
     // stream 속성의 connection.data 값을 파싱, 그 안에서 clientData 속성의 값을 반환 
     // 이 함수를 호출하면 현재 사용자의 닉네임을 가져옴.
     const getNicknameTag = () => {
-        
+        console.log('props.streamManager있니?',props.streamManager)
         const nickName = props.streamManager.stream.connection.data
         return nickName
     }

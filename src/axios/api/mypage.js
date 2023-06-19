@@ -79,7 +79,7 @@ const requestFriend = async (targetFriend) => {
     // console.log("requestFriend response : ", response.data.data)
     return response
   } catch (error) {
-    console.log(error)
+    return error
   }
 }
 
