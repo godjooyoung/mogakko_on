@@ -43,7 +43,7 @@ function MainContent(props) {
             } catch (e) {
                 console.error('error', e);
             }
-        }, 1000);
+        }, 300);
 
         setTimer(newTimer);
 

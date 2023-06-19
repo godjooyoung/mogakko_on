@@ -124,6 +124,7 @@ function MainRoom(props) {
             setSearchRooms(updateRoomList)
         }
         setRoomList()
+        setRoomDetails(props.roomList?.[0])
     }, [props.roomList])
 
     const roomOpenCheck = (isOpendRoom) => {
