@@ -21,9 +21,9 @@ function ChartWeekly(props) {
                 // 주어진 요일 순서대로 정렬하기 위해 숫자로 변환하여 비교
                 const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
                 return weekdays.indexOf(a[0]) - weekdays.indexOf(b[0]);
-            }).map((entry) => entry[1]).slice(1)
+            }).map((entry) => entry[1]).slice(2)
 
-            // console.log(".............>>", dataArray);
+            //console.log("ChartWeekly2.............", dataArray);
             setWeeklyAttend((prevWeeklyAttend)=>dataArray)
             setWkTotTm(props.data.weekTotal)
         }
@@ -95,7 +95,7 @@ export const ChartWeelkyWrap = styled.div`
 export const WkTotWrap = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     width: 113px;
     height: 46px;
 `
@@ -112,6 +112,8 @@ export const WkTotTm = styled.h2`
     font-weight: 400;
     font-size: 28px;
     color: #FFFFFF;
+    // 지우면 안되는 line-height 입니다.
+    line-height: 50%;
 `
 export const AttendancesWrap = styled.div`
     display: flex;

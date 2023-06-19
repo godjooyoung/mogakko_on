@@ -124,6 +124,7 @@ function MainRoom(props) {
             setSearchRooms(updateRoomList)
         }
         setRoomList()
+        setRoomDetails(props.roomList?.[0])
     }, [props.roomList])
 
     const roomOpenCheck = (isOpendRoom) => {
@@ -493,6 +494,7 @@ export const RoomDetailsDesc = styled.div`
     flex-direction: column;
     row-gap : 17px;
     margin-left: 48px;
+    margin-top: 46px;
     
 `
 
@@ -513,6 +515,7 @@ export const RoomDetailsEnter = styled.div`
     margin:12px auto 0px;
     display: flex;
     justify-content: space-between;
+    margin-bottom: 39px;
     
 `
 export const RoomDetailsTop = styled.div`
@@ -520,6 +523,9 @@ export const RoomDetailsTop = styled.div`
     height: 120px;
 `
 export const RoomDetailsBottom = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     flex : 1;
     width: 100%;
     gap: 10px;

@@ -141,6 +141,10 @@ function MainSearch(props) {
         dispatcher(__searchKeyword(keyword))
     },[keyword])
 
+    const keywordSetting = () => {
+        dispatcher(__searchKeyword(keyword))
+    }
+
     // if (getLatLngQuery.isError) {
     //     return <div>주소 to 좌표 변환중 에러발생</div>
     // }
@@ -156,8 +160,20 @@ function MainSearch(props) {
                     <div>
                         <img src={`${process.env.PUBLIC_URL}/image/zoomOut.svg`} alt="돋보기아이콘" width='20' height='20' />
                     </div>
-                    <SearchInput type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} placeholder='원하시는 모각코 장소, 제목을 검색하세요.' autoComplete='do-not-autofill' />
-                    <SearchResetBtn closeBtn={`${process.env.PUBLIC_URL}/image/inputDeleteBtn.webp`} onClick={()=>{keywordReset()}}></SearchResetBtn>
+                    <SearchInput type="text" value={keyword} onChange={(e) => {onChangeKeyword(e)}} 
+                    onKeyDown={(e) => {
+                        // 엔터시 검색 키워드 세팅
+                        if (e.key === "Enter") { 
+                                if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                                    e.preventDefault()
+                                    keywordSetting()
+                                }
+                            }
+                        }}
+                    
+                    
+                    placeholder='원하시는 모각코 장소, 제목을 검색하세요.' autoComplete='do-not-autofill' />
+                    <SearchResetBtn btnVisible={keyword} closeBtn={`${process.env.PUBLIC_URL}/image/inputDeleteBtn.webp`} onClick={()=>{keywordReset()}}></SearchResetBtn>
                     
                 </SearchBar>
             </Search>
@@ -192,13 +208,15 @@ export const SearchContaniner = styled.div`
     display: flex;
     flex-direction: column;
     row-gap: 27px;
+    justify-content: space-between;
 `
 export const SearchLanguageBtnWrap = styled.div`
 `
 export const SearchLanguageBtn = styled.button`
     padding: 9px 20px;
     margin-right: 9px;
-    margin-bottom: 12px;
+    margin-top: 12px;
+    /* margin-bottom: 12px; */
     min-width: 72px;
     height: 42px;
     /* border: 0.5px solid #FFFFFF; */
@@ -290,9 +308,9 @@ export const SearcFilterTitle = styled.h2`
     font-weight: 700;
     font-size: 22px;
     /* line-height: 24px; */
-    line-height : 109%;
+    /* line-height : 109%; */
     color: #FFFFFF;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
 `
 export const SearchBar = styled.div`
     width: 470px;
@@ -330,6 +348,11 @@ export const SearchResetBtn = styled.button`
     background-color: transparent;
     background-position: center;
     background-size:cover;
+    visibility: ${(props) => {
+        return props.btnVisible.length>0?'visible':'hidden'
+    }  
+    };
+    
 `
 
 export const Search = styled.div`

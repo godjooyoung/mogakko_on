@@ -79,8 +79,11 @@ function SignUp() {
 
     const validatePassword = (password) => {
         // 비밀번호 유효성 검사를 수행합니다.
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+        // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+        // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%^&*()_\-+=<>,?/:\;'"[\]{}\\])[A-Za-z\d~!@#$%^&*()_\-+=<>,?/:\;'"[\]{}\\]{8,16}$/;
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d~!@#$%^&*()_\-+=<>,?/:\;'"[\]{}\\]{6,18}$/;
 
+        // const passwordRegex = /^[A-Za-z\d]{6,18}$/; 영,숫
         return passwordRegex.test(password);
     };
 
@@ -145,7 +148,7 @@ function SignUp() {
                 setPasswordErrorMessage('')
                 setIsPasswordValid(false);
             } else {
-                setPasswordErrorMessage('대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.')
+                setPasswordErrorMessage('영문자, 숫자를 포함한 6~18자리여야 합니다.')
                 setIsPasswordValid(false);
             };
         } else {

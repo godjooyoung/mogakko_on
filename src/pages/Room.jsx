@@ -30,6 +30,9 @@ function Room() {
   const [currentVideoDevice, setCurrentVideoDevice] = useState(null)
   const [isScreenSharing, setIsScreenSharing] = useState(false)
   const [lang, setLang] = useState(sessionInfo.language)
+
+  const [sessionConnect, setSessionConnect] = useState(false)
+
   // const [isOpened, setIsOpened] = useState(sessionInfo.isOpened)   // isOpen 
   const [isOpened, setIsOpened] = useState(true)   // isOpen 
   const [openViduSession, setOpenViduSession] = useState(undefined)
@@ -48,7 +51,7 @@ function Room() {
 
   const [btnSelect, setBtnSelect] = useState('public')
 
-  
+
   //popup창
   const [roomPopUp, setRoomPopUp] = useState(false)
   // 네비게이트 선언
@@ -58,13 +61,13 @@ function Room() {
   const [isblocked, setIsblocked] = useState(false)
 
   // 나가기 팝업 창 활성 여부
-  const [isBeforeLeave, setIsBeforeLeave] = useState(false) 
+  const [isBeforeLeave, setIsBeforeLeave] = useState(false)
 
   // 뒤로가기 동작 감지
   const preventGoBack = () => {
-      // console.log('//////////////////////////////// 뒤로가기 동작 감지')
-      window.history.pushState(null, "", location.href);
-      setIsblocked(true)
+    // console.log('//////////////////////////////// 뒤로가기 동작 감지')
+    window.history.pushState(null, "", location.href);
+    setIsblocked(true)
   };
 
   useEffect(() => {
@@ -79,13 +82,13 @@ function Room() {
 
   // 나가기 버튼클릭 시 팝업 띄우기 위해서 동작하는 함수
   const leavePopOpenHandler = () => {
-      // console.log('나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름')
-      setIsBeforeLeave(true)
+    // console.log('나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름')
+    setIsBeforeLeave(true)
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> 나가려고?", isBeforeLeave)
-  },[isBeforeLeave])
+  }, [isBeforeLeave])
 
   // 리브세션 서버 요청
   const leaveSessionMutation = useMutation(leaveChatRoom, {
@@ -222,10 +225,10 @@ function Room() {
       // console.log("subscribers 확인 2 subscribers ::: ", subscribers);
     });
 
-    mySession.on('streamPropertyChanged', (event)=>{
+    mySession.on('streamPropertyChanged', (event) => {
       // console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@1',event)
       // console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2',event.changedProperty)
-      setIsChangedProperty((prevIsChangedProperty)=>(!prevIsChangedProperty))
+      setIsChangedProperty((prevIsChangedProperty) => (!prevIsChangedProperty))
     })
 
     mySession.on('streamDestroyed', (event) => {
@@ -252,11 +255,12 @@ function Room() {
       if (!isFisrstSubscribe) { // !false => true
         // console.log("*************** 1")
         if (openViduSession) {
-          // console.log("*************** 2")
+          console.log("*************** 2 게스트임", openViduSession)
           connect(openViduSession) // isFisrstSubscribe = false
         } else {
           // 방장 아닌사람은 3일때 커넥션 하고 다시 또 커넥션 시키지 않는다.
           // console.log("*************** 3")
+          console.log("*************** 3 게스트임", mySessionId)
           connect(mySessionId)
           setIsGuest(true)
           setIsFisrstSubscribe(true)
@@ -308,7 +312,7 @@ function Room() {
     // console.log("old subscribers ...................................... ", subscribers)
     // console.log("publisher............................................. ", publisher)
     const updateSubscribers = [...subscribers]
-    setSubscribers((prevSubscribers)=>updateSubscribers)
+    setSubscribers((prevSubscribers) => updateSubscribers)
 
   }, [publisher, audioEnabled, isChangedProperty])
 
@@ -449,6 +453,9 @@ function Room() {
           setMainStreamManager(publisher)
           setPublisher(publisher)
           setCurrentVideoDevice(currentVideoDevice)
+
+          setSessionConnect(true)
+
         } catch (error) {
           // console.log('There was an error connecting to the session:', error.code, error.message)
         }
@@ -787,7 +794,7 @@ function Room() {
     setCount(newCount + 1)
   };
 
-  // console.log('subscriberssubscribers', subscribers[0])
+  console.log('sessionConnect', sessionConnect)
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -941,14 +948,15 @@ function Room() {
             // priHander : 'primery 버튼 클릭시 동작하는 함수'
             // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
             // closeHander : 닫기 함수
-            <CommonPopup msg={`뒤로가기 하시겠습니까?`} 
-              secondMsg={'모각코 참여 시간이을 기록하셨나요?'}
-              isBtns={true} 
-              priMsg='확인' 
-              secMsg='취소' 
-              priHander={()=>{leaveSession()}} 
-              secHandler={()=>(setIsblocked(false))} 
-              closeHander={()=>(setIsblocked(false))}/>
+            <CommonPopup msg={`뒤로가기 하시겠습니까?`}
+              secondMsg={'모각코 참여 시간을 기록하지'}
+              thrMsg={'않으면 저장되지 않습니다.'}
+              isBtns={true}
+              priMsg='나가기'
+              secMsg='머무르기'
+              priHander={() => { leaveSession() }}
+              secHandler={() => (setIsblocked(false))}
+              closeHander={() => (setIsblocked(false))} />
           }
           {
             isBeforeLeave &&
@@ -959,21 +967,22 @@ function Room() {
             // priHander : 'primery 버튼 클릭시 동작하는 함수'
             // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
             // closeHander : 닫기 함수
-            <CommonPopup msg={`나가시겠습니까?`} 
-              secondMsg={'모각코 참여 시간을 기록하셨나요?'}
-              isBtns={true} 
-              priMsg='확인' 
-              secMsg='취소' 
-              priHander={()=>{leaveSession()}} 
-              secHandler={()=>(setIsBeforeLeave(false))} 
-              closeHander={()=>(setIsBeforeLeave(false))}/>
+            <CommonPopup msg={`나가시겠습니까?`}
+              secondMsg={'모각코 참여 시간을 기록하지'}
+              thrMsg={'않으면 저장되지 않습니다.'}
+              isBtns={true}
+              priMsg='나가기'
+              secMsg='머무르기'
+              priHander={() => { leaveSession() }}
+              secHandler={() => (setIsBeforeLeave(false))}
+              closeHander={() => (setIsBeforeLeave(false))} />
           }
 
           <RoomInHeader>
             <span>{roomTitle}</span>
             <div>
               <LeaveBtn
-                onClick={()=>(leavePopOpenHandler())}
+                onClick={() => (leavePopOpenHandler())}
                 //onClick={leaveSession}
                 LeaveBtnImg={`${process.env.PUBLIC_URL}/image/roomLeaveBtn.webp`}
                 LeaveBtnHoverImg={`${process.env.PUBLIC_URL}/image/leaveHover.webp`}
@@ -994,11 +1003,11 @@ function Room() {
                       null
                     }
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
-                      <UserVideoComponent streamManager={publisher}/>
+                      <UserVideoComponent streamManager={publisher} />
 
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                          <UserVideoComponent streamManager={e}/>
+                          <UserVideoComponent streamManager={e} />
                         </div>
                       ))}
 
@@ -1026,36 +1035,38 @@ function Room() {
 
               </PubilshSession>
 
-              <VideoBtnWrap>
-                <StopwatchWrap>
-                  <Stopwatch />
-                </StopwatchWrap>
-                <VideoShareBtn
-                  onClick={() => { toggleSharingMode(publisher) }}
-                  ShareOffBtn={`${process.env.PUBLIC_URL}/image/ShareOn.webp`}
-                  ShareOnBtn={`${process.env.PUBLIC_URL}/image/ShareOff.webp`}
-                  ShareHoverBtn={`${process.env.PUBLIC_URL}/image/ShareHover.webp`}
-                  ShareOnHoverBtn={`${process.env.PUBLIC_URL}/image/screenOnHover.webp`}
-                  isScreenSharing={isScreenSharing}
-                >
-                </VideoShareBtn>
-                <VideoToggleBtn
-                  onClick={VideoTogglehandler}
-                  VideoOffBtn={`${process.env.PUBLIC_URL}/image/VideoOff.webp`}
-                  VideoOnBtn={`${process.env.PUBLIC_URL}/image/VideoOn.webp`}
-                  VideoHoverBtn={`${process.env.PUBLIC_URL}/image/videoHover.webp`}
-                  VideoOnHoverBtn={`${process.env.PUBLIC_URL}/image/videoOnHover.webp`}
-                  VideoEnabled={videoEnabled}
-                />
-                <AudioToggleBtn
-                  onClick={AudioTogglehandler}
-                  AudioOffBtn={`${process.env.PUBLIC_URL}/image/microphoneOff.webp`}
-                  AudioOnBtn={`${process.env.PUBLIC_URL}/image/microphoneOn.webp`}
-                  AudioHoverBtn={`${process.env.PUBLIC_URL}/image/microphoneHover.webp`}
-                  AudioOnHoverBtn={`${process.env.PUBLIC_URL}/image/mcOnHover.webp`}
-                  AudioEnabled={audioEnabled}
-                />
-              </VideoBtnWrap>
+              { sessionConnect &&
+                <VideoBtnWrap>
+                  <StopwatchWrap>
+                    <Stopwatch />
+                  </StopwatchWrap>
+                  <VideoShareBtn
+                    onClick={() => { toggleSharingMode(publisher) }}
+                    ShareOffBtn={`${process.env.PUBLIC_URL}/image/ShareOn.webp`}
+                    ShareOnBtn={`${process.env.PUBLIC_URL}/image/ShareOff.webp`}
+                    ShareHoverBtn={`${process.env.PUBLIC_URL}/image/ShareHover.webp`}
+                    ShareOnHoverBtn={`${process.env.PUBLIC_URL}/image/screenOnHover.webp`}
+                    isScreenSharing={isScreenSharing}
+                  >
+                  </VideoShareBtn>
+                  <VideoToggleBtn
+                    onClick={VideoTogglehandler}
+                    VideoOffBtn={`${process.env.PUBLIC_URL}/image/VideoOff.webp`}
+                    VideoOnBtn={`${process.env.PUBLIC_URL}/image/VideoOn.webp`}
+                    VideoHoverBtn={`${process.env.PUBLIC_URL}/image/videoHover.webp`}
+                    VideoOnHoverBtn={`${process.env.PUBLIC_URL}/image/videoOnHover.webp`}
+                    VideoEnabled={videoEnabled}
+                  />
+                  <AudioToggleBtn
+                    onClick={AudioTogglehandler}
+                    AudioOffBtn={`${process.env.PUBLIC_URL}/image/microphoneOff.webp`}
+                    AudioOnBtn={`${process.env.PUBLIC_URL}/image/microphoneOn.webp`}
+                    AudioHoverBtn={`${process.env.PUBLIC_URL}/image/microphoneHover.webp`}
+                    AudioOnHoverBtn={`${process.env.PUBLIC_URL}/image/mcOnHover.webp`}
+                    AudioEnabled={audioEnabled}
+                  />
+                </VideoBtnWrap>
+              }
             </VideoWrap>
             <ChattingWrap>
               <ChattingHeader>채팅</ChattingHeader>
@@ -1084,14 +1095,21 @@ function Room() {
                   onChange={(e) => setMessage(e.target.value)}
                   cols="30"
                   rows="10"
-                  placeholder='대화를 입력하세요'
+                  placeholder='대화를 입력하세요.'
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      if (!e.shiftKey) {
+                    // 엔터시 한글자모만 두번 쳐지는거 막음
+                    if (e.key === "Enter") {
+                      if (e.nativeEvent.isComposing === false && !e.shiftKey) {
                         e.preventDefault();
                         textPublish(openViduSession ? openViduSession : mySessionId);
                       }
                     }
+                    // if (e.key === 'Enter') {
+                    //   if (!e.shiftKey) {
+                    //     e.preventDefault();
+                    //     textPublish(openViduSession ? openViduSession : mySessionId);
+                    //   }
+                    // }
                   }}
                 ></ChatInput>
               </ChatInputWrap>
@@ -1148,6 +1166,7 @@ const PopUp = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   h1 {
     width: 100%;
     font-family: 'Pretendard';
@@ -1207,6 +1226,7 @@ const ParticipationBtn = styled.button`
   &:hover {
     background: #00C5D1;
   }
+  margin-bottom: 34px;
 `
 
 export const FlexCenter = styled.div`
@@ -1832,6 +1852,7 @@ export const ChatInput = styled.textarea`
     box-sizing: border-box;
     font-size: 16px;
     font-weight: 500;
+    line-height: 30px;
     &::-webkit-scrollbar {
         display: none;
     }
