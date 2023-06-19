@@ -26,6 +26,7 @@ function CommonPopup(props) {
                     <TextWrap isTitleOnly={props.secondMsg?false:true}>
                         <h1>{props.msg}</h1>
                         {props.secondMsg?<h1>{props.secondMsg}</h1>:<></>}
+                        {props.thrMsg?<h1>{props.thrMsg}</h1>:<></>}
                     </TextWrap>
                     <BtnWrap isBtns={props.isBtns}>
                         {props.isBtns?<>
@@ -93,6 +94,7 @@ export const TextWrap = styled.div`
         font-weight: 500;
         font-size: 15px;
         color: #FFFFFF;
+        margin-bottom: 5px;
     }
 `
 
