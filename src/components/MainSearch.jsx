@@ -164,12 +164,12 @@ function MainSearch(props) {
                     onKeyDown={(e) => {
                         // 엔터시 검색 키워드 세팅
                         if (e.key === "Enter") { 
-                                if (e.nativeEvent.isComposing === false && !e.shiftKey) {
-                                    e.preventDefault()
-                                    keywordSetting()
-                                }
+                            if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                                e.preventDefault()
+                                keywordSetting()
                             }
-                        }}
+                        }
+                    }}
                     
                     
                     placeholder='원하시는 모각코 장소, 제목을 검색하세요.' autoComplete='do-not-autofill' />

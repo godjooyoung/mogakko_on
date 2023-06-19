@@ -59,6 +59,23 @@ function Mypage() {
     setFriendList([])
   }
 
+  // 유저검색 쿼리 활성화 여부
+  const [isSearchUserEnabled, setIsSearchUserEnabled] = useState(false)
+  const [searchUserParam, setSearchUserParam] = useState(undefined)
+
+  //유저 검색 성공 함수
+  const getSearchUserListIsSuccessHandler = (response) => {
+    //console.log("유저 검색 성공",response)
+    setIsSearchUserEnabled(false)
+  }
+
+  //유저 검색 실패 함수
+  const getSearchUserListIsErrorHandler = () => {
+    //console.log("유저 검색 실패")
+    setSearchFriend([])
+    setIsSearchUserEnabled(false)
+  }
+
   // query
   const queryClient = useQueryClient()
   const { isLoading: isProfileLoading, isError: isProfileError, data: profileData } = useQuery("getProfile", getProfile)
@@ -69,10 +86,21 @@ function Mypage() {
     onError: getFriendListIsErrorHandler,
     retry: false
   })
+
   const { isLoading: isFriendRequestListLoading, isError: isFriendRequestListError, data: friendRequestListData } = useQuery("getFriendRequestList", getFriendRequestList)
+
+  const { isLoading: isSearchUserListLoading, isError: isSearchUserListError, data: searchUserListData } = useQuery(
+    "getSearchUserList", () => (searchUser(searchUserParam))
+    , {
+      enabled: isSearchUserEnabled,
+      onSuccess: getSearchUserListIsSuccessHandler,
+      onError: getSearchUserListIsErrorHandler,
+      retry:false,
+    })
 
   // 받은 쪽지 조회
   const { isLoading: isReceiveMessageLoading, isError: isReceiveMessageError, data: receiveMessageData } = useQuery("getReceiveMessage", receiveMessage)
+
   //받은 쪽지 State
   const [myReceiveMessage, setMyReceiveMessage] = useState(null)
 
@@ -104,14 +132,6 @@ function Mypage() {
   // 친구 컴포넌트
   const [friendSidebar, setFriendSidebar] = useState(false)
 
-  // 친구찾기 닉네임 OR CODE구분
-  const [friendFindNickName, setFriendFindNickName] = useState(true)
-  const [friendFindCode, setFriendFindCode] = useState(false)
-
-  // 친구찾기 useInput
-  const [findNickNameValue, onChangeFindNickNameValue, findNickNameValueReset] = useInput('')
-  const [findCodeValue, onChangeFindCodeValue, findCodeValueReset] = useInput('')
-
   // 찾은친구 
   const [searchFriend, setSearchFriend] = useState([])
 
@@ -142,22 +162,16 @@ function Mypage() {
   // hooks
   const navigate = useNavigate()
 
-  const [timer, setTimer] = useState(0)
-
   const inputRef = useRef()
 
-  const roomListMutation = useMutation(searchUser, {
-    onSuccess: (response) => {
-      // console.log("searchUser ", response)
-      //console.log("searchUser.data 컨텐트 검색 결과 ", response.data)
-      //console.log("searchUser.data.data 컨텐트 검색 결과 배열 ", response.data.data)
-      if (response.data.message === '검색된 멤버가 없습니다.') {
-        setSearchFriend([])
-      } else {
-        setSearchFriend(response.data.data)
-      }
-    }
-  })
+  // 친구찾기 닉네임 OR CODE구분
+  const [friendFindNickName, setFriendFindNickName] = useState(true)
+  const [friendFindCode, setFriendFindCode] = useState(false)
+
+  // 친구찾기 useInput
+  const [findNickNameValue, onChangeFindNickNameValue, findNickNameValueReset] = useInput('')
+  const [findCodeValue, onChangeFindCodeValue, findCodeValueReset] = useInput('')
+
 
   // 쪽지 status에 따른 팝업 state
   const [messageStatus, setMessageStatus] = useState(false)
@@ -167,17 +181,21 @@ function Mypage() {
 
   const [messageBlock, setmessageBlock] = useState(false)
 
+
   // 쪽지 보내기 Mutation
   const postMessageMutation = useMutation(postMessage, {
     onSuccess: (response) => {
       queryClient.invalidateQueries(receiveMessage)
     },
     onError: (error) => {
+      console.log("po", error)
       popupOpenHander(error.response.data.message)
+      setPostPopup(true)
       // console.log('error.response.data.message', error.response.data.message)
     }
   })
 
+   // 요청 응답 공통 팝업 오픈
   const popupOpenHander = (msg) => {
     // console.log('쪽지팝업 msg is......0', msg)
     setMesageStatusresponse(msg)
@@ -185,6 +203,7 @@ function Mypage() {
     // console.log('쪽지팝업 messageStatus', messageStatus)
   }
 
+  // 요청 응답 공통 팝업 클로즈
   const popupCloseHander = () => {
     setMessageStatus(false)
     setMesageStatusresponse('')
@@ -193,9 +212,12 @@ function Mypage() {
   useEffect(() => {
     // console.log('쪽지팝업', mesageStatusresponse)
     if (mesageStatusresponse !== '') {
-      // console.log('쪽지팝업 msg is......1', mesageStatusresponse)
-      setMessageStatus(true)
-    } else {
+      //console.log('쪽지팝업 msg is......1', mesageStatusresponse)
+      if(mesageStatusresponse !== 'AccessToken Expired.'){
+        setMessageStatus(true)
+      }
+    }else {
+      
       setMessageStatus(false)
     }
   }, [mesageStatusresponse]);
@@ -206,37 +228,36 @@ function Mypage() {
       messageReceiverNickname: receiveUserValue,
       content: receiveContentValue
     })
+
   }
 
+  //유저검색 내용 입력 useEffect
   useEffect(() => {
-    if (timer) {
-      // console.log('clear timer');
-      clearTimeout(timer);
-    }
     if (findNickNameValue !== '' || findCodeValue !== '') {
-      const newTimer = setTimeout(async () => {
-        try {
-          await roomListMutationCall()
-        } catch (e) {
-          // console.error('error', e);
-        }
-      }, 1000);
-
-      setTimer(newTimer);
-
-      // 방 목록 조회
-      const roomListMutationCall = () => {
-        if (friendFindNickName) {
-          // 친구 닉네임으로 찾기 활성화 상태
-          roomListMutation.mutate({ type: 'NAME', value: findNickNameValue })
-        } else {
-          // 친구 코드로 찾기 활성화 상태
-          roomListMutation.mutate({ type: 'CODE', value: findCodeValue })
-        }
+      if (friendFindNickName) {
+        setSearchUserParam(()=>({ type: 'NAME', value: findNickNameValue }))
+        findCodeValueReset()
+      } else {
+        setSearchUserParam(()=>({ type: 'CODE', value: findCodeValue }))
+        findNickNameValueReset()
       }
     }
-
   }, [findNickNameValue, findCodeValue])
+
+  // 유저 검색어 세팅 함수
+  const settingSearchUserHandler = () => {
+    //console.log('검색어 세팅', findNickNameValue)
+    setIsSearchUserEnabled(true)
+  }
+
+
+  //유저 검색 useEffect
+  useEffect(() => {
+    if (searchUserListData) {
+      //console.log("유저검색 1111111", searchUserListData.data.data)
+      setSearchFriend(searchUserListData.data.data)
+    }
+  }, [searchUserListData])
 
   useEffect(() => {
     if (profileData) {
@@ -256,7 +277,7 @@ function Mypage() {
   useEffect(() => {
     if (friendListData) {
       // console.log("친구목록 조회 1", friendListData)
-      console.log("친구목록 조회 2", friendListData.data.data)
+      //console.log("친구목록 조회 2", friendListData.data.data)
       if (friendListData.data.data) {
         setFriendList(friendListData.data.data)
       } else {
@@ -269,7 +290,7 @@ function Mypage() {
   useEffect(() => {
     if (friendRequestListData) {
       // console.log("친구요청목록 조회 1", friendRequestListData)
-      console.log("친구요청목록 조회 2", friendRequestListData.data.data)
+      //console.log("친구요청목록 조회 2", friendRequestListData.data.data)
     }
   }, [friendRequestListData])
 
@@ -410,6 +431,8 @@ function Mypage() {
   const friendRequetMutation = useMutation(requestFriend, {
     onSuccess: (response) => {
       // console.log(">>> 친구 추가 보내기 성공", response.data.message)
+      // 쿼리다시조회
+      settingSearchUserHandler()
     },
   })
 
@@ -869,6 +892,16 @@ function Mypage() {
                             value={findNickNameValue}
                             onChange={(e) => {
                               onChangeFindNickNameValue(e)
+                            }}
+                            onKeyDown={(e) => {
+                              // 엔터시 검색 키워드 세팅
+                              if (e.key === "Enter") { 
+                                console.log("ENTERENTER")
+                                  if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                                      e.preventDefault()
+                                      settingSearchUserHandler()
+                                  }
+                              }
                             }}
                           /> :
 
