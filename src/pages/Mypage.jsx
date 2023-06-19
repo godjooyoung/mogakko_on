@@ -145,8 +145,8 @@ function Mypage() {
   const roomListMutation = useMutation(searchUser, {
     onSuccess: (response) => {
       // console.log("searchUser ", response)
-      console.log("searchUser.data 컨텐트 검색 결과 ", response.data)
-      console.log("searchUser.data.data 컨텐트 검색 결과 배열 ", response.data.data)
+      //console.log("searchUser.data 컨텐트 검색 결과 ", response.data)
+      //console.log("searchUser.data.data 컨텐트 검색 결과 배열 ", response.data.data)
       if (response.data.message === '검색된 멤버가 없습니다.') {
         setSearchFriend([])
       } else {

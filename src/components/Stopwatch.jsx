@@ -208,17 +208,17 @@ function Stopwatch(props) {
     }, [sendSeconds])
 
     useEffect(()=>{
-        console.log('+-+-+-+-+-+')
-        console.log('|s|t|a|r|t|')
-        console.log('+-+-+-+-+-+')
+        // console.log('+-+-+-+-+-+')
+        // console.log('|s|t|a|r|t|')
+        // console.log('+-+-+-+-+-+')
         return () => {
 
             // 나가기 시간 로직 짜기 ...동기 동기 극혐
             const leave = () => {
-                console.log('+-+-+-+-+-+')
-                console.log('|l|e|a|v|e|')
-                console.log('+-+-+-+-+-+')
-                recordTimerMutation.mutate(  calculateTimeDiff_(settingPrevTimeString(), settingTimeString())  )
+                // console.log('+-+-+-+-+-+')
+                // console.log('|l|e|a|v|e|')
+                // console.log('+-+-+-+-+-+')
+                // recordTimerMutation.mutate(  calculateTimeDiff_(settingPrevTimeString(), settingTimeString())  )
             }
         }
     },[])

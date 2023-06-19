@@ -54,7 +54,7 @@ function Header(props) {
     // 알람 신규로 올때
     useEffect(() => {
 
-        console.debug("[INFO] 발생 알람 건  ", isNewNotification)
+        //console.debug("[INFO] 발생 알람 건  ", isNewNotification)
         if (isNewNotification >= 1) {
             setIsNewNoti(true)
         } else {
@@ -117,7 +117,7 @@ function Header(props) {
                         // console.log("[INFO] SSE message data ", data)
                         // setIsNewNotification((prevIsNewNotification) => prevIsNewNotification + 1)
                         if(data.indexOf('EventStream Created') === -1){
-                            console.debug('[INFO] SSE 추가 알람 발생했습니다!', data)
+                            //console.debug('[INFO] SSE 추가 알람 발생했습니다!', data)
                             setIsNewNotification((prevIsNewNotification)=>prevIsNewNotification+1)
                             dispatcher(__alarmSender(data))
                         }
