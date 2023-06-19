@@ -29,6 +29,7 @@ function Header(props) {
 
     // 신규 알람 카운트
     const [isNewNotification, setIsNewNotification] = useState(alarmInfo.filter((alarm) => { return alarm.indexOf('EventStream Created') === -1 }).length)
+    const isNewNotificationRef = useRef(0);
 
     // 신규알람 표시 여부
     const [isNewNoti, setIsNewNoti] = useState(false)
@@ -212,7 +213,6 @@ function Header(props) {
                                             <span>{JSON.parse(alarm).createdAt}</span>
                                         </AlearmContentTime>
                                     </AlearmContentWrap>
-
                                 </AlearmContent>
                             )
                         })}
