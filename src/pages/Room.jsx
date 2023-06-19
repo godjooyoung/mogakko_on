@@ -51,7 +51,6 @@ function Room() {
 
   const [btnSelect, setBtnSelect] = useState('public')
 
-
   //popup창
   const [roomPopUp, setRoomPopUp] = useState(false)
   // 네비게이트 선언
@@ -204,7 +203,6 @@ function Room() {
 
   const handleChangeRoomTitle = useCallback((e) => {
     if(e.target.value.length>15){
-      alert('모각코방제목은 15글자 까지 입력 가능합니다.')
       setRoomTitle(e.target.value.slice(0,15))
     }else{
       setRoomTitle(e.target.value)
@@ -818,7 +816,7 @@ function Room() {
                       type="text"
                       value={roomTitle}
                       onChange={handleChangeRoomTitle}
-                      placeholder='어떤 모각코인지 설명해주세요'
+                      placeholder='어떤 모각코인지 설명해주세요. 15자 까지 입력 가능합니다.'
                       maxLength={15}
                       required
                     />
