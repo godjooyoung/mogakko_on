@@ -192,13 +192,15 @@ export const SearchContaniner = styled.div`
     display: flex;
     flex-direction: column;
     row-gap: 27px;
+    justify-content: space-between;
 `
 export const SearchLanguageBtnWrap = styled.div`
 `
 export const SearchLanguageBtn = styled.button`
     padding: 9px 20px;
     margin-right: 9px;
-    margin-bottom: 12px;
+    margin-top: 12px;
+    /* margin-bottom: 12px; */
     min-width: 72px;
     height: 42px;
     /* border: 0.5px solid #FFFFFF; */
@@ -290,9 +292,9 @@ export const SearcFilterTitle = styled.h2`
     font-weight: 700;
     font-size: 22px;
     /* line-height: 24px; */
-    line-height : 109%;
+    /* line-height : 109%; */
     color: #FFFFFF;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
 `
 export const SearchBar = styled.div`
     width: 470px;

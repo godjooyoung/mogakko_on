@@ -942,10 +942,11 @@ function Room() {
             // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
             // closeHander : 닫기 함수
             <CommonPopup msg={`뒤로가기 하시겠습니까?`} 
-              secondMsg={'모각코 참여 시간이을 기록하셨나요?'}
+              secondMsg={'모각코 참여 시간을 기록하지'}
+              thrMsg={'않으면 저장되지 않습니다.'}
               isBtns={true} 
-              priMsg='확인' 
-              secMsg='취소' 
+              priMsg='나가기' 
+              secMsg='머무르기' 
               priHander={()=>{leaveSession()}} 
               secHandler={()=>(setIsblocked(false))} 
               closeHander={()=>(setIsblocked(false))}/>
@@ -960,10 +961,11 @@ function Room() {
             // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
             // closeHander : 닫기 함수
             <CommonPopup msg={`나가시겠습니까?`} 
-              secondMsg={'모각코 참여 시간을 기록하셨나요?'}
+              secondMsg={'모각코 참여 시간을 기록하지'}
+              thrMsg={'않으면 저장되지 않습니다.'}
               isBtns={true} 
-              priMsg='확인' 
-              secMsg='취소' 
+              priMsg='나가기' 
+              secMsg='머무르기' 
               priHander={()=>{leaveSession()}} 
               secHandler={()=>(setIsBeforeLeave(false))} 
               closeHander={()=>(setIsBeforeLeave(false))}/>
@@ -1155,6 +1157,7 @@ const PopUp = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   h1 {
     width: 100%;
     font-family: 'Pretendard';
@@ -1214,6 +1217,7 @@ const ParticipationBtn = styled.button`
   &:hover {
     background: #00C5D1;
   }
+  margin-bottom: 34px;
 `
 
 export const FlexCenter = styled.div`

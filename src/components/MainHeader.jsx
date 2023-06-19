@@ -103,7 +103,7 @@ function MainHeader(props) {
                         <FontSize>{landingTitle}</FontSize>
                     </Content>
                     {/* <div>모각코를 위한 서비스 플랫폼</div> */}
-                    <FontSize>모각코 ON:</FontSize>
+                    <FontSize>모각코 ONː</FontSize>
                 </MainTitleWrap>
                 <MainDescWrap>
                     <FontSizeS>근처에 있는 사람들과 모여서 각자 코딩하고</FontSizeS>
@@ -172,6 +172,7 @@ export const MainTitleWrap = styled.div`
     flex-direction: column;
     align-items: center;
     color : white;
+    margin-top: 85px;
     margin-bottom: 21px;
 `
 export const MainDescWrap = styled.div`
