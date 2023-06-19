@@ -1,16 +1,70 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import TypeBox from './TypeBox'
 function NoticePopup(props) {
 
-  const noticeItem = [
-    { date: '2023.06.20', noticeTitle: '사용자 편의성 개선' },
-    { date: '2023.06.20', noticeTitle: '신규 기능 추가 및 사용자 편의성 개선' },
-    { date: '2023.06.20', noticeTitle: '사용자 편의성 개선' },
-    { date: '2023.06.20', noticeTitle: '사용자 편의성 개선' },
+  const notices = [
+    {
+      date: '2023.06.19',
+      noticeTitle: '사용자 편의성 개선',
+      noticeContents: [
+        {
+          color : '#6DD35E',
+          type: 'Fix',
+          content: '실시간 알림 랜더링 이슈'
+        },
+        {
+          color : '#6DD35E',
+          type: 'Fix',
+          content: '한글 채팅 입력 시 마지막 자모 두번 입력되는 이슈'
+        },
+        {
+          color : '#FF635D',
+          type: 'Discard',
+          content: '친구 프로필에서 친구 요청 후 메인 이동 기능'
+        },
+        {
+          color : '#F4AA33',
+          type: 'Change',
+          content: `마이페이지 편의성 개선 - '깃허브 닉네임'으로 표기 변경`
+        },
+      ]
+    },
+    {
+      date: '2023.06.20',
+      noticeTitle: '사용자 편의성 개선 및 신규기능',
+      noticeContents: [
+        {
+          color : '#FF635D',
+          type: 'Discard',
+          content: '회원가입 유효성 완화 - 특수문자 제외'
+        },
+        {
+          color : '#F4AA33',
+          type: 'Change',
+          content: '메인 검색 속도 개선'
+        },
+        {
+          color : '#F4AA33',
+          type: 'Change',
+          content: '공지 팝업 추가'
+        },
+        {
+          color : '#F4AA33',
+          type: 'Change',
+          content: '쪽지 기능 개선 - 글자수 제한, 쪽지 팝업 유지'
+        },
+        {
+          color : '#F4AA33',
+          type: 'Change',
+          content: '유저 검색 기능 개선 - 검색 성능 향상 및 친구신청 대기 상태 표시'
+        },
+      ]
+    }
   ]
 
-  console.log('noticeItem.date', noticeItem)
+
+  // console.log('noticeItem.date', noticeItem)
   return (
     <>
       <Dark>
@@ -20,34 +74,32 @@ function NoticePopup(props) {
           }}
             closeBtn={`${process.env.PUBLIC_URL}/image/inputDeleteBtn.webp`}
           ></CloseBtn>
-          <h1>모각코 ONː 팀이 전하는 안내사항</h1>
+          <h1>모각코 ONː팀이 전하는 안내사항</h1>
           <h2>
-            모각코 ONː 을 이용해주시는 여러분들!<br />
-            모두 감사드립니다.<br />
-            현재는 유저테스트 기간으로 본인이 접속한 위치가 아닌 동네에도 참여할 수 있습니다.!<br />
-            여러분들이 성실히 작성해주시는 피드백은 모두 감사히 보고 있습니다.
+            안녕하세요. <b>모각코 ONː</b>을 이용해주시는 여러분들.<br />
+            <b>모각코 ONː</b>은 위치기반 서비스를 지향하므로 접속된 위치 기반 12KM 내의 유저들과 함께 이용 가능합니다.<br />
+            유저테스트 기간 동안은 본인의 접속 위치가 아닌 동네에서도 모각코를 생성하거나 참여할 수 있습니다.<br />
+            여러분들이 성실히 작성해주시는 피드백은 모두 감사히 보고 있습니다. <br />
+            - 모각코 ONː팀 드림
           </h2>
           <h1>여러분의 피드백이 이렇게 반영됐어요!</h1>
 
           <ScrollBox>
             <ScrollWrap>
-              <NoticeWrap>
-                <h3>{noticeItem[0].date} {noticeItem[0].noticeTitle}</h3>
-                <NoticeContent>
-                  <TypeBox color={'#6DD35E'} type={'Fix'} content={'화상 채팅 화면 공유 에러 수정'}/>
-                  <TypeBox color={'#6DD35E'} type={'Fix'} content={'화상 채팅 화면 공유 에러 수정'}/>
-                  <TypeBox color={'#6DD35E'} type={'Fix'} content={'화상 채팅 화면 공유 에러 수정'}/>
-                </NoticeContent>
-              </NoticeWrap>
-
-              <NoticeWrap>
-                <h3>{noticeItem[1].date} {noticeItem[1].noticeTitle}</h3>
-                <NoticeContent>
-                  <TypeBox color={'#FF635D'} type={'Discard'} content={'화면 공유 기능 일시 중단'}/>
-                  <TypeBox color={'#F4AA33'} type={'Change'} content={'채팅 기능 수정'}/>
-                </NoticeContent>
-              </NoticeWrap>
-
+              {notices&&notices.reverse().map((noticeItem, idx) => {
+                return (
+                    <NoticeWrap>
+                      <NoticeContent>
+                        <h3>{noticeItem.date} {noticeItem.noticeTitle}</h3>
+                        {noticeItem&&noticeItem.noticeContents.map((noti) => {
+                          return (
+                            <TypeBox color={noti.color} type={noti.type} content={noti.content}/>
+                          )
+                        })}
+                      </NoticeContent>
+                    </NoticeWrap>
+                )
+              })}
             </ScrollWrap>
           </ScrollBox>
           <DisappearBtnWrap>
@@ -110,6 +162,7 @@ export const PopUp = styled.div`
     color: #FFFFFF;
     margin-top: 27px;
     margin-bottom: 48px;
+    line-height: 170%;
   }
 
   p {
@@ -143,7 +196,8 @@ export const CloseBtn = styled.button`
 `
 
 export const ScrollBox = styled.div`
-  width: 574px;
+  /* width: 574px; */
+  width: 588px;
   height: 404px;
   background: #3E4957;
   border-radius: 10px;  
@@ -157,7 +211,7 @@ export const ScrollBox = styled.div`
 
 export const ScrollWrap = styled.div`
   /* width: 574px; */
-  width: 574px;
+  width: 588px;
   height: 380px;
   overflow-y: scroll;
   padding-left: 33px;
@@ -184,6 +238,9 @@ export const ScrollWrap = styled.div`
       border-right: 2px solid transparent;
       background-clip: padding-box;
   }
+
+  margin-top: 22px;
+  margin-bottom: 22px;
 `
 
 export const DisappearBtnWrap = styled.div`
@@ -213,6 +270,10 @@ export const ConfirmBtn = styled.button`
 export const NoticeWrap = styled.div`
   width: 100%;
   height: 100px;
+  
+  display: flex;
+  flex-direction: column;
+  flex-basis: fit-content;
 
   h3 {
     font-family: 'Pretendard';
@@ -230,5 +291,10 @@ export const NoticeContent = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 5px;
+  flex-basis: fit-content;
+  h3 {
+    margin-bottom: 13px;
+  }
+
 `
 export default NoticePopup
