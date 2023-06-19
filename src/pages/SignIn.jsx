@@ -89,8 +89,10 @@ const SignIn = () => {
             // setPasswordError('비밀번호를 입력해주세요.')
             setIsValidationPassword(false)
         } else {
-            if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password)) {
-                setPasswordError('대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.')
+            // if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password)) {
+            //     setPasswordError('대소문자, 숫자, 특수문자를 포함한 8~16자리여야 합니다.')
+            if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d~!@#$%^&*()_\-+=<>,?/:\;'"[\]{}\\]{6,18}$/.test(password)) {
+                setPasswordError('영문자, 숫자를 포함한 6~18자리여야 합니다.')
                 setIsValidationPassword(false)
             } else {
                 setPasswordError('')
