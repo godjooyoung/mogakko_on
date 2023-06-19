@@ -1,13 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled } from 'styled-components';
 import MainHeader from '../components/MainHeader';
 import MainContent from '../components/MainContent';
 import MainBest from '../components/MainBest';
 import Header from '../components/common/Header';
 import SigninPopup from '../components/common/SigninPopup';
-
+import NoticePopup from '../components/common/NoticePopup';
+import { getCookie } from '../cookie/Cookie'
 function Main() {
-    
+
+    // 공지팝업
+    const [showPopup, setShowPopup] = useState(false);
+
+    const disablePopup = () => {
+        localStorage.setItem('hidePopup', true);
+        closeNoticePopup();
+    };
+
+    const closeNoticePopup = () => {
+        setShowPopup(false);
+    };
+
+    useEffect(() => {
+        if (getCookie("token")) {
+            const hidePopup = localStorage.getItem('hidePopup');
+            if (!hidePopup) {
+                setShowPopup(true);
+            }
+        }
+    }, []);
+
     const [isOpen, setIsOpen] = useState(false)
     const popupOpenHander = () => {
         setIsOpen(true)
@@ -19,28 +41,32 @@ function Main() {
     const goToTopHandler = () => {
         // console.log("위로 고고")
         window.scroll({
-            top : 0,
-            behavior : 'smooth'
+            top: 0,
+            behavior: 'smooth'
         })
     }
     return (
         <>
-        {isOpen?
-        <>
-            {/* 팝업 */}
-            <SigninPopup closeHander={popupCloseHander}/>
-        </>:<></>
-    
-        }
-        <MainWrap>
-        <MainContaniner>
-            <Header pos={true} />
-            <MainHeader openHander={popupOpenHander}/>
-            <MainContent openHander={popupOpenHander}/>
-            <MainBest openHander={popupOpenHander}/>
-        </MainContaniner>
-        <Top onClick={goToTopHandler} url={`${process.env.PUBLIC_URL}/image/goToTopBtn.webp`}></Top>
-        </MainWrap>
+            {showPopup && (
+                <NoticePopup closeHandler={closeNoticePopup} disableHandler={disablePopup} />
+            )}
+
+            {isOpen ?
+                <>
+                    {/* 팝업 */}
+                    <SigninPopup closeHander={popupCloseHander} />
+                </> : <></>
+
+            }
+            <MainWrap>
+                <MainContaniner>
+                    <Header pos={true} />
+                    <MainHeader openHander={popupOpenHander} />
+                    <MainContent openHander={popupOpenHander} />
+                    <MainBest openHander={popupOpenHander} />
+                </MainContaniner>
+                <Top onClick={goToTopHandler} url={`${process.env.PUBLIC_URL}/image/goToTopBtn.webp`}></Top>
+            </MainWrap>
         </>
     );
 }
@@ -61,7 +87,7 @@ export const Top = styled.div`
     bottom: 150px;
     left: 100%;
     background-image: ${(props) =>
-    `url('${props.url}')`
+        `url('${props.url}')`
     };
     cursor: pointer;
     &:hover {
