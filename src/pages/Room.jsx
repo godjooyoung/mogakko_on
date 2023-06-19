@@ -203,7 +203,12 @@ function Room() {
   const OV = useRef(new OpenVidu())
 
   const handleChangeRoomTitle = useCallback((e) => {
-    setRoomTitle(e.target.value)
+    if(e.target.value.length>15){
+      alert('모각코방제목은 15글자 까지 입력 가능합니다.')
+      setRoomTitle(e.target.value.slice(0,15))
+    }else{
+      setRoomTitle(e.target.value)
+    }
   }, []);
 
   // 메인화면을 어느 스트림으로 할지 정하는 함수. 어느것을 추적해서 메인 화면으로 나타낼지
@@ -794,6 +799,7 @@ function Room() {
     setCount(newCount + 1)
   };
 
+
   console.log('sessionConnect', sessionConnect)
   return (
     <div className="container">
@@ -813,6 +819,7 @@ function Room() {
                       value={roomTitle}
                       onChange={handleChangeRoomTitle}
                       placeholder='어떤 모각코인지 설명해주세요'
+                      maxLength={15}
                       required
                     />
                   </RoomNameWrap>
