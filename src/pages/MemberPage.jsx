@@ -376,6 +376,7 @@ const TopContentTitle = styled.p`
   font-weight: 400;
   font-size: 15px;
   color: var(--po-de);
+  margin-bottom: 17px;
 `
 
 const TopContentTitleItem = styled.h1`
@@ -418,7 +419,9 @@ const Temperaturecontainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 10px;
+  /* gap: 10px; */
+  gap: 17px;
+  
 `
 
 const TemperatureTitle = styled.p`
@@ -434,7 +437,8 @@ const TemperatureTitle = styled.p`
 `
 const TemperatureMouseHoverBox = styled.div`
   position: absolute;
-  top: 60px;
+  /* top: 60px; */
+  top: 45px;
   right: -20px;
   width: 250px;
   height: 80px;
@@ -467,6 +471,7 @@ const TemperatureWrap = styled.div`
     font-size: 14px;
     color: var(--po-de);
   }
+  height: 33px; 
 `
 
 
@@ -629,7 +634,7 @@ const StatusWrap = styled.div`
 
 const TopContentTitleWrap = styled.div`
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   gap: 10px;
   position: relative;
 `
@@ -648,7 +653,8 @@ const Status = styled.span`
 const StatusMouseHoverBox = styled.div`
   position: absolute;
   right: 0px;
-  bottom: -170px;
+  /* bottom: -170px; */
+  bottom: -155px;
   width: 215px;
   height: 160px;
   background: #F9F9FA;
