@@ -26,11 +26,14 @@ export const TypeBtnWrap = styled.div`
     font-size: 13px;
     color: #FFFFFF;
   }
+  div {
+    margin-left: 10px;
+  }
 `
 
 export const Dot = styled.div`
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
   background-color: #FFFFFF;
   border-radius: 50%;
 `

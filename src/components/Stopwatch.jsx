@@ -253,6 +253,8 @@ export const TimerWrap = styled.div`
     align-items: center;
     width: 150px;
     height: 39px;
+    position: absolute;
+    z-index: 20;
 `
 export const Timer = styled.div`
     height: 39px;
