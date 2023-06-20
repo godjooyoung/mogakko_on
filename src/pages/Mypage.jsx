@@ -178,7 +178,6 @@ function Mypage() {
   const [mesageStatusresponse, setMesageStatusresponse] = useState('')
 
   // 쪽지 200자 초과 막기 팝업 
-
   const [messageBlock, setmessageBlock] = useState(false)
 
 
@@ -558,7 +557,7 @@ function Mypage() {
           <MypageWrap>
             <MypageNavbar>
               <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
-                <ImageWrap BgImg={preview} width='155px' height='155px' />
+                <ImageWrap BgImg={preview} />
                 <div>
                   <FileButton htmlFor="file"
                     modify={`${process.env.PUBLIC_URL}/image/modifyBtn.webp`}
@@ -1296,6 +1295,7 @@ const ImageWrap = styled.div`
   background-position:center;
   background-size:contain;
   background-color : white;
+  background-repeat: no-repeat;
   border: 2px solid white;
   box-sizing:border-box;
 `

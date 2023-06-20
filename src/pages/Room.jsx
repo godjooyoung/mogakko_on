@@ -202,9 +202,9 @@ function Room() {
   const OV = useRef(new OpenVidu())
 
   const handleChangeRoomTitle = useCallback((e) => {
-    if(e.target.value.length>15){
-      setRoomTitle(e.target.value.slice(0,15))
-    }else{
+    if (e.target.value.length > 15) {
+      setRoomTitle(e.target.value.slice(0, 15))
+    } else {
       setRoomTitle(e.target.value)
     }
   }, []);
@@ -1040,7 +1040,7 @@ function Room() {
 
               </PubilshSession>
 
-              { sessionConnect &&
+              {sessionConnect &&
                 <VideoBtnWrap>
                   <StopwatchWrap>
                     <Stopwatch />
@@ -1102,13 +1102,26 @@ function Room() {
                   rows="10"
                   placeholder='대화를 입력하세요.'
                   onKeyDown={(e) => {
-                    // 엔터시 한글자모만 두번 쳐지는거 막음
                     if (e.key === "Enter") {
-                      if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                      if (e.shiftKey) {
+                        return;
+                      } else if (message.trim() === '') {
+                        e.preventDefault();
+                        return;
+                      } else if (!e.nativeEvent.isComposing) {
                         e.preventDefault();
                         textPublish(openViduSession ? openViduSession : mySessionId);
                       }
                     }
+                    // 엔터시 한글자모만 두번 쳐지는거 막음
+                    // if (message.length > 0 && message.trim() !== '') {
+                    //   if (e.key === "Enter") {
+                    //     if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                    //       e.preventDefault();
+                    //       textPublish(openViduSession ? openViduSession : mySessionId);
+                    //     }
+                    //   }
+                    // }
                     // if (e.key === 'Enter') {
                     //   if (!e.shiftKey) {
                     //     e.preventDefault();
@@ -1120,7 +1133,9 @@ function Room() {
               </ChatInputWrap>
               <SendBtnWrap>
                 <SendBtn onClick={() => {
-                  textPublish(openViduSession ? openViduSession : mySessionId)
+                  if (message.trim() !== '') {
+                    textPublish(openViduSession ? openViduSession : mySessionId)
+                  }
                   // textPublish(openViduSession)
                 }}
                   send={`${process.env.PUBLIC_URL}/image/sendMessage.webp`}
