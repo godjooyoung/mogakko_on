@@ -355,8 +355,9 @@ const ImageWrap = styled.div`
     `url(${props.BgImg})`
   };
   background-position:center;
-  background-size:contain;
+  background-size:cover;
   background-color : white;
+  background-repeat: no-repeat;
   border: 0.5px solid white;
 `
 

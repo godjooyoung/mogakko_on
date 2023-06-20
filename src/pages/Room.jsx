@@ -199,6 +199,26 @@ function Room() {
   //   subscribers: [],
   //   });
 
+  const languageImgHandler = () => {
+    if (data.language === 'JAVA') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomJavaIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'JAVASCRIPT') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomJsIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'PYTHON') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomPythonIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'C') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomCIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'C#') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomCsharpIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'C++') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomCplusIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'KOTLIN') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomJavaIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'ETC') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomKotlinIcon.webp`} alt="Java아이콘" />
+    }
+  }
+
   const OV = useRef(new OpenVidu())
 
   const handleChangeRoomTitle = useCallback((e) => {
@@ -946,13 +966,6 @@ function Room() {
           }
           {
             isblocked &&
-            // msg : 화면에 표시되는 메세지
-            // isBtns : boolean
-            // priMsg  'primery 버튼 내용'
-            // secMsg  'second 버튼 내용'
-            // priHander : 'primery 버튼 클릭시 동작하는 함수'
-            // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
-            // closeHander : 닫기 함수
             <CommonPopup msg={`뒤로가기 하시겠습니까?`}
               secondMsg={'모각코 참여 시간을 기록하지'}
               thrMsg={'않으면 저장되지 않습니다.'}
@@ -965,26 +978,32 @@ function Room() {
           }
           {
             isBeforeLeave &&
-            // msg : 화면에 표시되는 메세지
-            // isBtns : boolean
-            // priMsg  'primery 버튼 내용'
-            // secMsg  'second 버튼 내용'
-            // priHander : 'primery 버튼 클릭시 동작하는 함수'
-            // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
-            // closeHander : 닫기 함수
-            <CommonPopup msg={`나가시겠습니까?`}
-              secondMsg={'모각코 참여 시간을 기록하지'}
-              thrMsg={'않으면 저장되지 않습니다.'}
-              isBtns={true}
-              priMsg='나가기'
-              secMsg='머무르기'
-              priHander={() => { leaveSession() }}
-              secHandler={() => (setIsBeforeLeave(false))}
-              closeHander={() => (setIsBeforeLeave(false))} />
+            <>
+              <CommonPopup msg={`나가시겠습니까?`}
+                secondMsg={'모각코 참여 시간을 기록하지'}
+                thrMsg={'않으면 저장되지 않습니다.'}
+                isBtns={true}
+                priMsg='나가기'
+                secMsg='머무르기'
+                priHander={() => { leaveSession() }}
+                secHandler={() => (setIsBeforeLeave(false))}
+                closeHander={() => (setIsBeforeLeave(false))} />
+              <RoomTimerArrow src={`${process.env.PUBLIC_URL}/image/roomTimerArrow.webp`} alt="" />
+            </>
+
           }
 
           <RoomInHeader>
-            <span>{roomTitle}</span>
+            <RoomHeaderContentWrap>
+              {languageImgHandler()}
+              <div>
+                <span>{roomTitle}</span>
+                <RoomHeaderBottomItemWrpa>
+                  <p>언어: {data.language.charAt(0).toUpperCase() + data.language.slice(1).toLowerCase()}</p>
+                  <p>정원: {subscribers.length + 1}/{data.maxMembers}</p>
+                </RoomHeaderBottomItemWrpa>
+              </div>
+            </RoomHeaderContentWrap>
             <div>
               <LeaveBtn
                 onClick={() => (leavePopOpenHandler())}
@@ -1045,15 +1064,6 @@ function Room() {
                   <StopwatchWrap>
                     <Stopwatch />
                   </StopwatchWrap>
-                  <VideoShareBtn
-                    onClick={() => { toggleSharingMode(publisher) }}
-                    ShareOffBtn={`${process.env.PUBLIC_URL}/image/ShareOn.webp`}
-                    ShareOnBtn={`${process.env.PUBLIC_URL}/image/ShareOff.webp`}
-                    ShareHoverBtn={`${process.env.PUBLIC_URL}/image/ShareHover.webp`}
-                    ShareOnHoverBtn={`${process.env.PUBLIC_URL}/image/screenOnHover.webp`}
-                    isScreenSharing={isScreenSharing}
-                  >
-                  </VideoShareBtn>
                   <VideoToggleBtn
                     onClick={VideoTogglehandler}
                     VideoOffBtn={`${process.env.PUBLIC_URL}/image/VideoOff.webp`}
@@ -1070,6 +1080,15 @@ function Room() {
                     AudioOnHoverBtn={`${process.env.PUBLIC_URL}/image/mcOnHover.webp`}
                     AudioEnabled={audioEnabled}
                   />
+                  <VideoShareBtn
+                    onClick={() => { toggleSharingMode(publisher) }}
+                    ShareOffBtn={`${process.env.PUBLIC_URL}/image/ShareOn.webp`}
+                    ShareOnBtn={`${process.env.PUBLIC_URL}/image/ShareOff.webp`}
+                    ShareHoverBtn={`${process.env.PUBLIC_URL}/image/ShareHover.webp`}
+                    ShareOnHoverBtn={`${process.env.PUBLIC_URL}/image/screenOnHover.webp`}
+                    isScreenSharing={isScreenSharing}
+                  >
+                  </VideoShareBtn>
                 </VideoBtnWrap>
               }
             </VideoWrap>
@@ -1095,41 +1114,28 @@ function Room() {
                 <div ref={messagesEndRef} />
               </ChatContentWrap>
               <ChatInputWrap>
-                <ChatInput
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  cols="30"
-                  rows="10"
-                  placeholder='대화를 입력하세요.'
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      if (e.shiftKey) {
-                        return;
-                      } else if (message.trim() === '') {
-                        e.preventDefault();
-                        return;
-                      } else if (!e.nativeEvent.isComposing) {
-                        e.preventDefault();
-                        textPublish(openViduSession ? openViduSession : mySessionId);
+                <ChatInputBox>
+                  <ChatInput
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    cols="30"
+                    rows="4"
+                    placeholder='대화를 입력하세요.'
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        if (e.shiftKey) {
+                          return;
+                        } else if (message.trim() === '') {
+                          e.preventDefault();
+                          return;
+                        } else if (!e.nativeEvent.isComposing) {
+                          e.preventDefault();
+                          textPublish(openViduSession ? openViduSession : mySessionId);
+                        }
                       }
-                    }
-                    // 엔터시 한글자모만 두번 쳐지는거 막음
-                    // if (message.length > 0 && message.trim() !== '') {
-                    //   if (e.key === "Enter") {
-                    //     if (e.nativeEvent.isComposing === false && !e.shiftKey) {
-                    //       e.preventDefault();
-                    //       textPublish(openViduSession ? openViduSession : mySessionId);
-                    //     }
-                    //   }
-                    // }
-                    // if (e.key === 'Enter') {
-                    //   if (!e.shiftKey) {
-                    //     e.preventDefault();
-                    //     textPublish(openViduSession ? openViduSession : mySessionId);
-                    //   }
-                    // }
-                  }}
-                ></ChatInput>
+                    }}
+                  ></ChatInput>
+                </ChatInputBox>
               </ChatInputWrap>
               <SendBtnWrap>
                 <SendBtn onClick={() => {
@@ -1148,6 +1154,25 @@ function Room() {
     </div>
   );
 }
+
+export const RoomHeaderContentWrap = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+`
+
+export const RoomHeaderBottomItemWrpa = styled.div`
+  display: flex;
+  gap: 12px;
+
+  p {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+    color: #FFFFFF;
+  }
+`
 
 export const UserNickName = styled.span`
     color: white;
@@ -1722,7 +1747,7 @@ export const VideoShareBtn = styled.button`
   &:hover{
   background-image: url(
     ${(props) => {
-    return props.isScreenSharing ? props.ShareOnHoverBtn : props.ShareHoverBtn
+    return props.isScreenSharing ? props.ShareHoverBtn : props.ShareOnHoverBtn
   }}
     );
   }
@@ -1744,7 +1769,7 @@ export const VideoToggleBtn = styled.button`
   &:hover{
   background-image: url(
     ${(props) => {
-    return props.VideoEnabled ? props.VideoOnHoverBtn : props.VideoHoverBtn
+    return props.VideoEnabled ? props.VideoHoverBtn : props.VideoOnHoverBtn
   }}
   );
   }
@@ -1766,7 +1791,7 @@ export const AudioToggleBtn = styled.button`
   &:hover{
   background-image: url(
     ${(props) => {
-    return props.AudioEnabled ? props.AudioOnHoverBtn : props.AudioHoverBtn
+    return props.AudioEnabled ? props.AudioHoverBtn : props.AudioOnHoverBtn
   }}
   );
   }
@@ -1791,7 +1816,7 @@ export const ChattingHeader = styled.p`
 
 export const ChatContentWrap = styled.div`
     padding: 10px 15px;
-    height: 745px;
+    height: 695px;
     overflow-y: scroll;
     &::-webkit-scrollbar {
         display: none;
@@ -1862,23 +1887,43 @@ export const ChatInputWrap = styled.div`
   text-align: center;
 `
 
+export const ChatInputBox = styled.div`
+  position: absolute;
+  left: 13px;
+  bottom: 12px;
+  width: 190px;
+  height: 76px;
+  /* padding: 5px 13px; */
+  box-sizing: border-box;
+  background-color: #626873;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
 export const ChatInput = styled.textarea`
-    width: 224px;
-    height: 30px;
+    /* position: absolute;
+    left: 13px;
+    bottom: 12px; */
+    width: 180px;
+    height: 66px;
     background-color: #626873;
-    padding: 4px 35px 0 20px;
-    letter-spacing: 2.5px;
+    /* background-color: red; */
+    padding: 5px 10px;
+    letter-spacing: 1.5px;
     resize: none;
     box-sizing: border-box;
-    font-size: 16px;
+    font-size: 12px;
     font-weight: 500;
-    line-height: 30px;
+    overflow-y: hidden;
+    /* line-height: 30px; */
     &::-webkit-scrollbar {
         display: none;
     }
     outline: none;
     border: none;
-    border-radius: 114px;
+    border-radius: 10px;
     font-family: 'Pretendard';
     font-style: normal;
     color: white;
@@ -1887,15 +1932,15 @@ export const ChatInput = styled.textarea`
       font-style: normal;
       font-weight: 500;
       font-size: 12px;
-      line-height: 23px;
+      /* line-height: 23px; */
       color: #BEBEBE;
     }
 `;
 
 export const SendBtnWrap = styled.div`
     position: absolute;
-    bottom: 14px;
-    right: 10px;
+    bottom: 10px;
+    right: 6px;
     cursor: pointer;
     padding: 6px;
     box-sizing: border-box;
@@ -1927,4 +1972,26 @@ export const SendBtn = styled.button`
     animation: ${shakeAnimation} 0.6s;
   }
 `;
+
+const arrowAnimation = keyframes`
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-50%, 50%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+`;
+
+export const RoomTimerArrow = styled.img`
+  position: absolute;
+  bottom: 95px;
+  left: 511px;
+  z-index: 20;
+  animation: ${arrowAnimation} 0.9s linear infinite;
+`
+
+
 export default Room
