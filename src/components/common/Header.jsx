@@ -243,6 +243,7 @@ function Header(props) {
         // 로그아웃 처리 쿠키 삭제
         const remove = async () => {
             removeCookie('token')
+            removeCookie('refreshToken')
             removeCookie('nickName')
             removeCookie('userProfile')
             sessionStorage.removeItem('isSubscribed')
