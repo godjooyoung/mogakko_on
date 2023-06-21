@@ -1316,7 +1316,7 @@ export const LanguageWrap = styled.div`
 `
 
 export const LanguageTitle = styled.p`
-  width: 150px;
+  width: 130px;
   font-size: 21px;
   margin-bottom: 15px;
   color: white;
@@ -1325,8 +1325,7 @@ export const LanguageTitle = styled.p`
 export const LanguageBtnWrap = styled.div`
   display: flex;
   flex-wrap: wrap;
-  margin-left: 20px;
-  gap:10px;
+  gap:16px;
 `
 
 export const LanguageBtnBox = styled.div`
@@ -1343,10 +1342,10 @@ export const LanguageBtnBox = styled.div`
 `
 
 export const LanguageBtn = styled.button`
-  width: 50px;
-  height: 50px;
+  width: 57px;
+  height: 57px;
   background: transparent;
-  border-radius: 30px;  
+  border-radius: 50%;  
   border: none;
   font-size: 0;
   background-image: url(
@@ -1380,7 +1379,7 @@ export const MaxMembersTitle = styled.p`
 export const MaxMembersBtnWrap = styled.div`
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 24px;
 `
 
 

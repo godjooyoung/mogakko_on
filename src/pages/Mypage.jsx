@@ -895,7 +895,6 @@ function Mypage() {
                             onKeyDown={(e) => {
                               // 엔터시 검색 키워드 세팅
                               if (e.key === "Enter") { 
-                                console.log("ENTERENTER")
                                   if (e.nativeEvent.isComposing === false && !e.shiftKey) {
                                       e.preventDefault()
                                       settingSearchUserHandler()
@@ -910,6 +909,16 @@ function Mypage() {
                             value={findCodeValue}
                             onChange={(e) => {
                               onChangeFindCodeValue(e)
+                            }}
+                            onKeyDown={(e) => {
+                              // 엔터시 검색 키워드 세팅
+                              if (e.key === "Enter") { 
+                                console.log("ENTERENTER2")
+                                  if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                                      e.preventDefault()
+                                      settingSearchUserHandler()
+                                  }
+                              }
                             }}
                           />
                         }
@@ -1168,6 +1177,7 @@ const MyPageTopContentWrap = styled.div`
   justify-content: center;
   align-items: center;
   margin-top: 15px;
+  margin-bottom: 74px;
 `
 
 const MogakkoTitle = styled.p`
@@ -1453,6 +1463,7 @@ const GithubTitleWrap = styled.div`
   padding-bottom: 7px;
   box-sizing: border-box;
   p {
+    font-size: 20px;
     width: ${(props) => {
     return props.userGitHubId === null || props.userGitHubId === undefined || props.userGitHubId === ' ' ? '895px' : '863px'
   }};
@@ -1903,7 +1914,7 @@ const MypageWrap = styled.div`
 
 const MypageNavbar = styled.div`
   width: 240px;
-  height: 800px;
+  height: 895px;
   background: var(--bg-li);
   border-radius: 20px;
   display: flex;
@@ -2054,7 +2065,7 @@ const ChartWrap = styled.div`
   display: flex;
   justify-content: space-between;
   /* align-items: center; */
-  margin-bottom: 24px;
+  margin-bottom: 57px;
 `
 
 const WeeklyStudyTimewrap = styled.div`
@@ -2065,7 +2076,7 @@ const WeeklyStudyTimewrap = styled.div`
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 500;
-    font-size: 21px;
+    font-size: 20px;
     line-height: 25px;
     margin-bottom: 17px;
   }
@@ -2099,7 +2110,7 @@ const TotalLanguageWrap = styled.div`
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 500;
-    font-size: 21px;
+    font-size: 20px;
     line-height: 25px;
     margin-bottom: 17px;
   }
