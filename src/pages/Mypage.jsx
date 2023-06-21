@@ -895,7 +895,6 @@ function Mypage() {
                             onKeyDown={(e) => {
                               // 엔터시 검색 키워드 세팅
                               if (e.key === "Enter") { 
-                                console.log("ENTERENTER")
                                   if (e.nativeEvent.isComposing === false && !e.shiftKey) {
                                       e.preventDefault()
                                       settingSearchUserHandler()
@@ -910,6 +909,16 @@ function Mypage() {
                             value={findCodeValue}
                             onChange={(e) => {
                               onChangeFindCodeValue(e)
+                            }}
+                            onKeyDown={(e) => {
+                              // 엔터시 검색 키워드 세팅
+                              if (e.key === "Enter") { 
+                                console.log("ENTERENTER2")
+                                  if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                                      e.preventDefault()
+                                      settingSearchUserHandler()
+                                  }
+                              }
                             }}
                           />
                         }
