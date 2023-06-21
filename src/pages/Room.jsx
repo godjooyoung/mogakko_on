@@ -959,9 +959,7 @@ function Room() {
                 priHander={() => { leaveSession() }}
                 secHandler={() => (setIsBeforeLeave(false))}
                 closeHander={() => (setIsBeforeLeave(false))} />
-              <RoomTimerArrow src={`${process.env.PUBLIC_URL}/image/roomTimerArrow.webp`} alt="" />
             </>
-
           }
 
           <RoomInHeader>
@@ -1033,7 +1031,7 @@ function Room() {
               {sessionConnect &&
                 <VideoBtnWrap>
                   <StopwatchWrap>
-                    <Stopwatch />
+                    <Stopwatch isBeforeLeave={isBeforeLeave}/>
                   </StopwatchWrap>
                   <VideoToggleBtn
                     onClick={VideoTogglehandler}
@@ -1943,26 +1941,5 @@ export const SendBtn = styled.button`
     animation: ${shakeAnimation} 0.6s;
   }
 `;
-
-const arrowAnimation = keyframes`
-  0% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(-50%, 50%);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
-`;
-
-export const RoomTimerArrow = styled.img`
-  position: absolute;
-  bottom: 95px;
-  left: 511px;
-  z-index: 20;
-  animation: ${arrowAnimation} 0.9s linear infinite;
-`
-
 
 export default Room
