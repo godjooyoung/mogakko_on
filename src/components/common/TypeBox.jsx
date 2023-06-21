@@ -54,6 +54,7 @@ export const TypeBtn = styled.li`
   color: #FFFFFF;
   display: flex;
   justify-content: center;
+  align-items: center;
 `
 
 export default TypeBox
