@@ -65,11 +65,20 @@ function NoticePopup(props) {
           content: '방 생성 기능 개선'
         },
       ]
+    },
+    {
+      date: '2023.06.21',
+      noticeTitle: '사용자 편의성 개선',
+      noticeContents: [
+        {
+          color : '#F4AA33',
+          type: 'Change',
+          content: '리프레쉬 토큰 적용'
+        },
+      ]
     }
   ]
 
-
-  // console.log('noticeItem.date', noticeItem)
   return (
     <>
       <Dark>
@@ -83,8 +92,8 @@ function NoticePopup(props) {
           <h2>
             안녕하세요. <b>모각코 ONː</b>을 이용해주시는 여러분들.<br />
             <b>모각코 ONː</b>은 위치기반 서비스 입니다. 12KM 내의 유저들과 함께 이용할 수 있습니다.<br/>
-            유저테스트 기간 동안은 본인이 접속한 동네와 상관없이 <b>모각코 ONː</b>을 이용하실 수 있습니다.<br />
-            여러분들이 성실히 작성해주시는 피드백은 모두 감사히 보고 있습니다! <br />
+            테스트 기간 동안은 본인이 접속한 동네와 상관없이 <b>모각코 ONː</b>을 이용하실 수 있습니다.<br />
+            더 나은 <b>모각코 ONː</b>이 되도록 노력하겠습니다.
           </h2>
 
           <h1>여러분의 피드백이 이렇게 반영됐어요!</h1>
@@ -144,7 +153,7 @@ export const PopUp = styled.div`
   flex-direction: column;
   align-items: center;
   box-shadow: 5px 5px 20px 0 rgba(0,0,0,0.4);
-  /* justify-content: space-between; */
+  justify-content: space-between;
   padding: 63px 60px 0 60px;
   h1 {
     width: 100%;
@@ -166,7 +175,7 @@ export const PopUp = styled.div`
     color: #FFFFFF;
     margin-top: 27px;
     margin-bottom: 48px;
-    line-height: 170%;
+    line-height: 180%;
   }
 
   p {
@@ -269,6 +278,7 @@ export const ConfirmBtn = styled.button`
   &:hover {
     background-color: #00C5D1;
   }
+  margin-bottom: 32px;
 `
 
 export const NoticeWrap = styled.div`
@@ -278,6 +288,7 @@ export const NoticeWrap = styled.div`
   display: flex;
   flex-direction: column;
   flex-basis: fit-content;
+  flex-shrink: 0;
 
   h3 {
     font-family: 'Pretendard';

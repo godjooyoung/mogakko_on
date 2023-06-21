@@ -113,7 +113,7 @@ export const WkTotTm = styled.h2`
     font-size: 28px;
     color: #FFFFFF;
     // 지우면 안되는 line-height 입니다.
-    line-height: 50%;
+    line-height: 55%;
 `
 export const AttendancesWrap = styled.div`
     display: flex;
@@ -146,11 +146,14 @@ export const EllipseDiv = styled.div`
     height: 24px;
     border-radius: 50%;
     overflow: hidden;
-    background-color : ${(props) => {
+    /* background-color : ${(props) => {
         return Number(props.isAttend) > 0 ? 'var(--po-de)' : '#BEBEBE'
     }};
     background-image: ${(props) =>
         Number(props.isAttend) > 0 ? `url(${process.env.PUBLIC_URL}/image/wkDayAtte.webp)` : 'none'
+    }; */
+    background-image: ${(props) =>
+        Number(props.isAttend) > 0 ? `url(${process.env.PUBLIC_URL}/image/on.webp)` : `url(${process.env.PUBLIC_URL}/image/off.webp)`
     };
     background-position: center;
     background-repeat: no-repeat;
