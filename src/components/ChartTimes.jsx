@@ -41,7 +41,10 @@ function ChartTimes(props) {
             x: { // defining min and max so hiding the dataset does not change scale range
                 ticks: {
                     font: {
-                      size: 12, // Specify the font size for the scale ticks
+                      size: 11, // Specify the font size for the scale ticks
+                      family : 'Pretendard',
+                      style : 'normal',
+                      weight : '500'
                     },
                     color: '#ffffff', // Specify the font color for the scale ticks
                 },
