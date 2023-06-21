@@ -7,12 +7,13 @@ import SockJS from "sockjs-client"
 import { Client } from "@stomp/stompjs"
 import { styled, keyframes } from 'styled-components'
 import useInput from '../hooks/useInput'
-import { getCookie } from '../cookie/Cookie'
+import { getCookie, setCookie } from '../cookie/Cookie'
 import { useMutation } from 'react-query'
 import { leaveChatRoom } from '../axios/api/chat'
 import Header from '../components/common/Header';
 import Stopwatch from '../components/Stopwatch'
 import CommonPopup from '../components/common/CommonPopup'
+import { jwtInstance } from '../axios/apiConfig'
 
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
@@ -571,70 +572,40 @@ function Room() {
   }, [data])
 
   const createSession = async (data) => {
-    // console.log("##### createSession", data)
-    const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko', data, {
-      headers: { ACCESS_KEY: getCookie('token') },
-    })
-    // console.log("##### sessionId", response.data.data.sessionId)
-    setMySessionId(response.data.data.sessionId)
-    setOpenViduSession(response.data.data.sessionId)
+
+    // const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko', data, {
+    //   headers: { ACCESS_KEY: getCookie('token') },
+    // })
+    
+    // apiConfig 내 토큰 인스턴스 사용
+    const response = await jwtInstance.post(APPLICATION_SERVER_URL + '/mogakko', data );
+    
+    console.debug("[room] sessionId (in createSession Fn) :", response.data.data.sessionId)
+    setMySessionId(response.data.data.sessionId);
+    setOpenViduSession(response.data.data.sessionId);
     return response.data.data.sessionId // The sessionId
-  };
+  }
 
   const createToken = async (sessionId) => {
-    // console.log("##### createToken", sessionId)
+    console.debug("[room] sessionId (in createToken Fn) :", sessionId)
     if (sessionInfo) {
       if (sessionInfo.isDirect) {
-        // console.log("토큰만들기 - 게스트")
+        console.debug("[room] sessionInfo (in createToken Fn) :", sessionInfo)
+        setMySessionId(sessionId) // 참가자
+        setOpenViduSession(sessionId) // 참가자
       }
     } else {
-      // console.log("토큰만들기 - 방장")
+      setMySessionId(sessionId) // 방장
     }
 
-    if (sessionInfo) {
-      if (sessionInfo.isDirect) {
-        setMySessionId(sessionId)
-        setOpenViduSession(sessionId)
-      }
-    } else {
-      setMySessionId(sessionId)
-    }
+    // const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
+    //   headers: {
+    //     ACCESS_KEY: getCookie('token'),
+    //   },
+    // })
 
-
-    // const setRequestBody = () => {
-    //   let payload = {}
-    //   if (!data.password && data.isOpened) {
-    //     payload = payload
-    //   } else {
-    //     payload = { 'password': data.password }
-    //   }
-    //   console.log("요청 bodyp", payload)
-    //   return payload
-    // }
-
-    // let response
-    // if (data.isOpened) {
-    //   console.log('############################### 공개방 입장 ##################################')
-    //   response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
-    //     headers: {
-    //       ACCESS_KEY: getCookie('token'),
-    //     },
-    //   })
-    //   return response.data // The token
-    // } else {
-    //   console.log('############################## 비공개방 입장 ##################################')
-    //   response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
-    //     headers: {
-    //       ACCESS_KEY: getCookie('token'),
-    //     },
-    //   })
-    // return response.data // The token
-    // }
-    const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
-      headers: {
-        ACCESS_KEY: getCookie('token'),
-      },
-    })
+    // apiConfig 내 토큰 인스턴스 사용
+    const response = await jwtInstance.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {} )
     return response.data // The token
   };
 
