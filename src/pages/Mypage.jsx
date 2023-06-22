@@ -14,6 +14,7 @@ import 'aos/dist/aos.css';
 import ChartWeekly from '../components/ChartWeekly';
 import CommonPopup from '../components/common/CommonPopup'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import SnackBar from '../components/common/SnackBar';
 
 // // 00:00:00 to 00H00M
 // const formatTime = (timeString) => {
@@ -95,7 +96,7 @@ function Mypage() {
       enabled: isSearchUserEnabled,
       onSuccess: getSearchUserListIsSuccessHandler,
       onError: getSearchUserListIsErrorHandler,
-      retry:false,
+      retry: false,
     })
 
   // 받은 쪽지 조회
@@ -194,7 +195,7 @@ function Mypage() {
     }
   })
 
-   // 요청 응답 공통 팝업 오픈
+  // 요청 응답 공통 팝업 오픈
   const popupOpenHander = (msg) => {
     // console.log('쪽지팝업 msg is......0', msg)
     setMesageStatusresponse(msg)
@@ -208,15 +209,25 @@ function Mypage() {
     setMesageStatusresponse('')
   }
 
+  // useEffect(() => {
+  //   if (messageStatus) {
+  //     const timer = setTimeout(() => {
+  //       setMessageStatus(false);
+  //     }, 1200);
+
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [messageStatus])
   useEffect(() => {
     // console.log('쪽지팝업', mesageStatusresponse)
     if (mesageStatusresponse !== '') {
       //console.log('쪽지팝업 msg is......1', mesageStatusresponse)
-      if(mesageStatusresponse !== 'AccessToken Expired.'){
+      if (mesageStatusresponse !== 'AccessToken Expired.') {
         setMessageStatus(true)
+
       }
-    }else {
-      
+    } else {
+
       setMessageStatus(false)
     }
   }, [mesageStatusresponse]);
@@ -234,10 +245,10 @@ function Mypage() {
   useEffect(() => {
     if (findNickNameValue !== '' || findCodeValue !== '') {
       if (friendFindNickName) {
-        setSearchUserParam(()=>({ type: 'NAME', value: findNickNameValue }))
+        setSearchUserParam(() => ({ type: 'NAME', value: findNickNameValue }))
         findCodeValueReset()
       } else {
-        setSearchUserParam(()=>({ type: 'CODE', value: findCodeValue }))
+        setSearchUserParam(() => ({ type: 'CODE', value: findCodeValue }))
         findNickNameValueReset()
       }
     }
@@ -894,11 +905,11 @@ function Mypage() {
                             }}
                             onKeyDown={(e) => {
                               // 엔터시 검색 키워드 세팅
-                              if (e.key === "Enter") { 
-                                  if (e.nativeEvent.isComposing === false && !e.shiftKey) {
-                                      e.preventDefault()
-                                      settingSearchUserHandler()
-                                  }
+                              if (e.key === "Enter") {
+                                if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                                  e.preventDefault()
+                                  settingSearchUserHandler()
+                                }
                               }
                             }}
                           /> :
@@ -912,12 +923,12 @@ function Mypage() {
                             }}
                             onKeyDown={(e) => {
                               // 엔터시 검색 키워드 세팅
-                              if (e.key === "Enter") { 
+                              if (e.key === "Enter") {
                                 console.log("ENTERENTER2")
-                                  if (e.nativeEvent.isComposing === false && !e.shiftKey) {
-                                      e.preventDefault()
-                                      settingSearchUserHandler()
-                                  }
+                                if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                                  e.preventDefault()
+                                  settingSearchUserHandler()
+                                }
                               }
                             }}
                           />
@@ -1024,8 +1035,9 @@ function Mypage() {
 
                 {
                   messageStatus ?
-                    <CommonPopup msg={mesageStatusresponse} isBtns={false} priMsg={'확인'} priHander={popupCloseHander} closeHander={popupCloseHander} />
-                    : <></>
+                    <SnackBar content={mesageStatusresponse} state={messageStatus} /> : null
+                  // <CommonPopup msg={mesageStatusresponse} isBtns={false} priMsg={'확인'} priHander={popupCloseHander} closeHander={popupCloseHander} />
+                  // : <></>
                 }
                 {
                   messageBlock ?
@@ -1392,7 +1404,7 @@ const TopContentTitle = styled.p`
   font-size: 15px;
   color: var(--po-de);
   margin-bottom: 17px;
-` 
+`
 
 const Status = styled.span`
   width: 18px;
