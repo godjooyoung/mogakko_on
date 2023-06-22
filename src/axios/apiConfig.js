@@ -58,8 +58,9 @@ jwtInstance.interceptors.response.use(
             // console.log('응답 인터셉트 - RefreshToken Expired.')
             // TODO 로그아웃 처리 후 로그인 페이지로 리다이렉트 시키기
             return Promise.reject(error)
-        }
-        
+        }else{
+            return Promise.reject(error)
+        }        
     },
 )
 

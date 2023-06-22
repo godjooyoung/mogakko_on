@@ -14,6 +14,7 @@ import 'aos/dist/aos.css';
 import ChartWeekly from '../components/ChartWeekly';
 import CommonPopup from '../components/common/CommonPopup'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import SnackBar from '../components/common/SnackBar';
 
 // // 00:00:00 to 00H00M
 // const formatTime = (timeString) => {
@@ -95,7 +96,7 @@ function Mypage() {
       enabled: isSearchUserEnabled,
       onSuccess: getSearchUserListIsSuccessHandler,
       onError: getSearchUserListIsErrorHandler,
-      retry:false,
+      retry: false,
     })
 
   // 받은 쪽지 조회
@@ -194,7 +195,7 @@ function Mypage() {
     }
   })
 
-   // 요청 응답 공통 팝업 오픈
+  // 요청 응답 공통 팝업 오픈
   const popupOpenHander = (msg) => {
     // console.log('쪽지팝업 msg is......0', msg)
     setMesageStatusresponse(msg)
@@ -208,15 +209,25 @@ function Mypage() {
     setMesageStatusresponse('')
   }
 
+  // useEffect(() => {
+  //   if (messageStatus) {
+  //     const timer = setTimeout(() => {
+  //       setMessageStatus(false);
+  //     }, 1200);
+
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [messageStatus])
   useEffect(() => {
     // console.log('쪽지팝업', mesageStatusresponse)
     if (mesageStatusresponse !== '') {
       //console.log('쪽지팝업 msg is......1', mesageStatusresponse)
-      if(mesageStatusresponse !== 'AccessToken Expired.'){
+      if (mesageStatusresponse !== 'AccessToken Expired.') {
         setMessageStatus(true)
+
       }
-    }else {
-      
+    } else {
+
       setMessageStatus(false)
     }
   }, [mesageStatusresponse]);
@@ -234,10 +245,10 @@ function Mypage() {
   useEffect(() => {
     if (findNickNameValue !== '' || findCodeValue !== '') {
       if (friendFindNickName) {
-        setSearchUserParam(()=>({ type: 'NAME', value: findNickNameValue }))
+        setSearchUserParam(() => ({ type: 'NAME', value: findNickNameValue }))
         findCodeValueReset()
       } else {
-        setSearchUserParam(()=>({ type: 'CODE', value: findCodeValue }))
+        setSearchUserParam(() => ({ type: 'CODE', value: findCodeValue }))
         findNickNameValueReset()
       }
     }
@@ -894,11 +905,11 @@ function Mypage() {
                             }}
                             onKeyDown={(e) => {
                               // 엔터시 검색 키워드 세팅
-                              if (e.key === "Enter") { 
-                                  if (e.nativeEvent.isComposing === false && !e.shiftKey) {
-                                      e.preventDefault()
-                                      settingSearchUserHandler()
-                                  }
+                              if (e.key === "Enter") {
+                                if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                                  e.preventDefault()
+                                  settingSearchUserHandler()
+                                }
                               }
                             }}
                           /> :
@@ -912,12 +923,12 @@ function Mypage() {
                             }}
                             onKeyDown={(e) => {
                               // 엔터시 검색 키워드 세팅
-                              if (e.key === "Enter") { 
+                              if (e.key === "Enter") {
                                 console.log("ENTERENTER2")
-                                  if (e.nativeEvent.isComposing === false && !e.shiftKey) {
-                                      e.preventDefault()
-                                      settingSearchUserHandler()
-                                  }
+                                if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                                  e.preventDefault()
+                                  settingSearchUserHandler()
+                                }
                               }
                             }}
                           />
@@ -1024,8 +1035,9 @@ function Mypage() {
 
                 {
                   messageStatus ?
-                    <CommonPopup msg={mesageStatusresponse} isBtns={false} priMsg={'확인'} priHander={popupCloseHander} closeHander={popupCloseHander} />
-                    : <></>
+                    <SnackBar content={mesageStatusresponse} state={messageStatus} /> : null
+                  // <CommonPopup msg={mesageStatusresponse} isBtns={false} priMsg={'확인'} priHander={popupCloseHander} closeHander={popupCloseHander} />
+                  // : <></>
                 }
                 {
                   messageBlock ?
@@ -1177,7 +1189,6 @@ const MyPageTopContentWrap = styled.div`
   justify-content: center;
   align-items: center;
   margin-top: 15px;
-  margin-bottom: 74px;
 `
 
 const MogakkoTitle = styled.p`
@@ -1393,7 +1404,7 @@ const TopContentTitle = styled.p`
   font-size: 15px;
   color: var(--po-de);
   margin-bottom: 17px;
-` 
+`
 
 const Status = styled.span`
   width: 18px;
@@ -1451,7 +1462,7 @@ const MyPageMiddleContentWrap = styled.div`
     color: white;
     font-weight: 500;
     font-size: 21px;
-    margin-bottom: 10px;
+    margin-top: 10px;
   }
 `
 
@@ -1543,10 +1554,8 @@ const GitHubImage = styled.img`
 `
 
 const MyPageBottomContentWrap = styled.div`
-  height: 300px;
   display: flex;
   justify-content: center;
-  align-items: center;
 `
 
 const FriendRequestWrap = styled.div`
@@ -1576,7 +1585,9 @@ const FriendRequestTitle = styled.p`
   font-weight: 500;
   font-size: 21px;
   color: white;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
+  margin-top: 39px;
+  margin-bottom: 24px;
 `
 
 const FriendRequestNickname = styled.p`
@@ -1651,7 +1662,6 @@ const AllowBtn = styled.button`
 
 const FriendListContainer = styled.div`
   width: 559px;
-  height: 799px;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -1672,7 +1682,8 @@ const DeleteBtnWrap = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-top: 39px;
+  margin-bottom: 24px;
   p {
     font-weight: 500;
     font-size: 21px;
@@ -1723,6 +1734,7 @@ export const FriendListCancleBtn = styled.button`
 const ScrollWrap = styled.div`
   width: 559px;
   height: 856px;
+  height: calc(100% - 25.73px);
   overflow-y: scroll;
   
   &::-webkit-scrollbar{
@@ -1831,7 +1843,8 @@ const FriendListWrap = styled.div`
 
 const NullFriendList = styled.div`
   width: 559px;
-  height: 799px;
+  /* height: 799px; */
+  height: 100%;
   background: var(--bg-li);
   border-radius: 10px;
   display: flex;
@@ -1904,6 +1917,13 @@ const FriendListName = styled.p`
 
 const WidthBox = styled.div`
   width: 893px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: calc(100vh - 79px - 50px);
+  @media screen and (max-height: 1020px) {
+        justify-content: space-between;
+  };
 `
 
 const MypageWrap = styled.div`
@@ -1915,6 +1935,7 @@ const MypageWrap = styled.div`
 const MypageNavbar = styled.div`
   width: 240px;
   height: 895px;
+  height: calc(100vh - 79px - 50px);
   background: var(--bg-li);
   border-radius: 20px;
   display: flex;
@@ -2064,8 +2085,6 @@ const ChartWrap = styled.div`
   height: 376px;
   display: flex;
   justify-content: space-between;
-  /* align-items: center; */
-  margin-bottom: 57px;
 `
 
 const WeeklyStudyTimewrap = styled.div`
@@ -2078,7 +2097,7 @@ const WeeklyStudyTimewrap = styled.div`
     font-weight: 500;
     font-size: 20px;
     line-height: 25px;
-    margin-bottom: 17px;
+    margin-bottom: 10px;
   }
 `
 
@@ -2112,7 +2131,7 @@ const TotalLanguageWrap = styled.div`
     font-weight: 500;
     font-size: 20px;
     line-height: 25px;
-    margin-bottom: 17px;
+    margin-bottom: 10px;
   }
 `
 
@@ -2125,27 +2144,30 @@ const TotalLanguage = styled.div`
 
 const FriendMypageWrap = styled.div`
   width: 893px;
+  display: flex;
+  height: calc(100vh - 79px - 50px); 
 `
 
 const FriendMypageReqWrap = styled.div`
-  height: 799px;
+  /* height: 799px; */
   margin-left: 56px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
-  gap: 66px;
+  /* gap: 66px; */
 `
 
 const FriendFindwrap = styled.div`
   width: 249px;
-  height: 480px;
+  height: 100%;
+  /* height: 480px; */
 `
 
 const FriendFindTitleWrap = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  /* align-items: center; */
 `
 
 const FriendFindTitle = styled.p`
@@ -2154,10 +2176,12 @@ const FriendFindTitle = styled.p`
   font-weight: 500;
   font-size: 20px;
   color: #FFFFFF;
+  margin-top: 39px;
+  margin-bottom: 24px;
 `
 
 const FriendFindBtnWrap = styled.div`
-
+  margin-top: 39px;
 `
 
 const FriendFindNickNameBtn = styled.button`
@@ -2239,10 +2263,12 @@ const FriendFindCodeInput = styled.input`
 
 const MessageReceiveMypageWrap = styled.div`
     width: 893px;
-    height: 799px; 
+    height: calc(100vh - 79px - 50px);
+    /* height: 799px;  */
 `
 
 const MessageReceiveMypageHeaderWrap = styled.div`
+  margin-top: 39px;
   height: 36px;
   display: flex;
   justify-content: space-between;
@@ -2300,6 +2326,7 @@ const MessageReceiveMypageTitleLeft = styled.div`
 
 const MessageScroll = styled.div`
   height: 670px;
+  height: calc(100% - 106px - 79px);
   margin-top: 10px;
   overflow-y: scroll;
   
@@ -2496,7 +2523,8 @@ const MessagePopupBtnWrap = styled.div`
 
 const SearchScrollWrap = styled.div`
   width: 281px;
-  height: 350px;
+  height: calc(100% - 161px);
+  /* height: 350px; */
   overflow-y: scroll;
   margin-top: 20px;
   
