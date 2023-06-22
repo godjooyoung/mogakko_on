@@ -15,9 +15,11 @@ function SnackBar(props) {
         <>
             <ToastContainer
                 position="top-center"
+                autoClose='1200'
                 pauseOnFocusLoss
                 draggable
-                pauseOnHover
+                pauseOnHover='false'
+                hideProgressBar='true'
             />
         </>
     );
