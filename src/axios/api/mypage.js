@@ -70,16 +70,12 @@ const deleteFriend = async (targetFriend) => {
 
 // 친구 요청
 const requestFriend = async (targetFriend) => {
-  // console.log("친구 요청 보내기. (" + targetFriend + ") 아 나랑 친구할래?")
   const target = { requestReceiverNickname: targetFriend }
-
   try {
     const response = await jwtInstance.post('/friendship/requests', target)
-    // console.log("requestFriend response : ", response.data.message)
-    // console.log("requestFriend response : ", response.data.data)
-    return response
+    return Promise.resolve(response)
   } catch (error) {
-    return error
+    return Promise.reject(error)
   }
 }
 

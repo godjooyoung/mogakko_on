@@ -13,12 +13,16 @@ import { leaveChatRoom } from '../axios/api/chat'
 import Header from '../components/common/Header';
 import Stopwatch from '../components/Stopwatch'
 import CommonPopup from '../components/common/CommonPopup'
+import SnackBar from '../components/common/SnackBar'
 import { jwtInstance } from '../axios/apiConfig'
+
 
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
 function Room() {
   const location = useLocation()
+  const navigate = useNavigate()
+
   const sessionInfo = location.state
 
   const [mySessionId, setMySessionId] = useState(sessionInfo.mySessionId) //진짜 세션아이디로 넣어줘야됨 (지금은 서버에서 input에 걸려있는 정규식이 영어만 됨)
@@ -33,7 +37,7 @@ function Room() {
   const [lang, setLang] = useState(sessionInfo.language)
 
   const [sessionConnect, setSessionConnect] = useState(false)
-
+  
   // const [isOpened, setIsOpened] = useState(sessionInfo.isOpened)   // isOpen 
   const [isOpened, setIsOpened] = useState(true)   // isOpen 
   const [openViduSession, setOpenViduSession] = useState(undefined)
@@ -51,16 +55,21 @@ function Room() {
   const stompClient = useRef(null)
 
   const [btnSelect, setBtnSelect] = useState('public')
+  
+  // 스낵바 메세지 - 스낵바 라이브러리로 대체
+  const [snackbarMsg, setSnackbarMsg]= useState('')
 
-  //popup창
+  // 친구신청 스낵바 활성 여부 - 스낵바 라이브러리로 대체
+  const [isActiveSnackbar, setIsActiveSnackbar] = useState(false)
+
+  // 모각코 안내 팝업 활성 여부
   const [roomPopUp, setRoomPopUp] = useState(false)
-  // 네비게이트 선언
-  const navigate = useNavigate()
+
 
   // 뒤로 가기 막기 팝업 활성 여부
   const [isblocked, setIsblocked] = useState(false)
 
-  // 나가기 팝업 창 활성 여부
+  // 나가기 팝업 활성 여부
   const [isBeforeLeave, setIsBeforeLeave] = useState(false)
 
   // 뒤로가기 동작 감지
@@ -82,9 +91,19 @@ function Room() {
 
   // 나가기 버튼클릭 시 팝업 띄우기 위해서 동작하는 함수
   const leavePopOpenHandler = () => {
-    // console.log('나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름')
     setIsBeforeLeave(true)
   }
+
+  // 스낵바 열리고 나면 자동으로 닫히도록 하는 useEffect
+  useEffect(() => {
+    if (isActiveSnackbar) {
+      const timer = setTimeout(() => {
+        setIsActiveSnackbar(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isActiveSnackbar]);
 
   useEffect(() => {
     // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> 나가려고?", isBeforeLeave)
@@ -779,17 +798,18 @@ function Room() {
     setPosition((prevPosition) => prevPosition + 1045); // 왼쪽으로 1045px 이동
     const newCount = count
     setCount(newCount - 1)
-  };
+  }
 
   const scrollRight = () => {
     // console.log("오른쪽으로 가기!!!!!")
     setPosition((prevPosition) => prevPosition - 1045); // 오른쪽으로 1045px 이동
     const newCount = count
     setCount(newCount + 1)
-  };
+  }
 
-
-  console.log('sessionConnect', sessionConnect)
+  const activeSnackbarHandler = () => {
+    setIsActiveSnackbar(true)
+  }
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -961,7 +981,16 @@ function Room() {
                 closeHander={() => (setIsBeforeLeave(false))} />
             </>
           }
-
+          {
+            /* 친구 신청 스낵바 */
+            isActiveSnackbar?(
+              <>
+              <SnackBar msg={snackbarMsg}/>
+              </>
+            ):(
+              <></>
+            )
+          }
           <RoomInHeader>
             <RoomHeaderContentWrap>
               {languageImgHandler()}
@@ -996,11 +1025,12 @@ function Room() {
                       null
                     }
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
-                      <UserVideoComponent streamManager={publisher} />
+                      <UserVideoComponent streamManager={publisher} activeSnackbarHandler={activeSnackbarHandler}/>
 
+                      {/* 구독자 수 만큼 비디오를 생성해서 붙인다. */}
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                          <UserVideoComponent streamManager={e} />
+                          <UserVideoComponent streamManager={e} activeSnackbarHandler={activeSnackbarHandler} />
                         </div>
                       ))}
 
@@ -1157,7 +1187,7 @@ export const UserNickName = styled.span`
     padding-inline: 10px;
 `
 
-const Dark = styled.div`
+export const Dark = styled.div`
   width: 100vw;
   position: fixed;
   top: 0;
@@ -1171,7 +1201,7 @@ const Dark = styled.div`
   backdrop-filter: blur(3px);
 `
 
-const PopUp = styled.div`
+export const PopUp = styled.div`
   position: relative;
   width: 384px;
   height: 424px;
@@ -1205,7 +1235,7 @@ const PopUp = styled.div`
   }
 `
 
-const RoomPopUpImgBox = styled.div`
+export const RoomPopUpImgBox = styled.div`
   display: flex;
   justify-content: center;
   align-items: start;
@@ -1225,7 +1255,7 @@ const RoomPopUpImgBox = styled.div`
   }
 `
 
-const ParticipationBtn = styled.button`
+export const ParticipationBtn = styled.button`
   width: 164px;
   height: 32px;
   background: var(--po-de);
@@ -1403,8 +1433,6 @@ export const MaxMembersBtn = styled.button`
   //0617주석 line-height: 150%;
 `
 
-
-
 export const PublicWrap = styled.div`
   margin-bottom: 40px;
   display: flex;
@@ -1530,7 +1558,7 @@ export const RoomInHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   height: 90px;
-  padding: 0 30px 0 30px;
+  padding: 0 27px 0 31px;
 
   span {
     color: white;
@@ -1559,16 +1587,18 @@ export const LeaveBtn = styled.button`
     );
   }
 `
-
 export const RoomContainer = styled.div`
   width: 100%;
   height: 845px;
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
+  justify-content: flex-start;
+  gap: 9px;
 `
 
 export const VideoWrap = styled.div`
   width: 100%;
+  width: 981px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1599,7 +1629,7 @@ export const PubilsherVideoWrap = styled.div`
   flex-shrink: 0;
   justify-content: flex-start;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
   scroll-snap-align: start;
   scroll-behavior: smooth;
   /* background-color: yellow; */
@@ -1610,9 +1640,9 @@ export const PubilsherVideoWrap = styled.div`
   }}
   );
   video {
-      min-width: 250px;
-      max-width: 250px;
-      height: 145px;
+      min-width: 240px;
+      max-width: 240px;
+      height: 135px;
   }
 `
 
@@ -1669,10 +1699,12 @@ export const SlideRightBtn = styled.button`
 
 export const MainStreamWrap = styled.div`
   width: 1030px;
+  width: 981px;
   display: flex;
   justify-content: center;
   video {
     height: 550px;
+    height: 528px;
   }
 
   span {
@@ -1767,6 +1799,7 @@ export const AudioToggleBtn = styled.button`
 
 export const ChattingWrap = styled.div`
   width: 300px;
+  width: 274px;
   height: 840px;
   position: relative;
   background-color: var(--bg-li);
@@ -1775,11 +1808,12 @@ export const ChattingWrap = styled.div`
 
 export const ChattingHeader = styled.p`
   font-size: 20px;
-  height: 50px;
-  //0617주석 line-height: 30px;
-  padding: 10px;
+  height: 55px;
+  padding-left: 29px;
   box-sizing: border-box;
   color:white;
+  display: flex;
+  align-items: center;
 `
 
 export const ChatContentWrap = styled.div`
@@ -1859,8 +1893,8 @@ export const ChatInputBox = styled.div`
   position: absolute;
   left: 13px;
   bottom: 12px;
-  width: 190px;
-  height: 76px;
+  /* width: 190px;
+  height: 76px; */
   /* padding: 5px 13px; */
   box-sizing: border-box;
   background-color: #626873;
@@ -1868,30 +1902,31 @@ export const ChatInputBox = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  
+  width: 217px;
+  height: 76px;
+
 `
 
 export const ChatInput = styled.textarea`
     /* position: absolute;
     left: 13px;
     bottom: 12px; */
-    width: 180px;
-    height: 66px;
+    width: 182px;
+    height: 57px;
     background-color: #626873;
-    /* background-color: red; */
-    padding: 5px 10px;
+    /* padding: 5px 10px; */
     letter-spacing: 1.5px;
     resize: none;
     box-sizing: border-box;
     font-size: 12px;
     font-weight: 500;
     overflow-y: hidden;
-    /* line-height: 30px; */
     &::-webkit-scrollbar {
         display: none;
     }
     outline: none;
     border: none;
-    border-radius: 10px;
     font-family: 'Pretendard';
     font-style: normal;
     color: white;
@@ -1939,6 +1974,6 @@ export const SendBtn = styled.button`
   &:hover {
     animation: ${shakeAnimation} 0.6s;
   }
-`;
+`
 
 export default Room
