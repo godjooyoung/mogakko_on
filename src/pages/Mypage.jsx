@@ -1243,7 +1243,7 @@ const TemperatureTitle = styled.p`
     width: 136.72px;
     font-size: 17px;
     color: var(--po-de);
-    font-weight: 900;
+    font-weight: 400;
     text-align: start;
     img {
       margin-left: 5px;
@@ -1467,13 +1467,19 @@ const MyPageMiddleContentWrap = styled.div`
 `
 
 const GithubTitleWrap = styled.div`
+
   position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding-bottom: 7px;
+  margin-top: 10px;
+
   box-sizing: border-box;
   p {
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 500;
     font-size: 20px;
     width: ${(props) => {
     return props.userGitHubId === null || props.userGitHubId === undefined || props.userGitHubId === ' ' ? '895px' : '863px'
@@ -1934,7 +1940,7 @@ const MypageWrap = styled.div`
 
 const MypageNavbar = styled.div`
   width: 240px;
-  height: 895px;
+  /* height: 895px; */
   height: calc(100vh - 79px - 50px);
   background: var(--bg-li);
   border-radius: 20px;
@@ -1956,6 +1962,7 @@ const MyCodeWrap = styled.div`
   margin-bottom: 30px;
 `
 
+//친구 코드 CSS
 const MyCode = styled.p`
   font-family: 'Pretendard';
   font-style: normal;
@@ -1964,6 +1971,7 @@ const MyCode = styled.p`
   color: #BEBEBE;
 `
 
+//코드 복사 버튼 CSS
 const CopyBtn = styled.button`
   width: 12px;
   height: 12px;

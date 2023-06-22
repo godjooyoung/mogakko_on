@@ -21,12 +21,13 @@ function UserVideoComponent(props) {
             console.log('mutation 친구요청 에러', error)
             // 실패해도 스낵바 띄우기
             console.log('mutation 친구요청 스낵바 메세지', error.response.data.message)
+            props.getFriendResponseMsgHandler(error.response.data.message)
         }
     })
     
     // 친구 신청 뮤테이션 콜 핸들러
     const friendRequestMutationCallHandler = () => {
-        friendRequestMutation.mutate('신희제')
+        friendRequestMutation.mutate(userNickName)
     }
 
     // stream 속성의 connection.data 값을 파싱, 그 안에서 clientData 속성의 값을 반환 
