@@ -28,6 +28,7 @@
     "react-router-dom": "^6.11.2",
     "react-scripts": "5.0.1",
     "react-select": "^5.7.3",
+    "react-toastify": "^9.1.3",
     "redux-thunk": "^2.4.2",
     "sockjs-client": "^1.6.1",
     "stompjs": "^2.3.3",
