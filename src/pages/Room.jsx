@@ -7,7 +7,7 @@ import SockJS from "sockjs-client"
 import { Client } from "@stomp/stompjs"
 import { styled, keyframes } from 'styled-components'
 import useInput from '../hooks/useInput'
-import { getCookie, setCookie } from '../cookie/Cookie'
+import { getCookie } from '../cookie/Cookie'
 import { useMutation } from 'react-query'
 import { leaveChatRoom } from '../axios/api/chat'
 import Header from '../components/common/Header';
@@ -56,11 +56,13 @@ function Room() {
 
   const [btnSelect, setBtnSelect] = useState('public')
   
-  // 스낵바 메세지 - 스낵바 라이브러리로 대체
+  // 스낵바 메세지 
   const [snackbarMsg, setSnackbarMsg]= useState('')
 
-  // 친구신청 스낵바 활성 여부 - 스낵바 라이브러리로 대체
+  // 스낵바 활성 여부 
   const [isActiveSnackbar, setIsActiveSnackbar] = useState(false)
+
+  const [snackbarStatus, setSnackbarStatus] = useState(null)
 
   // 모각코 안내 팝업 활성 여부
   const [roomPopUp, setRoomPopUp] = useState(false)
@@ -74,13 +76,11 @@ function Room() {
 
   // 뒤로가기 동작 감지
   const preventGoBack = () => {
-    // console.log('//////////////////////////////// 뒤로가기 동작 감지')
     window.history.pushState(null, "", location.href);
     setIsblocked(true)
   };
 
   useEffect(() => {
-    // console.log('//////////////////////////////// popstate 이벤트 추가')
     window.history.pushState(null, "", location.href);
     window.addEventListener("popstate", preventGoBack);
 
@@ -94,20 +94,34 @@ function Room() {
     setIsBeforeLeave(true)
   }
 
+  // 스낵바 메세지 세팅하고 나면 스낵바 랜더링 해주는 값 변경 해주는 useEffect
+  useEffect(() => {
+    if (snackbarMsg) {
+      console.log('메세지', snackbarMsg)
+      setIsActiveSnackbar(true)
+    }
+  }, [snackbarMsg])
+
   // 스낵바 열리고 나면 자동으로 닫히도록 하는 useEffect
   useEffect(() => {
+    console.log('isActivee 상태', isActiveSnackbar)
     if (isActiveSnackbar) {
-      const timer = setTimeout(() => {
-        setIsActiveSnackbar(false);
-      }, 3000);
 
-      return () => clearTimeout(timer);
+      setSnackbarStatus(Math.random())
+
+      const timer = setTimeout(() => {
+        setIsActiveSnackbar(false)
+        setSnackbarMsg('')
+      }, 3000)
+
+      return () => clearTimeout(timer)
     }
-  }, [isActiveSnackbar]);
+  }, [isActiveSnackbar])
 
   useEffect(() => {
-    // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> 나가려고?", isBeforeLeave)
-  }, [isBeforeLeave])
+    console.log('snackbarStatus 상태', snackbarStatus)
+  }, [snackbarStatus])
+
 
   // 리브세션 서버 요청
   const leaveSessionMutation = useMutation(leaveChatRoom, {
@@ -795,21 +809,28 @@ function Room() {
   const [count, setCount] = useState(0)
   const scrollLeft = () => {
     // console.log("왼쪽으로 가기!!!!!")
-    setPosition((prevPosition) => prevPosition + 1045); // 왼쪽으로 1045px 이동
+    setPosition((prevPosition) => prevPosition + 990); // 왼쪽으로 1045px 이동
     const newCount = count
     setCount(newCount - 1)
   }
 
   const scrollRight = () => {
     // console.log("오른쪽으로 가기!!!!!")
-    setPosition((prevPosition) => prevPosition - 1045); // 오른쪽으로 1045px 이동
+    setPosition((prevPosition) => prevPosition - 990); // 오른쪽으로 1045px 이동
     const newCount = count
     setCount(newCount + 1)
   }
 
+  // 스낵바 활성화 핸들러
   const activeSnackbarHandler = () => {
     setIsActiveSnackbar(true)
   }
+
+  // 스낵바에 표현할 메세지 세팅
+  const getFriendResponseMsgHandler = (res) => {
+    setSnackbarMsg(res)
+  }
+
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -865,54 +886,10 @@ function Room() {
                       }
                     </MaxMembersBtnWrap>
                   </MaxMembersWrap>
-                  {/* <PublicWrap>
-                    <PublicTitle>공개 여부 : </PublicTitle>
-                    <PublicBtnWrap>
-                      <PublicBtn btnSelect={btnSelect}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setBtnSelect('public')
-                          publicHandler()
-                        }}>
-                        공개</PublicBtn>
-                      <ClosedBtn btnSelect={btnSelect}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setBtnSelect('closed')
-                          closedHandler()
-                        }}>비공개</ClosedBtn>
-                    </PublicBtnWrap>
-                  </PublicWrap>
-                  {
-                    !isOpened &&
-                    <PasswordWrap>
-                      <PasswordInputWrap>
-                        <PasswordTitle>비밀번호 : </PasswordTitle>
-                        <PasswordInput type="text"
-                          value={closedPassword}
-                          onChange={(e) => {
-                            onChangeClosedPassword(e)
-                          }}
-                          placeholder='비밀번호를 입력해주세요'
-                        />
-                      </PasswordInputWrap>
-                      <PasswordInputWrap>
-                        <PasswordTitle>비밀번호 확인 : </PasswordTitle>
-                        <PasswordInput type="text"
-                          value={PasswordCheck}
-                          onChange={(e) => {
-                            onChangePasswordCheck(e)
-                          }}
-                          placeholder='비밀번호재입력'
-                        />
-                      </PasswordInputWrap>
-                    </PasswordWrap>
-                  } */}
                   <JoinBtnWrap>
                     <JoinBtn name="commit" type="submit" value="모각코 만들기" />
                   </JoinBtnWrap>
                 </form>
-                {/* <button onClick={onClickTempButton}>TEMP</button> */}
               </RoomCreateWrap>
             </RoomCreateContainer>
           </FlexCenter>
@@ -985,11 +962,9 @@ function Room() {
             /* 친구 신청 스낵바 */
             isActiveSnackbar?(
               <>
-              <SnackBar msg={snackbarMsg}/>
+              <SnackBar content={snackbarMsg} state={snackbarStatus}/>
               </>
-            ):(
-              <></>
-            )
+            ):null
           }
           <RoomInHeader>
             <RoomHeaderContentWrap>
@@ -1017,20 +992,24 @@ function Room() {
                 {publisher !== undefined ? (
                   <PubilsherVideoContainer>
                     {count === 1 && data.maxMembers >= 5 ?
-                      <SlideLeftBtn onClick={() => {
-                        scrollLeft()
-                      }}
+                      <SlideLeftBtn onClick={() => {scrollLeft()}}
                         SlideLeft={`${process.env.PUBLIC_URL}/image/slideLeft.webp`}
                       ></SlideLeftBtn> :
-                      null
+                      <></>
                     }
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
-                      <UserVideoComponent streamManager={publisher} activeSnackbarHandler={activeSnackbarHandler}/>
+                      <UserVideoComponent 
+                        streamManager={publisher}
+                        activeSnackbarHandler={activeSnackbarHandler}
+                        getFriendResponseMsgHandler={getFriendResponseMsgHandler}/>
 
                       {/* 구독자 수 만큼 비디오를 생성해서 붙인다. */}
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                          <UserVideoComponent streamManager={e} activeSnackbarHandler={activeSnackbarHandler} />
+                          <UserVideoComponent 
+                            streamManager={e} 
+                            activeSnackbarHandler={activeSnackbarHandler}
+                            getFriendResponseMsgHandler={getFriendResponseMsgHandler}/>
                         </div>
                       ))}
 
@@ -1594,6 +1573,7 @@ export const RoomContainer = styled.div`
   /* justify-content: space-between; */
   justify-content: flex-start;
   gap: 9px;
+  height: calc(100vh - 90px);
 `
 
 export const VideoWrap = styled.div`
@@ -1617,7 +1597,8 @@ export const PubilsherVideoContainer = styled.div`
   gap: 10px;
   overflow: hidden;
   position: relative;
-  width: 1030px;
+  /* width: 1030px; */
+  width: 985px;
   scroll-snap-type: x mandatory;
 `
 
@@ -1800,10 +1781,11 @@ export const AudioToggleBtn = styled.button`
 export const ChattingWrap = styled.div`
   width: 300px;
   width: 274px;
-  height: 840px;
+  /* height: 840px; */
   position: relative;
   background-color: var(--bg-li);
   border-radius: 10px;
+  height: calc(100vh - 90px - 10px);
 `
 
 export const ChattingHeader = styled.p`
