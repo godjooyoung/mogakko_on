@@ -15,6 +15,7 @@ import ChartWeekly from '../components/ChartWeekly';
 import CommonPopup from '../components/common/CommonPopup'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import SnackBar from '../components/common/SnackBar';
+import useEnglishInput from '../hooks/useEnglishInput';
 
 // // 00:00:00 to 00H00M
 // const formatTime = (timeString) => {
@@ -52,7 +53,7 @@ function Mypage() {
   const inputRef = useRef()
 
   // custom hooks
-  const [githubValue, onChangeGithubValue, githubInputValueReset] = useInput('')
+  const [githubValue, onChangeGithubValue, githubInputValueReset] = useEnglishInput('')
   const [findNickNameValue, onChangeFindNickNameValue, findNickNameValueReset] = useInput('')
   const [findCodeValue, onChangeFindCodeValue, findCodeValueReset] = useInput('')
 
@@ -137,7 +138,7 @@ function Mypage() {
 
   // 쪽지 컴폰너트
   const [messageSidebar, setMessageSidebar] = useState(false)
-  
+
   // 쪽지 받은쪽지/보낸쪽지 sidebar 구분
   const [messageBox, setMessageBox] = useState({
     receive: true,
@@ -180,8 +181,8 @@ function Mypage() {
     setUserCodeCopyMsg('클립보드에 복사되었습니다.')
   }
 
-  useEffect(()=>{
-    if(isUserCodeCopied){
+  useEffect(() => {
+    if (isUserCodeCopied) {
       const timer = setTimeout(() => {
         setIsUserCodeCopied(false)
         setUserCodeCopyMsg('')
@@ -194,7 +195,7 @@ function Mypage() {
   const postMessageMutation = useMutation(postMessage, {
     onSuccess: (response) => {
       // alert(response)
-      console.log("쪽지보내기성공>>>>>>>>>>>>>>>>>>>>>",response.data.message)
+      console.log("쪽지보내기성공>>>>>>>>>>>>>>>>>>>>>", response.data.message)
       popupOpenHander(response.data.message)
       queryClient.invalidateQueries(receiveMessage)
     },
@@ -506,7 +507,7 @@ function Mypage() {
     <>
       {
         isUserCodeCopied ? <>
-        <SnackBar content={userCodeCopyMsg} state={isUserCodeCopied}/>
+          <SnackBar content={userCodeCopyMsg} state={isUserCodeCopied} />
         </> : <></>
       }
       {
@@ -526,8 +527,7 @@ function Mypage() {
                 closeBtn={`${process.env.PUBLIC_URL}/image/PopUpCloseBtn.webp`}
               ></CloseBtn>
               <h1>깃허브 닉네임</h1>
-              <p>깃허브 닉네임을 등록해주세요.</p>
-              <input type="text" placeholder='아이디' value={githubValue} onChange={onChangeGithubValue} />
+              <input type="text" placeholder='깃허브 닉네임을 등록해주세요.' value={githubValue} onChange={onChangeGithubValue} />
               <GitHubBtn onClick={() => {
                 setGitHub(!gitHub)
                 // setuserGitHubId(githubValue)
@@ -554,7 +554,7 @@ function Mypage() {
 
               <MyCodeWrap>
                 <MyCode>나의 코드: {profileData && profileData.data.data.member.friendCode}</MyCode>
-                <CopyToClipboard text={myCode} 
+                <CopyToClipboard text={myCode}
                   onCopy={() => (
                     userCodeCopyHandler('클립보드에 복사되었습니다.')
                   )}>
@@ -684,6 +684,9 @@ function Mypage() {
                           <StatusMouseHoverBox>
                             <p>102 : <span>회원가입 시 기본값</span></p>
                             <p>200 : <span>처음 프로필 등록시 변경</span></p>
+                            <p>400 : <span>신고 1회</span></p>
+                            <p>401 : <span>신고 2회</span></p>
+                            <p>404 : <span>신고 3회 (이용기간 30일 정지)</span></p>
                             <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
                             <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
                             <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
@@ -1012,8 +1015,8 @@ function Mypage() {
                 {
                   messageStatus ?
                     // <SnackBar content={mesageStatusresponse} state={messageStatus} /> : <></>
-                  <CommonPopup msg={mesageStatusresponse} isBtns={false} priMsg={'확인'} priHander={popupCloseHander} closeHander={popupCloseHander} />
-                  : <></>
+                    <CommonPopup msg={mesageStatusresponse} isBtns={false} priMsg={'확인'} priHander={popupCloseHander} closeHander={popupCloseHander} />
+                    : <></>
                 }
                 {
                   messageBlock ?
@@ -1404,9 +1407,9 @@ const TopContentTitleItem = styled.h1`
 const StatusMouseHoverBox = styled.div`
   position: absolute;
   right: 0px;
-  bottom: -155px;
+  bottom: -219px;
   width: 215px;
-  height: 160px;
+  height: 230px;
   background: #F9F9FA;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
