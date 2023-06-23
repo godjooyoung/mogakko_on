@@ -193,7 +193,7 @@ function Mypage() {
   // 쪽지 보내기 Mutation
   const postMessageMutation = useMutation(postMessage, {
     onSuccess: (response) => {
-      alert(response)
+      // alert(response)
       queryClient.invalidateQueries(receiveMessage)
     },
     onError: (error) => {
