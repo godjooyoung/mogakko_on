@@ -22,16 +22,16 @@ function MemberPage() {
   const { id } = useParams();
   const { isLoading, isError, data } = useQuery("getUserProfile", () => getUserProfile(id) , {
     onSuccess: () => {
-      queryClient.invalidateQueries(getUserProfile)
+      //queryClient.invalidateQueries(getUserProfile)
     }
   })
   const [value, setValue] = useState(0)
   const [statusonMouse, setStatusOnMouse] = useState(false)
   const [temponMouse, setTempOnMouse] = useState(false)
-  const navigate = useNavigate();
 
   // 친구 요청 성공 모달
   const [friendReqSuc, setFriendReqSuc] = useState(false)
+  
   // 온도 프로그레스 애니메이션
   useEffect(() => {
     setValue(data && data.data.data.member.codingTem);
@@ -49,13 +49,10 @@ function MemberPage() {
   // 친구 요청 보내기
   const friendRequetMutation = useMutation(requestFriend, {
     onSuccess: (response) => {
-      //console.log(">>> 친구 요청 보내기 성공", response)
-      //console.log(">>> 친구 요청 보내기 성공", response.data.data)
-      //TODO 에러 메세지 처리
-      //navigate('/')
+      console.log('친구요청 성공', response)
     },
     onError: (error) => {
-      console.log('error.response.data.messageerror.response.data.messageerror.response.data.message', error.response.data.message)
+      console.log('친구요청 에러', error.response.data.message)
     }
   })
 
@@ -132,7 +129,7 @@ function MemberPage() {
     <>
       <Header />
       <FlexBox>
-        <div>
+        {/* <div> */}
           <MypageWrap>
             <MypageNavbar>
               <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
@@ -152,14 +149,6 @@ function MemberPage() {
                 </CopyToClipboard>
               </MyCodeWrap>
               {
-                // data && data.data.data.friend === false ?
-                //   <FriendReqBtn
-                //     onClick={() => {
-                //       onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname)
-                //       setFriendReqSuc(!friendReqSuc)
-                //     }
-                //     }>친구신청</FriendReqBtn> : null
-
                 data && data.data.data.friend === true ? null : data && !data.data.data.pending ? <FriendReqBtn onClick={() => {
                   onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname)
                   setFriendReqSuc(!friendReqSuc)
@@ -281,7 +270,7 @@ function MemberPage() {
               </MyPageMiddleContentWrap>
             </WidthBox>
           </MypageWrap>
-        </div>
+        {/* </div> */}
       </FlexBox>
     </>
   )
@@ -301,7 +290,6 @@ const MyPageTopContentWrap = styled.div`
   justify-content: center;
   align-items: center;
   margin-top: 15px;
-  margin-bottom: 74px;
 `
 
 const ProfileModifyWrap = styled.div`
@@ -430,7 +418,7 @@ const TemperatureTitle = styled.p`
   width: 136.72px;
   font-size: 17px;
   color: var(--po-de);
-  font-weight: 900;
+  font-weight: 400;
   text-align: start;
   img {
     margin-left: 5px;
@@ -496,12 +484,13 @@ const Progress = styled.div`
 `;
 
 const MyPageMiddleContentWrap = styled.div`
-  height: 204px;
+  /* height: 204px; */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
+  margin-top: 10px;
 `
 
 const GithubTitle = styled.p`
@@ -511,6 +500,8 @@ const GithubTitle = styled.p`
     font-weight: 500;
     font-size: 20px;
     color: #FFFFFF;
+    padding-bottom: 7px;
+    margin-top: 10px;
 `
 
 const NullGithubBox = styled.div`
@@ -539,7 +530,7 @@ const MyPageMiddleContent = styled.div`
   padding: 15px;
   box-sizing: border-box;
   border-radius: 8px;
-  margin-top: 10px;
+  /* margin-top: 10px; */
 `
 
 const GitHubImage = styled.img`
@@ -555,7 +546,8 @@ const MypageWrap = styled.div`
 
 const MypageNavbar = styled.div`
   width: 240px;
-  height: 895px;
+  /* height: 895px; */
+  height: calc(100vh - 79px - 50px);
   background: var(--bg-li);
   border-radius: 20px;
   display: flex;
@@ -575,7 +567,7 @@ const MyCodeWrap = styled.div`
   margin-top: 7px;
   margin-bottom: 25px;
 `
-
+//친구 코드 CSS
 const MyCode = styled.p`
   font-family: 'Pretendard';
   font-style: normal;
@@ -583,7 +575,7 @@ const MyCode = styled.p`
   font-size: 14px;
   color: #BEBEBE;
 `
-
+//코드 복사 버튼 CSS
 const CopyBtn = styled.button`
   width: 12px;
   height: 12px;
@@ -597,6 +589,13 @@ const CopyBtn = styled.button`
 
 const WidthBox = styled.div`
   width: 893px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: calc(100vh - 79px - 50px);
+  @media screen and (max-height: 1020px) {
+        justify-content: space-between;
+  };
 `
 
 const MogakkoTitle = styled.p`
@@ -684,7 +683,7 @@ const ChartWrap = styled.div`
   display: flex;
   justify-content: space-between;
   /* align-items: center; */
-  margin-bottom: 57px;
+  /* margin-bottom: 57px; */
 `
 
 const WeeklyStudyTimewrap = styled.div`
@@ -697,7 +696,7 @@ const WeeklyStudyTimewrap = styled.div`
     font-weight: 500;
     font-size: 20px;
     line-height: 25px;
-    margin-bottom: 17px;
+    margin-bottom: 10px;
   }
 `
 
@@ -730,7 +729,7 @@ const TotalLanguageWrap = styled.div`
     font-weight: 500;
     font-size: 20px;
     line-height: 25px;
-    margin-bottom: 17px;
+    margin-bottom: 10px;
   }
 `
 
