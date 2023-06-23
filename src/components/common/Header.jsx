@@ -213,7 +213,6 @@ function Header(props) {
             removeCookie('nickName')
             removeCookie('userProfile')
             sessionStorage.removeItem('isSubscribed')
-            debugger
             dispatcher(__alarmClean())
             if (eventSourceRef.current) {
                 eventSourceRef.current.close(); // SSE 연결 종료
@@ -222,7 +221,6 @@ function Header(props) {
         // remove()
 
         const logoutReset = async () => {
-            debugger
             dispatcher(__alarmClean())
         }
 
