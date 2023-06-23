@@ -22,7 +22,7 @@ function MemberPage() {
   const { id } = useParams();
   const { isLoading, isError, data } = useQuery("getUserProfile", () => getUserProfile(id) , {
     onSuccess: () => {
-      //queryClient.invalidateQueries(getUserProfile)
+      
     }
   })
   const [value, setValue] = useState(0)
@@ -50,6 +50,7 @@ function MemberPage() {
   const friendRequetMutation = useMutation(requestFriend, {
     onSuccess: (response) => {
       console.log('친구요청 성공', response)
+      queryClient.invalidateQueries(getUserProfile)
     },
     onError: (error) => {
       console.log('친구요청 에러', error.response.data.message)
