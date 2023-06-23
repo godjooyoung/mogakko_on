@@ -15,7 +15,7 @@ import Stopwatch from '../components/Stopwatch'
 import CommonPopup from '../components/common/CommonPopup'
 import SnackBar from '../components/common/SnackBar'
 import { jwtInstance } from '../axios/apiConfig'
-
+import ReportPopup from '../components/common/ReportPopup'
 
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
@@ -37,7 +37,7 @@ function Room() {
   const [lang, setLang] = useState(sessionInfo.language)
 
   const [sessionConnect, setSessionConnect] = useState(false)
-  
+
   // const [isOpened, setIsOpened] = useState(sessionInfo.isOpened)   // isOpen 
   const [isOpened, setIsOpened] = useState(true)   // isOpen 
   const [openViduSession, setOpenViduSession] = useState(undefined)
@@ -55,9 +55,9 @@ function Room() {
   const stompClient = useRef(null)
 
   const [btnSelect, setBtnSelect] = useState('public')
-  
+
   // 스낵바 메세지 
-  const [snackbarMsg, setSnackbarMsg]= useState('')
+  const [snackbarMsg, setSnackbarMsg] = useState('')
 
   // 스낵바 활성 여부 
   const [isActiveSnackbar, setIsActiveSnackbar] = useState(false)
@@ -74,6 +74,23 @@ function Room() {
   // 나가기 팝업 활성 여부
   const [isBeforeLeave, setIsBeforeLeave] = useState(false)
 
+
+  // 닉네임
+  const [getUserNickname, setGetUserNickname] = useState(null)
+  // reportPopup
+  const [reportPopup, setReportPopup] = useState(false)
+
+  // nickname 가져오기
+  const getUserNicknameHandler = (nickname) => {
+    setGetUserNickname(nickname)
+    setReportPopup(true)
+  }
+
+  // reportPopup 닫기
+  const closeReportPopupHandler = () => {
+    setReportPopup(false)
+  }
+  console.log('getUserNicknamegetUserNickname',getUserNickname)
   // 뒤로가기 동작 감지
   const preventGoBack = () => {
     window.history.pushState(null, "", location.href);
@@ -609,10 +626,10 @@ function Room() {
     // const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko', data, {
     //   headers: { ACCESS_KEY: getCookie('token') },
     // })
-    
+
     // apiConfig 내 토큰 인스턴스 사용
-    const response = await jwtInstance.post(APPLICATION_SERVER_URL + '/mogakko', data );
-    
+    const response = await jwtInstance.post(APPLICATION_SERVER_URL + '/mogakko', data);
+
     console.debug("[room] sessionId (in createSession Fn) :", response.data.data.sessionId)
     setMySessionId(response.data.data.sessionId);
     setOpenViduSession(response.data.data.sessionId);
@@ -638,7 +655,7 @@ function Room() {
     // })
 
     // apiConfig 내 토큰 인스턴스 사용
-    const response = await jwtInstance.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {} )
+    const response = await jwtInstance.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {})
     return response.data // The token
   };
 
@@ -960,11 +977,11 @@ function Room() {
           }
           {
             /* 친구 신청 스낵바 */
-            isActiveSnackbar?(
+            isActiveSnackbar ? (
               <>
-              <SnackBar content={snackbarMsg} state={snackbarStatus}/>
+                <SnackBar content={snackbarMsg} state={snackbarStatus} />
               </>
-            ):null
+            ) : null
           }
           <RoomInHeader>
             <RoomHeaderContentWrap>
@@ -992,24 +1009,28 @@ function Room() {
                 {publisher !== undefined ? (
                   <PubilsherVideoContainer>
                     {count === 1 && data.maxMembers >= 5 ?
-                      <SlideLeftBtn onClick={() => {scrollLeft()}}
+                      <SlideLeftBtn onClick={() => { scrollLeft() }}
                         SlideLeft={`${process.env.PUBLIC_URL}/image/slideLeft.webp`}
                       ></SlideLeftBtn> :
                       <></>
                     }
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
-                      <UserVideoComponent 
+                      <UserVideoComponent
                         streamManager={publisher}
                         activeSnackbarHandler={activeSnackbarHandler}
-                        getFriendResponseMsgHandler={getFriendResponseMsgHandler}/>
+                        getFriendResponseMsgHandler={getFriendResponseMsgHandler}
+                        getUserNicknameHandler={getUserNicknameHandler} 
+                        />
 
                       {/* 구독자 수 만큼 비디오를 생성해서 붙인다. */}
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                          <UserVideoComponent 
-                            streamManager={e} 
+                          <UserVideoComponent
+                            streamManager={e}
                             activeSnackbarHandler={activeSnackbarHandler}
-                            getFriendResponseMsgHandler={getFriendResponseMsgHandler}/>
+                            getFriendResponseMsgHandler={getFriendResponseMsgHandler} 
+                            getUserNicknameHandler={getUserNicknameHandler}
+                            />
                         </div>
                       ))}
 
@@ -1040,7 +1061,7 @@ function Room() {
               {sessionConnect &&
                 <VideoBtnWrap>
                   <StopwatchWrap>
-                    <Stopwatch isBeforeLeave={isBeforeLeave}/>
+                    <Stopwatch isBeforeLeave={isBeforeLeave} />
                   </StopwatchWrap>
                   <VideoToggleBtn
                     onClick={VideoTogglehandler}
@@ -1129,6 +1150,7 @@ function Room() {
           </RoomContainer>
         </FlexCenterInSession>
       ) : null}
+      {reportPopup && <ReportPopup nickname={getUserNickname} closeHander={closeReportPopupHandler}/>}
     </div>
   );
 }
