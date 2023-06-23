@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 import store from './redux/config/configStore';
 import { QueryClient } from "react-query"
 import { QueryClientProvider } from "react-query"
+import { composeWithDevTools } from "@redux-devtools/extension";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 // const queryClient = new QueryClient()

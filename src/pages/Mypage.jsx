@@ -47,6 +47,15 @@ const MakeNoteHandler = ({ idx, nickName, content, createdAt }) => {
 
 function Mypage() {
 
+  // hooks
+  const navigate = useNavigate()
+  const inputRef = useRef()
+
+  // custom hooks
+  const [githubValue, onChangeGithubValue, githubInputValueReset] = useInput('')
+  const [findNickNameValue, onChangeFindNickNameValue, findNickNameValueReset] = useInput('')
+  const [findCodeValue, onChangeFindCodeValue, findCodeValueReset] = useInput('')
+
   // AOS init설정
   useEffect(() => {
     AOS.init();
@@ -66,13 +75,11 @@ function Mypage() {
 
   //유저 검색 성공 함수
   const getSearchUserListIsSuccessHandler = (response) => {
-    //console.log("유저 검색 성공",response)
     setIsSearchUserEnabled(false)
   }
 
   //유저 검색 실패 함수
   const getSearchUserListIsErrorHandler = () => {
-    //console.log("유저 검색 실패")
     setSearchFriend([])
     setIsSearchUserEnabled(false)
   }
@@ -102,14 +109,10 @@ function Mypage() {
   // 받은 쪽지 조회
   const { isLoading: isReceiveMessageLoading, isError: isReceiveMessageError, data: receiveMessageData } = useQuery("getReceiveMessage", receiveMessage)
 
-  //받은 쪽지 State
-  const [myReceiveMessage, setMyReceiveMessage] = useState(null)
-
   // 보낸 쪽지 조회
   const { isLoading: isSentMessageLoading, isError: isSentMessageError, data: sentMessageData } = useQuery("getSentMessage", sentMessage)
 
-  //보낸 쪽지 State
-  const [mysentMessage, setMySentMessage] = useState(null)
+  // 내부 스테이트
   const [friendList, setFriendList] = useState([]) // 친구목록
   const [friendListDelete, setFriendListDelete] = useState(false) // 친구 삭제 버튼 활성화 여부
   const [statusonMouse, setStatusOnMouse] = useState(false)
@@ -123,10 +126,6 @@ function Mypage() {
   const [preview, setPreview] = useState(profileData && profileData.data.data.member.profileImage)
   const [isFileModify, setIsFileModify] = useState(false)
 
-  // custom hooks
-  const [githubValue, onChangeGithubValue, githubInputValueReset] = useInput('')
-
-
   // MOGAKKO-DATA 컴포넌트 
   const [mogakkoData, setmogakkoData] = useState(true)
 
@@ -138,6 +137,7 @@ function Mypage() {
 
   // 쪽지 컴폰너트
   const [messageSidebar, setMessageSidebar] = useState(false)
+  
   // 쪽지 받은쪽지/보낸쪽지 sidebar 구분
   const [messageBox, setMessageBox] = useState({
     receive: true,
@@ -153,54 +153,60 @@ function Mypage() {
   const [receiveUserValue, onChangeReceiveUser, receiveUserReset] = useInput('')
   const [receiveContentValue, onChangeReceiveContent, receiveContentReset] = useInput('')
 
-
   // 친구요청 대기중 버튼 
   const [friendRequestPendingList, setFriendRequestPendingList] = useState([]);
 
   // 친구 요청 성공 모달
   const [friendReqSuc, setFriendReqSuc] = useState(false)
 
-  // hooks
-  const navigate = useNavigate()
-
-  const inputRef = useRef()
-
   // 친구찾기 닉네임 OR CODE구분
   const [friendFindNickName, setFriendFindNickName] = useState(true)
   const [friendFindCode, setFriendFindCode] = useState(false)
 
-  // 친구찾기 useInput
-  const [findNickNameValue, onChangeFindNickNameValue, findNickNameValueReset] = useInput('')
-  const [findCodeValue, onChangeFindCodeValue, findCodeValueReset] = useInput('')
-
-
-  // 쪽지 status에 따른 팝업 state
+  // 쪽지 status에 따른 팝업 랜더링 여부 state
   const [messageStatus, setMessageStatus] = useState(false)
   const [mesageStatusresponse, setMesageStatusresponse] = useState('')
 
-  // 쪽지 200자 초과 막기 팝업 
+  // 쪽지 200자 초과 막기 팝업 랜더링 여부 state
   const [messageBlock, setmessageBlock] = useState(false)
 
+  // 사용자 개인 코드 복사 여부 상태
+  const [isUserCodeCopied, setIsUserCodeCopied] = useState(false)
+  const [userCodeCopyMsg, setUserCodeCopyMsg] = useState('')
+
+  // 사용자 개인 코드 복사 성공 핸들러
+  const userCodeCopyHandler = () => {
+    setIsUserCodeCopied(true)
+    setUserCodeCopyMsg('클립보드에 복사되었습니다.')
+  }
+
+  useEffect(()=>{
+    if(isUserCodeCopied){
+      const timer = setTimeout(() => {
+        setIsUserCodeCopied(false)
+        setUserCodeCopyMsg('')
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [isUserCodeCopied])
 
   // 쪽지 보내기 Mutation
   const postMessageMutation = useMutation(postMessage, {
     onSuccess: (response) => {
+      // alert(response)
+      console.log("쪽지보내기성공>>>>>>>>>>>>>>>>>>>>>",response.data.message)
+      popupOpenHander(response.data.message)
       queryClient.invalidateQueries(receiveMessage)
     },
     onError: (error) => {
-      console.log("po", error)
       popupOpenHander(error.response.data.message)
       setPostPopup(true)
-      // console.log('error.response.data.message', error.response.data.message)
     }
   })
 
   // 요청 응답 공통 팝업 오픈
   const popupOpenHander = (msg) => {
-    // console.log('쪽지팝업 msg is......0', msg)
     setMesageStatusresponse(msg)
-    // console.log('쪽지팝업 mesageStatusresponse', mesageStatusresponse)
-    // console.log('쪽지팝업 messageStatus', messageStatus)
   }
 
   // 요청 응답 공통 팝업 클로즈
@@ -209,36 +215,23 @@ function Mypage() {
     setMesageStatusresponse('')
   }
 
-  // useEffect(() => {
-  //   if (messageStatus) {
-  //     const timer = setTimeout(() => {
-  //       setMessageStatus(false);
-  //     }, 1200);
-
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [messageStatus])
+  // 쪽지 응답 메세지에 따른 팝업창 오픈 useEffect
   useEffect(() => {
-    // console.log('쪽지팝업', mesageStatusresponse)
     if (mesageStatusresponse !== '') {
-      //console.log('쪽지팝업 msg is......1', mesageStatusresponse)
       if (mesageStatusresponse !== 'AccessToken Expired.') {
         setMessageStatus(true)
-
       }
     } else {
-
       setMessageStatus(false)
     }
   }, [mesageStatusresponse]);
 
-
+  // 쪽지 전송 뮤테이트 콜 핸들러
   const postMessageHandler = () => {
     postMessageMutation.mutate({
       messageReceiverNickname: receiveUserValue,
       content: receiveContentValue
     })
-
   }
 
   //유저검색 내용 입력 useEffect
@@ -256,38 +249,28 @@ function Mypage() {
 
   // 유저 검색어 세팅 함수
   const settingSearchUserHandler = () => {
-    //console.log('검색어 세팅', findNickNameValue)
     setIsSearchUserEnabled(true)
   }
 
-
-  //유저 검색 useEffect
+  // 유저 검색 useEffect
   useEffect(() => {
     if (searchUserListData) {
-      //console.log("유저검색 1111111", searchUserListData.data.data)
       setSearchFriend(searchUserListData.data.data)
     }
   }, [searchUserListData])
 
+  // 프로필 조회 후 데이터 세팅
   useEffect(() => {
     if (profileData) {
-      // console.log("마이페이지 조회 결과", profileData)
-      // console.log("마이페이지 조회 결과-profileImage", profileData.data.data.member.profileImage)
-      // console.log("마이페이지 조회 결과-nickname", profileData.data.data.member.nickname)
-
       setCookie('userProfile', profileData.data.data.member.profileImage)
       setPreview(profileData.data.data.member.profileImage)
       setuserGitHubId(profileData.data.data.member.githubId)
-      setMyReceiveMessage(receiveMessageData && receiveMessageData.data.data)
-      setMySentMessage(sentMessageData && sentMessageData.data.data)
     }
   }, [profileData])
 
   // 친구목록 조회 useEffect
   useEffect(() => {
     if (friendListData) {
-      // console.log("친구목록 조회 1", friendListData)
-      //console.log("친구목록 조회 2", friendListData.data.data)
       if (friendListData.data.data) {
         setFriendList(friendListData.data.data)
       } else {
@@ -295,14 +278,6 @@ function Mypage() {
       }
     }
   }, [friendListData])
-
-  // 친구요청 목록 조회 useEffect
-  useEffect(() => {
-    if (friendRequestListData) {
-      // console.log("친구요청목록 조회 1", friendRequestListData)
-      //console.log("친구요청목록 조회 2", friendRequestListData.data.data)
-    }
-  }, [friendRequestListData])
 
   // MY 코딩온도 애니메이션 useEffect
   useEffect(() => {
@@ -320,10 +295,8 @@ function Mypage() {
 
   // 프로필 수정 useEffect
   useEffect(() => {
-    // console.log('프로필 이미지 수정 핸들러 실행 0', fileAttach)
     if (fileAttach) {
       const maxSize = 2 * 1024 * 1024
-      // console.log('프로필 이미지 수정 핸들러 실행 1', fileAttach.size, ",", maxSize)
       if (fileAttach.size > maxSize) {
         setIsFileCommonPopupOpend(true)
         handleClearInput()
@@ -355,8 +328,6 @@ function Mypage() {
         // console.log("기본 프로필 입니다. 랜덤프로필 작업 필요")
         const avataGen = `https://source.boringavatars.com/beam/120/${profileData.data.data.member.nickname}?colors=00F0FF,172435,394254,EAEBED,F9F9FA`
         setPreview(avataGen)
-      } else {
-        // console.log("유저가 프로필을 등록한 사용자입니다.", preview)
       }
     }
   }, [preview])
@@ -463,8 +434,6 @@ function Mypage() {
     inputRef.current.value = ''
   }
 
-
-
   // 프로필 이미지 저장 핸들러 - onchange 랑 onClick이랑 동시에 동작하면 왜 온클릭이 무시될까요? 일단 바꿈 
   const submitImgHandler = () => {
     // console.log("프로필 이미지 전송 핸들러 실행")
@@ -513,7 +482,6 @@ function Mypage() {
     navigate('/profile/' + id)
   }
 
-
   // 코드 복사 
   const myCode = profileData && profileData.data.data.member.friendCode
 
@@ -536,6 +504,11 @@ function Mypage() {
 
   return (
     <>
+      {
+        isUserCodeCopied ? <>
+        <SnackBar content={userCodeCopyMsg} state={isUserCodeCopied}/>
+        </> : <></>
+      }
       {
         isFileCommonPopupOpend ?
           <><CommonPopup msg={'크기가 2MB 이하인 이미지'} secondMsg={'파일을 선택해 주시기 바랍니다.'} isBtns={false} priMsg={'닫기'} priHander={() => (setIsFileCommonPopupOpend(false))} closeHander={() => (setIsFileCommonPopupOpend(false))} /></> : <></>
@@ -581,7 +554,10 @@ function Mypage() {
 
               <MyCodeWrap>
                 <MyCode>나의 코드: {profileData && profileData.data.data.member.friendCode}</MyCode>
-                <CopyToClipboard text={myCode} onCopy={() => alert("클립보드에 복사되었습니다.")}>
+                <CopyToClipboard text={myCode} 
+                  onCopy={() => (
+                    userCodeCopyHandler('클립보드에 복사되었습니다.')
+                  )}>
                   <CopyBtn
                     imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
                   ></CopyBtn>
@@ -1035,9 +1011,9 @@ function Mypage() {
 
                 {
                   messageStatus ?
-                    <SnackBar content={mesageStatusresponse} state={messageStatus} /> : null
-                  // <CommonPopup msg={mesageStatusresponse} isBtns={false} priMsg={'확인'} priHander={popupCloseHander} closeHander={popupCloseHander} />
-                  // : <></>
+                    // <SnackBar content={mesageStatusresponse} state={messageStatus} /> : <></>
+                  <CommonPopup msg={mesageStatusresponse} isBtns={false} priMsg={'확인'} priHander={popupCloseHander} closeHander={popupCloseHander} />
+                  : <></>
                 }
                 {
                   messageBlock ?
@@ -2168,8 +2144,9 @@ const FriendMypageReqWrap = styled.div`
 
 const FriendFindwrap = styled.div`
   width: 249px;
-  height: 100%;
+  /* height: 100%; */
   /* height: 480px; */
+  height: calc(100% - 350px);
 `
 
 const FriendFindTitleWrap = styled.div`
@@ -2531,8 +2508,8 @@ const MessagePopupBtnWrap = styled.div`
 
 const SearchScrollWrap = styled.div`
   width: 281px;
-  height: calc(100% - 161px);
   /* height: 350px; */
+  height: calc(100% - 150px);
   overflow-y: scroll;
   margin-top: 20px;
   
