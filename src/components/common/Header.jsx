@@ -56,7 +56,7 @@ function Header(props) {
     useEffect(() => {
 
         //console.debug("[INFO] 발생 알람 건  ", isNewNotification)
-        if (isNewNotification >= 1) {
+        if (isNewNotification >= 1 && isNewNotification>isNewNotificationRef.current) {
             setIsNewNoti(true)
         } else {
             setIsNewNoti(false)
@@ -67,7 +67,7 @@ function Header(props) {
     useEffect(() => {
         if (isAlarmWindowOpen) {
             setIsNewNoti((prevIsNewNoti)=>false)
-            setIsNewNotification((prevIsNewNotification)=>0)
+            isNewNotificationRef.current = isNewNotification
         }
     }, [isAlarmWindowOpen])
 
@@ -98,10 +98,6 @@ function Header(props) {
                         }
                     )
 
-                    // console.log("[INFO] SSE", eventSourceRef.current.withCredentials);
-                    // console.log("[INFO] SSE", eventSourceRef.current.readyState);
-                    // console.log("[INFO] SSE", eventSourceRef.current.url);
-
                     if (eventSourceRef.current.readyState === 1) {
                         // console.log("[INFO] SSE connection 상태")
                     }
@@ -115,17 +111,13 @@ function Header(props) {
                         // console.log("[INFO] SSE message event", event)
                         //SSE message event
                         const data = event.data
-                        // console.log("[INFO] SSE message data ", data)
-                        // setIsNewNotification((prevIsNewNotification) => prevIsNewNotification + 1)
                         if(data.indexOf('EventStream Created') === -1){
-                            //console.debug('[INFO] SSE 추가 알람 발생했습니다!', data)
                             setIsNewNotification((prevIsNewNotification)=>prevIsNewNotification+1)
                             dispatcher(__alarmSender(data))
                         }
                     })
                     return () => {
                         if (eventSourceRef.current && !isLogin) {
-                            // console.log("[INFO] SSE Close :::::::::::: ")
                             sessionStorage.setItem('isSubscribed', false)
                             dispatcher(__alarmClean())
                             eventSourceRef.current.close() // 로그아웃 시 SSE 연결 종료
@@ -166,8 +158,6 @@ function Header(props) {
         if (pos !== -1) {
             highLightName = content.substr(pos, userNickName.length)
             nonHighLightContnent = content.substr((pos + userNickName.length))
-            // console.log("######## highLightContnent ", highLightName)
-            // console.log("######## nonHighLightContnent ", nonHighLightContnent)
             return <><span>{highLightName}</span>{nonHighLightContnent}</>
         } else {
             return <>{content}</>
@@ -179,9 +169,6 @@ function Header(props) {
     const renderAlertComponent = () => {
         if (alarmInfo) {
             // 전역 스토어에 저장되어있는 알람 내역
-            // console.log("[global] alarmInfo > ", alarmInfo)
-
-            // EventStream Created 포함하고 있지 않은 알람만 표현해준다.
             const filterAlarm = alarmInfo.filter((alarm) => {
                 return alarm.indexOf('EventStream Created') === -1
             })
@@ -202,12 +189,10 @@ function Header(props) {
                                 <AlearmContent>
                                     <ProfileImgDivInAlarm>
                                         <img src={JSON.parse(alarm).senderProfileUrl} alt="프로필사진" width='44px' height='44px' />
-                                        {/* {avataGenHandler('alearm', JSON.parse(alarm).senderProfileUrl, JSON.parse(alarm).senderNickname)} */}
                                     </ProfileImgDivInAlarm>
                                     <AlearmContentWrap onClick={onClickMyPageHandler}>
                                         <AlearmContentMsg>
                                             {alarmCotentHandler((JSON.parse(alarm).senderNickname), JSON.parse(alarm).content)}
-                                            {/* {JSON.parse(alarm).content} */}
                                         </AlearmContentMsg>
                                         <AlearmContentTime>
                                             <span>{JSON.parse(alarm).createdAt}</span>
