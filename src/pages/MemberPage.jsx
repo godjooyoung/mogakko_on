@@ -225,12 +225,15 @@ function MemberPage() {
                       {
                         statusonMouse &&
                         <StatusMouseHoverBox>
-                          <p>102 : <span>회원가입 시 기본값</span></p>
-                          <p>200 : <span>처음 프로필 등록시 변경</span></p>
-                          <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
-                          <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
-                          <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
-                          <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
+                            <p>102 : <span>회원가입 시 기본값</span></p>
+                            <p>200 : <span>처음 프로필 등록시 변경</span></p>
+                            <p>400 : <span>신고 1회</span></p>
+                            <p>401 : <span>신고 2회</span></p>
+                            <p>404 : <span>신고 3회 (이용기간 30일 정지)</span></p>
+                            <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
+                            <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
+                            <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
+                            <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
                         </StatusMouseHoverBox>
                       }
                     </TopContentTitleWrap>
@@ -655,10 +658,9 @@ const Status = styled.span`
 const StatusMouseHoverBox = styled.div`
   position: absolute;
   right: 0px;
-  /* bottom: -170px; */
-  bottom: -155px;
+  bottom: -219px;
   width: 215px;
-  height: 160px;
+  height: 230px;
   background: #F9F9FA;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
