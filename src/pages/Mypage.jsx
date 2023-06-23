@@ -194,6 +194,8 @@ function Mypage() {
   const postMessageMutation = useMutation(postMessage, {
     onSuccess: (response) => {
       // alert(response)
+      console.log("쪽지보내기성공>>>>>>>>>>>>>>>>>>>>>",response.data.message)
+      popupOpenHander(response.data.message)
       queryClient.invalidateQueries(receiveMessage)
     },
     onError: (error) => {

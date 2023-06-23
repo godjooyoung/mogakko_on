@@ -27,18 +27,13 @@ function Header(props) {
     const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
     const [isVisible, setIsVisible] = useState(true)
 
-    // 신규 알람 카운트
+    // 알람 카운트
     const [isNewNotification, setIsNewNotification] = useState(alarmInfo.filter((alarm) => { return alarm.indexOf('EventStream Created') === -1 }).length)
-    const isNewNotificationRef = useRef(0);
-
-    // 신규알람 표시 여부
-    const [isNewNoti, setIsNewNoti] = useState(false)
-
+    
     const urlPathname = location.pathname;
 
     useEffect(() => {
         const checkLoginStatus = async () => {
-            // console.log("[INFO] 로그인 여부 체크 실행")
             const accessKey = await getCookie('token');
             if (accessKey && !isLogin) {
                 setIsLogin(accessKey ? true : false)
@@ -52,41 +47,34 @@ function Header(props) {
         }
     })
 
-    // 알람 신규로 올때
-    useEffect(() => {
-
-        //console.debug("[INFO] 발생 알람 건  ", isNewNotification)
-        if (isNewNotification >= 1 && isNewNotification>isNewNotificationRef.current) {
-            setIsNewNoti(true)
-        } else {
-            setIsNewNoti(false)
-        }
-    }, [isNewNotification])
-
     // 알람 창을 열었으면 신규 알람 아이콘 없앤다.
     useEffect(() => {
         if (isAlarmWindowOpen) {
-            setIsNewNoti((prevIsNewNoti)=>false)
-            isNewNotificationRef.current = isNewNotification
+            console.log("[INFO] 알람 확인")
+            setIsNewNotification(0)
+        }else if(!isAlarmWindowOpen && isNewNotification === 0){
+            //클린
+            dispatcher(__alarmClean())
         }
     }, [isAlarmWindowOpen])
 
 
+
+    useEffect(()=>{
+        console.log("[INFO] 알람 추가", alarmInfo)
+        setIsNewNotification(alarmInfo.length)
+    },[alarmInfo])
+
     useEffect(() => {
         // 세션 스토리지에서 SSE 구독 상태를 확인
         const isSubscribed = sessionStorage.getItem('isSubscribed');
-        // console.log("[INFO] SSE isSubscribed", isSubscribed)
-        // console.log("[INFO] SSE alarmInfo", alarmInfo)
 
         if (isLogin && !isSubscribed) {
             // 로그인 상태일때 최초 한번만 구독 실행
             const subcribeSSE = async () => {
                 const accessKey = await getCookie('token')
-                // console.log("[INFO] SSE 구독요청 - accessKey 가져오기", accessKey)
-
                 const EventSource = EventSourcePolyfill
                 if (isLogin && accessKey && !isSubscribed) {
-                    // console.log("[INFO] SSE 구독요청 ")
                     eventSourceRef.current = new EventSource(
                         //헤더에 토큰
                         `${process.env.REACT_APP_SERVER_URL}/sse/subscribe`,
@@ -103,23 +91,20 @@ function Header(props) {
                     }
 
                     eventSourceRef.current.addEventListener('open', (event) => {
-                        // console.log("[INFO] SSE connection opened", event)
                         sessionStorage.setItem('isSubscribed', true);
                     })
 
                     eventSourceRef.current.addEventListener('message', (event) => {
-                        // console.log("[INFO] SSE message event", event)
-                        //SSE message event
                         const data = event.data
                         if(data.indexOf('EventStream Created') === -1){
-                            setIsNewNotification((prevIsNewNotification)=>prevIsNewNotification+1)
+                            console.log("[INFO] 알람 발생", data)
                             dispatcher(__alarmSender(data))
                         }
                     })
                     return () => {
                         if (eventSourceRef.current && !isLogin) {
                             sessionStorage.setItem('isSubscribed', false)
-                            dispatcher(__alarmClean())
+                            //dispatcher(__alarmClean())
                             eventSourceRef.current.close() // 로그아웃 시 SSE 연결 종료
                         }
                     };
@@ -128,10 +113,6 @@ function Header(props) {
             subcribeSSE()
             avataGenHandler()
         }
-        if (!isLogin) {
-            dispatcher(__alarmClean())
-        }
-
     }, [isLogin]);
 
     // 아바타 생성 함수
@@ -232,6 +213,7 @@ function Header(props) {
             removeCookie('nickName')
             removeCookie('userProfile')
             sessionStorage.removeItem('isSubscribed')
+            debugger
             dispatcher(__alarmClean())
             if (eventSourceRef.current) {
                 eventSourceRef.current.close(); // SSE 연결 종료
@@ -240,9 +222,8 @@ function Header(props) {
         // remove()
 
         const logoutReset = async () => {
+            debugger
             dispatcher(__alarmClean())
-            // console.log("로그아웃!!!!")
-
         }
 
         const logout = async () => {
@@ -267,7 +248,6 @@ function Header(props) {
             <ButtonWrap>
                 <HeaderLeftContent pos={props.pos}>
                     <Logo src={`${process.env.PUBLIC_URL}/image/logo.webp`} onClick={onClickLogoHandler} />
-                    {/* <button onClick={onClickLogoHandler}>로고</button> */}
                 </HeaderLeftContent>
                 <HeaderRightContent>
                     {!isLogin ? <>
@@ -280,7 +260,7 @@ function Header(props) {
                         <HeaderButton onClick={onClickLogOutHandler} width={85} marginRight={10} ><p>로그아웃</p></HeaderButton>
                         <AlearmWrap>
                             <HeaderButton onClick={() => { onClickAlearmHandler(isAlarmWindowOpen) }} marginRight={17} width={40}>
-                                {isNewNoti ? <NewNoti /> : <></>}
+                                {isNewNotification>0 ? <NewNoti /> : <></>}
                                 <AlearmImg src={`${process.env.PUBLIC_URL}/image/alearmBtn.svg`} alt="알람버튼" />
                             </HeaderButton>
                             {!isAlarmWindowOpen ? <></> :
@@ -294,15 +274,11 @@ function Header(props) {
                             }
                         </AlearmWrap>
 
-                        {/* <HeaderButton onClick={onClickMyPageHandler} marginRight={39}> */}
-
                         <ProfileImgDiv onClick={onClickMyPageHandler}>
                             {
                                 avataGenHandler()
                             }
                         </ProfileImgDiv>
-
-                        {/* </HeaderButton> */}
                     </>
                     }
                 </HeaderRightContent>
