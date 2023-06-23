@@ -12,7 +12,7 @@ import 'aos/dist/aos.css';
 import ChartWeekly from '../components/ChartWeekly';
 import CommonPopup from '../components/common/CommonPopup'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-
+import SnackBar from '../components/common/SnackBar';
 function MemberPage() {
 
   useEffect(() => {
@@ -75,24 +75,10 @@ function MemberPage() {
 
   const [preview, setPreview] = useState(data && data.data.data.member.profileImage)
 
-  // // 00:00:00 to 00H00M
-  // const formatTime = (timeString) => {
-  //   const time = new Date(`2000-01-01T${timeString}`);
-  //   const hours = time.getHours();
-  //   const minutes = time.getMinutes();
-  //   const formattedHours = hours < 10 ? `0${hours}` : hours;
-  //   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-  //   return `${formattedHours}H${formattedMinutes}M`;
-  // }
-
   // 친구요청 
   const onClickRqFriendshipBtnHandler = (target) => {
     // console.log("나랑 친구할래?", target)
     friendRequetMutation.mutate(target)
-  }
-
-  if (isLoading) {
-    return <>loading...</>
   }
 
   // 물음표 버튼 hover시 나오는 정보창 (status) 핸들러
@@ -126,15 +112,40 @@ function MemberPage() {
   // 코드 복사 
   const myCode = data && data.data.data.member.friendCode
 
+  // 사용자 개인 코드 복사 여부 상태
+  const [isUserCodeCopied, setIsUserCodeCopied] = useState(false)
+  const [userCodeCopyMsg, setUserCodeCopyMsg] = useState('')
+  
+  // 사용자 개인 코드 복사 성공 핸들러
+  const userCodeCopyHandler = () => {
+    setIsUserCodeCopied(true)
+    setUserCodeCopyMsg('클립보드에 복사되었습니다.')
+  }
+  
+  useEffect(()=>{
+    if(isUserCodeCopied){
+      const timer = setTimeout(() => {
+        setIsUserCodeCopied(false)
+        setUserCodeCopyMsg('')
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [isUserCodeCopied])
+
   return (
     <>
+      {
+        isUserCodeCopied ? <>
+        <SnackBar content={userCodeCopyMsg} state={isUserCodeCopied}/>
+        </> : <></>
+      }
       <Header />
       <FlexBox>
         {/* <div> */}
           <MypageWrap>
             <MypageNavbar>
               <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
-                <ImageWrap BgImg={avataGenHandler(data.data.data.member.nickname, preview)} width='155px' height='155px' />
+                <ImageWrap BgImg={avataGenHandler(data&&data.data.data.member.nickname, preview)} width='155px' height='155px' />
               </ProfileModifyContent>
               <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
 
@@ -143,7 +154,11 @@ function MemberPage() {
                 {/* <CopyBtn  onClick={() => handleCopyClipBoard(data && data.data.data.member.friendCode)}
                   imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
                 >COPY</CopyBtn> */}
-                <CopyToClipboard text={myCode} onCopy={() => alert("클립보드에 복사되었습니다.")}>
+                <CopyToClipboard 
+                text={myCode} 
+                onCopy={()=>(
+                  userCodeCopyHandler('클립보드에 복사되었습니다.')
+                )}>
                   <CopyBtn
                     imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
                   ></CopyBtn>
