@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+<<<<<<< HEAD
+    "@monaco-editor/react": "^4.5.1",
+    "@redux-devtools/extension": "^3.2.5",
+=======
+>>>>>>> 5c7bea4f836d94b10e7b2cfd5e5994d80e88f903
     "@reduxjs/toolkit": "^1.9.5",
     "@stomp/stompjs": "^7.0.0",
     "@tanstack/react-query": "^4.29.7",
