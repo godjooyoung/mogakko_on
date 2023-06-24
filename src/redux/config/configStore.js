@@ -10,7 +10,7 @@ const store = configureStore({
         userInfo : userSlice,
         alarmInfo : alarmSlice,
     },
-    devTools: true,
+    devTools: false,
     middleware: [thunk]
 })
 

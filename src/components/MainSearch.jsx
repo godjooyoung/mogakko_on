@@ -172,7 +172,7 @@ function MainSearch(props) {
                     }}
                     
                     
-                    placeholder='원하시는 모각코 장소, 제목을 검색하세요.' autoComplete='do-not-autofill' />
+                    placeholder='원하시는 모각코 제목을 검색하세요.' autoComplete='do-not-autofill' />
                     <SearchResetBtn btnVisible={keyword} closeBtn={`${process.env.PUBLIC_URL}/image/inputDeleteBtn.webp`} onClick={()=>{keywordReset()}}></SearchResetBtn>
                     
                 </SearchBar>
