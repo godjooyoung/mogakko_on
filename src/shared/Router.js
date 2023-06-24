@@ -11,6 +11,7 @@ import Mypage from "../pages/Mypage";
 import MemberPage from "../pages/MemberPage";
 import Done from "../pages/Done";
 import Tutorial from "../pages/Tutorial";
+import Admin from "../pages/Admin";
 
 const Router = () => {
   return (
@@ -27,6 +28,7 @@ const Router = () => {
             <Route path="/profile/:id" element={<MemberPage />} />
             <Route path="/done" element={<><Header /><Done/></>} />
             <Route path="/tutorial" element={<><Header /><Tutorial/></>} />
+            <Route path="/admin" element={<><Header /><Admin/></>} />
           </Route>
         </Route>
       </Routes>
