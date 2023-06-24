@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { styled } from 'styled-components';
-import jwtInstance from '../axios/apiConfig';
+import {jwtInstance} from '../axios/apiConfig';
 
 function Admin() {
   const [reportedUsers, setReportedUsers] = useState([]);
@@ -12,8 +12,8 @@ function Admin() {
   const fetchReportedUsers = async () => {
     try {
       const response = await jwtInstance.get('/members/admin');
-      const { data } = response;
-      setReportedUsers(data);
+      //const { data } = response;
+      setReportedUsers(response.data.data);
     } catch (error) {
       // Handle error
     }
@@ -32,7 +32,7 @@ function Admin() {
     <AdminWrap>
       <h1>관리자 페이지</h1>
       <ReportedUserList>
-        {reportedUsers.map((user) => (
+        {reportedUsers?.map((user) => (
           <ReportedUser key={user.id}>
             <div>
               <span>신고된 닉네임: {user.reportedNickname}</span>
