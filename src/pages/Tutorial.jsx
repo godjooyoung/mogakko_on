@@ -6,27 +6,41 @@ function Tutorial() {
     const navigate = useNavigate();
     const stepRefs = useRef([])
     const [isVisibles, setIsVisibles] = useState(Array(12).fill(false));
-    
+
+    //버튼 파동
+    const [rippleX, setRippleX] = useState(0);
+    const [rippleY, setRippleY] = useState(0);
+
+    const handleButtonClick = (event) => {
+        const button = event.currentTarget;
+        const rect = button.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / button.offsetWidth;
+        const y = (event.clientY - rect.top) / button.offsetHeight;
+
+        setRippleX(x);
+        setRippleY(y);
+    };
+
+
     useEffect(() => {
-        
         const handleScroll = () => {
-            // 스크롤 이벤트 처리 로직 작성
             console.log('스크롤 이벤트 발생!');
             stepRefs.current.forEach((stepRef, idx) => {
-                //console.log("stepRef Rect["+idx+"]", stepRef.getBoundingClientRect().top, "윈도우 내부 높이",window.innerHeight, "윈도우 내부 높이*0.1",window.innerHeight*0.1, "윈도우 내부 높이*0.8",window.innerHeight*0.8)
-                // 위치 정보를 이용한 추가 처리 작성
-                if((stepRef.getBoundingClientRect().top > window.innerHeight*0.1)&&(stepRef.getBoundingClientRect().top < window.innerHeight*0.8)){
-                    console.log(idx+"번째가 화면에 진입함!!!")
-                    setIsVisibles((prevState) => {
-                        const newState = Array(12).fill(false)
-                        newState[idx] = true
-                        return newState
-                    })
-
+                if (stepRef && stepRef.getBoundingClientRect()) {
+                    if (
+                        stepRef.getBoundingClientRect().top > window.innerHeight * 0.1 &&
+                        stepRef.getBoundingClientRect().top < window.innerHeight * 0.8
+                    ) {
+                        console.log(idx + '번째가 화면에 진입함!!!');
+                        setIsVisibles((prevState) => {
+                            const newState = Array(12).fill(false);
+                            newState[idx] = true;
+                            return newState;
+                        });
+                    }
                 }
-            })
-
-        }
+            });
+        };
 
         window.addEventListener('scroll', handleScroll);
 
@@ -78,7 +92,18 @@ function Tutorial() {
                     {/* 글자 아이템 8*/}<Step ref={(ref) => (stepRefs.current[8] = ref)}><p>마이페이지로 가볼까요?</p></Step>
                     {/* 글자 아이템 9*/}<Step ref={(ref) => (stepRefs.current[9] = ref)}><p>지금까지 모각코온에 참여한 내용을 편하게 확인 가능해요.</p></Step>
                     {/* 글자 아이템 10*/}<Step ref={(ref) => (stepRefs.current[10] = ref)}><p>해당 튜토리얼은 마이페이지 하단에서 다시 확인 가능해요.</p></Step>
-                    {/* 글자 아이템 11*/}<Step ref={(ref) => (stepRefs.current[11] = ref)}><LastMsgP onClick={goHome}>이제 <b>모각코 ONː</b>을 사용하러 가볼까요?</LastMsgP></Step>
+                    {/* 글자 아이템 11*/}<GoBtnWrap ref={(ref) => (stepRefs.current[11] = ref)}>
+                        <p>이제 <b>모각코 ONː</b>을 사용하러 가볼까요?</p>
+                        <GoRoomButton onClick={(event) => {
+                            handleButtonClick(event)
+                            setTimeout(() => {
+                                goHome()
+                            }, 500)
+                        }}
+                            rippleX={rippleX}
+                            rippleY={rippleY}
+                        ><img src={`${process.env.PUBLIC_URL}/image/tutorialOn.svg`} alt="튜토리얼 on이미지" /></GoRoomButton>
+                    </GoBtnWrap>
                 </ScrollText>
             </ScrollContent>
             <NormalContent>
@@ -87,7 +112,6 @@ function Tutorial() {
                 {/* <p>여러분의 ~~~~~~~~~~~~~~~~</p> */}
             </NormalContent>
         </>
-
     );
 }
 
@@ -124,7 +148,6 @@ export const NormalContent = styled.section`
     padding: 0 1rem;
     height: 35vh;
     
-
 `
 
 // ScrollContent 자식
@@ -142,6 +165,7 @@ export const GraphicItem = styled.div`
     align-items: center;
     width: 100%;
     height: 100%;
+    transition: all 0.5s;
     opacity : ${(props) => {
         return props.isVisible ? 1 : 0;
     }};
@@ -189,6 +213,85 @@ export const LastMsgP = styled.p`
     &:active {
         transition: 0.3s;
         transform: scale(1);
+    }
+`
+
+export const GoBtnWrap = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin: 0 auto 20vh;
+
+    p {
+        color: #FFFFFF;
+    }
+
+    img {
+        width: 45px;
+    }
+`
+
+export const GoRoomButton = styled.button`
+    position: relative;
+    width: 300px;
+    height: 80px;
+    overflow: hidden;
+    border: none;
+    border-radius: 35px;
+    background-image: linear-gradient(90deg, #00F0FF, #26b9ff);
+    /* background-image: linear-gradient(90deg, #26b9ff, #00F0FF);*/
+    /* background-color: var(--po-de); */
+    color: #3d3935;
+    font-family: 'Pretendard';
+    border-radius: 52px;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    outline: none;
+    cursor: pointer;
+    &:hover {
+        box-shadow: 0px 0px 20px -5px rgba(0, 0, 0, .2);
+    }
+    &::before{
+        opacity: 0;
+        position: absolute;
+        top: calc(100% * ${(props) => props.rippleX});
+        left: calc(100% * ${(props) => props.rippleX});
+        transform: translate(-50%, -50%) scale(1);
+        padding: 50%;
+        border-radius: 50%;
+        background-color: #fff;
+        content: '';
+        transition: transform 1s, opacity 1s;
+    }
+    &:active::before {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0);
+        transition: 0s;
+    }
+    &::after {
+        opacity: 0;
+        position: absolute;
+        top: calc(100% * ${(props) => props.rippleY});
+        left: calc(100% * ${(props) => props.rippleX});
+        transform: translate(-50%, -50%) scale(1);
+        padding: 50%;
+        border-radius: 50%;
+        background-color: #fff;
+        content: '';
+        transition: transform 2s, opacity 2s;
+    }
+    &:active::after {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0);
+        transition: 0s;
+    }
+
+    &:hover {
+        transition: 0.3s;
+        transform: scale(1.03);
     }
 `
 

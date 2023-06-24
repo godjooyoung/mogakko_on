@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import useInput from '../../hooks/useInput';
-import { reportUser } from '../../axios/api/repost';
+import { reportUser } from '../../axios/api/report';
 import { useMutation } from 'react-query';
 function ReportPopup(props) {
   const [selectedCause, setSelectedCause] = useState(null);
@@ -40,6 +40,7 @@ function ReportPopup(props) {
   const reportMutation = useMutation(reportUser, {
     onSuccess: (response) => {
       // setReportMsg('신고가 접수되었습니다.')
+      console.log('responseresponse',response)
       props.reportMsgHandler('신고가 접수되었습니다.')
     },
     onError: (error) => {
@@ -126,7 +127,7 @@ function ReportPopup(props) {
           </ReportCauseWrap>
 
           <h2>신고 사유</h2>
-          <ReportInput type="text" value={reasonValue} onChange={(e) => { onChangeReasonValue(e) }} />
+          <ReportInput type="text" value={reasonValue} onChange={(e) => { onChangeReasonValue(e) }} placeholder={reportReason === '기타' ? '기타는 신고 사유 입력이 필수입니다.' : '신고 사유를 입력해주세요.'}/>
           <BtnWrap>
             <ReportBtn color={'#FF635D'} onClick={() => {
               reportHandler(props.nickname, reportReason, reasonValue)

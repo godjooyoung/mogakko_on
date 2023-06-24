@@ -109,10 +109,7 @@ function Room() {
 
   // SnackBar 신고 메세지 가져오기
   const getReportMsgHandler = (msg) => {
-    console.log('msgmsg', msg)
     setReportMsg(msg)
-    console.log('reportMsgreportMsg', reportMsg)
-    console.log('reportSnackBarreportSnackBar', reportSnackBar)
   }
 
   useEffect(() => {

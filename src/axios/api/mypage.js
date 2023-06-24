@@ -158,6 +158,15 @@ const postMessage = async (message) => {
   }
 }
 
+// 쪽지삭제
+const deleteMessage = async (messages) => {
+  try {
+    const response = await jwtInstance.post('/directMessage/delete', {'directMessageList' : messages})
+    return Promise.resolve(response)
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
 export { 
   getProfile, 
   addProfile, 
@@ -171,5 +180,6 @@ export {
   searchUser,
   receiveMessage,
   postMessage,
-  sentMessage
+  sentMessage,
+  deleteMessage
 }
