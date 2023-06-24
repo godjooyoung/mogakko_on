@@ -16,6 +16,7 @@ import CommonPopup from '../components/common/CommonPopup'
 import SnackBar from '../components/common/SnackBar'
 import { jwtInstance } from '../axios/apiConfig'
 import ReportPopup from '../components/common/ReportPopup'
+import CodeEditor from '../components/CodeEditor'
 
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
@@ -77,8 +78,28 @@ function Room() {
 
   // 닉네임
   const [getUserNickname, setGetUserNickname] = useState(null)
+
+  // SnackBar 신고 메세지
+  const [reportMsg, setReportMsg] = useState(null)
+
+  // 신고 SnackBar 토글 
+  const [reportSnackBar, setReportSnackBar] = useState(false)
   // reportPopup
   const [reportPopup, setReportPopup] = useState(false)
+
+  //코드 에디터
+  const [code, setCode] = useState('');
+
+  const handleCodeChange = (value) => {
+    setCode(value);
+  };
+
+  // 코드 에디터 토글 버튼
+  const [codeEditor, setCodeEditor] = useState(false)
+
+  const codeEditorToggleHandler = () => {
+    setCodeEditor(!codeEditor)
+  }
 
   // nickname 가져오기
   const getUserNicknameHandler = (nickname) => {
@@ -86,11 +107,24 @@ function Room() {
     setReportPopup(true)
   }
 
+  // SnackBar 신고 메세지 가져오기
+  const getReportMsgHandler = (msg) => {
+    console.log('msgmsg', msg)
+    setReportMsg(msg)
+    console.log('reportMsgreportMsg', reportMsg)
+    console.log('reportSnackBarreportSnackBar', reportSnackBar)
+  }
+
+  useEffect(() => {
+    if (reportMsg) {
+      setReportSnackBar(true)
+    }
+  }, [reportMsg])
   // reportPopup 닫기
   const closeReportPopupHandler = () => {
     setReportPopup(false)
   }
-  console.log('getUserNicknamegetUserNickname',getUserNickname)
+  console.log('getUserNicknamegetUserNickname', getUserNickname)
   // 뒤로가기 동작 감지
   const preventGoBack = () => {
     window.history.pushState(null, "", location.href);
@@ -133,7 +167,16 @@ function Room() {
 
       return () => clearTimeout(timer)
     }
-  }, [isActiveSnackbar])
+
+    if (reportSnackBar) {
+      const timer = setTimeout(() => {
+        setReportSnackBar(false)
+        setReportMsg('')
+      }, 3000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [isActiveSnackbar, reportSnackBar])
 
   useEffect(() => {
     console.log('snackbarStatus 상태', snackbarStatus)
@@ -264,9 +307,9 @@ function Room() {
     } else if (data.language === 'C++') {
       return <img src={`${process.env.PUBLIC_URL}/image/roomCplusIcon.webp`} alt="Java아이콘" />
     } else if (data.language === 'KOTLIN') {
-      return <img src={`${process.env.PUBLIC_URL}/image/roomJavaIcon.webp`} alt="Java아이콘" />
+      return <img src={`${process.env.PUBLIC_URL}/image/roomIconKt.webp`} alt="Java아이콘" />
     } else if (data.language === 'ETC') {
-      return <img src={`${process.env.PUBLIC_URL}/image/roomKotlinIcon.webp`} alt="Java아이콘" />
+      return <img src={`${process.env.PUBLIC_URL}/image/roomIconEtc.webp`} alt="Java아이콘" />
     }
   }
 
@@ -370,7 +413,7 @@ function Room() {
       }
     }
   }
-
+  const LowerLanguage = data.language.toLowerCase()
   // 값이 입력될때마다 입력된 state들을 세팅
   useEffect(() => {
     onClickTempButton()
@@ -1019,8 +1062,8 @@ function Room() {
                         streamManager={publisher}
                         activeSnackbarHandler={activeSnackbarHandler}
                         getFriendResponseMsgHandler={getFriendResponseMsgHandler}
-                        getUserNicknameHandler={getUserNicknameHandler} 
-                        />
+                        getUserNicknameHandler={getUserNicknameHandler}
+                      />
 
                       {/* 구독자 수 만큼 비디오를 생성해서 붙인다. */}
                       {subscribers.map((e, i) => (
@@ -1028,9 +1071,9 @@ function Room() {
                           <UserVideoComponent
                             streamManager={e}
                             activeSnackbarHandler={activeSnackbarHandler}
-                            getFriendResponseMsgHandler={getFriendResponseMsgHandler} 
+                            getFriendResponseMsgHandler={getFriendResponseMsgHandler}
                             getUserNicknameHandler={getUserNicknameHandler}
-                            />
+                          />
                         </div>
                       ))}
 
@@ -1052,7 +1095,11 @@ function Room() {
                   </MainStreamWrap> */}
                 {mainStreamManager !== undefined ? (
                   <MainStreamWrap>
-                    <UserVideoComponent streamManager={mainStreamManager} />
+                    {
+                      !codeEditor ? 
+                      <UserVideoComponent streamManager={mainStreamManager} /> :
+                      <CodeEditor code={code} language={LowerLanguage} onChange={handleCodeChange} />
+                    }
                   </MainStreamWrap>
                 ) : null}
 
@@ -1088,6 +1135,15 @@ function Room() {
                     isScreenSharing={isScreenSharing}
                   >
                   </VideoShareBtn>
+                  <CodeEditorToggleBtn
+                    onClick={() => { codeEditorToggleHandler() }}
+                    codeOffBtn={`${process.env.PUBLIC_URL}/image/codeOn.webp`}
+                    codeOnBtn={`${process.env.PUBLIC_URL}/image/codeOff.webp`}
+                    codeHoverBtn={`${process.env.PUBLIC_URL}/image/codeOffHover.webp`}
+                    codeOnHoverBtn={`${process.env.PUBLIC_URL}/image/codeOnHover.webp`}
+                    codeEditor={codeEditor}
+                  >
+                  </CodeEditorToggleBtn>
                 </VideoBtnWrap>
               }
             </VideoWrap>
@@ -1150,7 +1206,11 @@ function Room() {
           </RoomContainer>
         </FlexCenterInSession>
       ) : null}
-      {reportPopup && <ReportPopup nickname={getUserNickname} closeHander={closeReportPopupHandler}/>}
+      {reportPopup && <ReportPopup nickname={getUserNickname} closeHander={closeReportPopupHandler} reportMsgHandler={getReportMsgHandler} />}
+      {
+        reportSnackBar &&
+        <SnackBar content={reportMsg} statue={reportSnackBar} />
+      }
     </div>
   );
 }
@@ -1711,7 +1771,7 @@ export const MainStreamWrap = styled.div`
   }
 
   span {
-    font-size: 22px;
+    font-size: 15px;
   }
 
   img {
@@ -1795,6 +1855,28 @@ export const AudioToggleBtn = styled.button`
   background-image: url(
     ${(props) => {
     return props.AudioEnabled ? props.AudioHoverBtn : props.AudioOnHoverBtn
+  }}
+  );
+  }
+`
+
+export const CodeEditorToggleBtn = styled.button`
+  width: 98px;
+  height: 60px;
+  border: none;
+  background-color: transparent;
+  background-image: url(
+    ${(props) => {
+    return props.codeEditor ? props.codeOnBtn : props.codeOffBtn
+  }}
+  );
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: all 0.3s;
+  &:hover{
+  background-image: url(
+    ${(props) => {
+    return props.codeEditor ? props.codeHoverBtn : props.codeOnHoverBtn
   }}
   );
   }
