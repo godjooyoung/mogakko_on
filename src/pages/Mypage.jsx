@@ -1405,11 +1405,15 @@ const TopContentTitleItem = styled.h1`
 `
 
 const StatusMouseHoverBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
   position: absolute;
   right: 0px;
-  bottom: -219px;
+  bottom: -210px;
   width: 215px;
-  height: 230px;
+  height: 220px;
   background: #F9F9FA;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
@@ -1419,9 +1423,7 @@ const StatusMouseHoverBox = styled.div`
     font-weight: 900;
     font-size: 11px;
     color: #464646;
-    margin-bottom: 7px;
   }
-
   span {
     font-weight: 700;
     font-size: 9px;
