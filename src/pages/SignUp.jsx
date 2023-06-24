@@ -571,7 +571,7 @@ export const InputCheckbox = styled.input`
     position: absolute;
     opacity: 0;
     z-index: -1;
-
+    
     & + label {
         position: relative;
         padding-left: 30px;
@@ -599,15 +599,27 @@ export const InputCheckbox = styled.input`
             height: 10px;
             border: solid white;
             border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
+            /* transform: rotate(45deg);
+            transform: scaleX(-1); */
             opacity: 0;
             transition: all 0.3s;
+            display:none;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-image: ${(props) =>
+            `url(${process.env.PUBLIC_URL}/image/termsCheck.webp)`
+            };
         }
     }
-
+    
     &:checked + label::before {
         border: none;
         background: #00EFFF;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-image: ${(props) =>
+        `url(${process.env.PUBLIC_URL}/image/termsCheck.webp)`
+        };
     }
 
     &:checked + label::after {

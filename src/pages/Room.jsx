@@ -13,11 +13,16 @@ import { leaveChatRoom } from '../axios/api/chat'
 import Header from '../components/common/Header';
 import Stopwatch from '../components/Stopwatch'
 import CommonPopup from '../components/common/CommonPopup'
+import SnackBar from '../components/common/SnackBar'
+import { jwtInstance } from '../axios/apiConfig'
+import ReportPopup from '../components/common/ReportPopup'
 
 const APPLICATION_SERVER_URL = process.env.REACT_APP_OPEN_VIDU_SERVER
 
 function Room() {
   const location = useLocation()
+  const navigate = useNavigate()
+
   const sessionInfo = location.state
 
   const [mySessionId, setMySessionId] = useState(sessionInfo.mySessionId) //진짜 세션아이디로 넣어줘야됨 (지금은 서버에서 input에 걸려있는 정규식이 영어만 됨)
@@ -30,6 +35,9 @@ function Room() {
   const [currentVideoDevice, setCurrentVideoDevice] = useState(null)
   const [isScreenSharing, setIsScreenSharing] = useState(false)
   const [lang, setLang] = useState(sessionInfo.language)
+
+  const [sessionConnect, setSessionConnect] = useState(false)
+
   // const [isOpened, setIsOpened] = useState(sessionInfo.isOpened)   // isOpen 
   const [isOpened, setIsOpened] = useState(true)   // isOpen 
   const [openViduSession, setOpenViduSession] = useState(undefined)
@@ -48,27 +56,48 @@ function Room() {
 
   const [btnSelect, setBtnSelect] = useState('public')
 
-  
-  //popup창
+  // 스낵바 메세지 
+  const [snackbarMsg, setSnackbarMsg] = useState('')
+
+  // 스낵바 활성 여부 
+  const [isActiveSnackbar, setIsActiveSnackbar] = useState(false)
+
+  const [snackbarStatus, setSnackbarStatus] = useState(null)
+
+  // 모각코 안내 팝업 활성 여부
   const [roomPopUp, setRoomPopUp] = useState(false)
-  // 네비게이트 선언
-  const navigate = useNavigate()
+
 
   // 뒤로 가기 막기 팝업 활성 여부
   const [isblocked, setIsblocked] = useState(false)
 
-  // 나가기 팝업 창 활성 여부
-  const [isBeforeLeave, setIsBeforeLeave] = useState(false) 
+  // 나가기 팝업 활성 여부
+  const [isBeforeLeave, setIsBeforeLeave] = useState(false)
 
+
+  // 닉네임
+  const [getUserNickname, setGetUserNickname] = useState(null)
+  // reportPopup
+  const [reportPopup, setReportPopup] = useState(false)
+
+  // nickname 가져오기
+  const getUserNicknameHandler = (nickname) => {
+    setGetUserNickname(nickname)
+    setReportPopup(true)
+  }
+
+  // reportPopup 닫기
+  const closeReportPopupHandler = () => {
+    setReportPopup(false)
+  }
+  console.log('getUserNicknamegetUserNickname',getUserNickname)
   // 뒤로가기 동작 감지
   const preventGoBack = () => {
-      // console.log('//////////////////////////////// 뒤로가기 동작 감지')
-      window.history.pushState(null, "", location.href);
-      setIsblocked(true)
+    window.history.pushState(null, "", location.href);
+    setIsblocked(true)
   };
 
   useEffect(() => {
-    // console.log('//////////////////////////////// popstate 이벤트 추가')
     window.history.pushState(null, "", location.href);
     window.addEventListener("popstate", preventGoBack);
 
@@ -79,13 +108,37 @@ function Room() {
 
   // 나가기 버튼클릭 시 팝업 띄우기 위해서 동작하는 함수
   const leavePopOpenHandler = () => {
-      // console.log('나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름나가기 누름')
-      setIsBeforeLeave(true)
+    setIsBeforeLeave(true)
   }
 
-  useEffect(()=>{
-    // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> 나가려고?", isBeforeLeave)
-  },[isBeforeLeave])
+  // 스낵바 메세지 세팅하고 나면 스낵바 랜더링 해주는 값 변경 해주는 useEffect
+  useEffect(() => {
+    if (snackbarMsg) {
+      console.log('메세지', snackbarMsg)
+      setIsActiveSnackbar(true)
+    }
+  }, [snackbarMsg])
+
+  // 스낵바 열리고 나면 자동으로 닫히도록 하는 useEffect
+  useEffect(() => {
+    console.log('isActivee 상태', isActiveSnackbar)
+    if (isActiveSnackbar) {
+
+      setSnackbarStatus(Math.random())
+
+      const timer = setTimeout(() => {
+        setIsActiveSnackbar(false)
+        setSnackbarMsg('')
+      }, 3000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [isActiveSnackbar])
+
+  useEffect(() => {
+    console.log('snackbarStatus 상태', snackbarStatus)
+  }, [snackbarStatus])
+
 
   // 리브세션 서버 요청
   const leaveSessionMutation = useMutation(leaveChatRoom, {
@@ -197,10 +250,34 @@ function Room() {
   //   subscribers: [],
   //   });
 
+  const languageImgHandler = () => {
+    if (data.language === 'JAVA') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomJavaIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'JAVASCRIPT') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomJsIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'PYTHON') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomPythonIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'C') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomCIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'C#') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomCsharpIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'C++') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomCplusIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'KOTLIN') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomJavaIcon.webp`} alt="Java아이콘" />
+    } else if (data.language === 'ETC') {
+      return <img src={`${process.env.PUBLIC_URL}/image/roomKotlinIcon.webp`} alt="Java아이콘" />
+    }
+  }
+
   const OV = useRef(new OpenVidu())
 
   const handleChangeRoomTitle = useCallback((e) => {
-    setRoomTitle(e.target.value)
+    if (e.target.value.length > 15) {
+      setRoomTitle(e.target.value.slice(0, 15))
+    } else {
+      setRoomTitle(e.target.value)
+    }
   }, []);
 
   // 메인화면을 어느 스트림으로 할지 정하는 함수. 어느것을 추적해서 메인 화면으로 나타낼지
@@ -222,10 +299,10 @@ function Room() {
       // console.log("subscribers 확인 2 subscribers ::: ", subscribers);
     });
 
-    mySession.on('streamPropertyChanged', (event)=>{
+    mySession.on('streamPropertyChanged', (event) => {
       // console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@1',event)
       // console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2',event.changedProperty)
-      setIsChangedProperty((prevIsChangedProperty)=>(!prevIsChangedProperty))
+      setIsChangedProperty((prevIsChangedProperty) => (!prevIsChangedProperty))
     })
 
     mySession.on('streamDestroyed', (event) => {
@@ -252,11 +329,12 @@ function Room() {
       if (!isFisrstSubscribe) { // !false => true
         // console.log("*************** 1")
         if (openViduSession) {
-          // console.log("*************** 2")
+          console.log("*************** 2 게스트임", openViduSession)
           connect(openViduSession) // isFisrstSubscribe = false
         } else {
           // 방장 아닌사람은 3일때 커넥션 하고 다시 또 커넥션 시키지 않는다.
           // console.log("*************** 3")
+          console.log("*************** 3 게스트임", mySessionId)
           connect(mySessionId)
           setIsGuest(true)
           setIsFisrstSubscribe(true)
@@ -308,7 +386,7 @@ function Room() {
     // console.log("old subscribers ...................................... ", subscribers)
     // console.log("publisher............................................. ", publisher)
     const updateSubscribers = [...subscribers]
-    setSubscribers((prevSubscribers)=>updateSubscribers)
+    setSubscribers((prevSubscribers) => updateSubscribers)
 
   }, [publisher, audioEnabled, isChangedProperty])
 
@@ -449,6 +527,9 @@ function Room() {
           setMainStreamManager(publisher)
           setPublisher(publisher)
           setCurrentVideoDevice(currentVideoDevice)
+
+          setSessionConnect(true)
+
         } catch (error) {
           // console.log('There was an error connecting to the session:', error.code, error.message)
         }
@@ -541,70 +622,40 @@ function Room() {
   }, [data])
 
   const createSession = async (data) => {
-    // console.log("##### createSession", data)
-    const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko', data, {
-      headers: { ACCESS_KEY: getCookie('token') },
-    })
-    // console.log("##### sessionId", response.data.data.sessionId)
-    setMySessionId(response.data.data.sessionId)
-    setOpenViduSession(response.data.data.sessionId)
+
+    // const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko', data, {
+    //   headers: { ACCESS_KEY: getCookie('token') },
+    // })
+
+    // apiConfig 내 토큰 인스턴스 사용
+    const response = await jwtInstance.post(APPLICATION_SERVER_URL + '/mogakko', data);
+
+    console.debug("[room] sessionId (in createSession Fn) :", response.data.data.sessionId)
+    setMySessionId(response.data.data.sessionId);
+    setOpenViduSession(response.data.data.sessionId);
     return response.data.data.sessionId // The sessionId
-  };
+  }
 
   const createToken = async (sessionId) => {
-    // console.log("##### createToken", sessionId)
+    console.debug("[room] sessionId (in createToken Fn) :", sessionId)
     if (sessionInfo) {
       if (sessionInfo.isDirect) {
-        // console.log("토큰만들기 - 게스트")
+        console.debug("[room] sessionInfo (in createToken Fn) :", sessionInfo)
+        setMySessionId(sessionId) // 참가자
+        setOpenViduSession(sessionId) // 참가자
       }
     } else {
-      // console.log("토큰만들기 - 방장")
+      setMySessionId(sessionId) // 방장
     }
 
-    if (sessionInfo) {
-      if (sessionInfo.isDirect) {
-        setMySessionId(sessionId)
-        setOpenViduSession(sessionId)
-      }
-    } else {
-      setMySessionId(sessionId)
-    }
+    // const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
+    //   headers: {
+    //     ACCESS_KEY: getCookie('token'),
+    //   },
+    // })
 
-
-    // const setRequestBody = () => {
-    //   let payload = {}
-    //   if (!data.password && data.isOpened) {
-    //     payload = payload
-    //   } else {
-    //     payload = { 'password': data.password }
-    //   }
-    //   console.log("요청 bodyp", payload)
-    //   return payload
-    // }
-
-    // let response
-    // if (data.isOpened) {
-    //   console.log('############################### 공개방 입장 ##################################')
-    //   response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
-    //     headers: {
-    //       ACCESS_KEY: getCookie('token'),
-    //     },
-    //   })
-    //   return response.data // The token
-    // } else {
-    //   console.log('############################## 비공개방 입장 ##################################')
-    //   response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, setRequestBody(), {
-    //     headers: {
-    //       ACCESS_KEY: getCookie('token'),
-    //     },
-    //   })
-    // return response.data // The token
-    // }
-    const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
-      headers: {
-        ACCESS_KEY: getCookie('token'),
-      },
-    })
+    // apiConfig 내 토큰 인스턴스 사용
+    const response = await jwtInstance.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {})
     return response.data // The token
   };
 
@@ -775,19 +826,28 @@ function Room() {
   const [count, setCount] = useState(0)
   const scrollLeft = () => {
     // console.log("왼쪽으로 가기!!!!!")
-    setPosition((prevPosition) => prevPosition + 1045); // 왼쪽으로 1045px 이동
+    setPosition((prevPosition) => prevPosition + 990); // 왼쪽으로 1045px 이동
     const newCount = count
     setCount(newCount - 1)
-  };
+  }
 
   const scrollRight = () => {
     // console.log("오른쪽으로 가기!!!!!")
-    setPosition((prevPosition) => prevPosition - 1045); // 오른쪽으로 1045px 이동
+    setPosition((prevPosition) => prevPosition - 990); // 오른쪽으로 1045px 이동
     const newCount = count
     setCount(newCount + 1)
-  };
+  }
 
-  // console.log('subscriberssubscribers', subscribers[0])
+  // 스낵바 활성화 핸들러
+  const activeSnackbarHandler = () => {
+    setIsActiveSnackbar(true)
+  }
+
+  // 스낵바에 표현할 메세지 세팅
+  const getFriendResponseMsgHandler = (res) => {
+    setSnackbarMsg(res)
+  }
+
   return (
     <div className="container">
       {/* 세션이 없으면  */}
@@ -805,7 +865,8 @@ function Room() {
                       type="text"
                       value={roomTitle}
                       onChange={handleChangeRoomTitle}
-                      placeholder='어떤 모각코인지 설명해주세요'
+                      placeholder='어떤 모각코인지 설명해주세요. 15자 까지 입력 가능합니다.'
+                      maxLength={15}
                       required
                     />
                   </RoomNameWrap>
@@ -842,54 +903,10 @@ function Room() {
                       }
                     </MaxMembersBtnWrap>
                   </MaxMembersWrap>
-                  {/* <PublicWrap>
-                    <PublicTitle>공개 여부 : </PublicTitle>
-                    <PublicBtnWrap>
-                      <PublicBtn btnSelect={btnSelect}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setBtnSelect('public')
-                          publicHandler()
-                        }}>
-                        공개</PublicBtn>
-                      <ClosedBtn btnSelect={btnSelect}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setBtnSelect('closed')
-                          closedHandler()
-                        }}>비공개</ClosedBtn>
-                    </PublicBtnWrap>
-                  </PublicWrap>
-                  {
-                    !isOpened &&
-                    <PasswordWrap>
-                      <PasswordInputWrap>
-                        <PasswordTitle>비밀번호 : </PasswordTitle>
-                        <PasswordInput type="text"
-                          value={closedPassword}
-                          onChange={(e) => {
-                            onChangeClosedPassword(e)
-                          }}
-                          placeholder='비밀번호를 입력해주세요'
-                        />
-                      </PasswordInputWrap>
-                      <PasswordInputWrap>
-                        <PasswordTitle>비밀번호 확인 : </PasswordTitle>
-                        <PasswordInput type="text"
-                          value={PasswordCheck}
-                          onChange={(e) => {
-                            onChangePasswordCheck(e)
-                          }}
-                          placeholder='비밀번호재입력'
-                        />
-                      </PasswordInputWrap>
-                    </PasswordWrap>
-                  } */}
                   <JoinBtnWrap>
                     <JoinBtn name="commit" type="submit" value="모각코 만들기" />
                   </JoinBtnWrap>
                 </form>
-                {/* <button onClick={onClickTempButton}>TEMP</button> */}
               </RoomCreateWrap>
             </RoomCreateContainer>
           </FlexCenter>
@@ -934,48 +951,52 @@ function Room() {
           }
           {
             isblocked &&
-            // msg : 화면에 표시되는 메세지
-            // isBtns : boolean
-            // priMsg  'primery 버튼 내용'
-            // secMsg  'second 버튼 내용'
-            // priHander : 'primery 버튼 클릭시 동작하는 함수'
-            // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
-            // closeHander : 닫기 함수
-            <CommonPopup msg={`뒤로가기 하시겠습니까?`} 
+            <CommonPopup msg={`뒤로가기 하시겠습니까?`}
               secondMsg={'모각코 참여 시간을 기록하지'}
               thrMsg={'않으면 저장되지 않습니다.'}
-              isBtns={true} 
-              priMsg='나가기' 
-              secMsg='머무르기' 
-              priHander={()=>{leaveSession()}} 
-              secHandler={()=>(setIsblocked(false))} 
-              closeHander={()=>(setIsblocked(false))}/>
+              isBtns={true}
+              priMsg='나가기'
+              secMsg='머무르기'
+              priHander={() => { leaveSession() }}
+              secHandler={() => (setIsblocked(false))}
+              closeHander={() => (setIsblocked(false))} />
           }
           {
             isBeforeLeave &&
-            // msg : 화면에 표시되는 메세지
-            // isBtns : boolean
-            // priMsg  'primery 버튼 내용'
-            // secMsg  'second 버튼 내용'
-            // priHander : 'primery 버튼 클릭시 동작하는 함수'
-            // secHandler : 'secondFun 버튼 클릭시 동작하는 함수'
-            // closeHander : 닫기 함수
-            <CommonPopup msg={`나가시겠습니까?`} 
-              secondMsg={'모각코 참여 시간을 기록하지'}
-              thrMsg={'않으면 저장되지 않습니다.'}
-              isBtns={true} 
-              priMsg='나가기' 
-              secMsg='머무르기' 
-              priHander={()=>{leaveSession()}} 
-              secHandler={()=>(setIsBeforeLeave(false))} 
-              closeHander={()=>(setIsBeforeLeave(false))}/>
+            <>
+              <CommonPopup msg={`나가시겠습니까?`}
+                secondMsg={'모각코 참여 시간을 기록하지'}
+                thrMsg={'않으면 저장되지 않습니다.'}
+                isBtns={true}
+                priMsg='나가기'
+                secMsg='머무르기'
+                priHander={() => { leaveSession() }}
+                secHandler={() => (setIsBeforeLeave(false))}
+                closeHander={() => (setIsBeforeLeave(false))} />
+            </>
           }
-
+          {
+            /* 친구 신청 스낵바 */
+            isActiveSnackbar ? (
+              <>
+                <SnackBar content={snackbarMsg} state={snackbarStatus} />
+              </>
+            ) : null
+          }
           <RoomInHeader>
-            <span>{roomTitle}</span>
+            <RoomHeaderContentWrap>
+              {languageImgHandler()}
+              <div>
+                <span>{roomTitle}</span>
+                <RoomHeaderBottomItemWrpa>
+                  <p>언어: {data.language.charAt(0).toUpperCase() + data.language.slice(1).toLowerCase()}</p>
+                  <p>정원: {subscribers.length + 1}/{data.maxMembers}</p>
+                </RoomHeaderBottomItemWrpa>
+              </div>
+            </RoomHeaderContentWrap>
             <div>
               <LeaveBtn
-                onClick={()=>(leavePopOpenHandler())}
+                onClick={() => (leavePopOpenHandler())}
                 //onClick={leaveSession}
                 LeaveBtnImg={`${process.env.PUBLIC_URL}/image/roomLeaveBtn.webp`}
                 LeaveBtnHoverImg={`${process.env.PUBLIC_URL}/image/leaveHover.webp`}
@@ -988,19 +1009,28 @@ function Room() {
                 {publisher !== undefined ? (
                   <PubilsherVideoContainer>
                     {count === 1 && data.maxMembers >= 5 ?
-                      <SlideLeftBtn onClick={() => {
-                        scrollLeft()
-                      }}
+                      <SlideLeftBtn onClick={() => { scrollLeft() }}
                         SlideLeft={`${process.env.PUBLIC_URL}/image/slideLeft.webp`}
                       ></SlideLeftBtn> :
-                      null
+                      <></>
                     }
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
-                      <UserVideoComponent streamManager={publisher}/>
+                      <UserVideoComponent
+                        streamManager={publisher}
+                        activeSnackbarHandler={activeSnackbarHandler}
+                        getFriendResponseMsgHandler={getFriendResponseMsgHandler}
+                        getUserNicknameHandler={getUserNicknameHandler} 
+                        />
 
+                      {/* 구독자 수 만큼 비디오를 생성해서 붙인다. */}
                       {subscribers.map((e, i) => (
                         <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                          <UserVideoComponent streamManager={e}/>
+                          <UserVideoComponent
+                            streamManager={e}
+                            activeSnackbarHandler={activeSnackbarHandler}
+                            getFriendResponseMsgHandler={getFriendResponseMsgHandler} 
+                            getUserNicknameHandler={getUserNicknameHandler}
+                            />
                         </div>
                       ))}
 
@@ -1028,36 +1058,38 @@ function Room() {
 
               </PubilshSession>
 
-              <VideoBtnWrap>
-                <StopwatchWrap>
-                  <Stopwatch />
-                </StopwatchWrap>
-                <VideoShareBtn
-                  onClick={() => { toggleSharingMode(publisher) }}
-                  ShareOffBtn={`${process.env.PUBLIC_URL}/image/ShareOn.webp`}
-                  ShareOnBtn={`${process.env.PUBLIC_URL}/image/ShareOff.webp`}
-                  ShareHoverBtn={`${process.env.PUBLIC_URL}/image/ShareHover.webp`}
-                  ShareOnHoverBtn={`${process.env.PUBLIC_URL}/image/screenOnHover.webp`}
-                  isScreenSharing={isScreenSharing}
-                >
-                </VideoShareBtn>
-                <VideoToggleBtn
-                  onClick={VideoTogglehandler}
-                  VideoOffBtn={`${process.env.PUBLIC_URL}/image/VideoOff.webp`}
-                  VideoOnBtn={`${process.env.PUBLIC_URL}/image/VideoOn.webp`}
-                  VideoHoverBtn={`${process.env.PUBLIC_URL}/image/videoHover.webp`}
-                  VideoOnHoverBtn={`${process.env.PUBLIC_URL}/image/videoOnHover.webp`}
-                  VideoEnabled={videoEnabled}
-                />
-                <AudioToggleBtn
-                  onClick={AudioTogglehandler}
-                  AudioOffBtn={`${process.env.PUBLIC_URL}/image/microphoneOff.webp`}
-                  AudioOnBtn={`${process.env.PUBLIC_URL}/image/microphoneOn.webp`}
-                  AudioHoverBtn={`${process.env.PUBLIC_URL}/image/microphoneHover.webp`}
-                  AudioOnHoverBtn={`${process.env.PUBLIC_URL}/image/mcOnHover.webp`}
-                  AudioEnabled={audioEnabled}
-                />
-              </VideoBtnWrap>
+              {sessionConnect &&
+                <VideoBtnWrap>
+                  <StopwatchWrap>
+                    <Stopwatch isBeforeLeave={isBeforeLeave} />
+                  </StopwatchWrap>
+                  <VideoToggleBtn
+                    onClick={VideoTogglehandler}
+                    VideoOffBtn={`${process.env.PUBLIC_URL}/image/VideoOff.webp`}
+                    VideoOnBtn={`${process.env.PUBLIC_URL}/image/VideoOn.webp`}
+                    VideoHoverBtn={`${process.env.PUBLIC_URL}/image/videoHover.webp`}
+                    VideoOnHoverBtn={`${process.env.PUBLIC_URL}/image/videoOnHover.webp`}
+                    VideoEnabled={videoEnabled}
+                  />
+                  <AudioToggleBtn
+                    onClick={AudioTogglehandler}
+                    AudioOffBtn={`${process.env.PUBLIC_URL}/image/microphoneOff.webp`}
+                    AudioOnBtn={`${process.env.PUBLIC_URL}/image/microphoneOn.webp`}
+                    AudioHoverBtn={`${process.env.PUBLIC_URL}/image/microphoneHover.webp`}
+                    AudioOnHoverBtn={`${process.env.PUBLIC_URL}/image/mcOnHover.webp`}
+                    AudioEnabled={audioEnabled}
+                  />
+                  <VideoShareBtn
+                    onClick={() => { toggleSharingMode(publisher) }}
+                    ShareOffBtn={`${process.env.PUBLIC_URL}/image/ShareOn.webp`}
+                    ShareOnBtn={`${process.env.PUBLIC_URL}/image/ShareOff.webp`}
+                    ShareHoverBtn={`${process.env.PUBLIC_URL}/image/ShareHover.webp`}
+                    ShareOnHoverBtn={`${process.env.PUBLIC_URL}/image/screenOnHover.webp`}
+                    isScreenSharing={isScreenSharing}
+                  >
+                  </VideoShareBtn>
+                </VideoBtnWrap>
+              }
             </VideoWrap>
             <ChattingWrap>
               <ChattingHeader>채팅</ChattingHeader>
@@ -1081,32 +1113,34 @@ function Room() {
                 <div ref={messagesEndRef} />
               </ChatContentWrap>
               <ChatInputWrap>
-                <ChatInput
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  cols="30"
-                  rows="10"
-                  placeholder='대화를 입력하세요.'
-                  onKeyDown={(e) => {
-                    // 엔터시 한글자모만 두번 쳐지는거 막음
-                    if (e.key === "Enter") {
-                        if (e.nativeEvent.isComposing === false && !e.shiftKey) {
+                <ChatInputBox>
+                  <ChatInput
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    cols="30"
+                    rows="4"
+                    placeholder='대화를 입력하세요.'
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        if (e.shiftKey) {
+                          return;
+                        } else if (message.trim() === '') {
+                          e.preventDefault();
+                          return;
+                        } else if (!e.nativeEvent.isComposing) {
                           e.preventDefault();
                           textPublish(openViduSession ? openViduSession : mySessionId);
                         }
-                    }
-                    // if (e.key === 'Enter') {
-                    //   if (!e.shiftKey) {
-                    //     e.preventDefault();
-                    //     textPublish(openViduSession ? openViduSession : mySessionId);
-                    //   }
-                    // }
-                  }}
-                ></ChatInput>
+                      }
+                    }}
+                  ></ChatInput>
+                </ChatInputBox>
               </ChatInputWrap>
               <SendBtnWrap>
                 <SendBtn onClick={() => {
-                  textPublish(openViduSession ? openViduSession : mySessionId)
+                  if (message.trim() !== '') {
+                    textPublish(openViduSession ? openViduSession : mySessionId)
+                  }
                   // textPublish(openViduSession)
                 }}
                   send={`${process.env.PUBLIC_URL}/image/sendMessage.webp`}
@@ -1116,9 +1150,29 @@ function Room() {
           </RoomContainer>
         </FlexCenterInSession>
       ) : null}
+      {reportPopup && <ReportPopup nickname={getUserNickname} closeHander={closeReportPopupHandler}/>}
     </div>
   );
 }
+
+export const RoomHeaderContentWrap = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+`
+
+export const RoomHeaderBottomItemWrpa = styled.div`
+  display: flex;
+  gap: 12px;
+
+  p {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+    color: #FFFFFF;
+  }
+`
 
 export const UserNickName = styled.span`
     color: white;
@@ -1134,7 +1188,7 @@ export const UserNickName = styled.span`
     padding-inline: 10px;
 `
 
-const Dark = styled.div`
+export const Dark = styled.div`
   width: 100vw;
   position: fixed;
   top: 0;
@@ -1148,7 +1202,7 @@ const Dark = styled.div`
   backdrop-filter: blur(3px);
 `
 
-const PopUp = styled.div`
+export const PopUp = styled.div`
   position: relative;
   width: 384px;
   height: 424px;
@@ -1182,7 +1236,7 @@ const PopUp = styled.div`
   }
 `
 
-const RoomPopUpImgBox = styled.div`
+export const RoomPopUpImgBox = styled.div`
   display: flex;
   justify-content: center;
   align-items: start;
@@ -1202,7 +1256,7 @@ const RoomPopUpImgBox = styled.div`
   }
 `
 
-const ParticipationBtn = styled.button`
+export const ParticipationBtn = styled.button`
   width: 164px;
   height: 32px;
   background: var(--po-de);
@@ -1293,7 +1347,7 @@ export const LanguageWrap = styled.div`
 `
 
 export const LanguageTitle = styled.p`
-  width: 150px;
+  width: 130px;
   font-size: 21px;
   margin-bottom: 15px;
   color: white;
@@ -1302,8 +1356,7 @@ export const LanguageTitle = styled.p`
 export const LanguageBtnWrap = styled.div`
   display: flex;
   flex-wrap: wrap;
-  margin-left: 20px;
-  gap:10px;
+  gap:16px;
 `
 
 export const LanguageBtnBox = styled.div`
@@ -1320,10 +1373,10 @@ export const LanguageBtnBox = styled.div`
 `
 
 export const LanguageBtn = styled.button`
-  width: 50px;
-  height: 50px;
+  width: 57px;
+  height: 57px;
   background: transparent;
-  border-radius: 30px;  
+  border-radius: 50%;  
   border: none;
   font-size: 0;
   background-image: url(
@@ -1357,7 +1410,7 @@ export const MaxMembersTitle = styled.p`
 export const MaxMembersBtnWrap = styled.div`
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 24px;
 `
 
 
@@ -1380,8 +1433,6 @@ export const MaxMembersBtn = styled.button`
   font-size: 16px;
   //0617주석 line-height: 150%;
 `
-
-
 
 export const PublicWrap = styled.div`
   margin-bottom: 40px;
@@ -1508,7 +1559,7 @@ export const RoomInHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   height: 90px;
-  padding: 0 30px 0 30px;
+  padding: 0 27px 0 31px;
 
   span {
     color: white;
@@ -1537,16 +1588,19 @@ export const LeaveBtn = styled.button`
     );
   }
 `
-
 export const RoomContainer = styled.div`
   width: 100%;
   height: 845px;
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
+  justify-content: flex-start;
+  gap: 9px;
+  height: calc(100vh - 90px);
 `
 
 export const VideoWrap = styled.div`
   width: 100%;
+  width: 981px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1565,7 +1619,8 @@ export const PubilsherVideoContainer = styled.div`
   gap: 10px;
   overflow: hidden;
   position: relative;
-  width: 1030px;
+  /* width: 1030px; */
+  width: 985px;
   scroll-snap-type: x mandatory;
 `
 
@@ -1577,7 +1632,7 @@ export const PubilsherVideoWrap = styled.div`
   flex-shrink: 0;
   justify-content: flex-start;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
   scroll-snap-align: start;
   scroll-behavior: smooth;
   /* background-color: yellow; */
@@ -1588,9 +1643,9 @@ export const PubilsherVideoWrap = styled.div`
   }}
   );
   video {
-      min-width: 250px;
-      max-width: 250px;
-      height: 145px;
+      min-width: 240px;
+      max-width: 240px;
+      height: 135px;
   }
 `
 
@@ -1647,10 +1702,12 @@ export const SlideRightBtn = styled.button`
 
 export const MainStreamWrap = styled.div`
   width: 1030px;
+  width: 981px;
   display: flex;
   justify-content: center;
   video {
     height: 550px;
+    height: 528px;
   }
 
   span {
@@ -1693,7 +1750,7 @@ export const VideoShareBtn = styled.button`
   &:hover{
   background-image: url(
     ${(props) => {
-    return props.isScreenSharing ? props.ShareOnHoverBtn : props.ShareHoverBtn
+    return props.isScreenSharing ? props.ShareHoverBtn : props.ShareOnHoverBtn
   }}
     );
   }
@@ -1715,7 +1772,7 @@ export const VideoToggleBtn = styled.button`
   &:hover{
   background-image: url(
     ${(props) => {
-    return props.VideoEnabled ? props.VideoOnHoverBtn : props.VideoHoverBtn
+    return props.VideoEnabled ? props.VideoHoverBtn : props.VideoOnHoverBtn
   }}
   );
   }
@@ -1737,7 +1794,7 @@ export const AudioToggleBtn = styled.button`
   &:hover{
   background-image: url(
     ${(props) => {
-    return props.AudioEnabled ? props.AudioOnHoverBtn : props.AudioHoverBtn
+    return props.AudioEnabled ? props.AudioHoverBtn : props.AudioOnHoverBtn
   }}
   );
   }
@@ -1745,24 +1802,27 @@ export const AudioToggleBtn = styled.button`
 
 export const ChattingWrap = styled.div`
   width: 300px;
-  height: 840px;
+  width: 274px;
+  /* height: 840px; */
   position: relative;
   background-color: var(--bg-li);
   border-radius: 10px;
+  height: calc(100vh - 90px - 10px);
 `
 
 export const ChattingHeader = styled.p`
   font-size: 20px;
-  height: 50px;
-  //0617주석 line-height: 30px;
-  padding: 10px;
+  height: 55px;
+  padding-left: 29px;
   box-sizing: border-box;
   color:white;
+  display: flex;
+  align-items: center;
 `
 
 export const ChatContentWrap = styled.div`
     padding: 10px 15px;
-    height: 745px;
+    height: 695px;
     overflow-y: scroll;
     &::-webkit-scrollbar {
         display: none;
@@ -1833,22 +1893,44 @@ export const ChatInputWrap = styled.div`
   text-align: center;
 `
 
+export const ChatInputBox = styled.div`
+  position: absolute;
+  left: 13px;
+  bottom: 12px;
+  /* width: 190px;
+  height: 76px; */
+  /* padding: 5px 13px; */
+  box-sizing: border-box;
+  background-color: #626873;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  width: 217px;
+  height: 76px;
+
+`
+
 export const ChatInput = styled.textarea`
-    width: 224px;
-    height: 30px;
+    /* position: absolute;
+    left: 13px;
+    bottom: 12px; */
+    width: 182px;
+    height: 57px;
     background-color: #626873;
-    padding: 4px 35px 0 20px;
-    letter-spacing: 2.5px;
+    /* padding: 5px 10px; */
+    letter-spacing: 1.5px;
     resize: none;
     box-sizing: border-box;
-    font-size: 16px;
+    font-size: 12px;
     font-weight: 500;
+    overflow-y: hidden;
     &::-webkit-scrollbar {
         display: none;
     }
     outline: none;
     border: none;
-    border-radius: 114px;
     font-family: 'Pretendard';
     font-style: normal;
     color: white;
@@ -1857,15 +1939,15 @@ export const ChatInput = styled.textarea`
       font-style: normal;
       font-weight: 500;
       font-size: 12px;
-      line-height: 23px;
+      /* line-height: 23px; */
       color: #BEBEBE;
     }
 `;
 
 export const SendBtnWrap = styled.div`
     position: absolute;
-    bottom: 14px;
-    right: 10px;
+    bottom: 10px;
+    right: 6px;
     cursor: pointer;
     padding: 6px;
     box-sizing: border-box;
@@ -1896,5 +1978,6 @@ export const SendBtn = styled.button`
   &:hover {
     animation: ${shakeAnimation} 0.6s;
   }
-`;
+`
+
 export default Room

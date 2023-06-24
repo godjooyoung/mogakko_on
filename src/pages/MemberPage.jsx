@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useMutation, useQuery } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { getUserProfile, requestFriend } from '../axios/api/mypage'
 import styled from 'styled-components'
 import Header from "../components/common/Header";
@@ -12,22 +12,26 @@ import 'aos/dist/aos.css';
 import ChartWeekly from '../components/ChartWeekly';
 import CommonPopup from '../components/common/CommonPopup'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-
+import SnackBar from '../components/common/SnackBar';
 function MemberPage() {
 
   useEffect(() => {
     AOS.init();
   })
-
+  const queryClient = useQueryClient()
   const { id } = useParams();
-  const { isLoading, isError, data } = useQuery("getUserProfile", () => getUserProfile(id))
+  const { isLoading, isError, data } = useQuery("getUserProfile", () => getUserProfile(id) , {
+    onSuccess: () => {
+      
+    }
+  })
   const [value, setValue] = useState(0)
   const [statusonMouse, setStatusOnMouse] = useState(false)
   const [temponMouse, setTempOnMouse] = useState(false)
-  const navigate = useNavigate();
 
   // 친구 요청 성공 모달
   const [friendReqSuc, setFriendReqSuc] = useState(false)
+  
   // 온도 프로그레스 애니메이션
   useEffect(() => {
     setValue(data && data.data.data.member.codingTem);
@@ -45,11 +49,12 @@ function MemberPage() {
   // 친구 요청 보내기
   const friendRequetMutation = useMutation(requestFriend, {
     onSuccess: (response) => {
-      //console.log(">>> 친구 요청 보내기 성공", response)
-      //console.log(">>> 친구 요청 보내기 성공", response.data.data)
-      //TODO 에러 메세지 처리
-      //navigate('/')
+      console.log('친구요청 성공', response)
+      queryClient.invalidateQueries(getUserProfile)
     },
+    onError: (error) => {
+      console.log('친구요청 에러', error.response.data.message)
+    }
   })
 
   const [userGitHubId, setuserGitHubId] = useState(null)
@@ -70,24 +75,10 @@ function MemberPage() {
 
   const [preview, setPreview] = useState(data && data.data.data.member.profileImage)
 
-  // // 00:00:00 to 00H00M
-  // const formatTime = (timeString) => {
-  //   const time = new Date(`2000-01-01T${timeString}`);
-  //   const hours = time.getHours();
-  //   const minutes = time.getMinutes();
-  //   const formattedHours = hours < 10 ? `0${hours}` : hours;
-  //   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-  //   return `${formattedHours}H${formattedMinutes}M`;
-  // }
-
   // 친구요청 
   const onClickRqFriendshipBtnHandler = (target) => {
     // console.log("나랑 친구할래?", target)
     friendRequetMutation.mutate(target)
-  }
-
-  if (isLoading) {
-    return <>loading...</>
   }
 
   // 물음표 버튼 hover시 나오는 정보창 (status) 핸들러
@@ -120,15 +111,41 @@ function MemberPage() {
 
   // 코드 복사 
   const myCode = data && data.data.data.member.friendCode
+
+  // 사용자 개인 코드 복사 여부 상태
+  const [isUserCodeCopied, setIsUserCodeCopied] = useState(false)
+  const [userCodeCopyMsg, setUserCodeCopyMsg] = useState('')
+  
+  // 사용자 개인 코드 복사 성공 핸들러
+  const userCodeCopyHandler = () => {
+    setIsUserCodeCopied(true)
+    setUserCodeCopyMsg('클립보드에 복사되었습니다.')
+  }
+  
+  useEffect(()=>{
+    if(isUserCodeCopied){
+      const timer = setTimeout(() => {
+        setIsUserCodeCopied(false)
+        setUserCodeCopyMsg('')
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [isUserCodeCopied])
+
   return (
     <>
+      {
+        isUserCodeCopied ? <>
+        <SnackBar content={userCodeCopyMsg} state={isUserCodeCopied}/>
+        </> : <></>
+      }
       <Header />
       <FlexBox>
-        <div>
+        {/* <div> */}
           <MypageWrap>
             <MypageNavbar>
               <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
-                <ImageWrap BgImg={avataGenHandler(data.data.data.member.nickname, preview)} width='155px' height='155px' />
+                <ImageWrap BgImg={avataGenHandler(data&&data.data.data.member.nickname, preview)} width='155px' height='155px' />
               </ProfileModifyContent>
               <MyPageUserName>{data && data.data.data.member.nickname}</MyPageUserName>
 
@@ -137,20 +154,21 @@ function MemberPage() {
                 {/* <CopyBtn  onClick={() => handleCopyClipBoard(data && data.data.data.member.friendCode)}
                   imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
                 >COPY</CopyBtn> */}
-                <CopyToClipboard text={myCode} onCopy={() => alert("클립보드에 복사되었습니다.")}>
+                <CopyToClipboard 
+                text={myCode} 
+                onCopy={()=>(
+                  userCodeCopyHandler('클립보드에 복사되었습니다.')
+                )}>
                   <CopyBtn
                     imgUrl={`${process.env.PUBLIC_URL}/image/copyBtn.webp`}
                   ></CopyBtn>
                 </CopyToClipboard>
               </MyCodeWrap>
               {
-                data && data.data.data.friend === false ?
-                  <FriendReqBtn
-                    onClick={() => {
-                      onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname)
-                      setFriendReqSuc(!friendReqSuc)
-                    }
-                    }>친구신청</FriendReqBtn> : null
+                data && data.data.data.friend === true ? null : data && !data.data.data.pending ? <FriendReqBtn onClick={() => {
+                  onClickRqFriendshipBtnHandler(data && data.data.data.member.nickname)
+                  setFriendReqSuc(!friendReqSuc)
+                }}>친구신청</FriendReqBtn> : <FriendReqWaitBtn>대기중</FriendReqWaitBtn>
               }
 
               {
@@ -222,12 +240,15 @@ function MemberPage() {
                       {
                         statusonMouse &&
                         <StatusMouseHoverBox>
-                          <p>102 : <span>회원가입 시 기본값</span></p>
-                          <p>200 : <span>처음 프로필 등록시 변경</span></p>
-                          <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
-                          <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
-                          <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
-                          <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
+                            <p>102 : <span>회원가입 시 기본값</span></p>
+                            <p>200 : <span>처음 프로필 등록시 변경</span></p>
+                            <p>400 : <span>신고 1회</span></p>
+                            <p>401 : <span>신고 2회</span></p>
+                            <p>404 : <span>신고 3회 (이용기간 30일 정지)</span></p>
+                            <p>109 : <span>모각코 시간 1시간 9분 경과</span></p>
+                            <p>486 : <span>모각코 시간 4시간 8분 6초 경과</span></p>
+                            <p>1004 : <span>모각코 시간 10시간 4분 경과</span></p>
+                            <p>2514 : <span>모각코 시간 25시간 14분 경과</span></p>
                         </StatusMouseHoverBox>
                       }
                     </TopContentTitleWrap>
@@ -268,7 +289,7 @@ function MemberPage() {
               </MyPageMiddleContentWrap>
             </WidthBox>
           </MypageWrap>
-        </div>
+        {/* </div> */}
       </FlexBox>
     </>
   )
@@ -306,6 +327,8 @@ const ProfileModifyContent = styled.form`
 `
 
 const FriendReqBtn = styled.button`
+  width: 92px;
+  height: 34px;
   font-family: 'Pretendard';
   font-style: normal;
   font-weight: 700;
@@ -314,7 +337,6 @@ const FriendReqBtn = styled.button`
   border-radius: 24.7692px;
   color: #464646;
   border: none;
-  padding: 7px 15px;
   transition: all 0.3s;
   &:hover {
     transition: 0.2s;
@@ -341,8 +363,9 @@ const ImageWrap = styled.div`
     `url(${props.BgImg})`
   };
   background-position:center;
-  background-size:contain;
+  background-size:cover;
   background-color : white;
+  background-repeat: no-repeat;
   border: 0.5px solid white;
 `
 
@@ -362,6 +385,7 @@ const TopContentTitle = styled.p`
   font-weight: 400;
   font-size: 15px;
   color: var(--po-de);
+  margin-bottom: 17px;
 `
 
 const TopContentTitleItem = styled.h1`
@@ -404,14 +428,16 @@ const Temperaturecontainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 10px;
+  /* gap: 10px; */
+  gap: 17px;
+  
 `
 
 const TemperatureTitle = styled.p`
   width: 136.72px;
   font-size: 17px;
   color: var(--po-de);
-  font-weight: 900;
+  font-weight: 400;
   text-align: start;
   img {
     margin-left: 5px;
@@ -420,8 +446,9 @@ const TemperatureTitle = styled.p`
 `
 const TemperatureMouseHoverBox = styled.div`
   position: absolute;
-  top: 60px;
-    right: -65px;
+  /* top: 60px; */
+  top: 45px;
+  right: -20px;
   width: 250px;
   height: 80px;
   background-color: #F9F9FA;
@@ -453,6 +480,7 @@ const TemperatureWrap = styled.div`
     font-size: 14px;
     color: var(--po-de);
   }
+  height: 33px; 
 `
 
 
@@ -475,12 +503,13 @@ const Progress = styled.div`
 `;
 
 const MyPageMiddleContentWrap = styled.div`
-  height: 204px;
+  /* height: 204px; */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
+  margin-top: 10px;
 `
 
 const GithubTitle = styled.p`
@@ -488,8 +517,10 @@ const GithubTitle = styled.p`
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 500;
-    font-size: 21px;
+    font-size: 20px;
     color: #FFFFFF;
+    padding-bottom: 7px;
+    margin-top: 10px;
 `
 
 const NullGithubBox = styled.div`
@@ -518,7 +549,7 @@ const MyPageMiddleContent = styled.div`
   padding: 15px;
   box-sizing: border-box;
   border-radius: 8px;
-  margin-top: 10px;
+  /* margin-top: 10px; */
 `
 
 const GitHubImage = styled.img`
@@ -534,7 +565,8 @@ const MypageWrap = styled.div`
 
 const MypageNavbar = styled.div`
   width: 240px;
-  height: 800px;
+  /* height: 895px; */
+  height: calc(100vh - 79px - 50px);
   background: var(--bg-li);
   border-radius: 20px;
   display: flex;
@@ -554,7 +586,7 @@ const MyCodeWrap = styled.div`
   margin-top: 7px;
   margin-bottom: 25px;
 `
-
+//친구 코드 CSS
 const MyCode = styled.p`
   font-family: 'Pretendard';
   font-style: normal;
@@ -562,7 +594,7 @@ const MyCode = styled.p`
   font-size: 14px;
   color: #BEBEBE;
 `
-
+//코드 복사 버튼 CSS
 const CopyBtn = styled.button`
   width: 12px;
   height: 12px;
@@ -576,6 +608,13 @@ const CopyBtn = styled.button`
 
 const WidthBox = styled.div`
   width: 893px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: calc(100vh - 79px - 50px);
+  @media screen and (max-height: 1020px) {
+        justify-content: space-between;
+  };
 `
 
 const MogakkoTitle = styled.p`
@@ -615,7 +654,7 @@ const StatusWrap = styled.div`
 
 const TopContentTitleWrap = styled.div`
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   gap: 10px;
   position: relative;
 `
@@ -632,11 +671,15 @@ const Status = styled.span`
 `
 
 const StatusMouseHoverBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
   position: absolute;
   right: 0px;
-  bottom: -170px;
+  bottom: -210px;
   width: 215px;
-  height: 160px;
+  height: 220px;
   background: #F9F9FA;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
@@ -646,9 +689,7 @@ const StatusMouseHoverBox = styled.div`
     font-weight: 900;
     font-size: 11px;
     color: #464646;
-    margin-bottom: 7px;
   }
-
   span {
     font-weight: 700;
     font-size: 9px;
@@ -661,8 +702,8 @@ const ChartWrap = styled.div`
   height: 376px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+  /* align-items: center; */
+  /* margin-bottom: 57px; */
 `
 
 const WeeklyStudyTimewrap = styled.div`
@@ -673,9 +714,9 @@ const WeeklyStudyTimewrap = styled.div`
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 500;
-    font-size: 21px;
+    font-size: 20px;
     line-height: 25px;
-    margin-bottom: 17px;
+    margin-bottom: 10px;
   }
 `
 
@@ -706,9 +747,9 @@ const TotalLanguageWrap = styled.div`
     font-family: 'Pretendard';
     font-style: normal;
     font-weight: 500;
-    font-size: 21px;
+    font-size: 20px;
     line-height: 25px;
-    margin-bottom: 17px;
+    margin-bottom: 10px;
   }
 `
 
@@ -718,5 +759,37 @@ const TotalLanguage = styled.div`
   background-color: var(--bg-li);
   /* background-color: transparent; */
 `
+const FriendSearchBtn = styled.button`
+  width: 62.76px;
+  height: 23.77px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
+  background: var(--po-de);
+  border-radius: 13.3117px;
+  color: #464646;
+  border: none;
+  transition: all 0.2s;
+  &:hover {
+    background: #00C5D1;
+  }
+`
 
+
+const FriendReqWaitBtn = styled.p`
+  width: 92px;
+  height: 34px;
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 15px;
+  /* background: var(--po-de); */
+  border-radius: 24.7692px;
+  color: var(--po-de);
+  border: 1px solid var(--po-de);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
 export default MemberPage

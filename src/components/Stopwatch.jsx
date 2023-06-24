@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
-import { styled } from 'styled-components';
+import { styled, keyframes } from 'styled-components';
 import useInterval from '../hooks/useInterval';
 import { recordTimer } from '../axios/api/chat'
 import { useMutation } from 'react-query';
 
 function Stopwatch(props) {
-
     const [isStarted, setIsStarted] = useState(true)
 
     const [seconds, setSeconds] = useState(0)
@@ -208,17 +207,17 @@ function Stopwatch(props) {
     }, [sendSeconds])
 
     useEffect(()=>{
-        console.log('+-+-+-+-+-+')
-        console.log('|s|t|a|r|t|')
-        console.log('+-+-+-+-+-+')
+        // console.log('+-+-+-+-+-+')
+        // console.log('|s|t|a|r|t|')
+        // console.log('+-+-+-+-+-+')
         return () => {
 
             // 나가기 시간 로직 짜기 ...동기 동기 극혐
             const leave = () => {
-                console.log('+-+-+-+-+-+')
-                console.log('|l|e|a|v|e|')
-                console.log('+-+-+-+-+-+')
-                recordTimerMutation.mutate(  calculateTimeDiff_(settingPrevTimeString(), settingTimeString())  )
+                // console.log('+-+-+-+-+-+')
+                // console.log('|l|e|a|v|e|')
+                // console.log('+-+-+-+-+-+')
+                // recordTimerMutation.mutate(  calculateTimeDiff_(settingPrevTimeString(), settingTimeString())  )
             }
         }
     },[])
@@ -239,11 +238,12 @@ function Stopwatch(props) {
     }, 1000)
 
     return (
-        <TimerWrap>
+        <TimerWrap ZIndex={props.isBeforeLeave}>
             <Timer><p>{hours > 9 ? hours : '0' + hours}:{mins > 9 ? mins : '0' + mins}:{seconds > 9 ? seconds : '0' + seconds}</p></Timer>
             <TimerButton isStarted={isStarted} onClick={() => { startStopWatch(false) }}>
                 {isStarted ? '' : ''}
             </TimerButton>
+            {props.isBeforeLeave && <RoomTimerArrow src={`${process.env.PUBLIC_URL}/image/roomTimerArrow.webp`} alt="화살표 이미지" />}
         </TimerWrap>
     );
 }
@@ -253,6 +253,10 @@ export const TimerWrap = styled.div`
     align-items: center;
     width: 150px;
     height: 39px;
+    position: relative;
+    z-index: ${(props) => {
+        return props.ZIndex ? 20 : 0 
+    }}
 `
 export const Timer = styled.div`
     height: 39px;
@@ -280,6 +284,26 @@ export const TimerButton = styled.div`
     transition: 0.3s;
     background-color: rgba(187,187,187,0.3);
     }
+`
+
+const arrowAnimation = keyframes`
+    0% {
+    transform: translate(0, 0);
+    }
+    50% {
+    transform: translate(-50%, 50%);
+    }
+    100% {
+    transform: translate(0, 0);
+    }
+`;
+
+export const RoomTimerArrow = styled.img`
+    position: absolute;
+    bottom: 65px;
+    right: -60px;
+    z-index: 20;
+    animation: ${arrowAnimation} 0.9s linear infinite;
 `
 
 export default Stopwatch;
