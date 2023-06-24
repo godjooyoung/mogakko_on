@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost, searchUser, receiveMessage, postMessage, sentMessage, requestFriend } from '../axios/api/mypage'
+import { getProfile, addProfile, getFriendList, getFriendRequestList, reciveFriendRequest, deleteFriend, githubIdPost, searchUser, receiveMessage, postMessage, sentMessage, requestFriend, deleteMessage } from '../axios/api/mypage'
 import styled from 'styled-components';
 import Header from "../components/common/Header";
 import useInput from '../hooks/useInput'
@@ -18,16 +18,43 @@ import SnackBar from '../components/common/SnackBar';
 import useEnglishInput from '../hooks/useEnglishInput';
 
 // 쪽지 컴포넌트화
-const MakeNoteHandler = ({ idx, nickName, content, createdAt }) => {
+const MakeNoteHandler = ({ idx, nickName, content, createdAt, msgId, getDeletTagetId, removeDeleteTargetId, isAll, isReset }) => {
   const [isToggle, setIsToggle] = useState(false)
+  const [isTarget, setIsTarget] = useState(false)
   const toggleChangerHandler = (toggle) => {
     setIsToggle(!toggle)
   }
+  const setTargetHandler = (target) => {
+    setIsTarget(!target)
+  }
+
+  // 선택 초기화
+  useEffect(()=>{
+    if(isReset){
+      setIsToggle(false)
+      setIsTarget(false)
+    }
+  },[isReset])
+
+  useEffect(()=>{
+    if(isTarget){
+      //상위 컴포넌트의 배열에 추가 하는 함수
+      getDeletTagetId(msgId)
+    }else{
+      //상위 컴포넌트의 배열에서 제거 하는 함수
+      removeDeleteTargetId(msgId)
+    }
+  },[isTarget])
+
+
   return (
     <>
-      <ReceiveMessageWrap key={idx} onClick={() => (toggleChangerHandler(isToggle))} isRead={isToggle}>
+      <ReceiveMessageWrap key={idx} isRead={isToggle} isTarget={isTarget}>
+        <div>
+          <MessageDelBtn onClick={()=>(setTargetHandler(isTarget))} isTarget={isTarget}/>
+        </div>
         <ReceiveSendNickname>{nickName}</ReceiveSendNickname>
-        <ReceiveContent isRead={isToggle}>{content}</ReceiveContent>
+        <ReceiveContent onClick={() => (toggleChangerHandler(isToggle))} isRead={isToggle}>{content}</ReceiveContent>
         <ReceiveCreatedAt>{createdAt}</ReceiveCreatedAt>
       </ReceiveMessageWrap>
     </>
@@ -109,6 +136,7 @@ function Mypage() {
   const [value, setValue] = useState(0)
   const [gitHub, setGitHub] = useState(false)
   const [userGitHubId, setuserGitHubId] = useState('')
+  const [deleteTargets, setDeleteTargets] = useState([]) // 삭제대상 쪽지 아이디 목록
 
   // 프로필 이미지 수정 관련 내부 스테이트
   const [fileAttach, setFileAttach] = useState('')
@@ -169,6 +197,38 @@ function Mypage() {
     setUserCodeCopyMsg('클립보드에 복사되었습니다.')
   }
 
+  // 쪽지 전체 선택/활성  state
+  const [isReset,setIsReset] = useState(false)
+
+  // 쪽지 삭제 확인 팝업 활성 여부 state
+  const [isDeleteMsgConfrimPopupOpen, setIsDeleteMsgConfrimPopupOpen] = useState(false)
+
+  // 쪽지 삭제 대상 세팅 핸들러 1
+  const addDeleteMsgTargetHandler = (id) => {
+    setDeleteTargets([...deleteTargets, id])
+  }
+  // 쪽지 삭제 대상 세팅 핸들러 2
+  const removeDeleteMsgTargetHandler = (id) => {
+    setDeleteTargets( deleteTargets.filter((target) => target !== id) )
+  }
+  // 쪽지 삭제 팝업 오픈 핸들러 
+  const openDelMsgPopupHandler = () => {
+    if(deleteTargets.length > 0){
+      setIsDeleteMsgConfrimPopupOpen(true)
+    }
+  }
+  // 쪽지 삭제 팝업 클로즈 핸들러 
+  const closeDelMsgPopupHandler = () => {
+      setIsDeleteMsgConfrimPopupOpen(false)
+  }
+
+  useEffect(()=>{
+    console.log('삭제대상 쪽지>>>>>>>>>>>>>>>>>>>>>', deleteTargets)
+    if(deleteTargets.length === 0){
+      setIsReset(false)
+    }
+  },[deleteTargets])
+
   useEffect(() => {
     if (isUserCodeCopied) {
       const timer = setTimeout(() => {
@@ -183,15 +243,37 @@ function Mypage() {
   const postMessageMutation = useMutation(postMessage, {
     onSuccess: (response) => {
       // alert(response)
-      console.log("쪽지보내기성공>>>>>>>>>>>>>>>>>>>>>", response.data.message)
       popupOpenHander(response.data.message)
       queryClient.invalidateQueries(receiveMessage)
+      queryClient.invalidateQueries(sentMessage)
     },
     onError: (error) => {
       popupOpenHander(error.response.data.message)
       setPostPopup(true)
     }
   })
+
+  // 쪽지 삭제 Mutation
+  const deleteMessageMutation = useMutation(deleteMessage, {
+    onSuccess: (response) => {
+      // 삭제 성공후 로직
+      alert('쪽지 삭제 완료 햇습니다.')
+      setDeleteTargets([])
+      setIsReset(true)
+      queryClient.invalidateQueries(receiveMessage)
+      queryClient.invalidateQueries(sentMessage)
+    },
+    onError: (error) => {
+      alert('쪽지 삭제 실패 햇습니다.')
+    }
+  })
+  
+  // 쪽지 삭제 뮤테이션 콜 함수
+  const deleteMessageMutationCall = () => {
+    setIsDeleteMsgConfrimPopupOpen(false) // 확인 팝업 닫기
+    deleteMessageMutation.mutate(deleteTargets)
+  }
+  
 
   // 요청 응답 공통 팝업 오픈
   const popupOpenHander = (msg) => {
@@ -222,6 +304,10 @@ function Mypage() {
       content: receiveContentValue
     })
   }
+
+  useEffect(()=>{
+    setDeleteTargets([])
+  },[messageBox])
 
   //유저검색 내용 입력 useEffect
   useEffect(() => {
@@ -493,6 +579,23 @@ function Mypage() {
 
   return (
     <>
+      {
+        isDeleteMsgConfrimPopupOpen?
+        <>
+          <CommonPopup 
+            msg={`총 ${deleteTargets.length}건의 쪽지를 선택하셨습니다.`} 
+            secondMsg={'삭제하시겠습니까?'}
+            isBtns={true} 
+            priMsg={'삭제'} 
+            secMsg={'취소'} 
+            priHander={() => (deleteMessageMutationCall())} 
+            secHandler={() => (closeDelMsgPopupHandler())}
+            closeHander={() => (closeDelMsgPopupHandler())} />
+        </>:
+        <>
+
+        </>
+      }
       {
         isUserCodeCopied ? <>
           <SnackBar content={userCodeCopyMsg} state={isUserCodeCopied} />
@@ -987,17 +1090,24 @@ function Mypage() {
               <MessageReceiveMypageWrap>
                 <MessageReceiveMypageHeaderWrap>
                   <p>{messageBox.receive ? '받은 쪽지함' : '보낸 쪽지함'}</p>
-                  <button onClick={() => {
+                  <MessageBtnsWrap>
+                    {
+                      deleteTargets.length>0?<><MessageDeleteBtn onClick={openDelMsgPopupHandler}>쪽지삭제</MessageDeleteBtn></>:<></>
+                    }
+                  
+                  <MessageWriteBtn onClick={() => {
                     setPostPopup(!postPopup)
-                  }}>쪽지쓰기</button>
+                  }}>쪽지쓰기</MessageWriteBtn>
+                  </MessageBtnsWrap>
                 </MessageReceiveMypageHeaderWrap>
 
                 <MessageReceiveMypageTitleWrap>
                   <MessageReceiveMypageTitleLeft>
+                    <div><MessageDelBtn isDisable={true}/></div>
                     <p>{messageBox.send ? '받는 사람' : '보낸 사람'}</p>
                     <p>내용</p>
                   </MessageReceiveMypageTitleLeft>
-                  <p>날짜</p>
+                  <MessgeReceiveMypageTitleRight>날짜</MessgeReceiveMypageTitleRight>
                 </MessageReceiveMypageTitleWrap>
 
                 {
@@ -1014,33 +1124,14 @@ function Mypage() {
                 <MessageScroll>
                   {messageSidebar === true && messageBox.receive === true ? (
                     receiveMessageData && receiveMessageData.data.data?.slice().reverse().map((e, idx) => (
-                      <MakeNoteHandler key={idx} idx={idx} nickName={e.senderNickname} content={e.content} createdAt={e.createdAt} />
-                      // <ReceiveMessageWrap
-                      //   key={idx}
-                      //   onClick={() => {}}
-                      //   isRead={false}
-                      // >
-                      //   <ReceiveSendNickname>{e.senderNickname}</ReceiveSendNickname>
-                      //   <ReceiveContent>{e.content}</ReceiveContent>
-                      //   <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
-                      // </ReceiveMessageWrap>
+                      <MakeNoteHandler key={idx} idx={idx} nickName={e.senderNickname} content={e.content} createdAt={e.createdAt} msgId={e.id} getDeletTagetId={addDeleteMsgTargetHandler} removeDeleteTargetId={removeDeleteMsgTargetHandler} isReset={isReset}/>
                     ))
                   ) : null}
 
                   {/* 보낸쪽지함 */}
                   {messageSidebar === true && messageBox.send === true ? (
                     sentMessageData && sentMessageData.data.data?.slice().reverse().map((e, idx) => (
-                      <MakeNoteHandler key={idx} idx={idx} nickName={e.receiverNickname} content={e.content} createdAt={e.createdAt} />
-                      // makeNoteHandler(idx, e.receiverNickname, e.content, e.createdAt)
-                      // <ReceiveMessageWrap
-                      //   key={idx}
-                      //   onClick={() => {}}
-                      //   isRead={false}
-                      // >
-                      //   <ReceiveSendNickname>{e.receiverNickname}</ReceiveSendNickname>
-                      //   <ReceiveContent>{e.content}</ReceiveContent>
-                      //   <ReceiveCreatedAt>{e.createdAt}</ReceiveCreatedAt>
-                      // </ReceiveMessageWrap>
+                      <MakeNoteHandler key={idx} idx={idx} nickName={e.receiverNickname} content={e.content} createdAt={e.createdAt} msgId={e.id} getDeletTagetId={addDeleteMsgTargetHandler} removeDeleteTargetId={removeDeleteMsgTargetHandler} isReset={isReset}/>
                     ))
                   ) : null}
                 </MessageScroll>
@@ -2251,7 +2342,7 @@ const MessageReceiveMypageHeaderWrap = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-right: 40px;
+  padding-right: 22px;
 
   p {
     font-family: 'Pretendard';
@@ -2261,8 +2352,29 @@ const MessageReceiveMypageHeaderWrap = styled.div`
     line-height: 35px;
     color: #FFFFFF;
   }
+`
 
-  button {
+export const MessageBtnsWrap = styled.div`
+  display: flex;
+  gap: 16px;
+`
+export const MessageDeleteBtn = styled.button`
+    width: 88px;
+    height: 34px;
+    background: transparent;
+    border-radius: 20px;
+    border: 1px solid #FF635D;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 15px;
+    color: #FF635D;
+    transition: all 0.2s;
+    &:hover{
+      background: rgba(255, 255, 255, 0.111);
+    }
+`
+export const MessageWriteBtn = styled.button`
     width: 88px;
     height: 34px;
     background: #00F0FF;
@@ -2277,7 +2389,6 @@ const MessageReceiveMypageHeaderWrap = styled.div`
     &:hover{
       background: #00C5D1;
     }
-  }
 `
 
 const MessageReceiveMypageTitleWrap = styled.div`
@@ -2285,7 +2396,9 @@ const MessageReceiveMypageTitleWrap = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-top: 51px;
-  padding-right: 21px;
+  padding-inline-start: 16px;
+  padding-inline-end: 14.54px;
+  padding-right: 32px;
   p {
     font-family: 'Pretendard';
     font-style: normal;
@@ -2295,25 +2408,33 @@ const MessageReceiveMypageTitleWrap = styled.div`
   }
 `
 
+export const MessgeReceiveMypageTitleRight =styled.p`
+  width: 100px;
+  text-align: end;
+  padding-right: 22px;
+`
+
+
 const MessageReceiveMypageTitleLeft = styled.div`
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 104px;
+  gap: 28px;
+  p{
+    width: 100px;
+  }
 `
 
 const MessageScroll = styled.div`
-  height: 670px;
   height: calc(100% - 106px - 79px);
   margin-top: 10px;
   overflow-y: scroll;
-  
+  // 스크롤과 본문의 간격
+  padding-right: 32px;
   &::-webkit-scrollbar{
       width: 7px;
       background-color: transparent;
       border-radius: 8px;
   }
-
   &::-webkit-scrollbar-thumb {
       /* width: 10px; */
       height: 10%; 
@@ -2332,6 +2453,7 @@ const MessageScroll = styled.div`
 
 const ReceiveMessageWrap = styled.div`
   width: 879px;
+  max-width: 100%;
   height: ${(props) => {
     return props.isRead ? '150px' : '45px'
   }};
@@ -2340,15 +2462,16 @@ const ReceiveMessageWrap = styled.div`
   align-items: ${(props) => {
     return props.isRead ? 'none' : 'center'
   }};
-  padding-inline: 10px;
+  padding-inline-start: 16px;
+  padding-inline-end: 14.54px;
   padding-top: ${(props) => {
-    return props.isRead ? '10px' : 'none'
+    return props.isRead ? '13px' : 'none'
   }};
   cursor: pointer;
   transition: all 0.2s;
   margin-bottom: 10px;
   background-color: ${(props) => {
-    return props.isRead ? 'var(--bg-li)' : 'transparent'
+    return (props.isRead||props.isTarget) ? 'var(--bg-li)' : 'transparent'
   }};
   border-radius: 10px;
   &:hover{
@@ -2568,4 +2691,21 @@ const FriendReqWaitBtn = styled.p`
   justify-content: center;
   align-items: center;
 `
+
+export const MessageDelBtn = styled.div`
+  width: 17px;
+  height: 17px;
+  background-color: transparent;
+  border: 0.5px solid white;
+  border-radius: 50%;
+  background-color: ${(props) => {
+    return props.isTarget? '#00C5D1;' : 'transparent';
+  }};
+  opacity:${(props) => {
+    return props.isDisable? 0 : 1;
+  }};
+  
+  //background-color: #00C5D1;
+`
+
 export default Mypage
