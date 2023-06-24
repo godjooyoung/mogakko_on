@@ -88,6 +88,7 @@ export const SignBtn = styled.button`
     transition: all 0.3s;
     font-weight: 700;
     font-size: 15px;
+    font-family: Pretendard;
     color: #464646;
     transition: all 0.3s;
     &:hover {
