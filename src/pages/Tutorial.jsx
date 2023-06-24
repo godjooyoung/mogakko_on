@@ -142,6 +142,7 @@ export const GraphicItem = styled.div`
     align-items: center;
     width: 100%;
     height: 100%;
+    transition: all 0.5s;
     opacity : ${(props) => {
         return props.isVisible ? 1 : 0;
     }};

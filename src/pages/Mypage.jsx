@@ -17,23 +17,11 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import SnackBar from '../components/common/SnackBar';
 import useEnglishInput from '../hooks/useEnglishInput';
 
-// // 00:00:00 to 00H00M
-// const formatTime = (timeString) => {
-//   console.log("formatting 전 timeString > ", timeString)
-//   const time = new Date(`2000-01-01T${timeString}`);
-//   const hours = time.getHours();
-//   const minutes = time.getMinutes();
-//   const formattedHours = hours < 10 ? `0${hours}` : hours;
-//   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-//   return `${formattedHours}H${formattedMinutes}M`;
-// }
-
 // 쪽지 컴포넌트화
 const MakeNoteHandler = ({ idx, nickName, content, createdAt }) => {
   const [isToggle, setIsToggle] = useState(false)
   const toggleChangerHandler = (toggle) => {
     setIsToggle(!toggle)
-    // console.log('토글토글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글톧글,', isToggle)
   }
   return (
     <>
@@ -789,7 +777,7 @@ function Mypage() {
                             {friendList && friendList.map((friend, idx) => {
                               return (
                                 <>
-                                  <FriendList onClick={() => {
+                                  <FriendList key={idx} onClick={() => {
                                     onClickDeleteFriendCheckHandler(friend.member.nickname, idx, friend.selected)
                                     !friendListDelete && userProfileHandler(friend.member.id)
                                   }}>
@@ -830,7 +818,7 @@ function Mypage() {
                             {friendRequestListData && friendRequestListData.data.data.map((friend, idx) => {
                               return (
                                 <>
-                                  <FriendWrap>
+                                  <FriendWrap key={idx}>
                                     <FriendLeftContent onClick={() => {
                                       navigate('/profile/' + friend.id)
                                     }}>
@@ -917,7 +905,7 @@ function Mypage() {
                       <SearchScrollWrap>
                         {searchFriend && searchFriend?.map((e, idx) => {
                           return (
-                            <FriendWrap>
+                            <FriendWrap key={idx}>
                               <FriendSearchContentWrap onClick={() => {
                                 navigate('/profile/' + e.id)
                               }}>
@@ -1026,7 +1014,7 @@ function Mypage() {
                 <MessageScroll>
                   {messageSidebar === true && messageBox.receive === true ? (
                     receiveMessageData && receiveMessageData.data.data?.slice().reverse().map((e, idx) => (
-                      <MakeNoteHandler idx={idx} nickName={e.senderNickname} content={e.content} createdAt={e.createdAt} />
+                      <MakeNoteHandler key={idx} idx={idx} nickName={e.senderNickname} content={e.content} createdAt={e.createdAt} />
                       // <ReceiveMessageWrap
                       //   key={idx}
                       //   onClick={() => {}}
@@ -1042,7 +1030,7 @@ function Mypage() {
                   {/* 보낸쪽지함 */}
                   {messageSidebar === true && messageBox.send === true ? (
                     sentMessageData && sentMessageData.data.data?.slice().reverse().map((e, idx) => (
-                      <MakeNoteHandler idx={idx} nickName={e.receiverNickname} content={e.content} createdAt={e.createdAt} />
+                      <MakeNoteHandler key={idx} idx={idx} nickName={e.receiverNickname} content={e.content} createdAt={e.createdAt} />
                       // makeNoteHandler(idx, e.receiverNickname, e.content, e.createdAt)
                       // <ReceiveMessageWrap
                       //   key={idx}

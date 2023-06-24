@@ -26,10 +26,11 @@ function Header(props) {
     const [isLogin, setIsLogin] = useState(false)
     const [isAlarmWindowOpen, setIsAlarmWindowOpen] = useState(false)
     const [isVisible, setIsVisible] = useState(true)
+    const [isAdmin, setIsAdmin] = useState(false)
 
     // 알람 카운트
     const [isNewNotification, setIsNewNotification] = useState(alarmInfo.filter((alarm) => { return alarm.indexOf('EventStream Created') === -1 }).length)
-    
+
     const urlPathname = location.pathname;
 
     useEffect(() => {
@@ -45,6 +46,9 @@ function Header(props) {
         if (urlPathname === '/signup' || urlPathname === '/signin') {
             setIsVisible(false)
         }
+        if (urlPathname === '/admin') {
+            setIsAdmin(true)
+        }
     })
 
     // 알람 창을 열었으면 신규 알람 아이콘 없앤다.
@@ -52,7 +56,7 @@ function Header(props) {
         if (isAlarmWindowOpen) {
             console.log("[INFO] 알람 확인")
             setIsNewNotification(0)
-        }else if(!isAlarmWindowOpen && isNewNotification === 0){
+        } else if (!isAlarmWindowOpen && isNewNotification === 0) {
             //클린
             dispatcher(__alarmClean())
         }
@@ -60,10 +64,10 @@ function Header(props) {
 
 
 
-    useEffect(()=>{
+    useEffect(() => {
         console.log("[INFO] 알람 추가", alarmInfo)
         setIsNewNotification(alarmInfo.length)
-    },[alarmInfo])
+    }, [alarmInfo])
 
     useEffect(() => {
         // 세션 스토리지에서 SSE 구독 상태를 확인
@@ -96,7 +100,7 @@ function Header(props) {
 
                     eventSourceRef.current.addEventListener('message', (event) => {
                         const data = event.data
-                        if(data.indexOf('EventStream Created') === -1){
+                        if (data.indexOf('EventStream Created') === -1) {
                             console.log("[INFO] 알람 발생", data)
                             dispatcher(__alarmSender(data))
                         }
@@ -197,7 +201,12 @@ function Header(props) {
 
 
     const onClickLogoHandler = () => {
-        navigate('/')
+        if(isAdmin){
+            navigate('/admin')
+        }else{
+            navigate('/')
+        }
+        
     }
     const onClickSignUpHandler = () => {
         navigate('/signup')
@@ -256,27 +265,34 @@ function Header(props) {
                         }
                     </> : <>
                         <HeaderButton onClick={onClickLogOutHandler} width={85} marginRight={10} ><p>로그아웃</p></HeaderButton>
-                        <AlearmWrap>
-                            <HeaderButton onClick={() => { onClickAlearmHandler(isAlarmWindowOpen) }} marginRight={17} width={40}>
-                                {isNewNotification>0 ? <NewNoti /> : <></>}
-                                <AlearmImg src={`${process.env.PUBLIC_URL}/image/alearmBtn.svg`} alt="알람버튼" />
-                            </HeaderButton>
-                            {!isAlarmWindowOpen ? <></> :
-                                <>
-                                    <AlearHeader></AlearHeader>
-                                    <AlearWrapContent>
-                                        <AlearTitle>알림</AlearTitle>
-                                        {renderAlertComponent()}
-                                    </AlearWrapContent>
-                                </>
-                            }
-                        </AlearmWrap>
 
-                        <ProfileImgDiv onClick={onClickMyPageHandler}>
-                            {
-                                avataGenHandler()
-                            }
-                        </ProfileImgDiv>
+                        {
+                            isAdmin ?
+                                <>
+                                </> :
+                                <>
+                                    <AlearmWrap>
+                                        <HeaderButton onClick={() => { onClickAlearmHandler(isAlarmWindowOpen) }} marginRight={17} width={40}>
+                                            {isNewNotification > 0 ? <NewNoti /> : <></>}
+                                            <AlearmImg src={`${process.env.PUBLIC_URL}/image/alearmBtn.svg`} alt="알람버튼" />
+                                        </HeaderButton>
+                                        {!isAlarmWindowOpen ? <></> :
+                                            <>
+                                                <AlearHeader></AlearHeader>
+                                                <AlearWrapContent>
+                                                    <AlearTitle>알림</AlearTitle>
+                                                    {renderAlertComponent()}
+                                                </AlearWrapContent>
+                                            </>
+                                        }
+                                    </AlearmWrap>
+                                    <ProfileImgDiv onClick={onClickMyPageHandler}>
+                                        {
+                                            avataGenHandler()
+                                        }
+                                    </ProfileImgDiv>
+                                </>
+                        }
                     </>
                     }
                 </HeaderRightContent>
