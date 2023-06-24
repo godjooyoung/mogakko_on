@@ -7,7 +7,7 @@ function ReportPopup(props) {
   const [selectedCause, setSelectedCause] = useState(null);
   const [reportReason, setReportReason] = useState(null)
   const [reasonValue, onChangeReasonValue, reasonValueReset] = useInput('')
-
+  const [reportMsg, setReportMsg] = useState(null)
 
   const CheckboxChangehandler = (event) => {
     const { id, checked } = event.target;
@@ -39,7 +39,12 @@ function ReportPopup(props) {
   // 신고 뮤테이션
   const reportMutation = useMutation(reportUser, {
     onSuccess: (response) => {
-      console.log('responseresponse',response)
+      // setReportMsg('신고가 접수되었습니다.')
+      props.reportMsgHandler('신고가 접수되었습니다.')
+    },
+    onError: (error) => {
+      console.log('errorerror',error.response.data.message)
+      props.reportMsgHandler(error.response.data.message)
     }
   })
 
