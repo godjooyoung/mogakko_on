@@ -10,7 +10,7 @@ import Room from "../pages/Room";
 import Mypage from "../pages/Mypage";
 import MemberPage from "../pages/MemberPage";
 import Done from "../pages/Done";
-
+import CodeEditor from "../components/CodeEditor";
 const Router = () => {
   return (
     <BrowserRouter>
@@ -25,6 +25,7 @@ const Router = () => {
             <Route path="/mypage" element={<Mypage />} />
             <Route path="/profile/:id" element={<MemberPage />} />
             <Route path="/done" element={<><Header /><Done/></>} />
+            <Route path="/code" element={<CodeEditor />} />
           </Route>
         </Route>
       </Routes>
