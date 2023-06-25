@@ -14,8 +14,8 @@ function Admin() {
     }
   })
 
-  const reportAllowHandler = (nickname) => {
-    reportAllowMutation.mutate(nickname)
+  const reportAllowHandler = (id) => {
+    reportAllowMutation.mutate(id)
   }
   return (
     <FlexBox>
@@ -44,7 +44,7 @@ function Admin() {
                       <p>{e.reason}</p>
                     </ReportCotentWrap>
                     <ReportTime>{e.declaredMember.createdAt}</ReportTime>
-                    <button onClick={() => reportAllowHandler(e.declaredMember.nickname)}>승인</button>
+                    <button onClick={() => reportAllowHandler(e.id)}>승인</button>
                   </ReportItem>
                 )
               })
