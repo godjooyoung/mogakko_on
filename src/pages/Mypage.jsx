@@ -222,6 +222,23 @@ function Mypage() {
       setIsDeleteMsgConfrimPopupOpen(false)
   }
 
+  // 쪽지 삭제 성공 스낵바 상태
+  const [isDoneDMDelete, setIsDoneDMDelete] = useState(false)
+  const [doneMsg, setDoneMsg] = useState('')
+
+  //  쪽지 삭제 성공/실패 메세지 세팅 핸들러
+  const dmDeleteDoneHandler = (msg) => {
+    setDoneMsg(msg)
+  }
+
+  useEffect(()=>{
+    if(doneMsg){
+      setIsDoneDMDelete(true)
+    }
+  },[doneMsg])
+
+
+
   useEffect(()=>{
     console.log('삭제대상 쪽지>>>>>>>>>>>>>>>>>>>>>', deleteTargets)
     if(deleteTargets.length === 0){
@@ -237,12 +254,18 @@ function Mypage() {
       }, 3000)
       return () => clearTimeout(timer)
     }
-  }, [isUserCodeCopied])
+    if (isDoneDMDelete) {
+      const timer = setTimeout(() => {
+        setIsDoneDMDelete(false)
+        setDoneMsg('')
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [isUserCodeCopied, isDoneDMDelete])
 
   // 쪽지 보내기 Mutation
   const postMessageMutation = useMutation(postMessage, {
     onSuccess: (response) => {
-      // alert(response)
       popupOpenHander(response.data.message)
       queryClient.invalidateQueries(receiveMessage)
       queryClient.invalidateQueries(sentMessage)
@@ -257,14 +280,14 @@ function Mypage() {
   const deleteMessageMutation = useMutation(deleteMessage, {
     onSuccess: (response) => {
       // 삭제 성공후 로직
-      alert('쪽지 삭제 완료 햇습니다.')
+      dmDeleteDoneHandler('선택하신 쪽지를 성공적으로 삭제 했습니다.')
       setDeleteTargets([])
       setIsReset(true)
       queryClient.invalidateQueries(receiveMessage)
       queryClient.invalidateQueries(sentMessage)
     },
     onError: (error) => {
-      alert('쪽지 삭제 실패 햇습니다.')
+      dmDeleteDoneHandler('선택하신 쪽지를 삭제하지 못했습니다.')
     }
   })
   
@@ -602,6 +625,11 @@ function Mypage() {
         </> : <></>
       }
       {
+        isDoneDMDelete ? <>
+          <SnackBar content={doneMsg} state={isDoneDMDelete} />
+        </> : <></>
+      }
+      {
         isFileCommonPopupOpend ?
           <><CommonPopup msg={'크기가 2MB 이하인 이미지'} secondMsg={'파일을 선택해 주시기 바랍니다.'} isBtns={false} priMsg={'닫기'} priHander={() => (setIsFileCommonPopupOpend(false))} closeHander={() => (setIsFileCommonPopupOpend(false))} /></> : <></>
       }
@@ -631,6 +659,8 @@ function Mypage() {
         <FlexBox>
           <MypageWrap>
             <MypageNavbar>
+
+              <MypageNavbarTop>
               <ProfileModifyContent encType="multipart/form-data" onSubmit={(e) => { e.preventDefault() }}>
                 <ImageWrap BgImg={preview} />
                 <div>
@@ -654,8 +684,7 @@ function Mypage() {
                   ></CopyBtn>
                 </CopyToClipboard>
               </MyCodeWrap>
-
-              <NavberCategory>
+              <NavberCategory>           
                 <DataCategory mogakkoData={mogakkoData}
                   onClick={() => {
                     setmogakkoData(true)
@@ -711,7 +740,9 @@ function Mypage() {
                   </ul>
                 }
               </NavberCategory>
+              </MypageNavbarTop>
 
+              <RemindTutorial onClick={()=>(navigate('/tutorial'))}>튜토리얼 다시보기</RemindTutorial>
             </MypageNavbar>
             {mogakkoData &&
               <WidthBox>
@@ -1999,6 +2030,10 @@ const MypageWrap = styled.div`
 `
 
 const MypageNavbar = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  
   width: 240px;
   /* height: 895px; */
   height: calc(100vh - 79px - 50px);
@@ -2011,8 +2046,17 @@ const MypageNavbar = styled.div`
   text-align: center;
   margin-right: 66px;
   padding: 39px 0 0 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `
 
+export const MypageNavbarTop =styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
 const MyCodeWrap = styled.div`
   display: flex;
   justify-content: center;
@@ -2046,6 +2090,20 @@ const CopyBtn = styled.button`
 const NavberCategory = styled.ul`
   width: 240px;
   height: 82px;
+`
+
+export const RemindTutorial = styled.div`
+  color: #BEBEBE;
+  font-size: 12px;
+  font-family: 'Pretendard';
+  text-decoration-line: underline;
+
+  width: 240px;
+  /* height: fit-content; */
+  text-align: left;
+  margin-left: 28px;
+  margin-bottom: 13px;
+  cursor: pointer;
 `
 
 const DataCategory = styled.li`
@@ -2704,6 +2762,12 @@ export const MessageDelBtn = styled.div`
   opacity:${(props) => {
     return props.isDisable? 0 : 1;
   }};
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: ${(props) => {
+    return props.isTarget?`url(${process.env.PUBLIC_URL}/image/termsCheck.webp)`:'none'
+  }
+  };
   
   //background-color: #00C5D1;
 `
