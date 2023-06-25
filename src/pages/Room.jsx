@@ -787,11 +787,6 @@ function Room() {
 
   }
 
-  // chatMessages 어떻게 담기는지 찍을 꺼임 콘솔 찍기용이므로 추후 삭제
-  useEffect(() => {
-    // console.log("chatMessages", chatMessages)
-  }, [chatMessages])
-
   const publish = async (openViduSession) => {
     if (!stompClient.current.connected) {
       return
@@ -1054,13 +1049,17 @@ function Room() {
                       ></SlideLeftBtn> :
                       <></>
                     }
+
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
-                      <UserVideoComponent
+                      {
+                        publisher&&<UserVideoComponent
                         streamManager={publisher}
                         activeSnackbarHandler={activeSnackbarHandler}
                         getFriendResponseMsgHandler={getFriendResponseMsgHandler}
                         getUserNicknameHandler={getUserNicknameHandler}
                       />
+                      }
+                      
 
                       {/* 구독자 수 만큼 비디오를 생성해서 붙인다. */}
                       {subscribers.map((e, i) => (
