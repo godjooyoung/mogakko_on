@@ -15,9 +15,9 @@ const fetchReportedUsers = async () => {
 const handleReportProcessing = async (declaredMemberId) => {
   try {
     const response = await jwtInstance.post(`/members/admin/${declaredMemberId}`);
-    return response
+    return Promise.resolve(response)
   } catch (error) {
-    
+    return Promise.reject(error)
   }
 };
 
