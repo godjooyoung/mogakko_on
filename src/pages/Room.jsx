@@ -1,5 +1,4 @@
 import { OpenVidu } from 'openvidu-browser'
-import axios from 'axios'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import UserVideoComponent from '../components/UserVideoComponent'
 import { useLocation, useNavigate } from 'react-router-dom'

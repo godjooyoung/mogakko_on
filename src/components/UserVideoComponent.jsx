@@ -37,12 +37,24 @@ function UserVideoComponent(props) {
         const nickName = props.streamManager.stream.connection.data
         return nickName
     }
-    const reportPopupHandler = () => {
-        setReportPopup(true)
-    }
+
     useEffect(() => {
         setUserAudio(props.streamManager.stream.audioActive);
     }, [props.streamManager.stream.audioActive]);
+
+    useEffect(()=>{
+        if(props){
+            console.log("**************************************************************")
+            console.log("*                                                            *")
+            console.log("*                                                            *")
+            console.log("*                                                            *")
+            console.log(props.streamManager)
+            console.log("*                                                            *")
+            console.log("*                                                            *")
+            console.log("*                                                            *")
+            console.log("**************************************************************")
+        }
+    },[props.streamManager])
     return (
         <div>
             {props.streamManager !== undefined ? (
