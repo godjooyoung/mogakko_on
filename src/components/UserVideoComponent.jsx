@@ -8,21 +8,20 @@ function UserVideoComponent(props) {
     const [userAudio, setUserAudio] = useState(props.streamManager.stream.audioActive)
     const [isMoreBtnOpen, setIsMoreBtnOpen] = useState(false)
     const [reportPopup, setReportPopup] = useState(false)
-    const userNickName = props.streamManager.stream.connection.data
+    const userNickName = props.streamManager.stream.connection.data?props.streamManager.stream.connection.data:'no-name'
 
     // 친구 신청 뮤테이션
     const friendRequestMutation = useMutation(requestFriend, {
         onSuccess: (response) => {
-            console.log('mutation 친구요청 응답', response)
+            console.log('mutation 친구요청 응답', response.message)
             if (response) {
                 // 성공하면 트루로 바꿔서 스낵바 띄우기
-                // props.activeSnackbarHandler()
+                props.getFriendResponseMsgHandler('친구요청 완료')
+                
             }
         },
         onError: (error) => {
-            console.log('mutation 친구요청 에러', error)
             // 실패해도 스낵바 띄우기
-            console.log('mutation 친구요청 스낵바 메세지', error.response.data.message)
             props.getFriendResponseMsgHandler(error.response.data.message)
         }
     })

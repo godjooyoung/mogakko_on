@@ -1052,7 +1052,7 @@ function Room() {
 
                     <PubilsherVideoWrap onClick={() => handleMainVideoStream(publisher)} movePositon={position}>
                       {
-                        publisher&&<UserVideoComponent
+                        publisher && <UserVideoComponent
                         streamManager={publisher}
                         activeSnackbarHandler={activeSnackbarHandler}
                         getFriendResponseMsgHandler={getFriendResponseMsgHandler}
@@ -1062,16 +1062,18 @@ function Room() {
                       
 
                       {/* 구독자 수 만큼 비디오를 생성해서 붙인다. */}
-                      {subscribers.map((e, i) => (
-                        <div key={e.id} onClick={() => handleMainVideoStream(e)}>
-                          <UserVideoComponent
-                            streamManager={e}
-                            activeSnackbarHandler={activeSnackbarHandler}
-                            getFriendResponseMsgHandler={getFriendResponseMsgHandler}
-                            getUserNicknameHandler={getUserNicknameHandler}
-                          />
-                        </div>
-                      ))}
+                      {
+                        subscribers && subscribers.map((e, i) => (
+                          <div key={e.id} onClick={() => handleMainVideoStream(e)}>
+                            <UserVideoComponent
+                              streamManager={e}
+                              activeSnackbarHandler={activeSnackbarHandler}
+                              getFriendResponseMsgHandler={getFriendResponseMsgHandler}
+                              getUserNicknameHandler={getUserNicknameHandler}
+                            />
+                          </div>
+                        ))
+                      }
 
                     </PubilsherVideoWrap>
                     {count === 0 && data.maxMembers >= 5 ?
