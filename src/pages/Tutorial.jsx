@@ -60,10 +60,10 @@ function Tutorial() {
 
         window.addEventListener('scroll', handleScroll);
 
-        if(getCookie('token')){
+        if (getCookie('token')) {
             updateCheckTutorialMutationCall()
         }
-    
+
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
@@ -72,7 +72,7 @@ function Tutorial() {
     const goHome = () => {
         navigate('/')
     }
-    
+
     return (
         <>
             {/* <NormalHeader>
@@ -86,6 +86,9 @@ function Tutorial() {
                     </p>
                 </div>
             </NormalHeader> */}
+            <FDivChildSec onClick={goHome}>
+                <p>SKIP →</p>
+            </FDivChildSec>
             <ScrollContent>
                 <ScrollGraphic>{/* 스크롤 이미지들 */}
                     {/* 이미지 아이템 0*/}
@@ -108,9 +111,6 @@ function Tutorial() {
                                     <img src={`${process.env.PUBLIC_URL}/image/tutorial/underArrow.gif`} alt="아래 화살표"></img>
                                 </BottomContent>
                             </FDivChildFir>
-                            <FDivChildSec onClick={goHome}>
-                                <p>스킵하기 →</p>
-                            </FDivChildSec>
                         </FirstDiv>
                     </GraphicItem>
                     {/* 이미지 아이템 1*/} <GraphicItem isVisible={isVisibles[1]} ><SceneImg src={`${process.env.PUBLIC_URL}/image/tutorial/tutorial00.gif`} alt="튜토리얼 사진 설명 00"></SceneImg></GraphicItem>
@@ -277,6 +277,7 @@ export const BottomContent = styled.div`
     flex: 0;
 `
 export const FDivChildSec = styled.div`
+    position: relative;
     display: flex;
     justify-content: end;
     cursor: pointer;
@@ -284,7 +285,9 @@ export const FDivChildSec = styled.div`
     p{
         font-size: 19px;
         font-family: 'Pretendard';
-        
+        position: fixed;
+        bottom: 120px;
+        color: #FFFFFF;
     }
 `
 
@@ -345,6 +348,8 @@ export const GoBtnWrap = styled.div`
     margin: 0 auto 20vh;
 
     p {
+        font-weight: 500;
+        font-size: 30px;
         color: #FFFFFF;
     }
 
