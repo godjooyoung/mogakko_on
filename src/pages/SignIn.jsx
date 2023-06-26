@@ -40,10 +40,10 @@ const SignIn = () => {
     
     const signInMutation = useMutation(login, {
         onSuccess: (response) => {
-            if(response.data.message === '로그인 성공'){
-                if(response.data.data.role === 'ADMIN') navigate('/admin')
-                if(response.data.data.role === 'USER' && !response.data.data.tutorialCheck) navigate('/tutorial')
-                if(response.data.data.role === 'USER' && response.data.data.tutorialCheck) navigate('/')
+            if(response?.data?.message === '로그인 성공'){
+                if(response?.data?.data.role === 'ADMIN') navigate('/admin')
+                if((response?.data?.data.role === 'USER'|| response?.data?.data.role === 'PROHIBITION') && !response.data.data.tutorialCheck) navigate('/tutorial')
+                if((response?.data?.data.role === 'USER'|| response?.data?.data.role === 'PROHIBITION') && response.data.data.tutorialCheck) navigate('/')
             }
         },
         onError: (error) => {

@@ -7,22 +7,20 @@ import { requestFriend } from '../axios/api/mypage';
 function UserVideoComponent(props) {
     const [userAudio, setUserAudio] = useState(props.streamManager.stream.audioActive)
     const [isMoreBtnOpen, setIsMoreBtnOpen] = useState(false)
-    const [reportPopup, setReportPopup] = useState(false)
     const userNickName = props.streamManager.stream.connection.data
 
     // 친구 신청 뮤테이션
     const friendRequestMutation = useMutation(requestFriend, {
         onSuccess: (response) => {
-            console.log('mutation 친구요청 응답', response)
+            console.log('mutation 친구요청 응답', response.message)
             if (response) {
                 // 성공하면 트루로 바꿔서 스낵바 띄우기
-                // props.activeSnackbarHandler()
+                props.getFriendResponseMsgHandler('친구신청 완료')
+                
             }
         },
         onError: (error) => {
-            console.log('mutation 친구요청 에러', error)
             // 실패해도 스낵바 띄우기
-            console.log('mutation 친구요청 스낵바 메세지', error.response.data.message)
             props.getFriendResponseMsgHandler(error.response.data.message)
         }
     })
@@ -38,12 +36,17 @@ function UserVideoComponent(props) {
         const nickName = props.streamManager.stream.connection.data
         return nickName
     }
-    const reportPopupHandler = () => {
-        setReportPopup(true)
-    }
+
     useEffect(() => {
         setUserAudio(props.streamManager.stream.audioActive);
     }, [props.streamManager.stream.audioActive]);
+
+    useEffect(()=>{
+        console.log("대성당의시대1  >>",props.streamManager)
+        if(props.streamManager){
+            console.log("대성당의시대2 >> ",props.streamManager)
+        }
+    },[props.streamManager])
     return (
         <div>
             {props.streamManager !== undefined ? (
@@ -73,7 +76,7 @@ function UserVideoComponent(props) {
                         {getNicknameTag()} {!userAudio && <img src={`${process.env.PUBLIC_URL}/image/userMicOff.webp`} alt="마이크 음소거 아이콘" />}
                     </UserNickName>
                 </VideoComponentWrap>
-            ) : null}
+            ) : <div>스트림메니저가 언디파인트일때 이 디브가 나올것이다.</div>}
         </div>
     );
 }
