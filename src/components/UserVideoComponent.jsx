@@ -7,7 +7,7 @@ import { requestFriend } from '../axios/api/mypage';
 function UserVideoComponent(props) {
     const [userAudio, setUserAudio] = useState(props.streamManager.stream.audioActive)
     const [isMoreBtnOpen, setIsMoreBtnOpen] = useState(false)
-    const userNickName = props.streamManager.stream.connection.data?props.streamManager.stream.connection.data:'no-name'
+    const userNickName = props.streamManager.stream.connection.data
 
     // 친구 신청 뮤테이션
     const friendRequestMutation = useMutation(requestFriend, {
@@ -15,7 +15,7 @@ function UserVideoComponent(props) {
             console.log('mutation 친구요청 응답', response.message)
             if (response) {
                 // 성공하면 트루로 바꿔서 스낵바 띄우기
-                props.getFriendResponseMsgHandler('친구요청 완료')
+                props.getFriendResponseMsgHandler('친구신청 완료')
                 
             }
         },
@@ -42,8 +42,9 @@ function UserVideoComponent(props) {
     }, [props.streamManager.stream.audioActive]);
 
     useEffect(()=>{
-        if(props){
-            console.log("대성당의시대 >> ",props.streamManager)
+        console.log("대성당의시대1  >>",props.streamManager)
+        if(props.streamManager){
+            console.log("대성당의시대2 >> ",props.streamManager)
         }
     },[props.streamManager])
     return (

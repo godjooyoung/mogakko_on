@@ -49,6 +49,9 @@ function Room() {
   // on/off 바뀜
   const [isChangedProperty, setIsChangedProperty] = useState(false)
 
+  //화면 공유 실패시 다시 시도하기 위한 상태값
+  const [isRetry, setIsRetry] = useState(false)
+
   // Websocket
   const [isLoading, setIsLoading] = useState(true)
   const isConnected = useRef('')
@@ -120,7 +123,7 @@ function Room() {
   const closeReportPopupHandler = () => {
     setReportPopup(false)
   }
-  console.log('getUserNicknamegetUserNickname', getUserNickname)
+
   // 뒤로가기 동작 감지
   const preventGoBack = () => {
     window.history.pushState(null, "", location.href);
@@ -191,14 +194,6 @@ function Room() {
       setIsLeaved(true)
     }
   })
-
-  const publicHandler = () => {
-    setIsOpened(true)
-  }
-
-  const closedHandler = (e) => {
-    setIsOpened(false)
-  }
 
   // 보내는 메세지
   const [message, setMessage] = useState('')
@@ -272,22 +267,12 @@ function Room() {
     title: sessionInfo.title,
     language: sessionInfo.language,
     maxMembers: sessionInfo.maxMembers,
-    // isOpened: sessionInfo.isOpened, 2차 스코프로 비밀방 하면 다시 ㄱㄱ
     isOpened: true,
     password: sessionInfo.password,
     lon: sessionInfo.longitude,
     lat: sessionInfo.latitude,
     neighborhood: sessionInfo.neighborhood
   })
-
-  // const [state, setState] = useState({
-  //   mySessionId: roomData.sessionId,
-  //   myUserName: 'Participant' + Math.floor(Math.random() * 100),
-  //   session: undefined,
-  //   mainStreamManager: undefined,
-  //   publisher: undefined,
-  //   subscribers: [],
-  //   });
 
   const languageImgHandler = () => {
     if (data.language === 'JAVA') {
@@ -329,18 +314,12 @@ function Room() {
   const joinSession = () => {
     OV.current = new OpenVidu();
     const mySession = OV.current.initSession();
-    // console.log("subscribers 확인 처음!@@ subscribers ::: ", subscribers);
     mySession.on('streamCreated', (event) => {
       const subscriber = mySession.subscribe(event.stream, undefined);
       setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber])
-
-      // console.log("subscribers 확인 1 현재 접속시도자 subscriber ::: ", subscriber);
-      // console.log("subscribers 확인 2 subscribers ::: ", subscribers);
     });
 
     mySession.on('streamPropertyChanged', (event) => {
-      // console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@1',event)
-      // console.log('스트림의 속성이 바뀠다@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2',event.changedProperty)
       setIsChangedProperty((prevIsChangedProperty) => (!prevIsChangedProperty))
     })
 
@@ -351,29 +330,20 @@ function Room() {
     mySession.on('exception', (exception) => {
       // console.warn(exception);
     });
-
-    setSession(mySession)
+    
+    console.log('대성당 세션 만드어지기전?')
+    setSession(()=>(mySession))
+    console.log('대성당 세션 만드어진후')
   };
 
   const [isFisrstSubscribe, setIsFisrstSubscribe] = useState(false)
   const [isGuest, setIsGuest] = useState(false)
   useEffect(() => {
-    // console.log("*************** 이전에 구독을 성공한 적이 있는가?", isFisrstSubscribe)
-    // console.log("*************** 방장일때, 방장이닐때 값 비교 1", openViduSession)
-    // console.log("*************** 방장일때, 방장이닐때 값 비교 2", mySessionId)
-
     if (!isGuest || openViduSession) { // !false || undifind
-      // console.log("게스트여서 커넥트됬니?", isGuest)
-      // console.log("방장이여서 재시도 하니?", !openViduSession ? 'true' : 'false')
       if (!isFisrstSubscribe) { // !false => true
-        // console.log("*************** 1")
         if (openViduSession) {
-          console.log("*************** 2 게스트임", openViduSession)
           connect(openViduSession) // isFisrstSubscribe = false
         } else {
-          // 방장 아닌사람은 3일때 커넥션 하고 다시 또 커넥션 시키지 않는다.
-          // console.log("*************** 3")
-          console.log("*************** 3 게스트임", mySessionId)
           connect(mySessionId)
           setIsGuest(true)
           setIsFisrstSubscribe(true)
@@ -422,12 +392,11 @@ function Room() {
   }, [data])
 
   useEffect(() => {
-    // console.log("old subscribers ...................................... ", subscribers)
-    // console.log("publisher............................................. ", publisher)
-    const updateSubscribers = [...subscribers]
-    setSubscribers((prevSubscribers) => updateSubscribers)
+    console.log('대성당 >> 11')
+    // const updateSubscribers = [...subscribers]
+    setSubscribers((prevSubscribers) => [...prevSubscribers])
 
-  }, [publisher, audioEnabled, isChangedProperty])
+  }, [publisher, audioEnabled, isChangedProperty, session])
 
 
 
@@ -480,7 +449,6 @@ function Room() {
   }, [currentVideoDevice, session, audioEnabled])
 
   const startScreenSharing = useCallback(async (originPublish) => {
-    // console.log("여기까지 오니? 0")
     try {
       // 화면 공유용 퍼블리셔 초기화
       const screenSharingPublisher = OV.current.initPublisher(undefined, {
@@ -493,25 +461,44 @@ function Room() {
         frameRate: 30,
         insertMode: 'APPEND',
       })
-
-      session.unpublish(originPublish)
-      session.publish(screenSharingPublisher)
+      
+      console.log("0 대성당 언퍼블리쉬전", originPublish, session)
+      if(session.streamManagers.length>0){
+        console.log("0 대성당 스트림 매니저가 잘 잇어서 언퍼블리시가 잘 될것이다.")
+        await session.unpublish(originPublish)
+      }else{
+        console.log("0 대성당 스트림 매니저가 잘 잇어서 언퍼블리시가잘 안될거 같아서 세션을 다시 세팅해준다...이게 될 것인가..")
+        setSession(()=>(originPublish.session))
+        await session.unpublish(originPublish)
+      }
+      
+      console.log("1 대성당 언퍼블리쉬됨")
+      // setSubscribers((prevSubscribers) => [...subscribers])
+      console.log("2 대성당 서브스크라이브 업데이트전")
+      setSubscribers(prevSubscribers => {
+        console.log("2 대성당 서브스크라이브 업데이트중")
+        const newSubscribers = [...prevSubscribers]
+        return newSubscribers
+      })
+      console.log("2 대성당 서브스크라이브 업데이트완료")
+      console.log("3 대성당 퍼블리시 전")
+      await session.publish(screenSharingPublisher)
+      console.log("3 대성당 퍼블리시 후")
+      // setSubscribers((prevSubscribers) => [...subscribers])
+      console.log("4 대성당 서브스크라이브 업데이트전")
+      setSubscribers(prevSubscribers => {
+        console.log("4 대성당 서브스크라이브 업데이트중")
+        const newSubscribers = [...prevSubscribers]
+        return newSubscribers
+      })
+      console.log("4 대성당 서브스크라이브 업데이트완료")
+      
       // 배치 
       setPublisher((prevPublisher) => screenSharingPublisher)
       setMainStreamManager((prevMainStreamManager) => screenSharingPublisher)
       setIsScreenSharing((prevScreenSharing) => true)
 
-
-      // setPublisher(screenSharingPublisher, ()=>{
-      //   console.log("여기까지 오니? 1")
-      //   setMainStreamManager(screenSharingPublisher, ()=>{
-      //     console.log("여기까지 오니? 2")
-      //     setIsScreenSharing(true)
-      //   })
-      // })
-
     } catch (error) {
-      // console.log('Error starting screen sharing:', error.message)
     }
   }, [session])
 
@@ -521,10 +508,25 @@ function Room() {
       startCameraSharing(originPublish)
     } else {
       // 카메라 모드일 때, 화면 공유로 전환
-      startScreenSharing(originPublish)
+      if(session.streamManagers.length>0){
+        console.log("대성당 바로바로바로바로")
+        startScreenSharing(originPublish)
+      }else{
+        console.log("대성당 한번안되서다시세팅해줌다시다시")
+        setSession(originPublish.session)
+        setIsRetry(true)
+      }
     }
   }, [isScreenSharing, startCameraSharing, startScreenSharing, isChangedProperty])
 
+
+  useEffect(()=>{
+    if(isRetry){
+      console.log("대성당 재시도재시도리트라이 티르타링")
+      toggleSharingMode(publisher)
+      setIsRetry(false)
+    }
+  },[isRetry])
 
   useEffect(() => {
     // 세션이 있으면 그 세션에 publish해라 
