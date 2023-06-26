@@ -7,7 +7,6 @@ import { requestFriend } from '../axios/api/mypage';
 function UserVideoComponent(props) {
     const [userAudio, setUserAudio] = useState(props.streamManager.stream.audioActive)
     const [isMoreBtnOpen, setIsMoreBtnOpen] = useState(false)
-    const [reportPopup, setReportPopup] = useState(false)
     const userNickName = props.streamManager.stream.connection.data?props.streamManager.stream.connection.data:'no-name'
 
     // 친구 신청 뮤테이션
@@ -44,15 +43,7 @@ function UserVideoComponent(props) {
 
     useEffect(()=>{
         if(props){
-            console.log("**************************************************************")
-            console.log("*                                                            *")
-            console.log("*                                                            *")
-            console.log("*                                                            *")
-            console.log(props.streamManager)
-            console.log("*                                                            *")
-            console.log("*                                                            *")
-            console.log("*                                                            *")
-            console.log("**************************************************************")
+            console.log("대성당의시대 >> ",props.streamManager)
         }
     },[props.streamManager])
     return (
@@ -84,7 +75,7 @@ function UserVideoComponent(props) {
                         {getNicknameTag()} {!userAudio && <img src={`${process.env.PUBLIC_URL}/image/userMicOff.webp`} alt="마이크 음소거 아이콘" />}
                     </UserNickName>
                 </VideoComponentWrap>
-            ) : null}
+            ) : <div>스트림메니저가 언디파인트일때 이 디브가 나올것이다.</div>}
         </div>
     );
 }
