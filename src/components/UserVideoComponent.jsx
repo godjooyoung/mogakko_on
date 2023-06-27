@@ -12,7 +12,6 @@ function UserVideoComponent(props) {
     // 친구 신청 뮤테이션
     const friendRequestMutation = useMutation(requestFriend, {
         onSuccess: (response) => {
-            console.log('mutation 친구요청 응답', response.message)
             if (response) {
                 // 성공하면 트루로 바꿔서 스낵바 띄우기
                 props.getFriendResponseMsgHandler('친구신청 완료')
@@ -41,12 +40,6 @@ function UserVideoComponent(props) {
         setUserAudio(props.streamManager.stream.audioActive);
     }, [props.streamManager.stream.audioActive]);
 
-    useEffect(() => {
-        console.log("대성당의시대1  >>", props.streamManager)
-        if (props.streamManager) {
-            console.log("대성당의시대2 >> ", props.streamManager)
-        }
-    }, [props.streamManager])
     return (
         <div>
             {props.streamManager !== undefined ? (
@@ -61,7 +54,8 @@ function UserVideoComponent(props) {
                                     isMoreBtnOpen={isMoreBtnOpen}
                                     videoMoreBtnUrl={`${process.env.PUBLIC_URL}/image/videoMore.webp`}
                                     videoMoreBtnActiveUrl={`${process.env.PUBLIC_URL}/image/videoMoreActive.webp`}
-                                    onClick={() => {
+                                    onClick={(event) => {
+                                        event.stopPropagation() // 이벤트 전파 방지
                                         setIsMoreBtnOpen((prevIsMoreBtnOpen) => (!prevIsMoreBtnOpen))
                                     }}
                                 />
@@ -71,10 +65,20 @@ function UserVideoComponent(props) {
                     {/* 더보기 버튼 클릭시 나오는 창 */}
                     <VideoMoreSelect isMoreBtnOpen={isMoreBtnOpen}>
                         <ul>
-                            <VideoMoreSelectFirstChild onClick={friendRequestMutationCallHandler} >친구 추가하기</VideoMoreSelectFirstChild>
-                            <VideoMoreSelectSecondChild onClick={() => {
-                                props.getUserNicknameHandler(getNicknameTag())
-                            }}>신고하기</VideoMoreSelectSecondChild>
+                            <VideoMoreSelectFirstChild 
+                                onClick={(event)=>{
+                                    event.stopPropagation() // 이벤트 전파 방지
+                                    friendRequestMutationCallHandler()
+                                }}>
+                                    친구 추가하기
+                            </VideoMoreSelectFirstChild>
+                            <VideoMoreSelectSecondChild 
+                                onClick={(event) => {
+                                    event.stopPropagation() // 이벤트 전파 방지
+                                    props.getUserNicknameHandler(getNicknameTag())
+                            }}>
+                                신고하기
+                            </VideoMoreSelectSecondChild>
                         </ul>
                     </VideoMoreSelect>
                     {/* 비디오 컴포넌트 */}
