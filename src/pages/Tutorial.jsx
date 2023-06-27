@@ -71,6 +71,7 @@ function Tutorial() {
 
     const goHome = () => {
         navigate('/')
+        window.scrollTo(0, 0)
     }
 
     return (
