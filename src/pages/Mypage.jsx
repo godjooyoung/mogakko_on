@@ -742,7 +742,7 @@ function Mypage() {
               </NavberCategory>
               </MypageNavbarTop>
 
-              <RemindTutorial onClick={()=>(navigate('/tutorial'))}>튜토리얼 다시보기</RemindTutorial>
+              <RemindTutorial onClick={()=>(navigate('/tutorial'))}><p>튜토리얼 다시보기</p></RemindTutorial>
             </MypageNavbar>
             {mogakkoData &&
               <WidthBox>
@@ -2101,9 +2101,12 @@ export const RemindTutorial = styled.div`
   width: 240px;
   /* height: fit-content; */
   text-align: left;
-  margin-left: 28px;
-  margin-bottom: 13px;
+  /* margin-left: 28px; */
+  margin-bottom: 23px;
   cursor: pointer;
+  p {
+      margin-left: 23px;
+  }
 `
 
 const DataCategory = styled.li`
