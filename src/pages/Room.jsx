@@ -57,8 +57,6 @@ function Room() {
   const isConnected = useRef('')
   const stompClient = useRef(null)
 
-  const [btnSelect, setBtnSelect] = useState('public')
-
   // 스낵바 메세지 
   const [snackbarMsg, setSnackbarMsg] = useState('')
 
@@ -185,12 +183,9 @@ function Room() {
   // 리브세션 서버 요청
   const leaveSessionMutation = useMutation(leaveChatRoom, {
     onSuccess: (response) => {
-      // console.log("나가기 성공")
-      // console.log("leaveSessionMutation", response)
       setIsLeaved(true)
     },
     onError: (error) => {
-      // console.log("나가기 오류")
       setIsLeaved(true)
     }
   })
@@ -710,9 +705,6 @@ function Room() {
   ///////////////////////////////////////////////////////////////////////////////
 
   const connect = (params) => {
-    // console.log("(매개) 실시간 채팅 커넥트 시도 ::::", params)
-    // console.log("(전역) 실시간 채팅 커넥트 시도 ::::", openViduSession)
-    // console.log("(전역) 실시간 채팅 커넥트 시도 ::::", mySessionId)
     stompClient.current = new Client({
       connectHeaders: {
         ACCESS_KEY: `${getCookie('token')}`
@@ -857,18 +849,16 @@ function Room() {
     }
   };
 
-  // 슬라이드 
+  // 사용자 비디오 슬라이드 
   const [position, setPosition] = useState(0);
   const [count, setCount] = useState(0)
   const scrollLeft = () => {
-    // console.log("왼쪽으로 가기!!!!!")
     setPosition((prevPosition) => prevPosition + 990); // 왼쪽으로 1045px 이동
     const newCount = count
     setCount(newCount - 1)
   }
 
   const scrollRight = () => {
-    // console.log("오른쪽으로 가기!!!!!")
     setPosition((prevPosition) => prevPosition - 990); // 오른쪽으로 1045px 이동
     const newCount = count
     setCount(newCount + 1)
@@ -1058,6 +1048,7 @@ function Room() {
                         activeSnackbarHandler={activeSnackbarHandler}
                         getFriendResponseMsgHandler={getFriendResponseMsgHandler}
                         getUserNicknameHandler={getUserNicknameHandler}
+                        isSelf={true}
                       />
                       }
                       
@@ -1071,6 +1062,7 @@ function Room() {
                               activeSnackbarHandler={activeSnackbarHandler}
                               getFriendResponseMsgHandler={getFriendResponseMsgHandler}
                               getUserNicknameHandler={getUserNicknameHandler}
+                              isSelf={false}
                             />
                           </div>
                         ))
@@ -1096,7 +1088,7 @@ function Room() {
                   <MainStreamWrap>
                     {
                       !codeEditor ? 
-                      <UserVideoComponent streamManager={mainStreamManager} /> :
+                      <UserVideoComponent streamManager={mainStreamManager} isSelf={true}/> :
                       <CodeEditor code={code} language={LowerLanguage} onChange={handleCodeChange} />
                     }
                   </MainStreamWrap>

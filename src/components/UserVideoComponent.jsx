@@ -16,7 +16,7 @@ function UserVideoComponent(props) {
             if (response) {
                 // 성공하면 트루로 바꿔서 스낵바 띄우기
                 props.getFriendResponseMsgHandler('친구신청 완료')
-                
+
             }
         },
         onError: (error) => {
@@ -41,25 +41,33 @@ function UserVideoComponent(props) {
         setUserAudio(props.streamManager.stream.audioActive);
     }, [props.streamManager.stream.audioActive]);
 
-    useEffect(()=>{
-        console.log("대성당의시대1  >>",props.streamManager)
-        if(props.streamManager){
-            console.log("대성당의시대2 >> ",props.streamManager)
+    useEffect(() => {
+        console.log("대성당의시대1  >>", props.streamManager)
+        if (props.streamManager) {
+            console.log("대성당의시대2 >> ", props.streamManager)
         }
-    },[props.streamManager])
+    }, [props.streamManager])
     return (
         <div>
             {props.streamManager !== undefined ? (
                 <VideoComponentWrap className="streamcomponent">
                     {/* 더보기 버튼 */}
-                    <VideoMore
-                        isMoreBtnOpen={isMoreBtnOpen}
-                        videoMoreBtnUrl={`${process.env.PUBLIC_URL}/image/videoMore.webp`}
-                        videoMoreBtnActiveUrl={`${process.env.PUBLIC_URL}/image/videoMoreActive.webp`}
-                        onClick={() => {
-                            setIsMoreBtnOpen((prevIsMoreBtnOpen) => (!prevIsMoreBtnOpen))
-                        }}
-                    />
+                    {
+                        props.isSelf ?
+                            <>
+                            </> :
+                            <>
+                                <VideoMore
+                                    isMoreBtnOpen={isMoreBtnOpen}
+                                    videoMoreBtnUrl={`${process.env.PUBLIC_URL}/image/videoMore.webp`}
+                                    videoMoreBtnActiveUrl={`${process.env.PUBLIC_URL}/image/videoMoreActive.webp`}
+                                    onClick={() => {
+                                        setIsMoreBtnOpen((prevIsMoreBtnOpen) => (!prevIsMoreBtnOpen))
+                                    }}
+                                />
+                            </>
+                    }
+
                     {/* 더보기 버튼 클릭시 나오는 창 */}
                     <VideoMoreSelect isMoreBtnOpen={isMoreBtnOpen}>
                         <ul>
