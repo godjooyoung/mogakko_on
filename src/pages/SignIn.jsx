@@ -42,7 +42,7 @@ const SignIn = () => {
         onSuccess: (response) => {
             if (response?.data?.message === '로그인 성공') {
                 if (response?.data?.data.role === 'ADMIN') {
-                    setCookie('admin', 'ADMIN')
+                    // setCookie('admin', 'ADMIN') 23.06.27 login.js 파일로 로직 옮김 - sjy
                     navigate('/admin')
                 }
                 if ((response?.data?.data.role === 'USER' || response?.data?.data.role === 'PROHIBITION') && !response.data.data.tutorialCheck) navigate('/tutorial')
