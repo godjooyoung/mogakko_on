@@ -15,8 +15,8 @@ const SignIn = () => {
     const [popMsg, setPopMsg] = useState('')
     // 팝업 오픈 함수
     const popupOpenHander = (msg) => {
-        setPopMsg((prevPopMsg)=>msg)
-        setIsOpen(()=>true)
+        setPopMsg((prevPopMsg) => msg)
+        setIsOpen(() => true)
     }
     // 팝업 클로즈 함수
     const popupCloseHander = () => {
@@ -37,13 +37,16 @@ const SignIn = () => {
 
     const [isValidationEmail, setIsValidationEmail] = useState(false)
     const [isValidationPassword, setIsValidationPassword] = useState(false)
-    
+
     const signInMutation = useMutation(login, {
         onSuccess: (response) => {
-            if(response?.data?.message === '로그인 성공'){
-                if(response?.data?.data.role === 'ADMIN') navigate('/admin')
-                if((response?.data?.data.role === 'USER'|| response?.data?.data.role === 'PROHIBITION') && !response.data.data.tutorialCheck) navigate('/tutorial')
-                if((response?.data?.data.role === 'USER'|| response?.data?.data.role === 'PROHIBITION') && response.data.data.tutorialCheck) navigate('/')
+            if (response?.data?.message === '로그인 성공') {
+                if (response?.data?.data.role === 'ADMIN') {
+                    setCookie('admin', 'ADMIN')
+                    navigate('/admin')
+                }
+                if ((response?.data?.data.role === 'USER' || response?.data?.data.role === 'PROHIBITION') && !response.data.data.tutorialCheck) navigate('/tutorial')
+                if ((response?.data?.data.role === 'USER' || response?.data?.data.role === 'PROHIBITION') && response.data.data.tutorialCheck) navigate('/')
             }
         },
         onError: (error) => {
@@ -121,53 +124,53 @@ const SignIn = () => {
 
     return (
         <>
-        {
-            isOpen?
-            <CommonPopup msg={popMsg}  closeHander={popupCloseHander} isBtns={false} priMsg={'확인'} priHander={popupCloseHander}/>
-            :<></>
-        }
-        
-        <FormDiv>
-            <Form onSubmit={submitHandler}>
-                <SigninIntro>
-                    로그인
-                </SigninIntro>
-                <div style={{
-                    height: '125px'
-                }}>
-                    <Label>이메일</Label>
-                    <InputWrapper>
-                        <Input
-                            type="email"
-                            value={email}
-                            placeholder="이메일"
-                            onChange={emailChangeHandler}
-                        />
-                    </InputWrapper>
-                    <EmailErrorMessageContainer>
-                        {emailError && <ErrorMessage>{emailError}</ErrorMessage>}
-                    </EmailErrorMessageContainer>
-                </div>
-                <div style={{
-                    height: '125px'
-                }}>
-                    <Label>비밀번호</Label>
-                    <InputWrapper>
-                        <Input
-                            type="password"
-                            value={password}
-                            placeholder="비밀번호"
-                            onChange={passwordChangeHandler}
-                        />
-                    </InputWrapper>
-                    <PasswordErrorMessageContainer>
-                        {passwrodError && <ErrorMessage>{passwrodError}</ErrorMessage>}
-                    </PasswordErrorMessageContainer>
-                </div>
-                <LoginButton type="submit" disabled={!isValidationEmail || !isValidationPassword}>로그인</LoginButton>
-                {/* {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>} */}
-            </Form>
-        </FormDiv>
+            {
+                isOpen ?
+                    <CommonPopup msg={popMsg} closeHander={popupCloseHander} isBtns={false} priMsg={'확인'} priHander={popupCloseHander} />
+                    : <></>
+            }
+
+            <FormDiv>
+                <Form onSubmit={submitHandler}>
+                    <SigninIntro>
+                        로그인
+                    </SigninIntro>
+                    <div style={{
+                        height: '125px'
+                    }}>
+                        <Label>이메일</Label>
+                        <InputWrapper>
+                            <Input
+                                type="email"
+                                value={email}
+                                placeholder="이메일"
+                                onChange={emailChangeHandler}
+                            />
+                        </InputWrapper>
+                        <EmailErrorMessageContainer>
+                            {emailError && <ErrorMessage>{emailError}</ErrorMessage>}
+                        </EmailErrorMessageContainer>
+                    </div>
+                    <div style={{
+                        height: '125px'
+                    }}>
+                        <Label>비밀번호</Label>
+                        <InputWrapper>
+                            <Input
+                                type="password"
+                                value={password}
+                                placeholder="비밀번호"
+                                onChange={passwordChangeHandler}
+                            />
+                        </InputWrapper>
+                        <PasswordErrorMessageContainer>
+                            {passwrodError && <ErrorMessage>{passwrodError}</ErrorMessage>}
+                        </PasswordErrorMessageContainer>
+                    </div>
+                    <LoginButton type="submit" disabled={!isValidationEmail || !isValidationPassword}>로그인</LoginButton>
+                    {/* {setLoginError && <ErrorMessage>{setLoginError}</ErrorMessage>} */}
+                </Form>
+            </FormDiv>
         </>
     );
 };

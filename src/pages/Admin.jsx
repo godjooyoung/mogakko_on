@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled } from 'styled-components';
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { fetchReportedUsers, handleReportProcessing } from '../axios/api/admin';
-function Admin() {
+import { getCookie } from '../cookie/Cookie';
+import { useNavigate } from 'react-router-dom'
 
+function Admin() {
+  const [formatDate, setFormatDate] = useState([])
   const queryClient = useQueryClient()
   const { isLoading, isError, data } = useQuery("getReportUser", fetchReportedUsers)
+  const getAdmin = getCookie('admin')
+  const navigate = useNavigate()
 
   const reportAllowMutation = useMutation(handleReportProcessing, {
     onSuccess: (response) => {
@@ -17,6 +22,23 @@ function Admin() {
     reportAllowMutation.mutate(id)
   }
 
+  // data.data.data.createdAt 포맷변경
+  useEffect(() => {
+    if (data) {
+      const formattedDates = data.data.data.map((e) => {
+        const formattedDate = new Date(e.createdAt).toISOString().split('T')[0]
+        formatDate.reverse().push(formattedDate)
+        setFormatDate([...formatDate])
+      })
+    }
+  }, [data])
+
+  useEffect(() => {
+    if (!getAdmin) {
+      navigate('/')
+    }
+  }, [])
+  
   return (
     <FlexBox>
       <AdminWrap>
@@ -34,20 +56,21 @@ function Admin() {
         <ScrollBox>
           <ScrollWrap>
             {
-              data && data?.data?.data?.map((e, idx) => {
+              data && data?.data?.data?.slice().reverse().map((e, idx) => {
                 return (
                   <ReportItem key={idx}>
                     <ReportCotentWrap>
                       <ReportContent>[{e.reporterNickname}]</ReportContent>
                       <ReportContent>[{e.declaredMember.nickname}]</ReportContent>
                       <ReportContent>{e.declaredReason}</ReportContent>
-                      <ReportReason>{e.reason}이이유이이이이유ㅣ유유ㅣ유유ㅣ유유ㅣ유유ㅣ유유ㅣ유유ㅣ유유ㅣ유유ㅣ유유ㅣ유유ㅣ유유ㅣ유</ReportReason>
+                      <ReportReason>{e.reason}</ReportReason>
                     </ReportCotentWrap>
                     <ReportProcessWrap>
-                      <ReportTime>{e.createdAt}</ReportTime>
-                      <ReportProcessBtn checked={e.checked} onClick={() => reportAllowHandler(e.id)}>{e.checked?'완료':'승인'}</ReportProcessBtn>
+                      {/* <ReportTime>{e.createdAt}</ReportTime> */}
+                      <ReportTime>{formatDate[idx]}</ReportTime>
+                      <ReportProcessBtn checked={e.checked} onClick={() => reportAllowHandler(e.id)}>{e.checked ? '완료' : '승인'}</ReportProcessBtn>
                     </ReportProcessWrap>
-                    
+
                   </ReportItem>
                 )
               })
@@ -97,7 +120,7 @@ export const ReportTypeWrap = styled.div`
   gap: 38px;
 `
 export const ReportingTime = styled.p`
-  width: 220px;
+  width: 190px;
   margin-right: 37px;
 `
 export const ScrollBox = styled.div`
@@ -170,14 +193,14 @@ export const ReportProcessBtn = styled.button`
     color: #FFFFFF;
     border-radius: 13.312px;
     background-color: ${(props) =>
-        props.checked?'#4A4F59':'var(--po-de)'
-    };
+    props.checked ? '#4A4F59' : 'var(--po-de)'
+  };
     color: ${(props) =>
-        props.checked?'#BEBEBE':'#464646'
-    };
+    props.checked ? '#BEBEBE' : '#464646'
+  };
     cursor: ${(props) =>
-        props.checked?'default':'pointer'
-    };
+    props.checked ? 'default' : 'pointer'
+  };
     border: none;
 `
 
