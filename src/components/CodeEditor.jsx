@@ -4,7 +4,6 @@ import { styled } from 'styled-components';
 
 const CodeEditor = ({ code, language, onChange }) => {
   const editorRef = useRef(null);
-  console.log('languagelanguage',language)
   useEffect(() => {
     if (editorRef.current) {
       editorRef.current.editor.onDidChangeModelContent(() => {
