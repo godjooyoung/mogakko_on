@@ -15,6 +15,7 @@ import Tutorial from "../pages/Tutorial";
 import Admin from "../pages/Admin";
 
 const Router = () => {
+  
   return (
     <BrowserRouter>
       <Routes>
