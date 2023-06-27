@@ -45,7 +45,7 @@ function Admin() {
                     </ReportCotentWrap>
                     <ReportProcessWrap>
                       <ReportTime>{e.createdAt}</ReportTime>
-                      <button onClick={() => reportAllowHandler(e.id)}>승인</button>
+                      <ReportProcessBtn checked={e.checked} onClick={() => reportAllowHandler(e.id)}>{e.checked?'완료':'승인'}</ReportProcessBtn>
                     </ReportProcessWrap>
                     
                   </ReportItem>
@@ -159,7 +159,8 @@ export const ReportItem = styled.div`
     color: #FFFFFF;
   }
 
-  button {
+`
+export const ReportProcessBtn = styled.button`
     width: 49.444px;
     height: 23.771px;
     text-align: center;
@@ -168,9 +169,16 @@ export const ReportItem = styled.div`
     font-weight: 700;
     color: #FFFFFF;
     border-radius: 13.312px;
-    background-color: #626873;
+    background-color: ${(props) =>
+        props.checked?'#4A4F59':'var(--po-de)'
+    };
+    color: ${(props) =>
+        props.checked?'#BEBEBE':'#464646'
+    };
+    cursor: ${(props) =>
+        props.checked?'default':'pointer'
+    };
     border: none;
-  }
 `
 
 export const ReportCotentWrap = styled.div`
