@@ -10,28 +10,29 @@ import Room from "../pages/Room";
 import Mypage from "../pages/Mypage";
 import MemberPage from "../pages/MemberPage";
 import Done from "../pages/Done";
-import CodeEditor from "../components/CodeEditor";
 import Tutorial from "../pages/Tutorial";
 import Admin from "../pages/Admin";
+import AdminCheck from "./AdminCheck";
 
 const Router = () => {
-  
+
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<BgContainer />}>
           <Route element={<Layout />}>
-          <Route path="/" element={<><Main /></>} />
-            <Route path="/" element={<><Header /><Main /></>} />
+            <Route element={<AdminCheck />}>
+              <Route path="/" element={<><Main /></>} />
+              <Route path="/" element={<><Header /><Main /></>} />
+              <Route path="/signup" element={<><Header /><SignUp /></>} />
+              <Route path="/room" element={<Room />} />
+              <Route path="/mypage" element={<Mypage />} />
+              <Route path="/profile/:id" element={<MemberPage />} />
+              <Route path="/done" element={<><Header /><Done /></>} />
+              <Route path="/tutorial" element={<><Header /><Tutorial /></>} />
+            </Route>
             <Route path="/signin" element={<><Header /><SignIn /></>} />
-            <Route path="/signup" element={<><Header /><SignUp /></>} />
-            <Route path="/room" element={<Room />} />
-            <Route path="/mypage" element={<Mypage />} />
-            <Route path="/profile/:id" element={<MemberPage />} />
-            <Route path="/done" element={<><Header /><Done/></>} />
-            <Route path="/code" element={<CodeEditor />} />
-            <Route path="/tutorial" element={<><Header /><Tutorial/></>} />
-            <Route path="/admin" element={<><Header /><Admin/></>} />
+            <Route path="/admin" element={<><Header /><Admin /></>} />
           </Route>
         </Route>
       </Routes>
