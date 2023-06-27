@@ -45,9 +45,9 @@ function NoticePopup(props) {
           content: '메인 검색 속도 개선'
         },
         {
-          color : '#F4AA33',
-          type: 'Change',
-          content: '공지 팝업 추가'
+          color : '#2F91E7',
+          type: 'Feature',
+          content: '공지 사항 팝업 추가'
         },
         {
           color : '#F4AA33',
@@ -76,6 +76,64 @@ function NoticePopup(props) {
           content: '리프레쉬 토큰 적용'
         },
       ]
+    },
+    {
+      date: '2023.06.24',
+      noticeTitle: '사용자 편의성 개선',
+      noticeContents: [
+        {
+          color : '#2F91E7',
+          type: 'Feature',
+          content: '마이페이지 - 튜토리얼'
+        },
+        {
+          color : '#2F91E7',
+          type: 'Feature',
+          content: '모각코 - 코드에디터 기능'
+        },
+      ]
+    },
+    {
+      date: '2023.06.25',
+      noticeTitle: '사용자 편의성 개선 및 신규기능',
+      noticeContents: [
+        {
+          color : '#F4AA33',
+          type: 'Change',
+          content: '쪽지 삭제 기능 추가'
+        },
+        {
+          color : '#2F91E7',
+          type: 'Feature',
+          content: '모각코 - 유저 신고 기능 신규'
+        },
+        {
+          color : '#2F91E7',
+          type: 'Feature',
+          content: '모각코 - 친구 추가 기능 신규'
+        },
+        {
+          color : '#2F91E7',
+          type: 'Feature',
+          content: '관리자 기능 추가'
+        },
+      ]
+    },
+    {
+      date: '2023.06.27',
+      noticeTitle: '사용자 편의성 개선',
+      noticeContents: [
+        {
+          color : '#6DD35E',
+          type: 'Fix',
+          content: '화면 공유 기능 안정성 강화'
+        },
+        {
+          color : '#F4AA33',
+          type: 'Change',
+          content: '디자인 개선 및 수정'
+        },
+      ]
     }
   ]
 
@@ -91,9 +149,9 @@ function NoticePopup(props) {
           <h1>모각코 ONː팀이 전하는 안내사항</h1>
           <h2>
             안녕하세요. <b>모각코 ONː</b>을 이용해주시는 여러분들.<br />
-            <b>모각코 ONː</b>은 위치기반 서비스 입니다. 12KM 내의 유저들과 함께 이용할 수 있습니다.<br/>
-            테스트 기간 동안은 본인이 접속한 동네와 상관없이 <b>모각코 ONː</b>을 이용하실 수 있습니다.<br />
-            더 나은 <b>모각코 ONː</b>이 되도록 노력하겠습니다.
+            여러분의 피드백이 반영되어 다양한 기능들이 추가 되었습니다! <br/>
+            여러분 덕분에 조금씩 더 멋진 <b>모각코 ONː</b>이 되어가고 있는 것 같습니다. <br/>
+            추가 기능들은 아래에서 확인 하실 수 있습니다. 앞으로도 더 나은 <b>모각코 ONː</b>이 되도록 노력하겠습니다.<br/>
           </h2>
 
           <h1>여러분의 피드백이 이렇게 반영됐어요!</h1>
