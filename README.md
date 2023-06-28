@@ -33,20 +33,19 @@
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/ca3eb39b-846b-49e0-9654-96c6f52b0fd1' width='800px'>
 </details>
 
-
 <details>
 <summary>간단한 코드를 작성하고 싶다면? 모각코 룸 내에서 코드에디터 제공</summary>
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/d587bd5c-8a87-4462-a28f-528f308c83dc' width='800px'>
 </details>
 
 <details>
-<summary>모각코 룸에서 만났는데 헤어지기 아쉽다면, 친구 신청! 혹은 이런 불량한 유저라니!! 신고 기능</summary>
+<summary>모각코 룸에서 만났는데 불량유저라면? 신고기능 혹은 헤어지기 아쉽다면, 친구 신청 </summary>
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/e00d340d-727e-4337-8bf0-7c4220ef95a1' width='800px'>
 </details>
 
 <details>
 <summary>내 위치를 기반으로 근처에 있는 개발자들과 모임 가능!</summary>
-이미지 넣기
+현재 접속 위치 기반 12km내의 생성된 모각코에 참여 가능합니다!
 </details>
 
 <details>
