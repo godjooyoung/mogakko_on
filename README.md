@@ -50,12 +50,17 @@
 
 <details>
 <summary>친구와 쪽지를 주고 받으며 함께 모각코 인연을 이어갈 수 있도록 지원</summary>
-이미지 넣기
+<img src='https://github.com/godjooyoung/final_fe/assets/58963027/1a9279d5-c294-4ff2-a168-f15b5fa666ba' width='800px'/>
 </details>
 
 <details>
 <summary>내가 얼마나 공부했더라? 마이 페이지에서 볼 수 있는 나의 통계 데이터</summary>
-이미지 넣기
+<img src='https://github.com/godjooyoung/final_fe/assets/58963027/186ba5e0-9a4e-4a91-831f-09caafe535d2' width='800px'>
+</details>
+
+<details>
+<summary>모각코룸에서 만나지 않았던 유저라도 닉네임이나 친구코드로 친구신청을 할 수 있어요!</summary>
+<img src='https://github.com/godjooyoung/final_fe/assets/58963027/c6529fe6-ccc8-4be2-b5bb-639d7c260b72' width='800px'>
 </details>
 
 <details>
@@ -65,7 +70,7 @@
 
 <details>
 <summary>코딩 온도(ON°) 시스템으로 모각코에 성실히 참여한 사람인지 판단할 수 있도록 지표 제공</summary>
-이미지 넣기
+다른 유저의 코딩 온도(ON°)를 확인하여 얼마나 성실히 모각코를 수행한 사람인지 판단할 수 있어요!
 </details>
 
 
