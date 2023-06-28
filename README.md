@@ -26,29 +26,50 @@
 [모각코 ON:]이 탄생하였습니다.
 <br>
 
-![베유](https://github.com/godjooyoung/final_fe/assets/58963027/e0642da8-1578-44a3-8d5f-22a34642c30b)
-![__실시간채팅](https://github.com/godjooyoung/final_fe/assets/58963027/ca3eb39b-846b-49e0-9654-96c6f52b0fd1)
-![1](https://github.com/godjooyoung/final_fe/assets/58963027/0fa9b668-891f-42c8-9e4c-f94ad861a58c)
-![__코드에디터영상](https://github.com/godjooyoung/final_fe/assets/58963027/d587bd5c-8a87-4462-a28f-528f308c83dc)
-![__친구신고](https://github.com/godjooyoung/final_fe/assets/58963027/e00d340d-727e-4337-8bf0-7c4220ef95a1)
-
 <h3>🌱 주요 기능</h3>
-<ul>
-  <li>화상 채팅 + 음성 채팅 + 일반 채팅 + 화면공유가 가능한 모각코 룸</li>
-  <li>![__실시간채팅](https://github.com/godjooyoung/final_fe/assets/58963027/ca3eb39b-846b-49e0-9654-96c6f52b0fd1)</li>
-  <li>내 위치를 기반으로 근처에 있는 개발자들과 모임 가능!</li>
-</li>
-  <li>모각코 룸에서 만났는데 헤어지기 아쉽다면, 친구 신청 가능
-</li>
-  <li>친구와 쪽지를 주고 받으며 함께 모각코 인연을 이어갈 수 있도록 지원
-</li>
-  <li>내가 얼마나 공부했더라? 마이 페이지에서 볼 수 있는 나의 통계 데이터
-</li>
-  <li>다른 사람은 얼마나 하나? 오늘의 Best 유저 조회 기능
-</li>
-  <li>코딩 온도(ON°) 시스템으로 모각코에 성실히 참여한 사람인지 판단할 수 있도록 지표 제공
-</li>
-</ul>
+
+<details>
+<summary>화상 채팅 + 음성 채팅 + 일반 채팅 + 화면공유가 가능한 모각코 룸</summary>
+<img src='https://github.com/godjooyoung/final_fe/assets/58963027/ca3eb39b-846b-49e0-9654-96c6f52b0fd1' width='800px'>
+</details>
+
+
+<details>
+<summary>간단한 코드를 작성하고 싶다면? 모각코 룸 내에서 코드에디터 제공</summary>
+<img src='https://github.com/godjooyoung/final_fe/assets/58963027/d587bd5c-8a87-4462-a28f-528f308c83dc' width='800px'>
+</details>
+
+<details>
+<summary>모각코 룸에서 만났는데 헤어지기 아쉽다면, 친구 신청! 혹은 이런 불량한 유저라니!! 신고 기능</summary>
+<img src='https://github.com/godjooyoung/final_fe/assets/58963027/e00d340d-727e-4337-8bf0-7c4220ef95a1' width='800px'>
+</details>
+
+<details>
+<summary>내 위치를 기반으로 근처에 있는 개발자들과 모임 가능!</summary>
+이미지 넣기
+</details>
+
+<details>
+<summary>친구와 쪽지를 주고 받으며 함께 모각코 인연을 이어갈 수 있도록 지원</summary>
+이미지 넣기
+</details>
+
+<details>
+<summary>내가 얼마나 공부했더라? 마이 페이지에서 볼 수 있는 나의 통계 데이터</summary>
+이미지 넣기
+</details>
+
+<details>
+<summary>다른 사람은 얼마나 하나? 오늘의 Best 유저 조회 기능</summary>
+<img src='https://github.com/godjooyoung/final_fe/assets/58963027/e0642da8-1578-44a3-8d5f-22a34642c30b' width='800px'>
+</details>
+
+<details>
+<summary>코딩 온도(ON°) 시스템으로 모각코에 성실히 참여한 사람인지 판단할 수 있도록 지표 제공</summary>
+이미지 넣기
+</details>
+
+
 <br>
 <br>
 
