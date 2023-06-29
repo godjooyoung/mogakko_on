@@ -1,4 +1,4 @@
-# 😉MOGAKKO ON:
+![header](https://capsule-render.vercel.app/api?type=cylinder&color=00EFFF&text=MOGAKKO_ON:&fontAlignY=50&fontSize=50&height=150&animation=fadeIn)
 > 항해99 14기 실전 프로젝트 <br>
 > BE : 신동현 박다솜 변희준 정종현 / FE : 신주영 신희제 조현정 <br>
 > DE : 임현서
@@ -10,7 +10,7 @@
 </div>
 
 
-![header](https://capsule-render.vercel.app/api?type=cylinder&color=00EFFF&text=MOGAKKO_ON:&fontAlignY=45&fontSize=40&height=150&animation=blinking)
+
 
 ## ⌚프로젝트 기간
 2023-05-19 ~ 2023-06-29 <br>
