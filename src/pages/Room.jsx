@@ -420,7 +420,7 @@ function Room() {
         audioSource: undefined,
         publishAudio: audioEnabled,
         publishVideo: videoEnabled,
-        frameRate: 30,
+        frameRate: 24,
         insertMode: 'APPEND',
       });
       // 퍼블리셔를 세션에 게시
@@ -448,7 +448,7 @@ function Room() {
         audioSource: undefined,
         publishAudio: audioEnabled,
         publishVideo: videoEnabled,
-        frameRate: 30,
+        frameRate: 24,
         insertMode: 'APPEND',
       })
       
@@ -540,7 +540,7 @@ function Room() {
             videoSource: undefined,
             publishAudio: audioEnabled,
             publishVideo: videoEnabled,
-            frameRate: 30,
+            frameRate: 24,
             insertMode: 'APPEND',
             mirror: false,
           })
