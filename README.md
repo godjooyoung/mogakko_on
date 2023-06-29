@@ -1,7 +1,7 @@
 
 <div align=center>
 
-![header](https://capsule-render.vercel.app/api?type=cylinder&color=00EFFF&text=MOGAKKO_ON:&fontAlignY=50&fontSize=50&height=150&animation=blinking)
+![header](https://capsule-render.vercel.app/api?type=cylinder&color=00EFFF&text=MOGAKKO%20ON:&fontAlignY=50&fontSize=50&height=150&animation=blink)
 
 </div>
 
@@ -405,11 +405,7 @@
 </details>
 <br>
 
-## 👧🏻 유저 피드백
-<details>
-<summary>유저 피드백 반영 사항</summary>
-<div markdown="1">
-
+## 👧🏻 유저 피드백 반영 사항
 - [x] 쪽지 기능 강화 (삭제 추가)
 - [x] 유저 신고 기능
 - [x] 친구 추가 강화 (채팅, 유저검색 추가)
@@ -426,9 +422,6 @@
 - [ ] 디자인 라이트모드
 - [ ] 반응형 웹
 
- 
-</div>
-</details>
 <br>
 
 
