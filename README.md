@@ -141,10 +141,10 @@
  <li>
  <table width='800px'>
   <tr>
-    <th colspan="2">하나의 인스턴스에 api서버와 openvidu 서버를 동시에 올리면 두 서버간 연결이 안되고, 포트가 충돌하는 문제가 발생함.</th>
+    <th colspan="2" align="center" height="50">하나의 인스턴스에 api서버와 openvidu 서버를 동시에 올리면 두 서버간 연결이 안되고, 포트가 충돌하는 문제가 발생함.</th>
   </tr>
   <tr>
-    <th>원인</th>
+<th width="70">원인</th>
     <td>보안상의 이유로 https로 배포하려고 했는데, openvidu 서버 자체적으로 nginx를 사용하고 있어서 https 포트가 충돌하는 것이 원인이었음.</td>
   </tr>
   <tr>
@@ -162,10 +162,10 @@
  <li>
  <table width='800px'>
   <tr>
-    <th colspan="2">SSE 기능이 구독을 하고 connection pool을 계속 차지하고 있어 panding 이 발생하고 db에 deadLock이 걸리는 문제</th>
+    <th colspan="2" align="center" height="50">SSE 기능이 구독을 하고 connection pool을 계속 차지하고 있어 panding 이 발생하고 db에 deadLock이 걸리는 문제</th>
   </tr>
   <tr>
-    <th>원인</th>
+<th width="70">원인</th>
     <td>sseEmitter가 구독을 끊어도 계속 connection pool을 차지하고 있어서 발생하는 문제였음.</td>
   </tr>
   <tr>
@@ -184,12 +184,12 @@
  <li>
  <table width='800px'>
   <tr>
-    <th colspan="2">
+    <th colspan="2" align="center" height="50">
     랜덤 CORS - 클라이언트에서 요청이 서버로 갔을 때 cors가 랜덤으로 발생하는 현상이 나옴, cors가 발생해도 요청이 성공하는 경우도 발생함.
     </th>
   </tr>
   <tr>
-    <th>원인</th>
+<th width="70">원인</th>
     <td>nginx 설정에서도 cors설정을 하고, api서버에서도 cors 설정을 해서 이중으로 cors설정을 해버려서 발생한 문제.</td>
   </tr>
   <tr>
@@ -210,10 +210,10 @@
  <li>
  <table width='800px'>
   <tr>
-    <th colspan="2">채팅방에 입장 후 화면 공유 시 접속한 사람은 스크린으로 공유 되는 것으로 보이나 다른 유저들에겐 공유가 되지 않는 문제</th>
+    <th colspan="2" align="center" height="50">채팅방에 입장 후 화면 공유 시 접속한 사람은 스크린으로 공유 되는 것으로 보이나 다른 유저들에겐 공유가 되지 않는 문제</th>
   </tr>
   <tr>
-    <th>원인</th>
+<th width="70">원인</th>
     <td>스크린 publish는 잘 생성되나, 접속한 다른 사람들에게 모두 공유되는 subscribers 배열의 내부 publish는 기존 publish를 가지고 있고 업데이트를 하지 않았기 때문에 발생한 문제.</td>
   </tr>
   <tr>
@@ -231,10 +231,10 @@
  <li>
  <table width='800px'>
   <tr>
-    <th colspan="2">신규 실시간 알림 표시가 랜더링되고 유저가 확인하면 사라지지만, 컴포넌트가 재랜더링 되면 다시 신규 실시간 알림 표시가 나타나는 문제.</th>
+    <th colspan="2" align="center" height="50">신규 실시간 알림 표시가 랜더링되고 유저가 확인하면 사라지지만, 컴포넌트가 재랜더링 되면 다시 신규 실시간 알림 표시가 나타나는 문제.</th>
   </tr>
   <tr>
-    <th>원인</th>
+<th width="70">원인</th>
     <td>유저가 접속해서 서비스를 사용하는 동안 신규 알림이 발생할때마다 전역 상태의 배열에 추가해서 관리하고 있음. 컴포넌트 내부 상태값으로 알람 건수를 가지고 있는데 전역 상태에 있는 알림 건수를 초기값으로 세팅해주고 있었기 때문에 유저가 알람을 확인해서 내부 알람 건수 상태값을 0으로 초기화 하더라도 컴폰너트가 재 랜더링 되면 다시 내부 상태값을 전역에서 읽어오기 때문에 신규 알람이 발생한것 처럼 알람 표시가 나타남.</td>
   </tr>
   <tr>
@@ -250,10 +250,10 @@
  <li>
  <table width='800px'>
   <tr>
-    <th colspan="2">채팅 메세지를 보낼 경우 방을 생성한 방장이 보낸 메세지는 정상적으로 보여지나, 기존에 생성된 방에 입장한 게스트가 보낸 메세지는 두번씩 보이는 문제.</th>
+    <th colspan="2" align="center" height="50">채팅 메세지를 보낼 경우 방을 생성한 방장이 보낸 메세지는 정상적으로 보여지나, 기존에 생성된 방에 입장한 게스트가 보낸 메세지는 두번씩 보이는 문제.</th>
   </tr>
   <tr>
-    <th>원인</th>
+<th width="70">원인</th>
     <td>게스트로 입장한 사람은 실시간 채팅 구독이 두번씩 되는 것이 원인이었음.</td>
   </tr>
   <tr>
@@ -280,10 +280,10 @@
  <li>
  <table width='800px'>
   <tr>
-    <th colspan="2">SSE 실시간 알림 기능을 구현하기 위해 EventSource를 사용해서 구독 요청을 보냈지만 구독이 되지 않는 문제</th>
+    <th colspan="2" align="center" height="50">SSE 실시간 알림 기능을 구현하기 위해 EventSource를 사용해서 구독 요청을 보냈지만 구독이 되지 않는 문제</th>
   </tr>
   <tr>
-    <th>원인</th>
+<th width="70">원인</th>
     <td>구독하기 위해 토큰값을 서버에 함께 넘겨주어야 하는데 토큰이 제대로 넘어가지 않고 있었다.</td>
   </tr>
   <tr>
@@ -304,10 +304,10 @@
  <li>
  <table width='800px'>
   <tr>
-    <th colspan="2">채팅방에 입장한 뒤 화면을 공유하거나, 다시 카메라를 공유하는등 publicsher를 변경하면 간혹 공유가 아예 안되고 에러가 발생하는 문제가 발생함.</th>
+    <th colspan="2" align="center" height="50">채팅방에 입장한 뒤 화면을 공유하거나, 다시 카메라를 공유하는등 publicsher를 변경하면 간혹 공유가 아예 안되고 에러가 발생하는 문제가 발생함.</th>
   </tr>
   <tr>
-    <th>원인</th>
+    <th width="70">원인</th>
     <td>작은 화면으로 사용자들에게 다른 유저의 화면을 공유하는 컴포넌트에 props로 변경된 화면을 내려주고 표시해주는데 이때 내려받은 프롭스를 찾을수 없어서 생기는 문제.</td>
   </tr>
   <tr>
