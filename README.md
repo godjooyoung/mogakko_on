@@ -136,6 +136,75 @@
 <br>
 
 ## ⚠️ Trouble Shooting
+<h4>BACKEND</h4>
+ <ul>
+ <li>
+ <table width='800px'>
+  <tr>
+    <th colspan="2">하나의 인스턴스에 api서버와 openvidu 서버를 동시에 올리면 두 서버간 연결이 안되고, 포트가 충돌하는 문제가 발생함.</th>
+  </tr>
+  <tr>
+    <th>원인</th>
+    <td>보안상의 이유로 https로 배포하려고 했는데, openvidu 서버 자체적으로 nginx를 사용하고 있어서 https 포트가 충돌하는 것이 원인이었음.</td>
+  </tr>
+  <tr>
+    <th>시도</th>
+    <td>openvidu와 api서버를 각각의 다른 인스턴스로 올려서 시도해봄.</td>
+  </tr>
+  <tr>
+    <th>해결</th>
+    <td>openvidu와 api서버가 각각 다른 도메인을 갖게 되어서 포트가 겹쳐도 문제가 발생하지 않았음.</td>
+  </tr>
+</table>
+</li>
+
+
+ <li>
+ <table width='800px'>
+  <tr>
+    <th colspan="2">SSE 기능이 구독을 하고 connection pool을 계속 차지하고 있어 panding 이 발생하고 db에 deadLock이 걸리는 문제</th>
+  </tr>
+  <tr>
+    <th>원인</th>
+    <td>sseEmitter가 구독을 끊어도 계속 connection pool을 차지하고 있어서 발생하는 문제였음.</td>
+  </tr>
+  <tr>
+    <th>시도</th>
+    <td>db사양이 낮아서 발생하는 문제인가 싶어서 db 사양을 높여봄, 해결되지 않았음. nginx 설정 문제인가 싶어서 이벤트 스트림 설정을 넣어서 sse가 http1.1 버젼을 사용하게끔 설정함. 되는가 싶었지만 시간이 지난 후 같은 문제가 발생함. 이후
+발생한 알림들을 서버 메모리에 저장하는 것이 문제인가 싶어 다른 noSQL을 이용.</td>
+  </tr>
+  <tr>
+    <th>해결</th>
+    <td> sseEmitter가 구독을 끊어도 계속 connection pool을 차지하고 있어서 발생하는 문제라는 것을 발견하고, 요청이 끝나면 영속성 컨텍스트를 닫아버리게 openInView설정을 꺼서 임시적으로 해결함, 하지만, 매번 db에 직접 commit을 해야하는 문제가 생김. 추후 webFlux를 이용해서 sse기능을 사용할 때 스레드가 아닌 이벤트 루프를 사용해서 해결을 시도해 보았지만, 시간적인 이유로 배포 서버에 붙여보지는 못함. </td>
+  </tr>
+</table>
+</li>
+
+
+ <li>
+ <table width='800px'>
+  <tr>
+    <th colspan="2">
+    랜덤 CORS - 클라이언트에서 요청이 서버로 갔을 때 cors가 랜덤으로 발생하는 현상이 나옴, cors가 발생해도 요청이 성공하는 경우도 발생함.
+    </th>
+  </tr>
+  <tr>
+    <th>원인</th>
+    <td>nginx 설정에서도 cors설정을 하고, api서버에서도 cors 설정을 해서 이중으로 cors설정을 해버려서 발생한 문제.</td>
+  </tr>
+  <tr>
+    <th>시도</th>
+    <td>처음으로 cors가 발생했을 때 openvidu서버에 연결되는 요청에서만 cors가 발생해서 다른 서버의 리소스를 가져오는 것이 문제인가 싶어서 openvidu가 올라가있는 인스턴스에서 nginx와 openvidu .env 파일 등에서 cors 설정을 해줌, 하지만 아무리 생각해도 클라이언트에서 openvidu 서버로 직접적인 요청을 하지 않는 상황에서 cors가 발생한다는 것이 이해가 되지 않았음. 물론 해결되지 않았고, 더 찾아보다가 nginx와 api 서버간의 cors 설정은 최소화되어야 한다는 것을 알게 되었고, nginx의 cors 설정을 꺼서 해결됨.</td>
+  </tr>
+  <tr>
+    <th>해결</th>
+    <td>nginx의 cors설정과 api서버의 cors설정이 충돌해서 랜덤으로 발생했던 것으로 추정됨. nginx의 cors 설정을 꺼서 해결함.</td>
+  </tr>
+</table>
+</li>
+
+</ul>
+
  <h4>FRONTEND</h4>
  <ul>
  <li>
