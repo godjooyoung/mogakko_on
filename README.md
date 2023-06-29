@@ -166,7 +166,29 @@
 <details>
 <summary>BACKEND</summary>
 <div markdown="1">
-내용
+
+- [ ] Mercury
+- [x] Venus
+
+ 
+</div>
+</details>
+<details>
+<summary>FRONTEND</summary>
+<div markdown="1">
+
+- [x] 쪽지 기능 강화 (삭제 추가)
+- [x] 유저 신고 기능
+- [x] 친구 추가 강화 (채팅, 유저검색 추가)
+- [x] 관리자 기능
+- [x] 튜토리얼
+- [x] 리프레쉬 토큰
+- [x] 메인 검색 속도 개선
+- [x] 화면 공유 기능 안정성 강화
+- [ ] 디자인 라이트모드
+- [ ] 반응형 웹
+
+ 
 </div>
 </details>
 <br>
