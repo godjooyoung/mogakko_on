@@ -22,7 +22,7 @@
 <br>
 ## 👀 프로젝트 소개
 <div>
-  <table>
+  <table style="border:none">
     <tr>
       <td>
         <img width="500" alt="main" src="https://github.com/hh99-14-Team3/BE_final/assets/102853354/18121c2a-63b0-4e7d-b763-b4a53b73f651"/>
