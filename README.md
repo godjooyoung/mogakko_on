@@ -9,6 +9,9 @@
 <img width="500" alt="main" src="https://github.com/hh99-14-Team3/BE_final/assets/102853354/18121c2a-63b0-4e7d-b763-b4a53b73f651">
 </div>
 
+
+![header](https://capsule-render.vercel.app/api?type=cylinder&color=00EFFF&text=MOGAKKO_ON:&fontAlignY=45&fontSize=40&height=150&animation=blinking)
+
 ## ⌚프로젝트 기간
 2023-05-19 ~ 2023-06-29 <br>
 1차 릴리즈 : 6.17
@@ -30,6 +33,7 @@
 
 <details>
 <summary>화상 채팅 + 음성 채팅 + 일반 채팅 + 화면공유가 가능한 모각코 룸</summary>
+
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/ca3eb39b-846b-49e0-9654-96c6f52b0fd1' width='800px'>
 </details>
 
