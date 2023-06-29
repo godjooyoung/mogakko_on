@@ -53,37 +53,62 @@
 
 <details>
 <summary>모각코 룸에서 만났는데 불량유저라면? 신고기능 혹은 헤어지기 아쉽다면, 친구 신청 </summary>
+<br/>
+<div align=center>
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/e00d340d-727e-4337-8bf0-7c4220ef95a1' width='800px'>
+</div>
 </details>
 
 <details>
-<summary>내 위치를 기반으로 근처에 있는 개발자들과 모임 가능!</summary>
+<summary>내 <b>위치를 기반</b>으로 근처에 있는 개발자들과 모임 가능!</summary>
+<br/>
+<div align=left>
 현재 접속 위치 기반 12km내의 생성된 모각코에 참여 가능합니다!
-</details>
-
-<details>
-<summary>친구와 쪽지를 주고 받으며 함께 모각코 인연을 이어갈 수 있도록 지원</summary>
-<img src='https://github.com/godjooyoung/final_fe/assets/58963027/1a9279d5-c294-4ff2-a168-f15b5fa666ba' width='800px'/>
+</div>
 </details>
 
 <details>
 <summary>내가 얼마나 공부했더라? 마이 페이지에서 볼 수 있는 나의 통계 데이터</summary>
+<br/>
+<div align=center>
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/186ba5e0-9a4e-4a91-831f-09caafe535d2' width='800px'>
+</div>
 </details>
 
 <details>
-<summary>모각코룸에서 만나지 않았던 유저라도 닉네임이나 친구코드로 친구신청을 할 수 있어요!</summary>
+<summary>친구와 <b>쪽지</b>를 주고 받으며 함께 모각코 인연을 이어갈 수 있도록 지원</summary>
+<br/>
+<div align=center>
+<img src='https://github.com/godjooyoung/final_fe/assets/58963027/1a9279d5-c294-4ff2-a168-f15b5fa666ba' width='800px'/>
+</div>
+</details>
+
+<details>
+<summary>모각코룸에서 만나지 않았던 유저라도 <b>닉네임이나 친구코드로 친구신청</b>을 할 수 있어요!</summary>
+<br/>
+<div align=center>
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/c6529fe6-ccc8-4be2-b5bb-639d7c260b72' width='800px'>
+</div>
 </details>
 
 <details>
 <summary>다른 사람은 얼마나 하나? 오늘의 Best 유저 조회 기능</summary>
+<br/>
+최근 일주일 공부시간과 코딩온도(ON°)로 베스트 유저 8인을 보여줘요! 모각코온 베스트유저에 도전하세요.
+<br/>
+  <br/>
+<div align=center>
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/e0642da8-1578-44a3-8d5f-22a34642c30b' width='800px'>
+</div>
 </details>
 
 <details>
-<summary>코딩 온도(ON°) 시스템으로 모각코에 성실히 참여한 사람인지 판단할 수 있도록 지표 제공</summary>
+<summary><b>코딩 온도(ON°)</b> 시스템으로 모각코에 성실히 참여한 사람인지 판단할 수 있도록 지표 제공</summary>
+<br/>
+<div align=left>
 다른 유저의 코딩 온도(ON°)를 확인하여 얼마나 성실히 모각코를 수행한 사람인지 판단할 수 있어요!
+</div>
+
 </details>
 
 
