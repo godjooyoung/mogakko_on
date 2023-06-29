@@ -1,15 +1,19 @@
+<div align=center>
+
 ![header](https://capsule-render.vercel.app/api?type=cylinder&color=00EFFF&text=MOGAKKO_ON:&fontAlignY=50&fontSize=50&height=150&animation=fadeIn)
+
+</div>
+
 > 항해99 14기 실전 프로젝트 <br>
 > BE : 신동현 박다솜 변희준 정종현 / FE : 신주영 신희제 조현정 <br>
 > DE : 임현서
 
-<br>
-<br>
+<br/>
 <div align=center>
+  
+![브로셔](https://github.com/godjooyoung/final_fe/assets/58963027/2f6133d2-0bc7-452b-9fe6-90b5f2d2bc33)
 <img width="500" alt="main" src="https://github.com/hh99-14-Team3/BE_final/assets/102853354/18121c2a-63b0-4e7d-b763-b4a53b73f651">
 </div>
-
-
 
 
 ## ⌚프로젝트 기간
@@ -32,14 +36,19 @@
 <h3>🌱 주요 기능</h3>
 
 <details>
-<summary>화상 채팅 + 음성 채팅 + 일반 채팅 + 화면공유가 가능한 모각코 룸</summary>
-
+<summary>화상 채팅 + 음성 채팅 + 일반 채팅 + 화면공유가 가능한 <b>모각코 룸</b></summary>
+<br/>
+<div align=center>
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/ca3eb39b-846b-49e0-9654-96c6f52b0fd1' width='800px'>
+</div>
 </details>
 
 <details>
-<summary>간단한 코드를 작성하고 싶다면? 모각코 룸 내에서 코드에디터 제공</summary>
+<summary>간단한 코드를 작성하고 싶다면? 모각코 룸 내에서 <b>코드에디터</b> 제공</summary>
+<br/>
+<div align=center>
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/d587bd5c-8a87-4462-a28f-528f308c83dc' width='800px'>
+</div>
 </details>
 
 <details>
