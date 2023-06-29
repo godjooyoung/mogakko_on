@@ -145,13 +145,20 @@
 <br>
 
 ## 🔎 기술적 도전
-<details>
-<summary>BACKEND</summary>
-<div markdown="1">
-내용
-</div>
-</details>
-<br>
+#### BACKEND
+1. webRTC - OpenVidu
+2. 실시간 프로토콜 - 웹소캣, SSE
+3. 코드 최적화 - redux-thunk
+4. 웹사이트 최적화 - Lighthouse
+5. 상태 관리 라이브러리 - redux toolki
+
+
+#### FRONTEND
+1. webRTC - OpenVidu
+2. 실시간 프로토콜 - 웹소캣, SSE
+3. 코드 최적화 - redux-thunk
+4. 웹사이트 최적화 - Lighthouse
+5. 상태 관리 라이브러리 - redux toolki
 
 ## ⛳ 기술적 의사결정
 <details>
