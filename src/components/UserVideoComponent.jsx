@@ -192,7 +192,6 @@ export const UserNickName = styled.span`
     position: absolute;
     left: 0;
     bottom: 4px;
-    bottom : 0px;
     background: rgba(0, 0, 0, 0.59);
     border-bottom-left-radius: 10px;
     border-top-right-radius: 10px;
