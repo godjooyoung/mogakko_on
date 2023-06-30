@@ -41,7 +41,7 @@ function UserVideoComponent(props) {
     }, [props.streamManager.stream.audioActive]);
 
     return (
-        <div>
+        <VideoWrap>
             {props.streamManager !== undefined ? (
                 <VideoComponentWrap className="streamcomponent">
                     {/* 더보기 버튼 */}
@@ -88,13 +88,18 @@ function UserVideoComponent(props) {
                         {getNicknameTag()} {!userAudio && <img src={`${process.env.PUBLIC_URL}/image/userMicOff.webp`} alt="마이크 음소거 아이콘" />}
                     </UserNickName>
                 </VideoComponentWrap>
-            ) : <div>스트림메니저가 언디파인트일때 이 디브가 나올것이다.</div>}
-        </div>
+            ) : <div></div>}
+        </VideoWrap>
     );
 }
 
 export const AbsoluteWrap = styled.div`
     position: absolute;
+`
+export const VideoWrap = styled.div`
+background-color: #626873;
+height: calc(100% - 10px);
+border-radius: 10px;
 `
 
 export const VideoComponentWrap = styled.div`
@@ -186,7 +191,8 @@ export const UserNickName = styled.span`
     font-size: 12px;
     position: absolute;
     left: 0;
-    bottom: 4px;
+    /* bottom: 4px; */
+    bottom : 0px;
     background: rgba(0, 0, 0, 0.59);
     border-bottom-left-radius: 10px;
     border-top-right-radius: 10px;
