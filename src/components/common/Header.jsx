@@ -221,6 +221,7 @@ function Header(props) {
             removeCookie('refreshToken')
             removeCookie('nickName')
             removeCookie('userProfile')
+            removeCookie('admin')
             sessionStorage.removeItem('isSubscribed')
             dispatcher(__alarmClean())
             if (eventSourceRef.current) {

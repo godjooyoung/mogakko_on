@@ -38,8 +38,7 @@ function Room() {
 
   const [sessionConnect, setSessionConnect] = useState(false)
 
-  // const [isOpened, setIsOpened] = useState(sessionInfo.isOpened)   // isOpen 
-  const [isOpened, setIsOpened] = useState(true)   // isOpen 
+  const [isOpened, setIsOpened] = useState(true)   // isOpen 공개방 여부
   const [openViduSession, setOpenViduSession] = useState(undefined)
 
   //비디오, 오디오 on/off 상태
@@ -255,6 +254,7 @@ function Room() {
     setCurMaxMembers(e)
   }
 
+  // 비공개방 - 비밀번호, 비밀번호 확인
   const [closedPassword, onChangeClosedPassword, closedPasswordReset] = useInput('')
   const [PasswordCheck, onChangePasswordCheck, passwordCheckReset] = useInput('')
 
@@ -312,32 +312,31 @@ function Room() {
     mySession.on('streamCreated', (event) => {
       const subscriber = mySession.subscribe(event.stream, undefined);
       setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber])
-    });
+    })
 
     mySession.on('streamPropertyChanged', (event) => {
       setIsChangedProperty((prevIsChangedProperty) => (!prevIsChangedProperty))
     })
 
     mySession.on('streamDestroyed', (event) => {
-      deleteSubscriber(event.stream.streamManager);
-    });
+      deleteSubscriber(event.stream.streamManager)
+    })
 
     mySession.on('exception', (exception) => {
       // console.warn(exception);
-    });
-    
-    console.log('대성당 세션 만드어지기전?')
+    })
+    console.log("*️⃣ [tracking] 조인 세션에서 상태값 세션 세팅")
     setSession(()=>(mySession))
-    console.log('대성당 세션 만드어진후')
   };
 
   const [isFisrstSubscribe, setIsFisrstSubscribe] = useState(false)
   const [isGuest, setIsGuest] = useState(false)
+
   useEffect(() => {
-    if (!isGuest || openViduSession) { // !false || undifind
-      if (!isFisrstSubscribe) { // !false => true
+    if (!isGuest || openViduSession) { 
+      if (!isFisrstSubscribe) { 
         if (openViduSession) {
-          connect(openViduSession) // isFisrstSubscribe = false
+          connect(openViduSession)
         } else {
           connect(mySessionId)
           setIsGuest(true)
@@ -374,7 +373,7 @@ function Room() {
       }
     }
   }
-  const LowerLanguage = data.language.toLowerCase()
+
   // 값이 입력될때마다 입력된 state들을 세팅
   useEffect(() => {
     onClickTempButton()
@@ -387,12 +386,8 @@ function Room() {
   }, [data])
 
   useEffect(() => {
-    console.log('대성당 >> 11')
-    // const updateSubscribers = [...subscribers]
     setSubscribers((prevSubscribers) => [...prevSubscribers])
-
   }, [publisher, audioEnabled, isChangedProperty, session])
-
 
 
   // 목록에서 방으로 바로 접근 할경우 실행되는 useEffect
@@ -457,36 +452,44 @@ function Room() {
         insertMode: 'APPEND',
       })
       
-      console.log("0 대성당 언퍼블리쉬전", originPublish, session)
+      console.log("1️⃣ [tracking] originPublish ", originPublish)
+      console.log("1️⃣ [tracking] session ", session)
+
       if(session.streamManagers.length>0){
-        console.log("0 대성당 스트림 매니저가 잘 잇어서 언퍼블리시가 잘 될것이다.")
+        console.log("2️⃣ [tracking] 끼래기 ", session.streamManagers.length)
+        console.log("2️⃣ [tracking] 세션에 스트림매니저 존재")
         await session.unpublish(originPublish)
       }else{
-        console.log("0 대성당 스트림 매니저가 잘 잇어서 언퍼블리시가잘 안될거 같아서 세션을 다시 세팅해준다...이게 될 것인가..")
+        console.log("2️⃣ [tracking] 끼래기 ", 0)
+        console.log("2️⃣ [tracking] 세션에 스트림매니저 없음")
         setSession(()=>(originPublish.session))
+        console.log("2️⃣ [tracking] 세션을 재 세팅")
         await session.unpublish(originPublish)
       }
+      console.log("3️⃣ [tracking] 오리진 퍼블리시 언퍼블리시 완료")
+
+      console.log("3️⃣ [tracking] 전체 서브스크라이브 업데이트 시도")
+      setSubscribers(prevSubscribers => {
+        console.log("3️⃣ [tracking] 전체 서브스크라이브 업데이트 중.")
+        const newSubscribers = [...prevSubscribers]
+        console.log("3️⃣ [tracking] 전체 서브스크라이브 업데이트 중..")
+        return newSubscribers
+      })
+      console.log("3️⃣ [tracking] 전체 서브스크라이브 업데이트 완료")
       
-      console.log("1 대성당 언퍼블리쉬됨")
-      // setSubscribers((prevSubscribers) => [...subscribers])
-      console.log("2 대성당 서브스크라이브 업데이트전")
-      setSubscribers(prevSubscribers => {
-        console.log("2 대성당 서브스크라이브 업데이트중")
-        const newSubscribers = [...prevSubscribers]
-        return newSubscribers
-      })
-      console.log("2 대성당 서브스크라이브 업데이트완료")
-      console.log("3 대성당 퍼블리시 전")
+      console.log("4️⃣ [tracking] 세션에 화면공유 퍼블리셔 붙이기 전")
       await session.publish(screenSharingPublisher)
-      console.log("3 대성당 퍼블리시 후")
-      // setSubscribers((prevSubscribers) => [...subscribers])
+      console.log("4️⃣ [tracking] 세션에 화면공유 퍼블리셔 붙이기 완료")
+
       console.log("4 대성당 서브스크라이브 업데이트전")
+      console.log("5️⃣ [tracking] 전체 서브스크라이브 업데이트 시도")
       setSubscribers(prevSubscribers => {
-        console.log("4 대성당 서브스크라이브 업데이트중")
+        console.log("5️⃣ [tracking] 전체 서브스크라이브 업데이트 중.")
         const newSubscribers = [...prevSubscribers]
+        console.log("5️⃣ [tracking] 전체 서브스크라이브 업데이트 중..")
         return newSubscribers
       })
-      console.log("4 대성당 서브스크라이브 업데이트완료")
+      console.log("5️⃣ [tracking] 전체 서브스크라이브 업데이트 완료..")
       
       // 배치 
       setPublisher((prevPublisher) => screenSharingPublisher)
@@ -494,6 +497,7 @@ function Room() {
       setIsScreenSharing((prevScreenSharing) => true)
 
     } catch (error) {
+
     }
   }, [session])
 
@@ -504,11 +508,11 @@ function Room() {
     } else {
       // 카메라 모드일 때, 화면 공유로 전환
       if(session.streamManagers.length>0){
-        console.log("대성당 바로바로바로바로")
+        console.log("#️⃣ [tracking] 끼래기", session.streamManagers.length)
         startScreenSharing(originPublish)
       }else{
-        console.log("대성당 한번안되서다시세팅해줌다시다시")
-        setSession(originPublish.session)
+        console.log("#️⃣ [tracking] 끼래기", 0)
+        setSession(()=>(originPublish.session))
         setIsRetry(true)
       }
     }
@@ -517,29 +521,17 @@ function Room() {
 
   useEffect(()=>{
     if(isRetry){
-      console.log("대성당 재시도재시도리트라이 티르타링")
+      console.log("#️⃣ [tracking] 끼래기가 짧아서 재시도 한다.")
       toggleSharingMode(publisher)
       setIsRetry(false)
     }
   },[isRetry])
 
   useEffect(() => {
-    // 세션이 있으면 그 세션에 publish해라 
-    if (sessionInfo) {
-      if (sessionInfo.isDirect) {
-        // console.log("게스트", sessionInfo)
-      }
-    } else {
-      // console.log("방장")
-    }
-    // console.log("세션있으면 퍼블리시 하기, 세션 객체의 connect 메소드를 찾아보자.", session)
     if (session) {
       // 토큰받아오기
       getToken().then(async (response) => {
-        // console.log("after getToken 001", response)
         try {
-          // console.log("after getToken 002 ", response)
-          // console.log("after getToken 003", response.data)
           await session.connect(response.data)
 
           // stream만들기 initPublisherAsync() 메소드는 스트림 생성 및 전송 담당를 초기화
@@ -576,28 +568,17 @@ function Room() {
   const [isLeaved, setIsLeaved] = useState(false)
 
   const leaveSession = useCallback(() => {
-    // TODO 방 떠났다는 요청 서버에 보내기
     const leaveSessionMutationCall = () => {
-      // console.log("방나가기..... ", session)
-      // console.log("방나가기.....방장인가?", sessionInfo.isDirect)
       if (sessionInfo.isDirect) {
-        // console.log("방나가기.....방장아님1 ", openViduSession) //있음
-        // console.log("방나가기.....방장아님2 ", mySessionId)     //있음
-        // console.log("방나가기.....방장아님3 ", session)
         leaveSessionMutation.mutate(openViduSession)
       } else {
-        // console.log("방나가기.....방장임1 ", openViduSession)
-        // console.log("방나가기.....방장임2 ", mySessionId)
-        // console.log("방나가기.....방장임3 ", session.options.sessionId) //있음
         leaveSessionMutation.mutate(session.options.sessionId)
       }
     }
-
     // Leave the session
     if (session) {
       leaveSessionMutationCall()
     }
-
   }, [session])
 
   useEffect(() => {
@@ -645,9 +626,6 @@ function Room() {
   }, [leaveSession])
 
   const getToken = useCallback(async () => {
-    // console.log("########### getToken")
-    // console.log("########### sessionInfo.mySessionId", sessionInfo.mySessionId)
-    // console.log("########### sessionInfo.isDirect", sessionInfo.isDirect)
     if (sessionInfo.isDirect) {
       return createToken(sessionInfo.mySessionId)
     } else {
@@ -658,43 +636,26 @@ function Room() {
   }, [data])
 
   const createSession = async (data) => {
-
-    // const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko', data, {
-    //   headers: { ACCESS_KEY: getCookie('token') },
-    // })
-
     // apiConfig 내 토큰 인스턴스 사용
     const response = await jwtInstance.post(APPLICATION_SERVER_URL + '/mogakko', data);
-
-    console.debug("[room] sessionId (in createSession Fn) :", response.data.data.sessionId)
     setMySessionId(response.data.data.sessionId);
     setOpenViduSession(response.data.data.sessionId);
     return response.data.data.sessionId // The sessionId
   }
 
   const createToken = async (sessionId) => {
-    console.debug("[room] sessionId (in createToken Fn) :", sessionId)
     if (sessionInfo) {
       if (sessionInfo.isDirect) {
-        console.debug("[room] sessionInfo (in createToken Fn) :", sessionInfo)
         setMySessionId(sessionId) // 참가자
         setOpenViduSession(sessionId) // 참가자
       }
     } else {
       setMySessionId(sessionId) // 방장
     }
-
-    // const response = await axios.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {}, {
-    //   headers: {
-    //     ACCESS_KEY: getCookie('token'),
-    //   },
-    // })
-
     // apiConfig 내 토큰 인스턴스 사용
     const response = await jwtInstance.post(APPLICATION_SERVER_URL + '/mogakko/' + sessionId, {})
     return response.data // The token
   };
-
 
   ///////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////
@@ -733,17 +694,15 @@ function Room() {
 
       // 검증이 돼서 Room을 열어주는 서버랑 연결이 되면
       onConnect: (response) => {
-        // console.log("실시간 채팅 커넥트 성공 ::::", response)
-        // console.log("Connected to the broker. Initiate subscribing.")
         isConnected.current = true
         subscribe(params)
         publish(params)
       },
 
       onStompError: (frame) => {
-        // console.log(frame)
-        // console.log("Broker reported error: " + frame.headers["message"])
-        // console.log("Additional details: " + frame.body)
+        console.log("🆖 [tracking] 실시간 채팅 스톰프1", frame)
+        console.log("🆖 [tracking] 실시간 채팅 스톰프2 " + frame.headers["message"])
+        console.log("🆖 [tracking] 실시간 채팅 스톰프3 " + frame.body)
       },
       onWebSocketError: (frame) => {
         // console.log(frame)
@@ -757,15 +716,10 @@ function Room() {
 
 
   const subscribe = (params) => {
-    // console.log("(매개) 실시간 채팅 subscribe 시도 ::::", params)
-    // console.log("(전역) 실시간 채팅 subscribe 시도 ::::", openViduSession)
-    // console.log("(전역) 실시간 채팅 subscribe 시도 ::::", mySessionId)
-    // console.log("url", `/sub/chat/room/${params}`)
     if (params) {
       stompClient.current.subscribe(
         `/sub/chat/room/${params}`,
         (data) => {
-          // console.log(" 구독됨", JSON.parse(data.body))
           const response = JSON.parse(data.body)
           if (response.type === 'TALK') {
             chatMessages.push(response)
@@ -784,8 +738,6 @@ function Room() {
     if (!stompClient.current.connected) {
       return
     }
-    // console.log("publish 시작")
-    // console.log('sessionID>>>>>>>>>', openViduSession)
     await stompClient.current.publish({
       destination: "/pub/chat/room",
       body: JSON.stringify({
@@ -796,18 +748,11 @@ function Room() {
       }),
       headers: { ACCESS_KEY: `${getCookie('token')}` },
     });
-    // console.log(getCookie('token'))
-    // console.log("publish 끝")
     setIsLoading(false)
-  };
+  }
 
   const textPublish = (params) => {
-    // console.log("텍스트퍼블리셔, 세션어디서1 >>>>>>>>>>>>>>>>>>>>>>", openViduSession)
-    // console.log("텍스트퍼블리셔, 세션어디서2 >>>>>>>>>>>>>>>>>>>>>>", params)
-    // console.log("텍스트퍼블리셔, 세션어디서3 >>>>>>>>>>>>>>>>>>>>>>", mySessionId)
-    // console.log("textPublish Start")
     if (message !== "") {
-      // console.log("텍스트퍼블리셔, 보낼 메새지", message)
       stompClient.current.publish({
         destination: "/pub/chat/room",
         body: JSON.stringify({
@@ -818,23 +763,9 @@ function Room() {
         }),
         headers: { ACCESS_KEY: `${getCookie('token')}` }
       })
-      // console.log("textPublish End")
       setMessage("")
     }
-  };
-  //connect 시작
-  // useEffect(() => {
-  //   connect()
-  // }, [])
-
-  //TODO 로딩일때 화면만들어서 붙여주기 
-  // if (isLoading) {
-  //   return (
-  //     <div>
-  //       <Loading /> 
-  //     </div>
-  //   );
-  // }
+  }
 
   // 스크롤이 항상 맨 아래로 가게하는 이벤트
   const messagesEndRef = useRef(null);
@@ -1089,7 +1020,7 @@ function Room() {
                     {
                       !codeEditor ? 
                       <UserVideoComponent streamManager={mainStreamManager} isSelf={true}/> :
-                      <CodeEditor code={code} language={LowerLanguage} onChange={handleCodeChange} />
+                      <CodeEditor code={code} language={data.language.toLowerCase()} onChange={handleCodeChange} />
                     }
                   </MainStreamWrap>
                 ) : null}
@@ -1188,7 +1119,6 @@ function Room() {
                   if (message.trim() !== '') {
                     textPublish(openViduSession ? openViduSession : mySessionId)
                   }
-                  // textPublish(openViduSession)
                 }}
                   send={`${process.env.PUBLIC_URL}/image/sendMessage.webp`}
                 ></SendBtn>
@@ -1881,6 +1811,7 @@ export const ChattingWrap = styled.div`
   background-color: var(--bg-li);
   border-radius: 10px;
   height: calc(100vh - 90px - 10px);
+  min-height: 778px;
 `
 
 export const ChattingHeader = styled.p`
@@ -1895,7 +1826,7 @@ export const ChattingHeader = styled.p`
 
 export const ChatContentWrap = styled.div`
     padding: 10px 15px;
-    height: 695px;
+    height: calc(100% - 55px - 76px);
     overflow-y: scroll;
     &::-webkit-scrollbar {
         display: none;

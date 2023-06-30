@@ -12,6 +12,9 @@ const login = async (loginUserInfo) => {
       setCookie("refreshToken", refreshToken)
       setCookie("nickName", response.data.data.nickname)
       setCookie("userProfile", response.data.data.profileImage)
+      if(response.data.data.role === 'ADMIN'){
+        setCookie('admin', 'ADMIN')
+      }
       return Promise.resolve(response)
     }
   } catch (error) {

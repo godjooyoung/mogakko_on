@@ -237,10 +237,7 @@ function Mypage() {
     }
   },[doneMsg])
 
-
-
   useEffect(()=>{
-    console.log('삭제대상 쪽지>>>>>>>>>>>>>>>>>>>>>', deleteTargets)
     if(deleteTargets.length === 0){
       setIsReset(false)
     }
