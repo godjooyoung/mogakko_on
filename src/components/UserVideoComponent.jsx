@@ -97,9 +97,9 @@ export const AbsoluteWrap = styled.div`
     position: absolute;
 `
 export const VideoWrap = styled.div`
-background-color: #626873;
+/* background-color: #626873;
 height: calc(100% - 10px);
-border-radius: 10px;
+border-radius: 10px; */
 `
 
 export const VideoComponentWrap = styled.div`
@@ -191,7 +191,7 @@ export const UserNickName = styled.span`
     font-size: 12px;
     position: absolute;
     left: 0;
-    /* bottom: 4px; */
+    bottom: 4px;
     bottom : 0px;
     background: rgba(0, 0, 0, 0.59);
     border-bottom-left-radius: 10px;
