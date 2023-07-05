@@ -65,7 +65,7 @@ function Header(props) {
 
 
     useEffect(() => {
-        console.log("[INFO] 알람 추가", alarmInfo)
+        // [INFO] 알람 추가
         setIsNewNotification(alarmInfo.length)
     }, [alarmInfo])
 
