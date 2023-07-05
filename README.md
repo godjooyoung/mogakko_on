@@ -21,8 +21,7 @@
 - 1차 릴리즈 : 23.06.17
 - 2차 릴리즈 : 23.06.26
 - 3차 릴리즈 : 23.06.29
-<br>
-<br>
+<br/>
 
 ## 👀 프로젝트 소개
 <div>
@@ -45,10 +44,9 @@
     </tr>
   </table>
 </div>
+<br/>
 
-<br>
-
-<h3>🌱 주요 기능 및 서비스 이미지</h3>
+## 🌱 주요 기능 및 서비스 이미지
 
 <details>
 <summary>화상 채팅 + 음성 채팅 + 일반 채팅 + 화면공유가 가능한 <b>모각코 룸</b></summary>
@@ -57,7 +55,6 @@
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/ca3eb39b-846b-49e0-9654-96c6f52b0fd1' width='800px'>
 </div>
 </details>
-
 <details>
 <summary>간단한 코드를 작성하고 싶다면? 모각코 룸 내에서 <b>코드에디터</b> 제공</summary>
 <br/>
@@ -65,7 +62,6 @@
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/d587bd5c-8a87-4462-a28f-528f308c83dc' width='800px'>
 </div>
 </details>
-
 <details>
 <summary>모각코 룸에서 만났는데 불량유저라면? 신고기능 혹은 헤어지기 아쉽다면, 친구 신청 </summary>
 <br/>
@@ -73,7 +69,6 @@
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/e00d340d-727e-4337-8bf0-7c4220ef95a1' width='800px'>
 </div>
 </details>
-
 <details>
 <summary>내 <b>위치를 기반</b>으로 근처에 있는 개발자들과 모임 가능!</summary>
 <br/>
@@ -81,7 +76,6 @@
 현재 접속 위치 기반 12km내의 생성된 모각코에 참여 가능합니다!
 </div>
 </details>
-
 <details>
 <summary>내가 얼마나 공부했더라? 마이 페이지에서 볼 수 있는 나의 통계 데이터</summary>
 <br/>
@@ -89,7 +83,6 @@
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/186ba5e0-9a4e-4a91-831f-09caafe535d2' width='800px'>
 </div>
 </details>
-
 <details>
 <summary>친구와 <b>쪽지</b>를 주고 받으며 함께 모각코 인연을 이어갈 수 있도록 지원</summary>
 <br/>
@@ -97,7 +90,6 @@
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/1a9279d5-c294-4ff2-a168-f15b5fa666ba' width='800px'/>
 </div>
 </details>
-
 <details>
 <summary>모각코룸에서 만나지 않았던 유저라도 <b>닉네임이나 친구코드로 친구신청</b>을 할 수 있어요!</summary>
 <br/>
@@ -105,110 +97,34 @@
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/c6529fe6-ccc8-4be2-b5bb-639d7c260b72' width='800px'>
 </div>
 </details>
-
 <details>
 <summary>다른 사람은 얼마나 하나? 오늘의 Best 유저 조회 기능</summary>
 <br/>
 최근 일주일 공부시간과 코딩온도(ON°)로 베스트 유저 8인을 보여줘요! 모각코온 베스트유저에 도전하세요.
 <br/>
-  <br/>
+<br/>
 <div align=center>
 <img src='https://github.com/godjooyoung/final_fe/assets/58963027/e0642da8-1578-44a3-8d5f-22a34642c30b' width='800px'>
 </div>
 </details>
-
 <details>
 <summary><b>코딩 온도(ON°)</b> 시스템으로 모각코에 성실히 참여한 사람인지 판단할 수 있도록 지표 제공</summary>
 <br/>
 <div align=left>
 다른 유저의 코딩 온도(ON°)를 확인하여 얼마나 성실히 모각코를 수행한 사람인지 판단할 수 있어요!
 </div>
-
 </details>
-
-
-<br>
-<br>
+<br/>
 
 ## 🖥️ 기술 아키텍쳐
 
 <div align = center>
 <img width="900" alt="architecture" src="https://github.com/hh99-14-Team3/BE_final/assets/102853354/1b33e2cd-d970-4e3c-8822-0299335dad5e">
 </div>
-<br>
-<br>
+<br/>
 
 ## ⚠️ Trouble Shooting
-<h4>BACKEND</h4>
- <ul>
- <li>
- <table width='800px'>
-  <tr>
-    <th colspan="2" align="center" height="50">하나의 인스턴스에 api서버와 openvidu 서버를 동시에 올리면 두 서버간 연결이 안되고, 포트가 충돌하는 문제가 발생함.</th>
-  </tr>
-  <tr>
-<th width="70">원인</th>
-    <td>보안상의 이유로 https로 배포하려고 했는데, openvidu 서버 자체적으로 nginx를 사용하고 있어서 https 포트가 충돌하는 것이 원인이었음.</td>
-  </tr>
-  <tr>
-    <th>시도</th>
-    <td>openvidu와 api서버를 각각의 다른 인스턴스로 올려서 시도해봄.</td>
-  </tr>
-  <tr>
-    <th>해결</th>
-    <td>openvidu와 api서버가 각각 다른 도메인을 갖게 되어서 포트가 겹쳐도 문제가 발생하지 않았음.</td>
-  </tr>
-</table>
-</li>
 
-
- <li>
- <table width='800px'>
-  <tr>
-    <th colspan="2" align="center" height="50">SSE 기능이 구독을 하고 connection pool을 계속 차지하고 있어 panding 이 발생하고 db에 deadLock이 걸리는 문제</th>
-  </tr>
-  <tr>
-<th width="70">원인</th>
-    <td>sseEmitter가 구독을 끊어도 계속 connection pool을 차지하고 있어서 발생하는 문제였음.</td>
-  </tr>
-  <tr>
-    <th>시도</th>
-    <td>db사양이 낮아서 발생하는 문제인가 싶어서 db 사양을 높여봄, 해결되지 않았음. nginx 설정 문제인가 싶어서 이벤트 스트림 설정을 넣어서 sse가 http1.1 버젼을 사용하게끔 설정함. 되는가 싶었지만 시간이 지난 후 같은 문제가 발생함. 이후
-발생한 알림들을 서버 메모리에 저장하는 것이 문제인가 싶어 다른 noSQL을 이용.</td>
-  </tr>
-  <tr>
-    <th>해결</th>
-    <td> sseEmitter가 구독을 끊어도 계속 connection pool을 차지하고 있어서 발생하는 문제라는 것을 발견하고, 요청이 끝나면 영속성 컨텍스트를 닫아버리게 openInView설정을 꺼서 임시적으로 해결함, 하지만, 매번 db에 직접 commit을 해야하는 문제가 생김. 추후 webFlux를 이용해서 sse기능을 사용할 때 스레드가 아닌 이벤트 루프를 사용해서 해결을 시도해 보았지만, 시간적인 이유로 배포 서버에 붙여보지는 못함. </td>
-  </tr>
-</table>
-</li>
-
-
- <li>
- <table width='800px'>
-  <tr>
-    <th colspan="2" align="center" height="50">
-    랜덤 CORS - 클라이언트에서 요청이 서버로 갔을 때 cors가 랜덤으로 발생하는 현상이 나옴, cors가 발생해도 요청이 성공하는 경우도 발생함.
-    </th>
-  </tr>
-  <tr>
-<th width="70">원인</th>
-    <td>nginx 설정에서도 cors설정을 하고, api서버에서도 cors 설정을 해서 이중으로 cors설정을 해버려서 발생한 문제.</td>
-  </tr>
-  <tr>
-    <th>시도</th>
-    <td>처음으로 cors가 발생했을 때 openvidu서버에 연결되는 요청에서만 cors가 발생해서 다른 서버의 리소스를 가져오는 것이 문제인가 싶어서 openvidu가 올라가있는 인스턴스에서 nginx와 openvidu .env 파일 등에서 cors 설정을 해줌, 하지만 아무리 생각해도 클라이언트에서 openvidu 서버로 직접적인 요청을 하지 않는 상황에서 cors가 발생한다는 것이 이해가 되지 않았음. 물론 해결되지 않았고, 더 찾아보다가 nginx와 api 서버간의 cors 설정은 최소화되어야 한다는 것을 알게 되었고, nginx의 cors 설정을 꺼서 해결됨.</td>
-  </tr>
-  <tr>
-    <th>해결</th>
-    <td>nginx의 cors설정과 api서버의 cors설정이 충돌해서 랜덤으로 발생했던 것으로 추정됨. nginx의 cors 설정을 꺼서 해결함.</td>
-  </tr>
-</table>
-</li>
-
-</ul>
-
- <h4>FRONTEND</h4>
  <ul>
  <li>
  <table width='800px'>
@@ -327,54 +243,10 @@
 
 </ul>
 </div>
-
 </details>
 
-
-## 🔎 기술적 도전
-#### BACKEND
-1. Github Actions
-2. Jacoco
-3. Redis Pub/Sub
-4. Spring WebFlux
-5. webRTC - OpenVidu
-
-#### FRONTEND
-1. webRTC - OpenVidu
-2. 실시간 프로토콜 - 웹소캣, SSE
-3. 코드 최적화 - redux-thunk
-4. 웹사이트 최적화 - Lighthouse
-5. 상태 관리 라이브러리 - redux toolkit
 
 ## ⛳ 기술적 의사결정
-<details>
-<summary>BACKEND</summary>
-<div markdown="1">
-  
-- `openVidu`
-    - 이용자들이 온라인에서 원할하게 모각코 모임을 가질 수 있도록 하기 위해 도입.
-    - 화상 채팅과 화면공유를 구현할때 N:M 으로 스트림을 공유하기 위해서 webRTC 보다 라이브러리 사용이 보다 안정적이고 사용성이 좋을것으로 판단해 도입.
-- `redis`
-    - TTL 기능을 이용하여 access token, refresh token 등의 휘발성 데이터들을 효율적으로 저장하기 위해 도입.
-- `redis pub/sub`
-    - 모각코 방 내부에서 이용할 수 있는 기능인 채팅이 저장할 필요가 없는 휘발성 데이터라고 판단, redis를 도입하여 redis Pub/Sub 기능을 사용해서 채팅 구현.
-- `Github Actions`
-    - Jenkins와 github action + EC2 두 가지 선택지 중 GitHub Action이 GitHub 와의 연동이 편하고 빠른 시간 내에 배포할 수 있는 장점이 있으며 GitHub에서 발생하는 이벤트를 처리할 수 있다는 점을 통해 해당 선택지를 도입.
-- `Junit5 / jacoco`
-    - 작성한 코드가 의도한 대로 동작하는지 확인할 수 있다는 장점과, 테스트 코드는 예상되는 입력과 출력을 정의하고, 코드 실행 결과를 확인하여 코드의 정확성을 검증하고, jacoco를 통해서 커버리지가 어느정도인지 확인해가며 코드 변경이나 리팩토링 후에도 기능의 동작이 올바른지 확인하기 위해서 도입.
-- `Swagger`
-    - 프론트앤드 개발자 분들이 모든 엔드포인트를 살펴볼 수 있을 뿐만 아니라 요청을 보내고 응답을 수신하여 작동 중인 엔드포인트를 즉시 테스트할 수 있도록 하기 위해서 도입.
-- `Docker`
-    - 각각의 개발자들의  로컬환경과 동일한 환경을 구축하여, 환경으로 인해서 생기는 변수를  방지할 수 있도록 하고, openvidu를 배포하기 위해서 Docker 도입. 아직 소수의 컨테이너를 사용하기 때문에 kubernetes 혹은 swarm은 도입하지 않음.
-
-  
-</div>
-</details>
-
-<details>
-<summary>FRONTEND</summary>
-<div markdown="1">
-  
 - `monaco-editor`
     - 개발 공부를 하는 서비스 이기 때문에 코드 에디터의 필요성을 느껴서 도입
     - Monaco Edito,를 사용하게된 이유는 CodeMirror, Ace Editor와 같이 다양한 코드 에디터들이 있지만 우리 프로젝트는 많은 언어와 호환이되고 자동완성 기능도 적용이 되는 Monaco Editor를 선택
@@ -402,11 +274,13 @@
 - `vercel`
     - git 커밋을 트리거로 자동으로 빌드되고 배포되기 때문에 AWS S3 보다 배포 과정이 빠르고 용이해서 적용하였음.
     - .env등 환경설정파일을 쉽게 등록하고 관리할 수 있다.
- 
-      
-</div>
-</details>
-<br>
+
+## 🔎 기술적 도전
+1. webRTC - OpenVidu
+2. 실시간 프로토콜 - 웹소캣, SSE
+3. 코드 최적화 - redux-thunk
+4. 웹사이트 최적화 - Lighthouse
+5. 상태 관리 라이브러리 - redux toolkit
 
 ## 👧🏻 유저 피드백 반영 사항
 - [x] 쪽지 기능 강화 (삭제 추가)
@@ -425,13 +299,9 @@
 - [ ] 디자인 라이트모드
 - [ ] 반응형 웹
 
-<br>
-
-
 ## 💻 Tech Stack
-
 **FRONT-END**
-<br>
+<br/>
 <div align=center> 
 <img src="https://img.shields.io/badge/REACT-00D8FF?style=flat-square&logo=REACT&logoColor=white"/>
 <img src="https://img.shields.io/badge/AXIOS-5A29E4?style=flat-square&logo=Axios&logoColor=white"/>
@@ -453,11 +323,10 @@
 <img src="https://img.shields.io/badge/Redux ToolKit-4D148C?style=flat-square&logo=redux&logoColor=white"/>
 <img src="https://img.shields.io/badge/lighthouse-F44B21?style=flat-square&logo=lighthouse&logoColor=white"/>
 </div>
-
-<br>
+<br/>
 
 **BACK-END**
-<br>
+<br/>
 <div align=center> 
 <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"> 
 <img src="https://img.shields.io/badge/SPRING BOOT-6DB33F?style=for-the-badge&logo=SPRING BOOT&logoColor=white">
@@ -487,9 +356,7 @@
 <img src="https://img.shields.io/badge/redis PUB/SUB-DC382D?style=for-the-badge&logo=redis&logoColor=white">
 <img src="https://img.shields.io/badge/apachecassandra-1287B1?style=for-the-badge&logo=apachecassandra&logoColor=white">
 </div>
-<br>
-
-<br>
+<br/>
 
 ##  🎓 프로젝트 멤버
 
