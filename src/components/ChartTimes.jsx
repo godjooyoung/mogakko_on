@@ -103,10 +103,12 @@ function ChartTimes(props) {
     // 데이터 세팅
     useEffect(() => {
         if (props.data) {
-            // console.log("ChartTimes2 :: ", props.data)
+            console.log("정렬1, 서버에서 넘겨준 최초 형태 ", props.data)
     
         const dataObject = props.data
+        console.log("정렬2, Object,entries 태움", Object.entries(props.data))
         const dataArray = Object.entries(dataObject).sort((a, b) => {
+            
             // 주어진 요일 순서대로 정렬하기 위해 숫자로 변환하여 비교
             const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
                 return weekdays.indexOf(a[0]) - weekdays.indexOf(b[0]);
