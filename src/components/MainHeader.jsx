@@ -43,43 +43,43 @@ function MainHeader(props) {
         }
     }
 
-    const completedTitle = useMemo(() => {
-        return `온라인 Coding Mate를 찾아보세요`;
-    }, []);
+    // const completedTitle = useMemo(() => {
+    //     return `온라인 Coding Mate를 찾아보세요`;
+    // }, []);
 
-    const [landingTitle, setLandingTitle] = useState("\u00a0");
-    const [count, setCount] = useState(0);
-    const [isCompleted, setIsCompleted] = useState(false);
+    // const [landingTitle, setLandingTitle] = useState("\u00a0");
+    // const [count, setCount] = useState(0);
+    // const [isCompleted, setIsCompleted] = useState(false);
 
-    useEffect(() => {
-        if (isCompleted) {
-            setCount(completedTitle.length);
-        }
-    }, [isCompleted, completedTitle.length]);
+    // useEffect(() => {
+    //     if (isCompleted) {
+    //         setCount(completedTitle.length);
+    //     }
+    // }, [isCompleted, completedTitle.length]);
 
-    useEffect(() => {
-        if (isCompleted) {
-            return;
-        }
+    // useEffect(() => {
+    //     if (isCompleted) {
+    //         return;
+    //     }
 
-        const typingInterval = setInterval(() => {
-            if (count >= completedTitle.length) {
-                setIsCompleted(true);
-                clearInterval(typingInterval);
-                return;
-            }
+    //     const typingInterval = setInterval(() => {
+    //         if (count >= completedTitle.length) {
+    //             setIsCompleted(true);
+    //             clearInterval(typingInterval);
+    //             return;
+    //         }
 
-            setLandingTitle((prev) => {
-                let result = prev ? prev + completedTitle[count] : completedTitle[0];
-                setCount((prev) => prev + 1);
-                return result;
-            });
-        }, 250);
+    //         setLandingTitle((prev) => {
+    //             let result = prev ? prev + completedTitle[count] : completedTitle[0];
+    //             setCount((prev) => prev + 1);
+    //             return result;
+    //         });
+    //     }, 250);
 
-        return () => {
-            clearInterval(typingInterval);
-        };
-    }, [completedTitle, count, isCompleted]);
+    //     return () => {
+    //         clearInterval(typingInterval);
+    //     };
+    // }, [completedTitle, count, isCompleted]);
 
     //버튼 파동
     const [rippleX, setRippleX] = useState(0);
@@ -99,10 +99,10 @@ function MainHeader(props) {
         <>
             <MainHeaderWrap bg={`${process.env.PUBLIC_URL}/image/mainBg.webp`}>
                 <MainTitleWrap>
-                    <Content isCompleted={isCompleted}>
+                    {/* <Content isCompleted={isCompleted}>
                         <FontSize>{landingTitle}</FontSize>
-                    </Content>
-                    {/* <div>모각코를 위한 서비스 플랫폼</div> */}
+                    </Content> */}
+                    <MogakkoTitle>온라인 Coding Mate를 찾아보세요</MogakkoTitle>
                     <FontSize>모각코 ONː</FontSize>
                 </MainTitleWrap>
                 <MainDescWrap>
@@ -126,6 +126,17 @@ function MainHeader(props) {
 
     );
 }
+
+const MogakkoTitle = styled.div`
+    font-size: 40px;
+    font-family: 'Pretendard';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 50px;
+    line-height: 68px;
+    text-align: center;
+    color: #FFFFFF;
+`
 
 const FontSize = styled.p`
     font-size: 40px;
